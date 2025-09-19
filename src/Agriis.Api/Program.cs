@@ -19,6 +19,7 @@ builder.Services.AddEnderecosModule();
 builder.Services.AddUsuariosModule();
 builder.Services.AddAutenticacaoServices();
 builder.Services.AddCulturasModule();
+builder.Services.AddProdutoresModule();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapperConfiguration();

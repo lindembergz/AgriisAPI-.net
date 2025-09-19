@@ -5,6 +5,7 @@ using Agriis.Enderecos.Dominio.Entidades;
 using Agriis.Usuarios.Dominio.Entidades;
 using Agriis.Autenticacao.Dominio.Entidades;
 using Agriis.Culturas.Dominio.Entidades;
+using Agriis.Produtores.Dominio.Entidades;
 
 namespace Agriis.Api.Contexto;
 
@@ -30,6 +31,10 @@ public class AgriisDbContext : DbContext
     
     // Módulo de Culturas
     public DbSet<Cultura> Culturas { get; set; }
+    
+    // Módulo de Produtores
+    public DbSet<Produtor> Produtores { get; set; }
+    public DbSet<UsuarioProdutor> UsuariosProdutores { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -54,6 +59,7 @@ public class AgriisDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Usuarios.Infraestrutura.Configuracoes.UsuarioConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Enderecos.Infraestrutura.Configuracoes.EstadoConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Culturas.Infraestrutura.Configuracoes.CulturaConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Produtores.Infraestrutura.Configuracoes.ProdutorConfiguration).Assembly);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
