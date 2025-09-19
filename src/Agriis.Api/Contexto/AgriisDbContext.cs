@@ -4,6 +4,7 @@ using Agriis.Compartilhado.Dominio.Entidades;
 using Agriis.Enderecos.Dominio.Entidades;
 using Agriis.Usuarios.Dominio.Entidades;
 using Agriis.Autenticacao.Dominio.Entidades;
+using Agriis.Culturas.Dominio.Entidades;
 
 namespace Agriis.Api.Contexto;
 
@@ -26,6 +27,9 @@ public class AgriisDbContext : DbContext
     
     // Módulo de Autenticação
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    
+    // Módulo de Culturas
+    public DbSet<Cultura> Culturas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -49,6 +53,7 @@ public class AgriisDbContext : DbContext
         // Aplicar configurações dos módulos específicos
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Usuarios.Infraestrutura.Configuracoes.UsuarioConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Enderecos.Infraestrutura.Configuracoes.EstadoConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Culturas.Infraestrutura.Configuracoes.CulturaConfiguration).Assembly);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -1,6 +1,7 @@
 using AutoMapper;
 using Agriis.Enderecos.Aplicacao.Mapeamentos;
 using Agriis.Usuarios.Aplicacao.Mapeamentos;
+using Agriis.Culturas.Aplicacao.Mapeamentos;
 
 namespace Agriis.Api.Configuration;
 
@@ -21,6 +22,7 @@ public static class AutoMapperConfiguration
         {
             cfg.AddProfile<EnderecoMappingProfile>();
             cfg.AddProfile<UsuarioMappingProfile>();
+            cfg.AddProfile<CulturaMappingProfile>();
         });
 
         services.AddSingleton(config);
