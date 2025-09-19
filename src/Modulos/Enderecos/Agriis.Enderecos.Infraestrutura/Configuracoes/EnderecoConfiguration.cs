@@ -56,11 +56,8 @@ public class EnderecoConfiguration : IEntityTypeConfiguration<Endereco>
             .HasPrecision(11, 8)
             .IsRequired(false);
             
-        // Configuração do campo geográfico PostGIS
-        builder.Property(e => e.Localizacao)
-            .HasColumnName("localizacao")
-            .HasColumnType("geometry(Point,4326)")
-            .IsRequired(false);
+        // TODO: Configuração do campo geográfico PostGIS - temporariamente ignorado
+        builder.Ignore(e => e.Localizacao);
         
         // Chaves estrangeiras
         builder.Property(e => e.MunicipioId)
@@ -97,10 +94,10 @@ public class EnderecoConfiguration : IEntityTypeConfiguration<Endereco>
         builder.HasIndex(e => e.EstadoId)
             .HasDatabaseName("IX_enderecos_estado_id");
         
-        // Índice espacial para consultas geográficas
-        builder.HasIndex(e => e.Localizacao)
-            .HasDatabaseName("IX_enderecos_localizacao")
-            .HasMethod("gist");
+        // TODO: Índice espacial para consultas geográficas - temporariamente desabilitado
+        // builder.HasIndex(e => e.Localizacao)
+        //     .HasDatabaseName("IX_enderecos_localizacao")
+        //     .HasMethod("gist");
         
         // Índice composto para verificação de duplicatas
         builder.HasIndex(e => new { e.Cep, e.Logradouro, e.Numero, e.MunicipioId })

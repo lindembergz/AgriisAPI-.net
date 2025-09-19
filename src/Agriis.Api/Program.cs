@@ -10,8 +10,17 @@ builder.Host.UseSerilog((context, configuration) =>
 // Configure Database
 builder.Services.AddDatabaseConfiguration(builder.Configuration, builder.Environment);
 
+// Configure Authentication & Authorization
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthorizationPolicies();
+
 // Configure Modules
 builder.Services.AddEnderecosModule();
+builder.Services.AddUsuariosModule();
+builder.Services.AddAutenticacaoServices();
+
+// Configure AutoMapper
+builder.Services.AddAutoMapperConfiguration();
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -62,6 +71,7 @@ app.UseHttpsRedirection();
 // Use CORS
 app.UseCors();
 
+// Use Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 

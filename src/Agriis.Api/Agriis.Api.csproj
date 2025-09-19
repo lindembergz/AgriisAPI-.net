@@ -60,12 +60,17 @@
     <ProjectReference Include="..\Agriis.Compartilhado\Agriis.Compartilhado.Aplicacao\Agriis.Compartilhado.Aplicacao.csproj" />
     <ProjectReference Include="..\Agriis.Compartilhado\Agriis.Compartilhado.Infraestrutura\Agriis.Compartilhado.Infraestrutura.csproj" />
     <ProjectReference Include="..\Modulos\Autenticacao\Agriis.Autenticacao.Dominio\Agriis.Autenticacao.Dominio.csproj" />
+    <ProjectReference Include="..\Modulos\Autenticacao\Agriis.Autenticacao.Aplicacao\Agriis.Autenticacao.Aplicacao.csproj" />
+    <ProjectReference Include="..\Modulos\Autenticacao\Agriis.Autenticacao.Infraestrutura\Agriis.Autenticacao.Infraestrutura.csproj" />
     <ProjectReference Include="..\Modulos\Produtores\Agriis.Produtores.Dominio\Agriis.Produtores.Dominio.csproj" />
     <ProjectReference Include="..\Modulos\Fornecedores\Agriis.Fornecedores.Dominio\Agriis.Fornecedores.Dominio.csproj" />
     <ProjectReference Include="..\Modulos\Pedidos\Agriis.Pedidos.Dominio\Agriis.Pedidos.Dominio.csproj" />
     <ProjectReference Include="..\Modulos\Enderecos\Agriis.Enderecos.Dominio\Agriis.Enderecos.Dominio.csproj" />
     <ProjectReference Include="..\Modulos\Enderecos\Agriis.Enderecos.Aplicacao\Agriis.Enderecos.Aplicacao.csproj" />
     <ProjectReference Include="..\Modulos\Enderecos\Agriis.Enderecos.Infraestrutura\Agriis.Enderecos.Infraestrutura.csproj" />
+    <ProjectReference Include="..\Modulos\Usuarios\Agriis.Usuarios.Dominio\Agriis.Usuarios.Dominio.csproj" />
+    <ProjectReference Include="..\Modulos\Usuarios\Agriis.Usuarios.Aplicacao\Agriis.Usuarios.Aplicacao.csproj" />
+    <ProjectReference Include="..\Modulos\Usuarios\Agriis.Usuarios.Infraestrutura\Agriis.Usuarios.Infraestrutura.csproj" />
   </ItemGroup>
 
 </Project>

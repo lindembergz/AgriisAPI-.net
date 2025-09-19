@@ -45,11 +45,8 @@ public class MunicipioConfiguration : IEntityTypeConfiguration<Municipio>
             .HasPrecision(11, 8)
             .IsRequired(false);
             
-        // Configuração do campo geográfico PostGIS
-        builder.Property(m => m.Localizacao)
-            .HasColumnName("localizacao")
-            .HasColumnType("geometry(Point,4326)")
-            .IsRequired(false);
+        // TODO: Configuração do campo geográfico PostGIS - temporariamente ignorado
+        builder.Ignore(m => m.Localizacao);
         
         // Chave estrangeira
         builder.Property(m => m.EstadoId)
@@ -80,10 +77,10 @@ public class MunicipioConfiguration : IEntityTypeConfiguration<Municipio>
         builder.HasIndex(m => m.CepPrincipal)
             .HasDatabaseName("IX_municipios_cep_principal");
         
-        // Índice espacial para consultas geográficas
-        builder.HasIndex(m => m.Localizacao)
-            .HasDatabaseName("IX_municipios_localizacao")
-            .HasMethod("gist");
+        // TODO: Índice espacial para consultas geográficas - temporariamente desabilitado
+        // builder.HasIndex(m => m.Localizacao)
+        //     .HasDatabaseName("IX_municipios_localizacao")
+        //     .HasMethod("gist");
         
         // Relacionamentos
         builder.HasOne(m => m.Estado)

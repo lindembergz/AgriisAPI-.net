@@ -18,6 +18,15 @@ public static class ValueObjectConverters
         );
 
     /// <summary>
+    /// Conversor para CPF nullable
+    /// </summary>
+    public static ValueConverter<Cpf?, string?> CpfNullableConverter =>
+        new(
+            v => v != null ? v.Valor : null,
+            v => v != null ? new Cpf(v) : null
+        );
+
+    /// <summary>
     /// Conversor para CNPJ
     /// </summary>
     public static ValueConverter<Cnpj, string> CnpjConverter =>

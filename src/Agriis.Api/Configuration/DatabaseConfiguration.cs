@@ -18,6 +18,9 @@ public static class DatabaseConfiguration
             ConfigureNpgsqlOptions(options, connectionString, environment);
         });
 
+        // Registrar DbContext genérico para repositórios
+        services.AddScoped<DbContext>(provider => provider.GetRequiredService<AgriisDbContext>());
+
         // Registrar Unit of Work
         services.AddScoped<Agriis.Compartilhado.Dominio.Interfaces.IUnitOfWork, 
             Agriis.Compartilhado.Infraestrutura.Persistencia.UnitOfWork<AgriisDbContext>>();

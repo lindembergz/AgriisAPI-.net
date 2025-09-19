@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using Agriis.Compartilhado.Dominio.Entidades;
 using Agriis.Enderecos.Dominio.Entidades;
+using Agriis.Usuarios.Dominio.Entidades;
+using Agriis.Autenticacao.Dominio.Entidades;
 
 namespace Agriis.Api.Contexto;
 
@@ -17,6 +19,13 @@ public class AgriisDbContext : DbContext
     public DbSet<Estado> Estados { get; set; }
     public DbSet<Municipio> Municipios { get; set; }
     public DbSet<Endereco> Enderecos { get; set; }
+    
+    // Módulo de Usuários
+    public DbSet<Usuario> Usuarios { get; set; }
+    public DbSet<UsuarioRole> UsuarioRoles { get; set; }
+    
+    // Módulo de Autenticação
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -30,9 +39,16 @@ public class AgriisDbContext : DbContext
 
         // Configurar auditoria automática
         ConfigurarAuditoria(modelBuilder);
+        
+        // Ignorar objetos de valor como entidades
+        ConfigurarObjetosValor(modelBuilder);
 
         // Aplicar configurações de entidades de todos os módulos
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AgriisDbContext).Assembly);
+        
+        // Aplicar configurações dos módulos específicos
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Usuarios.Infraestrutura.Configuracoes.UsuarioConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Enderecos.Infraestrutura.Configuracoes.EstadoConfiguration).Assembly);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -51,8 +67,8 @@ public class AgriisDbContext : DbContext
                 maxRetryDelay: TimeSpan.FromSeconds(30),
                 errorCodesToAdd: null);
             
-            // Habilitar extensão PostGIS para suporte geográfico
-            options.UseNetTopologySuite();
+            // TODO: Habilitar extensão PostGIS para suporte geográfico quando necessário
+            // options.UseNetTopologySuite();
         });
 
         // Configurações de desenvolvimento
@@ -114,6 +130,14 @@ public class AgriisDbContext : DbContext
                     .HasDatabaseName($"IX_{entityType.GetTableName()}_DataCriacao");
             }
         }
+    }
+
+    private void ConfigurarObjetosValor(ModelBuilder modelBuilder)
+    {
+        // Ignorar objetos de valor para que não sejam tratados como entidades
+        modelBuilder.Ignore<Agriis.Compartilhado.Dominio.ObjetosValor.Cpf>();
+        modelBuilder.Ignore<Agriis.Compartilhado.Dominio.ObjetosValor.Cnpj>();
+        modelBuilder.Ignore<Agriis.Compartilhado.Dominio.ObjetosValor.AreaPlantio>();
     }
 
     private void AplicarAuditoriaAutomatica()

@@ -1,6 +1,5 @@
 using Agriis.Enderecos.Dominio.Interfaces;
 using Agriis.Enderecos.Infraestrutura.Repositorios;
-using Agriis.Enderecos.Aplicacao.Mapeamentos;
 
 namespace Agriis.Api.Configuration;
 
@@ -20,9 +19,6 @@ public static class EnderecosDependencyInjection
         services.AddScoped<IEstadoRepository, EstadoRepository>();
         services.AddScoped<IMunicipioRepository, MunicipioRepository>();
         services.AddScoped<IEnderecoRepository, EnderecoRepository>();
-
-        // AutoMapper profiles
-        services.AddAutoMapper(typeof(EnderecoMappingProfile));
 
         return services;
     }
