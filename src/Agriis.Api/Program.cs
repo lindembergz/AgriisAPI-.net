@@ -21,6 +21,7 @@ builder.Services.AddAutenticacaoServices();
 builder.Services.AddCulturasModule();
 builder.Services.AddProdutoresModule();
 builder.Services.AddPropriedadesModule();
+builder.Services.AddFornecedoresModule();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapperConfiguration();
