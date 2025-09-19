@@ -10,6 +10,9 @@ builder.Host.UseSerilog((context, configuration) =>
 // Configure Database
 builder.Services.AddDatabaseConfiguration(builder.Configuration, builder.Environment);
 
+// Configure Modules
+builder.Services.AddEnderecosModule();
+
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

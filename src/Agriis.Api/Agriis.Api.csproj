@@ -49,7 +49,7 @@
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.301" />
     
     <!-- Utilities -->
-    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -63,6 +63,9 @@
     <ProjectReference Include="..\Modulos\Produtores\Agriis.Produtores.Dominio\Agriis.Produtores.Dominio.csproj" />
     <ProjectReference Include="..\Modulos\Fornecedores\Agriis.Fornecedores.Dominio\Agriis.Fornecedores.Dominio.csproj" />
     <ProjectReference Include="..\Modulos\Pedidos\Agriis.Pedidos.Dominio\Agriis.Pedidos.Dominio.csproj" />
+    <ProjectReference Include="..\Modulos\Enderecos\Agriis.Enderecos.Dominio\Agriis.Enderecos.Dominio.csproj" />
+    <ProjectReference Include="..\Modulos\Enderecos\Agriis.Enderecos.Aplicacao\Agriis.Enderecos.Aplicacao.csproj" />
+    <ProjectReference Include="..\Modulos\Enderecos\Agriis.Enderecos.Infraestrutura\Agriis.Enderecos.Infraestrutura.csproj" />
   </ItemGroup>
 
 </Project>

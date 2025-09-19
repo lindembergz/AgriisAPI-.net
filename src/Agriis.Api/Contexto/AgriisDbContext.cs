@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using Agriis.Compartilhado.Dominio.Entidades;
+using Agriis.Enderecos.Dominio.Entidades;
 
 namespace Agriis.Api.Contexto;
 
@@ -10,8 +11,12 @@ public class AgriisDbContext : DbContext
     {
     }
 
-    // DbSets serão adicionados conforme os módulos forem implementados
-    // Exemplo: public DbSet<Produtor> Produtores { get; set; }
+    // DbSets dos módulos implementados
+    
+    // Módulo de Endereços
+    public DbSet<Estado> Estados { get; set; }
+    public DbSet<Municipio> Municipios { get; set; }
+    public DbSet<Endereco> Enderecos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,6 +50,9 @@ public class AgriisDbContext : DbContext
                 maxRetryCount: 3,
                 maxRetryDelay: TimeSpan.FromSeconds(30),
                 errorCodesToAdd: null);
+            
+            // Habilitar extensão PostGIS para suporte geográfico
+            options.UseNetTopologySuite();
         });
 
         // Configurações de desenvolvimento
