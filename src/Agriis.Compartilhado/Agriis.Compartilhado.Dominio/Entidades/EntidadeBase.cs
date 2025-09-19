@@ -35,6 +35,11 @@ public abstract class EntidadeBase
     {
         DataAtualizacao = DateTime.UtcNow;
     }
+
+    public void SetDataCriacao(DateTime dataCriacao)
+    {
+        DataCriacao = dataCriacao;
+    }
     
     /// <summary>
     /// Verifica se a entidade é transitória (não foi persistida ainda)

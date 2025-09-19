@@ -1,10 +1,14 @@
 using Serilog;
+using Agriis.Api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
+
+// Configure Database
+builder.Services.AddDatabaseConfiguration(builder.Configuration, builder.Environment);
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -32,7 +36,7 @@ builder.Services.AddCors(options =>
 });
 
 // Add Health Checks
-builder.Services.AddHealthChecks();
+builder.Services.AddDatabaseHealthChecks(builder.Configuration);
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -77,6 +81,11 @@ app.MapGet("/", () => new
 try
 {
     Log.Information("Starting Agriis API");
+    
+    // Apply database migrations and seed data
+    await app.ApplyDatabaseMigrationsAsync();
+    await app.SeedDatabaseAsync();
+    
     app.Run();
 }
 catch (Exception ex)

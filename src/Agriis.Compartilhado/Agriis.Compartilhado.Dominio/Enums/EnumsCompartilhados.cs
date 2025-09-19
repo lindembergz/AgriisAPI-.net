@@ -5,15 +5,15 @@ namespace Agriis.Compartilhado.Dominio.Enums;
 /// </summary>
 public enum TipoUnidade
 {
-    Quilo = 1,
-    Tonelada = 2,
-    Litro = 3,
-    Dose = 4,
-    Frasco = 5,
-    Sementes = 6,
-    Ovos = 7,
-    Parasitoide = 8,
-    Hectare = 9
+    Quilo = 0,
+    Tonelada = 1,
+    Litro = 2,
+    Dose = 3,
+    Frasco = 4,
+    Sementes = 5,
+    Ovos = 6,
+    Parasitoide = 7,
+    Hectare = 8
 }
 
 /// <summary>
@@ -21,8 +21,8 @@ public enum TipoUnidade
 /// </summary>
 public enum Moeda
 {
-    Real = 1,
-    Dolar = 2
+    Real = 0,
+    Dolar = 1
 }
 
 /// <summary>
