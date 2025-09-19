@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ASP.NET Core -->
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    
+    <!-- Entity Framework Core -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="9.0.0" />
+    
+    <!-- Authentication & Authorization -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
+    
+    <!-- Logging -->
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.PostgreSQL" Version="2.3.0" />
+    
+    <!-- Validation -->
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    
+    <!-- SignalR -->
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
+    
+    <!-- Background Jobs -->
+    <PackageReference Include="Hangfire.Core" Version="1.8.17" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.20.11" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.17" />
+    
+    <!-- Health Checks -->
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.Npgsql" Version="8.0.2" />
+    
+    <!-- AWS SDK -->
+    <PackageReference Include="AWSSDK.S3" Version="3.7.412.3" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.301" />
+    
+    <!-- Utilities -->
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Agriis.Compartilhado\Agriis.Compartilhado.Dominio\Agriis.Compartilhado.Dominio.csproj" />
+    <ProjectReference Include="..\Agriis.Compartilhado\Agriis.Compartilhado.Aplicacao\Agriis.Compartilhado.Aplicacao.csproj" />
+    <ProjectReference Include="..\Agriis.Compartilhado\Agriis.Compartilhado.Infraestrutura\Agriis.Compartilhado.Infraestrutura.csproj" />
+    <ProjectReference Include="..\Modulos\Autenticacao\Agriis.Autenticacao.Dominio\Agriis.Autenticacao.Dominio.csproj" />
+    <ProjectReference Include="..\Modulos\Produtores\Agriis.Produtores.Dominio\Agriis.Produtores.Dominio.csproj" />
+    <ProjectReference Include="..\Modulos\Fornecedores\Agriis.Fornecedores.Dominio\Agriis.Fornecedores.Dominio.csproj" />
+    <ProjectReference Include="..\Modulos\Pedidos\Agriis.Pedidos.Dominio\Agriis.Pedidos.Dominio.csproj" />
+  </ItemGroup>
+
+</Project>
