@@ -6,6 +6,7 @@ using Agriis.Usuarios.Dominio.Entidades;
 using Agriis.Autenticacao.Dominio.Entidades;
 using Agriis.Culturas.Dominio.Entidades;
 using Agriis.Produtores.Dominio.Entidades;
+using Agriis.Propriedades.Dominio.Entidades;
 
 namespace Agriis.Api.Contexto;
 
@@ -35,6 +36,11 @@ public class AgriisDbContext : DbContext
     // Módulo de Produtores
     public DbSet<Produtor> Produtores { get; set; }
     public DbSet<UsuarioProdutor> UsuariosProdutores { get; set; }
+    
+    // Módulo de Propriedades
+    public DbSet<Propriedade> Propriedades { get; set; }
+    public DbSet<Talhao> Talhoes { get; set; }
+    public DbSet<PropriedadeCultura> PropriedadeCulturas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -60,6 +66,7 @@ public class AgriisDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Enderecos.Infraestrutura.Configuracoes.EstadoConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Culturas.Infraestrutura.Configuracoes.CulturaConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Produtores.Infraestrutura.Configuracoes.ProdutorConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Propriedades.Infraestrutura.Configuracoes.PropriedadeConfiguration).Assembly);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -78,8 +85,8 @@ public class AgriisDbContext : DbContext
                 maxRetryDelay: TimeSpan.FromSeconds(30),
                 errorCodesToAdd: null);
             
-            // TODO: Habilitar extensão PostGIS para suporte geográfico quando necessário
-            // options.UseNetTopologySuite();
+            // Habilitar extensão PostGIS para suporte geográfico
+            options.UseNetTopologySuite();
         });
 
         // Configurações de desenvolvimento

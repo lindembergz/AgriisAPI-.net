@@ -76,6 +76,9 @@
     <ProjectReference Include="..\Modulos\Culturas\Agriis.Culturas.Dominio\Agriis.Culturas.Dominio.csproj" />
     <ProjectReference Include="..\Modulos\Culturas\Agriis.Culturas.Aplicacao\Agriis.Culturas.Aplicacao.csproj" />
     <ProjectReference Include="..\Modulos\Culturas\Agriis.Culturas.Infraestrutura\Agriis.Culturas.Infraestrutura.csproj" />
+    <ProjectReference Include="..\Modulos\Propriedades\Agriis.Propriedades.Dominio\Agriis.Propriedades.Dominio.csproj" />
+    <ProjectReference Include="..\Modulos\Propriedades\Agriis.Propriedades.Aplicacao\Agriis.Propriedades.Aplicacao.csproj" />
+    <ProjectReference Include="..\Modulos\Propriedades\Agriis.Propriedades.Infraestrutura\Agriis.Propriedades.Infraestrutura.csproj" />
   </ItemGroup>
 
 </Project>
