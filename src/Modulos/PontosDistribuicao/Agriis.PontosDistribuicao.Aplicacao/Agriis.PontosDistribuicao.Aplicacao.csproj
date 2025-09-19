@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Agriis.Compartilhado\Agriis.Compartilhado.Aplicacao\Agriis.Compartilhado.Aplicacao.csproj" />
+    <ProjectReference Include="..\Agriis.PontosDistribuicao.Dominio\Agriis.PontosDistribuicao.Dominio.csproj" />
+    <ProjectReference Include="..\..\Enderecos\Agriis.Enderecos.Dominio\Agriis.Enderecos.Dominio.csproj" />
+    <ProjectReference Include="..\..\Enderecos\Agriis.Enderecos.Aplicacao\Agriis.Enderecos.Aplicacao.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="FluentValidation" Version="11.10.0" />
+  </ItemGroup>
+
+</Project>

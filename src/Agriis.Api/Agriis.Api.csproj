@@ -81,6 +81,9 @@
     <ProjectReference Include="..\Modulos\Propriedades\Agriis.Propriedades.Dominio\Agriis.Propriedades.Dominio.csproj" />
     <ProjectReference Include="..\Modulos\Propriedades\Agriis.Propriedades.Aplicacao\Agriis.Propriedades.Aplicacao.csproj" />
     <ProjectReference Include="..\Modulos\Propriedades\Agriis.Propriedades.Infraestrutura\Agriis.Propriedades.Infraestrutura.csproj" />
+    <ProjectReference Include="..\Modulos\PontosDistribuicao\Agriis.PontosDistribuicao.Dominio\Agriis.PontosDistribuicao.Dominio.csproj" />
+    <ProjectReference Include="..\Modulos\PontosDistribuicao\Agriis.PontosDistribuicao.Aplicacao\Agriis.PontosDistribuicao.Aplicacao.csproj" />
+    <ProjectReference Include="..\Modulos\PontosDistribuicao\Agriis.PontosDistribuicao.Infraestrutura\Agriis.PontosDistribuicao.Infraestrutura.csproj" />
   </ItemGroup>
 
 </Project>

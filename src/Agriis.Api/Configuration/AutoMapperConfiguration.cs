@@ -5,6 +5,7 @@ using Agriis.Culturas.Aplicacao.Mapeamentos;
 using Agriis.Produtores.Aplicacao.Mapeamentos;
 using Agriis.Propriedades.Aplicacao.Mapeamentos;
 using Agriis.Fornecedores.Aplicacao.Mapeamentos;
+using Agriis.PontosDistribuicao.Aplicacao.Mapeamentos;
 
 namespace Agriis.Api.Configuration;
 
@@ -29,6 +30,7 @@ public static class AutoMapperConfiguration
             cfg.AddProfile<ProdutorMappingProfile>();
             cfg.AddProfile<PropriedadeMappingProfile>();
             cfg.AddProfile<FornecedorMappingProfile>();
+            cfg.AddProfile<PontoDistribuicaoMappingProfile>();
         });
 
         services.AddSingleton(config);
