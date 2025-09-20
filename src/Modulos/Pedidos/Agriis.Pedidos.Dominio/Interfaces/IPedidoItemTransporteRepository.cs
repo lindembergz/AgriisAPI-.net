@@ -43,4 +43,11 @@ public interface IPedidoItemTransporteRepository : IRepository<PedidoItemTranspo
     /// <param name="valorMaximo">Valor máximo do frete</param>
     /// <returns>Lista de transportes na faixa de valor</returns>
     Task<IEnumerable<PedidoItemTransporte>> ObterPorFaixaValorFreteAsync(decimal valorMinimo, decimal valorMaximo);
+    
+    /// <summary>
+    /// Obtém todos os transportes de um pedido
+    /// </summary>
+    /// <param name="pedidoId">ID do pedido</param>
+    /// <returns>Lista de transportes do pedido</returns>
+    Task<IEnumerable<PedidoItemTransporte>> ObterPorPedidoIdAsync(int pedidoId);
 }

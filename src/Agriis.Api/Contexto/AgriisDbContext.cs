@@ -12,6 +12,7 @@ using Agriis.PontosDistribuicao.Dominio.Entidades;
 using Agriis.Safras.Dominio.Entidades;
 using Agriis.Catalogos.Dominio.Entidades;
 using Agriis.Pagamentos.Dominio.Entidades;
+using Agriis.Pedidos.Dominio.Entidades;
 
 namespace Agriis.Api.Contexto;
 
@@ -65,6 +66,12 @@ public class AgriisDbContext : DbContext
     // Módulo de Pagamentos
     public DbSet<FormaPagamento> FormasPagamento { get; set; }
     public DbSet<CulturaFormaPagamento> CulturaFormasPagamento { get; set; }
+    
+    // Módulo de Pedidos
+    public DbSet<Pedido> Pedidos { get; set; }
+    public DbSet<PedidoItem> PedidoItens { get; set; }
+    public DbSet<PedidoItemTransporte> PedidoItensTransporte { get; set; }
+    public DbSet<Proposta> Propostas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -96,6 +103,7 @@ public class AgriisDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Safras.Infraestrutura.Configuracoes.SafraConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Catalogos.Infraestrutura.Configuracoes.CatalogoConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Pagamentos.Infraestrutura.Configuracoes.FormaPagamentoConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Pedidos.Infraestrutura.Configuracoes.PedidoConfiguration).Assembly);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

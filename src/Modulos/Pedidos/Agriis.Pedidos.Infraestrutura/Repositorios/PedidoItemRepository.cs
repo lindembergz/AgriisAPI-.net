@@ -34,6 +34,7 @@ public class PedidoItemRepository : RepositoryBase<PedidoItem, DbContext>, IPedi
     {
         return await DbSet
             .Include(pi => pi.ItensTransporte)
+            .Include(pi => pi.Produto)
             .FirstOrDefaultAsync(pi => pi.Id == itemId);
     }
 

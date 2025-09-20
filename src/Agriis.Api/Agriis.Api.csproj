@@ -69,6 +69,8 @@
     <ProjectReference Include="..\Modulos\Fornecedores\Agriis.Fornecedores.Aplicacao\Agriis.Fornecedores.Aplicacao.csproj" />
     <ProjectReference Include="..\Modulos\Fornecedores\Agriis.Fornecedores.Infraestrutura\Agriis.Fornecedores.Infraestrutura.csproj" />
     <ProjectReference Include="..\Modulos\Pedidos\Agriis.Pedidos.Dominio\Agriis.Pedidos.Dominio.csproj" />
+    <ProjectReference Include="..\Modulos\Pedidos\Agriis.Pedidos.Aplicacao\Agriis.Pedidos.Aplicacao.csproj" />
+    <ProjectReference Include="..\Modulos\Pedidos\Agriis.Pedidos.Infraestrutura\Agriis.Pedidos.Infraestrutura.csproj" />
     <ProjectReference Include="..\Modulos\Enderecos\Agriis.Enderecos.Dominio\Agriis.Enderecos.Dominio.csproj" />
     <ProjectReference Include="..\Modulos\Enderecos\Agriis.Enderecos.Aplicacao\Agriis.Enderecos.Aplicacao.csproj" />
     <ProjectReference Include="..\Modulos\Enderecos\Agriis.Enderecos.Infraestrutura\Agriis.Enderecos.Infraestrutura.csproj" />

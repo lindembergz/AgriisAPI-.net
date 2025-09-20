@@ -76,6 +76,14 @@ public class PedidoRepository : RepositoryBase<Pedido, DbContext>, IPedidoReposi
             .FirstOrDefaultAsync(p => p.Id == pedidoId);
     }
 
+    public async Task<Pedido?> ObterComItensETransportesAsync(int pedidoId)
+    {
+        return await DbSet
+            .Include(p => p.Itens)
+                .ThenInclude(i => i.ItensTransporte)
+            .FirstOrDefaultAsync(p => p.Id == pedidoId);
+    }
+
     public async Task<IEnumerable<Pedido>> ObterPorPeriodoAsync(DateTime dataInicio, DateTime dataFim)
     {
         return await DbSet

@@ -8,6 +8,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Agriis.Compartilhado\Agriis.Compartilhado.Dominio\Agriis.Compartilhado.Dominio.csproj" />
+    <ProjectReference Include="..\..\Segmentacoes\Agriis.Segmentacoes.Dominio\Agriis.Segmentacoes.Dominio.csproj" />
+    <ProjectReference Include="..\..\Produtos\Agriis.Produtos.Aplicacao\Agriis.Produtos.Aplicacao.csproj" />
+    <ProjectReference Include="..\..\Produtores\Agriis.Produtores.Aplicacao\Agriis.Produtores.Aplicacao.csproj" />
+    <ProjectReference Include="..\..\Catalogos\Agriis.Catalogos.Aplicacao\Agriis.Catalogos.Aplicacao.csproj" />
   </ItemGroup>
 
 </Project>

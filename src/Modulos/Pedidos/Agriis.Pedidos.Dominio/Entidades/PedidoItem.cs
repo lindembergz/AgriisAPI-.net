@@ -64,9 +64,19 @@ public class PedidoItem : EntidadeBase
     public virtual Pedido Pedido { get; private set; } = null!;
     
     /// <summary>
+    /// Referência de navegação para o produto
+    /// </summary>
+    public virtual Produtos.Dominio.Entidades.Produto? Produto { get; private set; }
+    
+    /// <summary>
     /// Coleção de itens de transporte relacionados
     /// </summary>
     public virtual ICollection<PedidoItemTransporte> ItensTransporte { get; private set; } = new List<PedidoItemTransporte>();
+    
+    /// <summary>
+    /// Alias para ItensTransporte para compatibilidade com serviços de domínio
+    /// </summary>
+    public virtual ICollection<PedidoItemTransporte> Transportes => ItensTransporte;
     
     /// <summary>
     /// Construtor protegido para uso do Entity Framework

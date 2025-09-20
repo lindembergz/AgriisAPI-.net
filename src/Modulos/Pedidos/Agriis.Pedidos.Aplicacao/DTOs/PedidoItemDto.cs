@@ -47,3 +47,22 @@ public class AtualizarPedidoItemDto
     public string? Observacoes { get; set; }
     public JsonDocument? DadosAdicionais { get; set; }
 }
+
+/// <summary>
+/// DTO para adicionar item ao carrinho
+/// </summary>
+public class AdicionarItemCarrinhoDto
+{
+    public int ProdutoId { get; set; }
+    public decimal Quantidade { get; set; }
+    public int CatalogoId { get; set; }
+    public string? Observacoes { get; set; }
+}
+
+/// <summary>
+/// DTO para atualizar quantidade de item no carrinho
+/// </summary>
+public class AtualizarQuantidadeItemDto
+{
+    public decimal Quantidade { get; set; }
+}

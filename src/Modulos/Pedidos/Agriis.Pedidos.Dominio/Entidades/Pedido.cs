@@ -60,6 +60,11 @@ public class Pedido : EntidadeRaizAgregada
     public virtual ICollection<PedidoItem> Itens { get; private set; } = new List<PedidoItem>();
     
     /// <summary>
+    /// Coleção de propostas do pedido
+    /// </summary>
+    public virtual ICollection<Proposta> Propostas { get; private set; } = new List<Proposta>();
+    
+    /// <summary>
     /// Construtor protegido para uso do Entity Framework
     /// </summary>
     protected Pedido() { }
@@ -168,6 +173,16 @@ public class Pedido : EntidadeRaizAgregada
     }
     
     /// <summary>
+    /// Atualiza o status do pedido
+    /// </summary>
+    /// <param name="novoStatus">Novo status</param>
+    public void AtualizarStatus(StatusPedido novoStatus)
+    {
+        Status = novoStatus;
+        AtualizarDataModificacao();
+    }
+    
+    /// <summary>
     /// Atualiza os totais do pedido
     /// </summary>
     /// <param name="totais">Dados dos totais em formato JSON</param>
@@ -184,6 +199,19 @@ public class Pedido : EntidadeRaizAgregada
     public bool EstaDentroPrazoLimite()
     {
         return DateTime.UtcNow <= DataLimiteInteracao;
+    }
+    
+    /// <summary>
+    /// Atualiza a data limite de interação
+    /// </summary>
+    /// <param name="novosDias">Número de dias a partir de agora</param>
+    public void AtualizarPrazoLimite(int novosDias)
+    {
+        if (novosDias <= 0)
+            throw new ArgumentException("Dias deve ser maior que zero", nameof(novosDias));
+            
+        DataLimiteInteracao = DateTime.UtcNow.AddDays(novosDias);
+        AtualizarDataModificacao();
     }
     
     /// <summary>

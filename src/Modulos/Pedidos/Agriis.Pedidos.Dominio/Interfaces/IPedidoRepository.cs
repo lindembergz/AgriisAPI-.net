@@ -59,6 +59,13 @@ public interface IPedidoRepository : IRepository<Pedido>
     Task<Pedido?> ObterComItensAsync(int pedidoId);
     
     /// <summary>
+    /// Obtém um pedido com todos os seus itens e transportes
+    /// </summary>
+    /// <param name="pedidoId">ID do pedido</param>
+    /// <returns>Pedido completo com itens e transportes</returns>
+    Task<Pedido?> ObterComItensETransportesAsync(int pedidoId);
+    
+    /// <summary>
     /// Obtém pedidos por período
     /// </summary>
     /// <param name="dataInicio">Data de início</param>

@@ -90,4 +90,42 @@ public interface IPedidoService
     /// </summary>
     /// <returns>Quantidade de pedidos cancelados</returns>
     Task<int> CancelarPedidosComPrazoUltrapassadoAsync();
+    
+    /// <summary>
+    /// Adiciona um item ao carrinho de compras
+    /// </summary>
+    /// <param name="pedidoId">ID do pedido</param>
+    /// <param name="dto">Dados do item</param>
+    /// <param name="catalogoId">ID do catálogo para consulta de preços</param>
+    /// <returns>Item adicionado</returns>
+    Task<PedidoItemDto> AdicionarItemCarrinhoAsync(int pedidoId, CriarPedidoItemDto dto, int catalogoId);
+    
+    /// <summary>
+    /// Remove um item do carrinho de compras
+    /// </summary>
+    /// <param name="pedidoId">ID do pedido</param>
+    /// <param name="itemId">ID do item</param>
+    Task RemoverItemCarrinhoAsync(int pedidoId, int itemId);
+    
+    /// <summary>
+    /// Atualiza a quantidade de um item no carrinho
+    /// </summary>
+    /// <param name="pedidoId">ID do pedido</param>
+    /// <param name="itemId">ID do item</param>
+    /// <param name="novaQuantidade">Nova quantidade</param>
+    Task<PedidoItemDto> AtualizarQuantidadeItemAsync(int pedidoId, int itemId, decimal novaQuantidade);
+    
+    /// <summary>
+    /// Recalcula todos os totais do pedido
+    /// </summary>
+    /// <param name="pedidoId">ID do pedido</param>
+    /// <returns>Pedido com totais atualizados</returns>
+    Task<PedidoDto> RecalcularTotaisAsync(int pedidoId);
+    
+    /// <summary>
+    /// Atualiza o prazo limite de interação do pedido
+    /// </summary>
+    /// <param name="pedidoId">ID do pedido</param>
+    /// <param name="novosDias">Novos dias a partir de agora</param>
+    Task<PedidoDto> AtualizarPrazoLimiteAsync(int pedidoId, int novosDias);
 }

@@ -56,4 +56,14 @@ public class PedidoItemTransporteRepository : RepositoryBase<PedidoItemTransport
             .OrderByDescending(pit => pit.ValorFrete)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<PedidoItemTransporte>> ObterPorPedidoIdAsync(int pedidoId)
+    {
+        return await DbSet
+            .Include(pit => pit.PedidoItem)
+            .Where(pit => pit.PedidoItem.PedidoId == pedidoId)
+            .OrderBy(pit => pit.DataAgendamento ?? DateTime.MaxValue)
+            .ThenBy(pit => pit.DataCriacao)
+            .ToListAsync();
+    }
 }
