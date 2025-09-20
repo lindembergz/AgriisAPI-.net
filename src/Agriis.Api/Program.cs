@@ -46,6 +46,9 @@ builder.Services.AddCorsConfiguration(builder.Configuration, builder.Environment
 // Configure Health Checks
 builder.Services.AddHealthChecksConfiguration(builder.Configuration);
 
+// Configure External Integrations
+builder.Services.AddExternalIntegrations(builder.Configuration);
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -101,6 +104,9 @@ app.MapControllers();
 
 // Configure Health Checks
 app.UseHealthChecksConfiguration();
+
+// Configure External Integrations
+app.ConfigureExternalIntegrations();
 
 // Basic API info endpoint
 app.MapGet("/", () => new
