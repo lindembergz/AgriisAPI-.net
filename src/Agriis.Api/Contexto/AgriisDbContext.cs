@@ -9,6 +9,7 @@ using Agriis.Produtores.Dominio.Entidades;
 using Agriis.Propriedades.Dominio.Entidades;
 using Agriis.Fornecedores.Dominio.Entidades;
 using Agriis.PontosDistribuicao.Dominio.Entidades;
+using Agriis.Safras.Dominio.Entidades;
 
 namespace Agriis.Api.Contexto;
 
@@ -51,6 +52,9 @@ public class AgriisDbContext : DbContext
     
     // Módulo de Pontos de Distribuição
     public DbSet<PontoDistribuicao> PontosDistribuicao { get; set; }
+    
+    // Módulo de Safras
+    public DbSet<Safra> Safras { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -79,6 +83,7 @@ public class AgriisDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Propriedades.Infraestrutura.Configuracoes.PropriedadeConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Fornecedores.Infraestrutura.Configuracoes.FornecedorConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.PontosDistribuicao.Infraestrutura.Configuracoes.PontoDistribuicaoConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Safras.Infraestrutura.Configuracoes.SafraConfiguration).Assembly);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

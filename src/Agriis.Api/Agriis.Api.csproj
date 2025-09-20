@@ -87,6 +87,9 @@
     <ProjectReference Include="..\Modulos\Produtos\Agriis.Produtos.Dominio\Agriis.Produtos.Dominio.csproj" />
     <ProjectReference Include="..\Modulos\Produtos\Agriis.Produtos.Aplicacao\Agriis.Produtos.Aplicacao.csproj" />
     <ProjectReference Include="..\Modulos\Produtos\Agriis.Produtos.Infraestrutura\Agriis.Produtos.Infraestrutura.csproj" />
+    <ProjectReference Include="..\Modulos\Safras\Agriis.Safras.Dominio\Agriis.Safras.Dominio.csproj" />
+    <ProjectReference Include="..\Modulos\Safras\Agriis.Safras.Aplicacao\Agriis.Safras.Aplicacao.csproj" />
+    <ProjectReference Include="..\Modulos\Safras\Agriis.Safras.Infraestrutura\Agriis.Safras.Infraestrutura.csproj" />
   </ItemGroup>
 
 </Project>
