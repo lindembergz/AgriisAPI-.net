@@ -13,6 +13,7 @@ using Agriis.Safras.Dominio.Entidades;
 using Agriis.Catalogos.Dominio.Entidades;
 using Agriis.Pagamentos.Dominio.Entidades;
 using Agriis.Pedidos.Dominio.Entidades;
+using Agriis.Combos.Dominio.Entidades;
 
 namespace Agriis.Api.Contexto;
 
@@ -72,6 +73,12 @@ public class AgriisDbContext : DbContext
     public DbSet<PedidoItem> PedidoItens { get; set; }
     public DbSet<PedidoItemTransporte> PedidoItensTransporte { get; set; }
     public DbSet<Proposta> Propostas { get; set; }
+    
+    // Módulo de Combos
+    public DbSet<Combo> Combos { get; set; }
+    public DbSet<ComboItem> ComboItens { get; set; }
+    public DbSet<ComboLocalRecebimento> ComboLocaisRecebimento { get; set; }
+    public DbSet<ComboCategoriaDesconto> ComboCategoriasDesconto { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -104,6 +111,7 @@ public class AgriisDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Catalogos.Infraestrutura.Configuracoes.CatalogoConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Pagamentos.Infraestrutura.Configuracoes.FormaPagamentoConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Pedidos.Infraestrutura.Configuracoes.PedidoConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Combos.Infraestrutura.Configuracoes.ComboConfiguration).Assembly);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

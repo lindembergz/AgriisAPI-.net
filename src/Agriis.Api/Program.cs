@@ -27,6 +27,7 @@ builder.Services.AddSafrasModule();
 builder.Services.AddCatalogosModule();
 builder.Services.AddPagamentosModule();
 builder.Services.AddPedidosModule();
+builder.Services.AddCombosModule();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapperConfiguration();
