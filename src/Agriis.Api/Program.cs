@@ -1,5 +1,6 @@
 using Serilog;
 using Agriis.Api.Configuration;
+using Agriis.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,30 +36,15 @@ builder.Services.AddAutoMapperConfiguration();
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Configure Swagger/OpenAPI
+builder.Services.AddSwaggerConfiguration();
 
 // Configure CORS
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        var corsSettings = builder.Configuration.GetSection("CorsSettings");
-        var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? new[] { "*" };
-        var allowedMethods = corsSettings.GetSection("AllowedMethods").Get<string[]>() ?? new[] { "*" };
-        var allowedHeaders = corsSettings.GetSection("AllowedHeaders").Get<string[]>() ?? new[] { "*" };
-        var allowCredentials = corsSettings.GetValue<bool>("AllowCredentials");
+builder.Services.AddCorsConfiguration(builder.Configuration, builder.Environment);
 
-        policy.WithOrigins(allowedOrigins)
-              .WithMethods(allowedMethods)
-              .WithHeaders(allowedHeaders);
-
-        if (allowCredentials)
-            policy.AllowCredentials();
-    });
-});
-
-// Add Health Checks
-builder.Services.AddDatabaseHealthChecks(builder.Configuration);
+// Configure Health Checks
+builder.Services.AddHealthChecksConfiguration(builder.Configuration);
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -66,29 +52,55 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
+
+// Global Exception Handling (deve ser o primeiro middleware)
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
+// Request Logging (antes de outros middlewares)
+app.UseMiddleware<RequestLoggingMiddleware>();
+
+// Configure Swagger/OpenAPI
+app.UseSwaggerConfiguration();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
     app.MapOpenApi();
 }
 
-// Use Serilog for request logging
-app.UseSerilogRequestLogging();
+// Use Serilog for request logging (após o middleware customizado)
+app.UseSerilogRequestLogging(options =>
+{
+    options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+    {
+        diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+        diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+        diagnosticContext.Set("UserAgent", httpContext.Request.Headers.UserAgent.FirstOrDefault() ?? "Unknown");
+        diagnosticContext.Set("RemoteIP", httpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown");
+        
+        if (httpContext.User.Identity?.IsAuthenticated == true)
+        {
+            diagnosticContext.Set("UserId", httpContext.User.FindFirst("user_id")?.Value ?? "Unknown");
+            diagnosticContext.Set("UserEmail", httpContext.User.FindFirst("email")?.Value ?? "Unknown");
+        }
+    };
+});
 
 app.UseHttpsRedirection();
 
-// Use CORS
-app.UseCors();
+// Use CORS (deve vir antes da autenticação)
+var corsPolicy = CorsConfiguration.GetPolicyName(app.Environment);
+app.UseCors(corsPolicy);
 
 // Use Authentication & Authorization
 app.UseAuthentication();
+app.UseMiddleware<JwtAuthenticationMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Map Health Checks
-app.MapHealthChecks("/health");
+// Configure Health Checks
+app.UseHealthChecksConfiguration();
 
 // Basic API info endpoint
 app.MapGet("/", () => new
