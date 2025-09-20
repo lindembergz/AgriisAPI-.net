@@ -4,9 +4,8 @@ using Agriis.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Serilog
-builder.Host.UseSerilog((context, configuration) =>
-    configuration.ReadFrom.Configuration(context.Configuration));
+// Configure Serilog with structured logging
+builder.Host.ConfigureSerilogLogging();
 
 // Configure Database
 builder.Services.AddDatabaseConfiguration(builder.Configuration, builder.Environment);
@@ -49,6 +48,9 @@ builder.Services.AddHealthChecksConfiguration(builder.Configuration);
 // Configure External Integrations
 builder.Services.AddExternalIntegrations(builder.Configuration);
 
+// Configure Logging
+builder.Services.AddLoggingConfiguration(builder.Configuration, builder.Environment);
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -60,7 +62,7 @@ var app = builder.Build();
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // Request Logging (antes de outros middlewares)
-app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseRequestLogging();
 
 // Configure Swagger/OpenAPI
 app.UseSwaggerConfiguration();
@@ -71,23 +73,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Use Serilog for request logging (após o middleware customizado)
-app.UseSerilogRequestLogging(options =>
-{
-    options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
-    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
-    {
-        diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
-        diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
-        diagnosticContext.Set("UserAgent", httpContext.Request.Headers.UserAgent.FirstOrDefault() ?? "Unknown");
-        diagnosticContext.Set("RemoteIP", httpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown");
-        
-        if (httpContext.User.Identity?.IsAuthenticated == true)
-        {
-            diagnosticContext.Set("UserId", httpContext.User.FindFirst("user_id")?.Value ?? "Unknown");
-            diagnosticContext.Set("UserEmail", httpContext.User.FindFirst("email")?.Value ?? "Unknown");
-        }
-    };
-});
+app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 

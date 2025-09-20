@@ -1,26 +1,58 @@
 using System.Diagnostics;
 using System.Text;
+using Agriis.Compartilhado.Infraestrutura.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Agriis.Api.Middleware;
 
 /// <summary>
-/// Middleware para logging detalhado de requisições
+/// Configurações para o middleware de logging de requisições
+/// </summary>
+public class RequestLoggingOptions
+{
+    public bool Enabled { get; set; } = true;
+    public bool LogRequestBody { get; set; } = false;
+    public bool LogResponseBody { get; set; } = false;
+    public int MaxBodySizeKB { get; set; } = 10;
+    public List<string> SensitiveHeaders { get; set; } = new();
+    public List<string> SensitiveFields { get; set; } = new();
+}
+
+/// <summary>
+/// Middleware para logging detalhado de requisições com contexto estruturado
 /// </summary>
 public class RequestLoggingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<RequestLoggingMiddleware> _logger;
+    private readonly ILoggingContext _loggingContext;
+    private readonly RequestLoggingOptions _options;
 
-    public RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> logger)
+    public RequestLoggingMiddleware(
+        RequestDelegate next, 
+        ILogger<RequestLoggingMiddleware> logger,
+        ILoggingContext loggingContext,
+        IOptions<RequestLoggingOptions> options)
     {
         _next = next;
         _logger = logger;
+        _loggingContext = loggingContext;
+        _options = options.Value;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
+        if (!_options.Enabled)
+        {
+            await _next(context);
+            return;
+        }
+
         var correlationId = GetOrCreateCorrelationId(context);
         var stopwatch = Stopwatch.StartNew();
+
+        // Configurar contexto de logging
+        SetupLoggingContext(context, correlationId);
 
         // Log da requisição de entrada
         await LogRequestAsync(context, correlationId);
@@ -34,6 +66,19 @@ public class RequestLoggingMiddleware
         {
             await _next(context);
         }
+        catch (Exception ex)
+        {
+            // Log da exceção com contexto
+            _logger.LogStructuredError(ex, "Unhandled exception during request processing", new
+            {
+                CorrelationId = correlationId,
+                RequestPath = context.Request.Path.Value,
+                RequestMethod = context.Request.Method,
+                UserId = context.User?.FindFirst("user_id")?.Value,
+                ElapsedMilliseconds = stopwatch.ElapsedMilliseconds
+            });
+            throw;
+        }
         finally
         {
             stopwatch.Stop();
@@ -44,6 +89,9 @@ public class RequestLoggingMiddleware
             // Restaurar o stream original e copiar o conteúdo
             await responseBodyStream.CopyToAsync(originalResponseBodyStream);
             context.Response.Body = originalResponseBodyStream;
+
+            // Limpar contexto de logging
+            _loggingContext.Clear();
         }
     }
 
@@ -63,6 +111,21 @@ public class RequestLoggingMiddleware
         return newCorrelationId;
     }
 
+    private void SetupLoggingContext(HttpContext context, string correlationId)
+    {
+        _loggingContext.CorrelationId = correlationId;
+        _loggingContext.RequestPath = context.Request.Path.Value;
+        _loggingContext.RequestMethod = context.Request.Method;
+        _loggingContext.RemoteIpAddress = context.Connection.RemoteIpAddress?.ToString();
+        _loggingContext.UserAgent = context.Request.Headers.UserAgent.ToString();
+
+        if (context.User?.Identity?.IsAuthenticated == true)
+        {
+            _loggingContext.UserId = context.User.FindFirst("user_id")?.Value;
+            _loggingContext.UserEmail = context.User.FindFirst("email")?.Value;
+        }
+    }
+
     private async Task LogRequestAsync(HttpContext context, string correlationId)
     {
         var request = context.Request;
@@ -77,15 +140,18 @@ public class RequestLoggingMiddleware
             UserAgent = request.Headers.UserAgent.ToString(),
             RemoteIpAddress = context.Connection.RemoteIpAddress?.ToString(),
             UserId = context.User?.FindFirst("user_id")?.Value,
-            UserEmail = context.User?.FindFirst("email")?.Value
+            UserEmail = context.User?.FindFirst("email")?.Value,
+            ContentType = request.ContentType,
+            ContentLength = request.ContentLength
         };
 
         _logger.LogInformation("Incoming Request: {@RequestInfo}", requestInfo);
 
-        // Log do body apenas para métodos que podem ter conteúdo
-        if (HttpMethods.IsPost(request.Method) || 
-            HttpMethods.IsPut(request.Method) || 
-            HttpMethods.IsPatch(request.Method))
+        // Log do body apenas para métodos que podem ter conteúdo e se habilitado
+        if (_options.LogRequestBody && 
+            (HttpMethods.IsPost(request.Method) || 
+             HttpMethods.IsPut(request.Method) || 
+             HttpMethods.IsPatch(request.Method)))
         {
             await LogRequestBodyAsync(request, correlationId);
         }
@@ -93,7 +159,9 @@ public class RequestLoggingMiddleware
 
     private async Task LogRequestBodyAsync(HttpRequest request, string correlationId)
     {
-        if (request.ContentLength > 0 && request.ContentLength < 10000) // Limitar a 10KB
+        var maxSizeBytes = _options.MaxBodySizeKB * 1024;
+        
+        if (request.ContentLength > 0 && request.ContentLength < maxSizeBytes)
         {
             request.EnableBuffering();
             
@@ -108,6 +176,11 @@ public class RequestLoggingMiddleware
                 
                 _logger.LogDebug("Request Body [{CorrelationId}]: {Body}", correlationId, sanitizedBody);
             }
+        }
+        else if (request.ContentLength >= maxSizeBytes)
+        {
+            _logger.LogDebug("Request Body [{CorrelationId}]: Body too large ({ContentLength} bytes), skipping log", 
+                correlationId, request.ContentLength);
         }
     }
 
@@ -128,8 +201,19 @@ public class RequestLoggingMiddleware
         var logLevel = GetLogLevelForStatusCode(response.StatusCode);
         _logger.Log(logLevel, "Outgoing Response: {@ResponseInfo}", responseInfo);
 
-        // Log do body da resposta apenas em desenvolvimento e para erros
-        if (ShouldLogResponseBody(response.StatusCode, response.ContentType))
+        // Log de performance se a requisição demorou muito
+        if (elapsedMilliseconds > 1000) // > 1 segundo
+        {
+            _logger.LogPerformance("HTTP Request", TimeSpan.FromMilliseconds(elapsedMilliseconds), new
+            {
+                Path = context.Request.Path.Value,
+                Method = context.Request.Method,
+                StatusCode = response.StatusCode
+            });
+        }
+
+        // Log do body da resposta se habilitado e necessário
+        if (_options.LogResponseBody && ShouldLogResponseBody(response.StatusCode, response.ContentType))
         {
             await LogResponseBodyAsync(context, correlationId);
         }
@@ -143,18 +227,30 @@ public class RequestLoggingMiddleware
         var body = await reader.ReadToEndAsync();
         context.Response.Body.Seek(0, SeekOrigin.Begin);
 
-        if (!string.IsNullOrWhiteSpace(body) && body.Length < 5000) // Limitar a 5KB
+        var maxSizeBytes = _options.MaxBodySizeKB * 1024;
+        
+        if (!string.IsNullOrWhiteSpace(body) && body.Length < maxSizeBytes)
         {
-            _logger.LogDebug("Response Body [{CorrelationId}]: {Body}", correlationId, body);
+            var sanitizedBody = SanitizeSensitiveData(body);
+            _logger.LogDebug("Response Body [{CorrelationId}]: {Body}", correlationId, sanitizedBody);
+        }
+        else if (body.Length >= maxSizeBytes)
+        {
+            _logger.LogDebug("Response Body [{CorrelationId}]: Body too large ({BodyLength} bytes), skipping log", 
+                correlationId, body.Length);
         }
     }
 
-    private static Dictionary<string, string> GetSafeHeaders(IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers)
+    private Dictionary<string, string> GetSafeHeaders(IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers)
     {
-        var sensitiveHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        var sensitiveHeaders = new HashSet<string>(_options.SensitiveHeaders, StringComparer.OrdinalIgnoreCase);
+        
+        // Adicionar headers sensíveis padrão se não estiverem na configuração
+        var defaultSensitiveHeaders = new[] { "Authorization", "Cookie", "Set-Cookie", "X-API-Key", "X-Auth-Token" };
+        foreach (var header in defaultSensitiveHeaders)
         {
-            "Authorization", "Cookie", "Set-Cookie", "X-API-Key", "X-Auth-Token"
-        };
+            sensitiveHeaders.Add(header);
+        }
 
         return headers
             .Where(h => !sensitiveHeaders.Contains(h.Key))
@@ -164,10 +260,11 @@ public class RequestLoggingMiddleware
                 StringComparer.OrdinalIgnoreCase);
     }
 
-    private static string SanitizeSensitiveData(string body)
+    private string SanitizeSensitiveData(string body)
     {
-        // Lista de campos sensíveis que devem ser mascarados
-        var sensitiveFields = new[] { "password", "senha", "token", "secret", "key", "cpf", "cnpj" };
+        var sensitiveFields = _options.SensitiveFields.Any() 
+            ? _options.SensitiveFields 
+            : new List<string> { "password", "senha", "token", "secret", "key", "cpf", "cnpj" };
         
         var sanitized = body;
         
