@@ -10,6 +10,8 @@ using Agriis.Propriedades.Dominio.Entidades;
 using Agriis.Fornecedores.Dominio.Entidades;
 using Agriis.PontosDistribuicao.Dominio.Entidades;
 using Agriis.Safras.Dominio.Entidades;
+using Agriis.Catalogos.Dominio.Entidades;
+using Agriis.Pagamentos.Dominio.Entidades;
 
 namespace Agriis.Api.Contexto;
 
@@ -55,6 +57,14 @@ public class AgriisDbContext : DbContext
     
     // Módulo de Safras
     public DbSet<Safra> Safras { get; set; }
+    
+    // Módulo de Catálogos
+    public DbSet<Catalogo> Catalogos { get; set; }
+    public DbSet<CatalogoItem> CatalogoItens { get; set; }
+    
+    // Módulo de Pagamentos
+    public DbSet<FormaPagamento> FormasPagamento { get; set; }
+    public DbSet<CulturaFormaPagamento> CulturaFormasPagamento { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -84,6 +94,8 @@ public class AgriisDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Fornecedores.Infraestrutura.Configuracoes.FornecedorConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.PontosDistribuicao.Infraestrutura.Configuracoes.PontoDistribuicaoConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Safras.Infraestrutura.Configuracoes.SafraConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Catalogos.Infraestrutura.Configuracoes.CatalogoConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Pagamentos.Infraestrutura.Configuracoes.FormaPagamentoConfiguration).Assembly);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

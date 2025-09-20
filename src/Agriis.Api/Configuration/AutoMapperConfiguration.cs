@@ -7,6 +7,8 @@ using Agriis.Propriedades.Aplicacao.Mapeamentos;
 using Agriis.Fornecedores.Aplicacao.Mapeamentos;
 using Agriis.PontosDistribuicao.Aplicacao.Mapeamentos;
 using Agriis.Safras.Aplicacao.Mapeamentos;
+using Agriis.Catalogos.Aplicacao.Mapeamentos;
+using Agriis.Pagamentos.Aplicacao.Mapeamentos;
 
 namespace Agriis.Api.Configuration;
 
@@ -33,6 +35,8 @@ public static class AutoMapperConfiguration
             cfg.AddProfile<FornecedorMappingProfile>();
             cfg.AddProfile<PontoDistribuicaoMappingProfile>();
             cfg.AddProfile<SafraMappingProfile>();
+            cfg.AddProfile<CatalogoMappingProfile>();
+            cfg.AddProfile<PagamentoMappingProfile>();
         });
 
         services.AddSingleton(config);

@@ -24,6 +24,8 @@ builder.Services.AddPropriedadesModule();
 builder.Services.AddFornecedoresModule();
 builder.Services.AddPontosDistribuicaoModule();
 builder.Services.AddSafrasModule();
+builder.Services.AddCatalogosModule();
+builder.Services.AddPagamentosModule();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapperConfiguration();
