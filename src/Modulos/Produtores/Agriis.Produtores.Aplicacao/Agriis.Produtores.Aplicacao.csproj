@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Agriis.Compartilhado\Agriis.Compartilhado.Aplicacao\Agriis.Compartilhado.Aplicacao.csproj" />
-    <ProjectReference Include="..\Agriis.Produtores.Dominio\Agriis.Produtores.Dominio.csproj" />
+    <ProjectReference Include="..\..\..\Agriis.Compartilhado\Agriis.Compartilhado.Aplicacao\Agriis.Compartilhado.Aplicacao.csproj" />
+    <ProjectReference Include="..\..\Produtores\Agriis.Produtores.Dominio\Agriis.Produtores.Dominio.csproj" />
     <ProjectReference Include="..\..\Usuarios\Agriis.Usuarios.Dominio\Agriis.Usuarios.Dominio.csproj" />
   </ItemGroup>
 
