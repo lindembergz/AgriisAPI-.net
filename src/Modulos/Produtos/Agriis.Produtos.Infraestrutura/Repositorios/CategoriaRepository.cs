@@ -112,7 +112,7 @@ public class CategoriaRepository : RepositoryBase<Categoria, DbContext>, ICatego
         return await DbSet
             .Include(c => c.CategoriaPai)
             .Include(c => c.SubCategorias.Where(sc => sc.Ativo))
-            .Include(c => c.Produtos.Where(p => p.EstaAtivo()))
+            .Include(c => c.Produtos.Where(p => p.Status == StatusProduto.Ativo))
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 

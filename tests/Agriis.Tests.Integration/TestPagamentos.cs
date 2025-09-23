@@ -25,7 +25,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
     {
         await AuthenticateAsProducerAsync(1);
 
-        var response = await GetAsync("v1/pagamentos/formas/");
+        var response = await GetAsync("api/pagamentos/formas/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -49,7 +49,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
         await AuthenticateAsProducerAsync(1);
         var pedidoId = 368;
 
-        var response = await GetAsync($"v1/pagamentos/pedido/{pedidoId}/formas/");
+        var response = await GetAsync($"api/pagamentos/pedido/{pedidoId}/formas/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -74,7 +74,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             taxa_juros = 2.5m
         };
 
-        var response = await PostAsync("v1/pagamentos/formas/", requestData);
+        var response = await PostAsync("api/pagamentos/formas/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         // Verificar se foi criado corretamente
@@ -82,7 +82,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
         location.Should().NotBeNullOrEmpty();
         var formaId = ExtractIdFromLocation(location!);
 
-        var getResponse = await GetAsync($"v1/pagamentos/formas/{formaId}/");
+        var getResponse = await GetAsync($"api/pagamentos/formas/{formaId}/");
         _jsonMatchers.ShouldHaveStatusCode(getResponse, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
@@ -109,7 +109,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             taxa_juros = 0m
         };
 
-        var createResponse = await PostAsync("v1/pagamentos/formas/", createData);
+        var createResponse = await PostAsync("api/pagamentos/formas/", createData);
         _jsonMatchers.ShouldHaveStatusCode(createResponse, HttpStatusCode.Created);
 
         var location = createResponse.Headers.Location?.ToString();
@@ -126,11 +126,11 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             taxa_juros = 0m
         };
 
-        var updateResponse = await PutAsync($"v1/pagamentos/formas/{formaId}/", updateData);
+        var updateResponse = await PutAsync($"api/pagamentos/formas/{formaId}/", updateData);
         _jsonMatchers.ShouldHaveStatusCode(updateResponse, HttpStatusCode.OK);
 
         // Verificar se foi atualizado
-        var getResponse = await GetAsync($"v1/pagamentos/formas/{formaId}/");
+        var getResponse = await GetAsync($"api/pagamentos/formas/{formaId}/");
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
         var obj = _jsonMatchers.ShouldBeObject(json);
 
@@ -154,18 +154,18 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             taxa_juros = 0m
         };
 
-        var createResponse = await PostAsync("v1/pagamentos/formas/", createData);
+        var createResponse = await PostAsync("api/pagamentos/formas/", createData);
         _jsonMatchers.ShouldHaveStatusCode(createResponse, HttpStatusCode.Created);
 
         var location = createResponse.Headers.Location?.ToString();
         var formaId = ExtractIdFromLocation(location!);
 
         // Deletar a forma de pagamento
-        var deleteResponse = await DeleteAsync($"v1/pagamentos/formas/{formaId}/");
+        var deleteResponse = await DeleteAsync($"api/pagamentos/formas/{formaId}/");
         _jsonMatchers.ShouldHaveStatusCode(deleteResponse, HttpStatusCode.OK);
 
         // Verificar se foi deletado
-        var getResponse = await GetAsync($"v1/pagamentos/formas/{formaId}/");
+        var getResponse = await GetAsync($"api/pagamentos/formas/{formaId}/");
         _jsonMatchers.ShouldHaveStatusCode(getResponse, HttpStatusCode.NotFound);
     }
 
@@ -185,11 +185,11 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             data_vencimento = DateTime.UtcNow.AddDays(30).ToString("yyyy-MM-dd")
         };
 
-        var response = await PostAsync($"v1/pagamentos/pedido/{pedidoId}/formas/", requestData);
+        var response = await PostAsync($"api/pagamentos/pedido/{pedidoId}/formas/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         // Verificar se a associação foi criada
-        var getResponse = await GetAsync($"v1/pagamentos/pedido/{pedidoId}/formas/");
+        var getResponse = await GetAsync($"api/pagamentos/pedido/{pedidoId}/formas/");
         _jsonMatchers.ShouldHaveStatusCode(getResponse, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
@@ -211,7 +211,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             numero_parcelas = 6
         };
 
-        var response = await PostAsync("v1/pagamentos/calcular-parcelas/", requestData);
+        var response = await PostAsync("api/pagamentos/calcular-parcelas/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -253,7 +253,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             taxa_juros = 0m
         };
 
-        var response = await PostAsync("v1/pagamentos/formas/", invalidData);
+        var response = await PostAsync("api/pagamentos/formas/", invalidData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -274,7 +274,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             taxa_juros = 2.5m
         };
 
-        var response = await PostAsync("v1/pagamentos/formas/", invalidData);
+        var response = await PostAsync("api/pagamentos/formas/", invalidData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -295,7 +295,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             taxa_juros = -1.5m // Taxa negativa
         };
 
-        var response = await PostAsync("v1/pagamentos/formas/", invalidData);
+        var response = await PostAsync("api/pagamentos/formas/", invalidData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -305,7 +305,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
     {
         ClearAuthentication();
 
-        var response = await GetAsync("v1/pagamentos/formas/");
+        var response = await GetAsync("api/pagamentos/formas/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -325,7 +325,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             taxa_juros = 0m
         };
 
-        var response = await PostAsync("v1/pagamentos/formas/", requestData);
+        var response = await PostAsync("api/pagamentos/formas/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Forbidden);
     }
 
@@ -346,13 +346,13 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             disponivel_24h = true
         };
 
-        var response = await PostAsync("v1/pagamentos/formas/", pixData);
+        var response = await PostAsync("api/pagamentos/formas/", pixData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         var location = response.Headers.Location?.ToString();
         var formaId = ExtractIdFromLocation(location!);
 
-        var getResponse = await GetAsync($"v1/pagamentos/formas/{formaId}/");
+        var getResponse = await GetAsync($"api/pagamentos/formas/{formaId}/");
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
         var obj = _jsonMatchers.ShouldBeObject(json);
 
@@ -379,13 +379,13 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             valor_minimo_parcela = 50.00m
         };
 
-        var response = await PostAsync("v1/pagamentos/formas/", creditCardData);
+        var response = await PostAsync("api/pagamentos/formas/", creditCardData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         var location = response.Headers.Location?.ToString();
         var formaId = ExtractIdFromLocation(location!);
 
-        var getResponse = await GetAsync($"v1/pagamentos/formas/{formaId}/");
+        var getResponse = await GetAsync($"api/pagamentos/formas/{formaId}/");
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
         var obj = _jsonMatchers.ShouldBeObject(json);
 
@@ -413,13 +413,13 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             juros_mora_dia = 0.033m
         };
 
-        var response = await PostAsync("v1/pagamentos/formas/", boletoData);
+        var response = await PostAsync("api/pagamentos/formas/", boletoData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         var location = response.Headers.Location?.ToString();
         var formaId = ExtractIdFromLocation(location!);
 
-        var getResponse = await GetAsync($"v1/pagamentos/formas/{formaId}/");
+        var getResponse = await GetAsync($"api/pagamentos/formas/{formaId}/");
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
         var obj = _jsonMatchers.ShouldBeObject(json);
 
@@ -444,7 +444,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             status = "PENDENTE"
         };
 
-        var createResponse = await PostAsync($"v1/pagamentos/pedido/{pedidoId}/formas/", createData);
+        var createResponse = await PostAsync($"api/pagamentos/pedido/{pedidoId}/formas/", createData);
         _jsonMatchers.ShouldHaveStatusCode(createResponse, HttpStatusCode.Created);
 
         var location = createResponse.Headers.Location?.ToString();
@@ -456,11 +456,11 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
             status = "PROCESSANDO"
         };
 
-        var updateResponse = await PutAsync($"v1/pagamentos/{pagamentoId}/status/", updateData);
+        var updateResponse = await PutAsync($"api/pagamentos/{pagamentoId}/status/", updateData);
         _jsonMatchers.ShouldHaveStatusCode(updateResponse, HttpStatusCode.OK);
 
         // Verificar se o status foi atualizado
-        var getResponse = await GetAsync($"v1/pagamentos/{pagamentoId}/");
+        var getResponse = await GetAsync($"api/pagamentos/{pagamentoId}/");
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
         var obj = _jsonMatchers.ShouldBeObject(json);
 
@@ -474,7 +474,7 @@ public class TestPagamentos : BaseTestCase, IClassFixture<TestWebApplicationFact
         var pedidoId = 1;
 
         // Buscar histórico de pagamentos do pedido
-        var response = await GetAsync($"v1/pagamentos/pedido/{pedidoId}/historico/");
+        var response = await GetAsync($"api/pagamentos/pedido/{pedidoId}/historico/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);

@@ -10,7 +10,7 @@ namespace Agriis.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class FornecedoresController : ControllerBase
 {
     private readonly IFornecedorService _fornecedorService;

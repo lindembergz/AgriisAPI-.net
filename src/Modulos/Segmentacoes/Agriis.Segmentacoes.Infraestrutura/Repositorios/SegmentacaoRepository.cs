@@ -8,7 +8,7 @@ namespace Agriis.Segmentacoes.Infraestrutura.Repositorios;
 /// <summary>
 /// Implementação do repositório de segmentações
 /// </summary>
-public class SegmentacaoRepository : RepositoryBase<Segmentacao>, ISegmentacaoRepository
+public class SegmentacaoRepository : RepositoryBase<Segmentacao, DbContext>, ISegmentacaoRepository
 {
     public SegmentacaoRepository(DbContext context) : base(context)
     {
@@ -21,7 +21,7 @@ public class SegmentacaoRepository : RepositoryBase<Segmentacao>, ISegmentacaoRe
     /// <returns>Lista de segmentações</returns>
     public async Task<IEnumerable<Segmentacao>> ObterPorFornecedorAsync(int fornecedorId)
     {
-        return await _dbSet
+        return await DbSet
             .Where(s => s.FornecedorId == fornecedorId)
             .OrderBy(s => s.Nome)
             .ToListAsync();
@@ -34,7 +34,7 @@ public class SegmentacaoRepository : RepositoryBase<Segmentacao>, ISegmentacaoRe
     /// <returns>Segmentação padrão ou null</returns>
     public async Task<Segmentacao?> ObterPadraoAsync(int fornecedorId)
     {
-        return await _dbSet
+        return await DbSet
             .Where(s => s.FornecedorId == fornecedorId && s.EhPadrao && s.Ativo)
             .FirstOrDefaultAsync();
     }
@@ -46,7 +46,7 @@ public class SegmentacaoRepository : RepositoryBase<Segmentacao>, ISegmentacaoRe
     /// <returns>Lista de segmentações ativas</returns>
     public async Task<IEnumerable<Segmentacao>> ObterAtivasPorFornecedorAsync(int fornecedorId)
     {
-        return await _dbSet
+        return await DbSet
             .Where(s => s.FornecedorId == fornecedorId && s.Ativo)
             .OrderByDescending(s => s.EhPadrao)
             .ThenBy(s => s.Nome)
@@ -61,7 +61,7 @@ public class SegmentacaoRepository : RepositoryBase<Segmentacao>, ISegmentacaoRe
     /// <returns>True se existe segmentação padrão</returns>
     public async Task<bool> ExistePadraoAsync(int fornecedorId, int? excluirId = null)
     {
-        var query = _dbSet.Where(s => s.FornecedorId == fornecedorId && s.EhPadrao && s.Ativo);
+        var query = DbSet.Where(s => s.FornecedorId == fornecedorId && s.EhPadrao && s.Ativo);
         
         if (excluirId.HasValue)
             query = query.Where(s => s.Id != excluirId.Value);
@@ -76,7 +76,7 @@ public class SegmentacaoRepository : RepositoryBase<Segmentacao>, ISegmentacaoRe
     /// <returns>Segmentação completa</returns>
     public async Task<Segmentacao?> ObterCompletaAsync(int id)
     {
-        return await _dbSet
+        return await DbSet
             .Include(s => s.Grupos)
                 .ThenInclude(g => g.GruposSegmentacao)
             .Where(s => s.Id == id)
@@ -86,14 +86,14 @@ public class SegmentacaoRepository : RepositoryBase<Segmentacao>, ISegmentacaoRe
     /// <summary>
     /// Sobrescreve o método base para incluir validações específicas
     /// </summary>
-    public override async Task<Segmentacao> AdicionarAsync(Segmentacao entidade)
+    public override async Task<Segmentacao> AdicionarAsync(Segmentacao entidade, CancellationToken cancellationToken = default)
     {
         // Se está marcando como padrão, desmarcar outras
         if (entidade.EhPadrao)
         {
-            var segmentacoesPadrao = await _dbSet
+            var segmentacoesPadrao = await DbSet
                 .Where(s => s.FornecedorId == entidade.FornecedorId && s.EhPadrao && s.Ativo)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
                 
             foreach (var segmentacao in segmentacoesPadrao)
             {
@@ -101,20 +101,20 @@ public class SegmentacaoRepository : RepositoryBase<Segmentacao>, ISegmentacaoRe
             }
         }
         
-        return await base.AdicionarAsync(entidade);
+        return await base.AdicionarAsync(entidade, cancellationToken);
     }
     
     /// <summary>
     /// Sobrescreve o método base para incluir validações específicas
     /// </summary>
-    public override async Task AtualizarAsync(Segmentacao entidade)
+    public override async Task AtualizarAsync(Segmentacao entidade, CancellationToken cancellationToken = default)
     {
         // Se está marcando como padrão, desmarcar outras
         if (entidade.EhPadrao)
         {
-            var segmentacoesPadrao = await _dbSet
+            var segmentacoesPadrao = await DbSet
                 .Where(s => s.FornecedorId == entidade.FornecedorId && s.EhPadrao && s.Ativo && s.Id != entidade.Id)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
                 
             foreach (var segmentacao in segmentacoesPadrao)
             {
@@ -122,6 +122,6 @@ public class SegmentacaoRepository : RepositoryBase<Segmentacao>, ISegmentacaoRe
             }
         }
         
-        await base.AtualizarAsync(entidade);
+        await base.AtualizarAsync(entidade, cancellationToken);
     }
 }

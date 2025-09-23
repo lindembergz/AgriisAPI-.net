@@ -86,8 +86,32 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
                 .HasColumnName("PesoNominal")
                 .HasPrecision(10, 3);
 
-            dimensoes.Property(d => d.Densidade)
-                .HasColumnName("Densidade")
+            // Novos campos para compatibilidade com sistema Python
+            dimensoes.Property(d => d.PesoEmbalagem)
+                .IsRequired()
+                .HasColumnName("PesoEmbalagem")
+                .HasPrecision(10, 3);
+
+            dimensoes.Property(d => d.Pms)
+                .HasColumnName("Pms")
+                .HasPrecision(10, 3);
+
+            dimensoes.Property(d => d.QuantidadeMinima)
+                .IsRequired()
+                .HasColumnName("QuantidadeMinima")
+                .HasPrecision(10, 3);
+
+            dimensoes.Property(d => d.Embalagem)
+                .IsRequired()
+                .HasColumnName("Embalagem")
+                .HasMaxLength(100);
+
+            dimensoes.Property(d => d.FaixaDensidadeInicial)
+                .HasColumnName("FaixaDensidadeInicial")
+                .HasPrecision(10, 3);
+
+            dimensoes.Property(d => d.FaixaDensidadeFinal)
+                .HasColumnName("FaixaDensidadeFinal")
                 .HasPrecision(10, 3);
         });
 

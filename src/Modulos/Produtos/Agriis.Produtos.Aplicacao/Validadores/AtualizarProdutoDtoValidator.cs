@@ -97,11 +97,43 @@ public class AtualizarDimensoesProdutoDtoValidator : AbstractValidator<Atualizar
             .LessThanOrEqualTo(10000)
             .WithMessage("Peso nominal deve ser menor ou igual a 10000 kg");
 
-        RuleFor(x => x.Densidade)
+        RuleFor(x => x.PesoEmbalagem)
             .GreaterThan(0)
-            .WithMessage("Densidade deve ser maior que zero")
+            .WithMessage("Peso da embalagem deve ser maior que zero")
             .LessThanOrEqualTo(10000)
-            .WithMessage("Densidade deve ser menor ou igual a 10000 kg/m³")
-            .When(x => x.Densidade.HasValue);
+            .WithMessage("Peso da embalagem deve ser menor ou igual a 10000 kg");
+
+        RuleFor(x => x.QuantidadeMinima)
+            .GreaterThan(0)
+            .WithMessage("Quantidade mínima deve ser maior que zero")
+            .LessThanOrEqualTo(1000000)
+            .WithMessage("Quantidade mínima deve ser menor ou igual a 1.000.000");
+
+        RuleFor(x => x.Embalagem)
+            .NotEmpty()
+            .WithMessage("Embalagem deve ser informada")
+            .MaximumLength(100)
+            .WithMessage("Embalagem deve ter no máximo 100 caracteres");
+
+        RuleFor(x => x.Pms)
+            .GreaterThan(0)
+            .WithMessage("PMS deve ser maior que zero")
+            .LessThanOrEqualTo(1000000)
+            .WithMessage("PMS deve ser menor ou igual a 1.000.000 gramas")
+            .When(x => x.Pms.HasValue);
+
+        RuleFor(x => x.FaixaDensidadeInicial)
+            .GreaterThan(0)
+            .WithMessage("Faixa de densidade inicial deve ser maior que zero")
+            .LessThanOrEqualTo(10000)
+            .WithMessage("Faixa de densidade inicial deve ser menor ou igual a 10000 kg/m³")
+            .When(x => x.FaixaDensidadeInicial.HasValue);
+
+        RuleFor(x => x.FaixaDensidadeFinal)
+            .GreaterThan(0)
+            .WithMessage("Faixa de densidade final deve ser maior que zero")
+            .LessThanOrEqualTo(10000)
+            .WithMessage("Faixa de densidade final deve ser menor ou igual a 10000 kg/m³")
+            .When(x => x.FaixaDensidadeFinal.HasValue);
     }
 }

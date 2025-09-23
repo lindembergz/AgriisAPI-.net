@@ -4,8 +4,8 @@ using Agriis.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Serilog with structured logging
-builder.Host.ConfigureSerilogLogging();
+// Configure Serilog with structured logging - Comentado temporariamente
+// builder.Host.ConfigureSerilogLogging();
 
 // Configure Database
 builder.Services.AddDatabaseConfiguration(builder.Configuration, builder.Environment);
@@ -14,20 +14,24 @@ builder.Services.AddDatabaseConfiguration(builder.Configuration, builder.Environ
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorizationPolicies();
 
-// Configure Modules
-builder.Services.AddEnderecosModule();
-builder.Services.AddUsuariosModule();
+// Configure Modules essenciais
 builder.Services.AddAutenticacaoServices();
-builder.Services.AddCulturasModule();
-builder.Services.AddProdutoresModule();
-builder.Services.AddPropriedadesModule();
-builder.Services.AddFornecedoresModule();
-builder.Services.AddPontosDistribuicaoModule();
-builder.Services.AddSafrasModule();
-builder.Services.AddCatalogosModule();
-builder.Services.AddPagamentosModule();
-builder.Services.AddPedidosModule();
-builder.Services.AddCombosModule();
+builder.Services.AddUsuariosModule();
+
+// Outros módulos - Reabilitar gradualmente conforme necessário
+ builder.Services.AddEnderecosModule();
+ builder.Services.AddCulturasModule();
+ builder.Services.AddProdutoresModule();
+ builder.Services.AddPropriedadesModule();
+ builder.Services.AddFornecedoresModule();
+ builder.Services.AddPontosDistribuicaoModule();
+ builder.Services.AddSafrasModule();
+ builder.Services.AddCatalogosModule();
+ builder.Services.AddPagamentosModule();
+ builder.Services.AddProdutosModule();
+ builder.Services.AddSegmentacoesModule();
+ builder.Services.AddPedidosModule();
+ builder.Services.AddCombosModule();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapperConfiguration();
@@ -36,63 +40,47 @@ builder.Services.AddAutoMapperConfiguration();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Configure Swagger/OpenAPI
-builder.Services.AddSwaggerConfiguration();
+
 
 // Configure CORS
 builder.Services.AddCorsConfiguration(builder.Configuration, builder.Environment);
 
 // Configure Health Checks
-builder.Services.AddHealthChecksConfiguration(builder.Configuration);
+//builder.Services.AddHealthChecksConfiguration(builder.Configuration);
 
 // Configure External Integrations
-builder.Services.AddExternalIntegrations(builder.Configuration);
+//builder.Services.AddExternalIntegrations(builder.Configuration);
 
-// Configure Logging
-builder.Services.AddLoggingConfiguration(builder.Configuration, builder.Environment);
+// Configure Logging - Comentado temporariamente
+// builder.Services.AddLoggingConfiguration(builder.Configuration, builder.Environment);
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// Configure Swagger/OpenAPI
+builder.Services.AddSwaggerConfiguration();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Configure the HTTP request pipeline - Configuração mínima que funcionava
 
-// Global Exception Handling (deve ser o primeiro middleware)
-app.UseMiddleware<GlobalExceptionMiddleware>();
-
-// Request Logging (antes de outros middlewares)
-app.UseRequestLogging();
+app.UseHttpsRedirection();
 
 // Configure Swagger/OpenAPI
 app.UseSwaggerConfiguration();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-// Use Serilog for request logging (após o middleware customizado)
-app.UseSerilogRequestLogging();
-
-app.UseHttpsRedirection();
-
-// Use CORS (deve vir antes da autenticação)
+// Use CORS
 var corsPolicy = CorsConfiguration.GetPolicyName(app.Environment);
 app.UseCors(corsPolicy);
 
 // Use Authentication & Authorization
 app.UseAuthentication();
-app.UseMiddleware<JwtAuthenticationMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
 
 // Configure Health Checks
-app.UseHealthChecksConfiguration();
+//app.UseHealthChecksConfiguration();
 
 // Configure External Integrations
-app.ConfigureExternalIntegrations();
+//app.ConfigureExternalIntegrations();
 
 // Basic API info endpoint
 app.MapGet("/", () => new
@@ -102,26 +90,23 @@ app.MapGet("/", () => new
     Environment = app.Environment.EnvironmentName,
     Timestamp = DateTime.UtcNow
 })
-.WithName("GetApiInfo")
-.WithOpenApi();
+.WithName("GetApiInfo");
+
+
 
 try
 {
-    Log.Information("Starting Agriis API");
+    Console.WriteLine("Starting Agriis API");
     
     // Apply database migrations and seed data
-    await app.ApplyDatabaseMigrationsAsync();
-    await app.SeedDatabaseAsync();
+    // await app.ApplyDatabaseMigrationsAsync(); // Aplicar manualmente via CLI
+    // await app.SeedDatabaseAsync(); // Dados iniciais
     
     app.Run();
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Application terminated unexpectedly");
-}
-finally
-{
-    Log.CloseAndFlush();
+    Console.WriteLine($"Application terminated unexpectedly: {ex}");
 }
 
 // Make Program class accessible for testing

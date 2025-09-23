@@ -8,7 +8,7 @@ namespace Agriis.Segmentacoes.Infraestrutura.Repositorios;
 /// <summary>
 /// Implementação do repositório de grupos de segmentação (descontos por categoria)
 /// </summary>
-public class GrupoSegmentacaoRepository : RepositoryBase<GrupoSegmentacao>, IGrupoSegmentacaoRepository
+public class GrupoSegmentacaoRepository : RepositoryBase<GrupoSegmentacao, DbContext>, IGrupoSegmentacaoRepository
 {
     public GrupoSegmentacaoRepository(DbContext context) : base(context)
     {
@@ -21,7 +21,7 @@ public class GrupoSegmentacaoRepository : RepositoryBase<GrupoSegmentacao>, IGru
     /// <returns>Lista de descontos</returns>
     public async Task<IEnumerable<GrupoSegmentacao>> ObterPorGrupoAsync(int grupoId)
     {
-        return await _dbSet
+        return await DbSet
             .Where(gs => gs.GrupoId == grupoId)
             .OrderBy(gs => gs.CategoriaId)
             .ToListAsync();
@@ -34,7 +34,7 @@ public class GrupoSegmentacaoRepository : RepositoryBase<GrupoSegmentacao>, IGru
     /// <returns>Lista de descontos ativos</returns>
     public async Task<IEnumerable<GrupoSegmentacao>> ObterAtivosPorGrupoAsync(int grupoId)
     {
-        return await _dbSet
+        return await DbSet
             .Where(gs => gs.GrupoId == grupoId && gs.Ativo)
             .OrderBy(gs => gs.CategoriaId)
             .ToListAsync();
@@ -48,7 +48,7 @@ public class GrupoSegmentacaoRepository : RepositoryBase<GrupoSegmentacao>, IGru
     /// <returns>Desconto ou null</returns>
     public async Task<GrupoSegmentacao?> ObterPorGrupoECategoriaAsync(int grupoId, int categoriaId)
     {
-        return await _dbSet
+        return await DbSet
             .Where(gs => gs.GrupoId == grupoId && gs.CategoriaId == categoriaId)
             .FirstOrDefaultAsync();
     }
@@ -60,7 +60,7 @@ public class GrupoSegmentacaoRepository : RepositoryBase<GrupoSegmentacao>, IGru
     /// <returns>Lista de descontos</returns>
     public async Task<IEnumerable<GrupoSegmentacao>> ObterPorCategoriaAsync(int categoriaId)
     {
-        return await _dbSet
+        return await DbSet
             .Include(gs => gs.Grupo)
                 .ThenInclude(g => g.Segmentacao)
             .Where(gs => gs.CategoriaId == categoriaId)
@@ -78,7 +78,7 @@ public class GrupoSegmentacaoRepository : RepositoryBase<GrupoSegmentacao>, IGru
     /// <returns>True se já existe</returns>
     public async Task<bool> ExisteAsync(int grupoId, int categoriaId, int? excluirId = null)
     {
-        var query = _dbSet.Where(gs => gs.GrupoId == grupoId && gs.CategoriaId == categoriaId);
+        var query = DbSet.Where(gs => gs.GrupoId == grupoId && gs.CategoriaId == categoriaId);
         
         if (excluirId.HasValue)
             query = query.Where(gs => gs.Id != excluirId.Value);
@@ -89,7 +89,7 @@ public class GrupoSegmentacaoRepository : RepositoryBase<GrupoSegmentacao>, IGru
     /// <summary>
     /// Sobrescreve o método base para incluir validações específicas
     /// </summary>
-    public override async Task<GrupoSegmentacao> AdicionarAsync(GrupoSegmentacao entidade)
+    public override async Task<GrupoSegmentacao> AdicionarAsync(GrupoSegmentacao entidade, CancellationToken cancellationToken = default)
     {
         // Validar se já existe desconto para esta combinação
         var jaExiste = await ExisteAsync(entidade.GrupoId, entidade.CategoriaId);
@@ -100,13 +100,13 @@ public class GrupoSegmentacaoRepository : RepositoryBase<GrupoSegmentacao>, IGru
                 $"Já existe um desconto configurado para o grupo {entidade.GrupoId} e categoria {entidade.CategoriaId}.");
         }
         
-        return await base.AdicionarAsync(entidade);
+        return await base.AdicionarAsync(entidade, cancellationToken);
     }
     
     /// <summary>
     /// Sobrescreve o método base para incluir validações específicas
     /// </summary>
-    public override async Task AtualizarAsync(GrupoSegmentacao entidade)
+    public override async Task AtualizarAsync(GrupoSegmentacao entidade, CancellationToken cancellationToken = default)
     {
         // Validar se já existe desconto para esta combinação (excluindo o atual)
         var jaExiste = await ExisteAsync(entidade.GrupoId, entidade.CategoriaId, entidade.Id);
@@ -117,6 +117,6 @@ public class GrupoSegmentacaoRepository : RepositoryBase<GrupoSegmentacao>, IGru
                 $"Já existe um desconto configurado para o grupo {entidade.GrupoId} e categoria {entidade.CategoriaId}.");
         }
         
-        await base.AtualizarAsync(entidade);
+        await base.AtualizarAsync(entidade, cancellationToken);
     }
 }

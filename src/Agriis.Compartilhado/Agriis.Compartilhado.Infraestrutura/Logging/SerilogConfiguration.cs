@@ -228,6 +228,9 @@ public static class SerilogConfiguration
     /// </summary>
     public static IServiceCollection AddStructuredLogging(this IServiceCollection services, IConfiguration configuration)
     {
+        // Configurar HttpContextAccessor (necessário para os enrichers)
+        services.AddHttpContextAccessor();
+        
         // Configurar contexto de logging
         services.AddScoped<ILoggingContext, LoggingContext>();
         

@@ -8,6 +8,9 @@ public static class ExternalIntegrationsConfiguration
 {
     public static IServiceCollection AddExternalIntegrations(this IServiceCollection services, IConfiguration configuration)
     {
+        // Memory Cache (required by CurrencyConverterService)
+        services.AddMemoryCache();
+
         // AWS Services
         services.AddAWSService<IAmazonS3>();
         services.AddScoped<IAwsService, AwsService>();

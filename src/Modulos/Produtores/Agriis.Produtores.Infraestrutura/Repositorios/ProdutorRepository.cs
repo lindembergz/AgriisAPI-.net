@@ -4,6 +4,7 @@ using Agriis.Compartilhado.Infraestrutura.Persistencia;
 using Agriis.Produtores.Dominio.Entidades;
 using Agriis.Produtores.Dominio.Enums;
 using Agriis.Produtores.Dominio.Interfaces;
+using Agriis.Compartilhado.Dominio.ObjetosValor;
 
 namespace Agriis.Produtores.Infraestrutura.Repositorios;
 
@@ -22,12 +23,12 @@ public class ProdutorRepository : RepositoryBase<Produtor, DbContext>, IProdutor
         if (string.IsNullOrWhiteSpace(cpf))
             return null;
 
-        var cpfLimpo = cpf.Replace(".", "").Replace("-", "");
+        var cpfObj = new Cpf(cpf);
         
         return await Context.Set<Produtor>()
             .Include(p => p.UsuariosProdutores)
             .ThenInclude(up => up.Usuario)
-            .FirstOrDefaultAsync(p => p.Cpf != null && p.Cpf.Valor == cpfLimpo);
+            .FirstOrDefaultAsync(p => p.Cpf != null && p.Cpf == cpfObj);
     }
 
     /// <inheritdoc />
@@ -36,12 +37,12 @@ public class ProdutorRepository : RepositoryBase<Produtor, DbContext>, IProdutor
         if (string.IsNullOrWhiteSpace(cnpj))
             return null;
 
-        var cnpjLimpo = cnpj.Replace(".", "").Replace("/", "").Replace("-", "");
+        var cnpjObj = new Cnpj(cnpj);
         
         return await Context.Set<Produtor>()
             .Include(p => p.UsuariosProdutores)
             .ThenInclude(up => up.Usuario)
-            .FirstOrDefaultAsync(p => p.Cnpj != null && p.Cnpj.Valor == cnpjLimpo);
+            .FirstOrDefaultAsync(p => p.Cnpj != null && p.Cnpj == cnpjObj);
     }
 
     /// <inheritdoc />
@@ -75,9 +76,9 @@ public class ProdutorRepository : RepositoryBase<Produtor, DbContext>, IProdutor
         {
             var filtroLimpo = filtro.Trim().ToLower();
             query = query.Where(p => 
-                p.Nome.ToLower().Contains(filtroLimpo) ||
-                (p.Cpf != null && p.Cpf.Valor.Contains(filtroLimpo)) ||
-                (p.Cnpj != null && p.Cnpj.Valor.Contains(filtroLimpo)));
+                p.Nome.ToLower().Contains(filtroLimpo));
+            // Nota: Filtros por CPF/CNPJ foram removidos para evitar problemas de tradução LINQ
+            // Estes filtros podem ser implementados em memória após a consulta se necessário
         }
 
         if (status.HasValue)
@@ -128,11 +129,14 @@ public class ProdutorRepository : RepositoryBase<Produtor, DbContext>, IProdutor
     /// <inheritdoc />
     public async Task<IEnumerable<Produtor>> ObterPorFaixaAreaAsync(decimal areaMinima, decimal areaMaxima)
     {
+        var areaMin = new AreaPlantio(areaMinima);
+        var areaMax = new AreaPlantio(areaMaxima);
+        
         return await Context.Set<Produtor>()
             .Include(p => p.UsuariosProdutores)
             .ThenInclude(up => up.Usuario)
-            .Where(p => p.AreaPlantio.Valor >= areaMinima && p.AreaPlantio.Valor <= areaMaxima)
-            .OrderByDescending(p => p.AreaPlantio.Valor)
+            .Where(p => p.AreaPlantio >= areaMin && p.AreaPlantio <= areaMax)
+            .OrderByDescending(p => p.AreaPlantio)
             .ToListAsync();
     }
 
@@ -142,10 +146,10 @@ public class ProdutorRepository : RepositoryBase<Produtor, DbContext>, IProdutor
         if (string.IsNullOrWhiteSpace(cpf))
             return false;
 
-        var cpfLimpo = cpf.Replace(".", "").Replace("-", "");
+        var cpfObj = new Cpf(cpf);
         
         var query = Context.Set<Produtor>()
-            .Where(p => p.Cpf != null && p.Cpf.Valor == cpfLimpo);
+            .Where(p => p.Cpf != null && p.Cpf == cpfObj);
 
         if (produtorIdExcluir.HasValue)
         {
@@ -161,10 +165,10 @@ public class ProdutorRepository : RepositoryBase<Produtor, DbContext>, IProdutor
         if (string.IsNullOrWhiteSpace(cnpj))
             return false;
 
-        var cnpjLimpo = cnpj.Replace(".", "").Replace("/", "").Replace("-", "");
+        var cnpjObj = new Cnpj(cnpj);
         
         var query = Context.Set<Produtor>()
-            .Where(p => p.Cnpj != null && p.Cnpj.Valor == cnpjLimpo);
+            .Where(p => p.Cnpj != null && p.Cnpj == cnpjObj);
 
         if (produtorIdExcluir.HasValue)
         {

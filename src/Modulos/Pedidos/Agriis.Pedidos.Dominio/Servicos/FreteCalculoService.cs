@@ -42,9 +42,9 @@ public class FreteCalculoService
 
         // Calcula peso cúbico se houver densidade
         decimal? pesoCubadoTotal = null;
-        if (produto.Dimensoes.Densidade.HasValue)
+        if (produto.Dimensoes.FaixaDensidadeInicial.HasValue)
         {
-            pesoCubadoTotal = volumeTotal * produto.Dimensoes.Densidade.Value;
+            pesoCubadoTotal = volumeTotal * produto.Dimensoes.FaixaDensidadeInicial.Value;
         }
 
         // Determina o peso para cálculo de frete

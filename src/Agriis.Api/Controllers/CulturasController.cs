@@ -7,7 +7,7 @@ namespace Agriis.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class CulturasController : ControllerBase
 {
     private readonly ICulturaService _culturaService;

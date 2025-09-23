@@ -26,7 +26,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
         await AuthenticateAsSupplierAsync(1);
         var catalogoId = 1;
 
-        var response = await GetAsync($"v1/catalogos/{catalogoId}");
+        var response = await GetAsync($"api/Catalogos/{catalogoId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -57,7 +57,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
         };
 
         var queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={kvp.Value}"));
-        var response = await GetAsync($"v1/catalogos/item/{catalogoItemId}/?{queryString}");
+        var response = await GetAsync($"api/Catalogos/item/{catalogoItemId}/?{queryString}");
 
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
@@ -78,7 +78,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             ponto_distribuicao = "mir"
         };
 
-        var response = await PostAsync("v1/catalogos/all/", requestData);
+        var response = await PostAsync("api/Catalogos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -126,7 +126,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             ponto_distribuicao = "mir"
         };
 
-        var response = await PostAsync("v1/catalogos/all/", requestData);
+        var response = await PostAsync("api/Catalogos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -146,7 +146,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             ponto_distribuicao = "mir"
         };
 
-        var response = await PostAsync("v1/catalogos/all/", requestData);
+        var response = await PostAsync("api/Catalogos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -165,7 +165,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             moeda = "DOLAR"
         };
 
-        var response = await PostAsync("v1/catalogos/", requestData);
+        var response = await PostAsync("api/Catalogos/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         // Extrair ID do catálogo do header Location
@@ -174,7 +174,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
         var catalogoId = ExtractIdFromLocation(location!);
 
         // Verificar se o catálogo foi criado corretamente
-        var getResponse = await GetAsync($"v1/catalogos/{catalogoId}");
+        var getResponse = await GetAsync($"api/Catalogos/{catalogoId}");
         _jsonMatchers.ShouldHaveStatusCode(getResponse, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
@@ -198,7 +198,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             categoria_nome = "herb"
         };
 
-        var response = await PostAsync($"v1/catalogos/{catalogoId}/items/all/", requestData);
+        var response = await PostAsync($"api/Catalogos/{catalogoId}/items/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -241,7 +241,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             categoria_nome = "herb"
         };
 
-        var response = await PostAsync($"v1/catalogos/{catalogoId}/items/all/", requestData);
+        var response = await PostAsync($"api/Catalogos/{catalogoId}/items/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -279,11 +279,11 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
         };
 
         // Atualizar item do catálogo
-        var updateResponse = await PutAsync($"v1/catalogos/{catalogoId}/items/{catalogoItemId}/", requestData);
+        var updateResponse = await PutAsync($"api/Catalogos/{catalogoId}/items/{catalogoItemId}/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(updateResponse, HttpStatusCode.OK);
 
         // Deletar item do catálogo
-        var deleteResponse = await DeleteAsync($"v1/catalogos/{catalogoId}/items/{catalogoItemId}/");
+        var deleteResponse = await DeleteAsync($"api/Catalogos/{catalogoId}/items/{catalogoItemId}/");
         _jsonMatchers.ShouldHaveStatusCode(deleteResponse, HttpStatusCode.OK);
     }
 
@@ -314,7 +314,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             }
         };
 
-        var response = await PostAsync($"v1/catalogos/{catalogoId}/items/", requestData);
+        var response = await PostAsync($"api/Catalogos/{catalogoId}/items/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         // Verificar se o item foi criado
@@ -338,7 +338,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             moeda = "INVALID_CURRENCY" // Moeda inválida
         };
 
-        var response = await PostAsync("v1/catalogos/", invalidData);
+        var response = await PostAsync("api/Catalogos/", invalidData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -371,7 +371,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             }
         };
 
-        var response = await PostAsync($"v1/catalogos/{catalogoId}/items/", invalidData);
+        var response = await PostAsync($"api/Catalogos/{catalogoId}/items/", invalidData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -387,7 +387,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             max_per_page = 10
         };
 
-        var response = await PostAsync("v1/catalogos/all/", requestData);
+        var response = await PostAsync("api/Catalogos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -407,7 +407,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             moeda = "REAL"
         };
 
-        var response = await PostAsync("v1/catalogos/", requestData);
+        var response = await PostAsync("api/Catalogos/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Forbidden);
     }
 
@@ -427,7 +427,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             moeda = "REAL"
         };
 
-        var responseReal = await PostAsync("v1/catalogos/", catalogoReal);
+        var responseReal = await PostAsync("api/Catalogos/", catalogoReal);
         _jsonMatchers.ShouldHaveStatusCode(responseReal, HttpStatusCode.Created);
 
         // Criar catálogo em DÓLAR
@@ -441,7 +441,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             moeda = "DOLAR"
         };
 
-        var responseDolar = await PostAsync("v1/catalogos/", catalogoDolar);
+        var responseDolar = await PostAsync("api/Catalogos/", catalogoDolar);
         _jsonMatchers.ShouldHaveStatusCode(responseDolar, HttpStatusCode.Created);
 
         // Verificar se ambos foram criados com moedas corretas
@@ -451,11 +451,11 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
         var locationDolar = responseDolar.Headers.Location?.ToString();
         var catalogoDolarId = ExtractIdFromLocation(locationDolar!);
 
-        var getRealResponse = await GetAsync($"v1/catalogos/{catalogoRealId}");
+        var getRealResponse = await GetAsync($"api/Catalogos/{catalogoRealId}");
         var jsonReal = await _jsonMatchers.ShouldHaveValidJsonAsync(getRealResponse);
         _jsonMatchers.ShouldHavePropertyWithValue(jsonReal, "moeda", "REAL");
 
-        var getDolarResponse = await GetAsync($"v1/catalogos/{catalogoDolarId}");
+        var getDolarResponse = await GetAsync($"api/Catalogos/{catalogoDolarId}");
         var jsonDolar = await _jsonMatchers.ShouldHaveValidJsonAsync(getDolarResponse);
         _jsonMatchers.ShouldHavePropertyWithValue(jsonDolar, "moeda", "DOLAR");
     }
@@ -495,14 +495,14 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             }
         };
 
-        var response = await PostAsync($"v1/catalogos/{catalogoId}/items/", requestData);
+        var response = await PostAsync($"api/Ctalogos/{catalogoId}/items/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         // Verificar se os preços foram salvos corretamente
         var location = response.Headers.Location?.ToString();
         var itemId = ExtractIdFromLocation(location!);
 
-        var getResponse = await GetAsync($"v1/catalogos/item/{itemId}/");
+        var getResponse = await GetAsync($"api/Catalogos/item/{itemId}/");
         _jsonMatchers.ShouldHaveStatusCode(getResponse, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
@@ -530,7 +530,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             ponto_distribuicao = "matriz"
         };
 
-        var response = await PostAsync("v1/catalogos/all/", requestData);
+        var response = await PostAsync("api/Catalogos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -545,7 +545,7 @@ public class TestCatalogos : BaseTestCase, IClassFixture<TestWebApplicationFacto
             max_per_page = 10
         };
 
-        var responseEmpty = await PostAsync("v1/catalogos/all/", requestDataEmpty);
+        var responseEmpty = await PostAsync("api/Catalogos/all/", requestDataEmpty);
         _jsonMatchers.ShouldHaveStatusCode(responseEmpty, HttpStatusCode.OK);
     }
 

@@ -26,7 +26,7 @@ public class TestCulturas : BaseTestCase, IClassFixture<TestWebApplicationFactor
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/culturas/");
+        var response = await GetAsync("api/culturas/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -57,7 +57,7 @@ public class TestCulturas : BaseTestCase, IClassFixture<TestWebApplicationFactor
         await AuthenticateAsProducerAsync();
 
         var culturaId = 1;
-        var response = await GetAsync($"v1/culturas/{culturaId}");
+        var response = await GetAsync($"api/culturas/{culturaId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -80,7 +80,7 @@ public class TestCulturas : BaseTestCase, IClassFixture<TestWebApplicationFactor
     {
         ClearAuthentication();
 
-        var response = await GetAsync("v1/culturas/");
+        var response = await GetAsync("api/culturas/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -89,7 +89,7 @@ public class TestCulturas : BaseTestCase, IClassFixture<TestWebApplicationFactor
     {
         ClearAuthentication();
 
-        var response = await GetAsync("v1/culturas/1");
+        var response = await GetAsync("api/culturas/1");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -98,7 +98,7 @@ public class TestCulturas : BaseTestCase, IClassFixture<TestWebApplicationFactor
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/culturas/99999");
+        var response = await GetAsync("api/culturas/99999");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.NotFound);
     }
 
@@ -107,7 +107,7 @@ public class TestCulturas : BaseTestCase, IClassFixture<TestWebApplicationFactor
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/culturas/");
+        var response = await GetAsync("api/culturas/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -140,7 +140,7 @@ public class TestCulturas : BaseTestCase, IClassFixture<TestWebApplicationFactor
         await AuthenticateAsProducerAsync();
 
         var searchTerm = "soja";
-        var response = await GetAsync($"v1/culturas/?search={searchTerm}");
+        var response = await GetAsync($"api/culturas/?search={searchTerm}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -161,7 +161,7 @@ public class TestCulturas : BaseTestCase, IClassFixture<TestWebApplicationFactor
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/culturas/");
+        var response = await GetAsync("api/culturas/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -190,7 +190,7 @@ public class TestCulturas : BaseTestCase, IClassFixture<TestWebApplicationFactor
         await AuthenticateAsProducerAsync();
 
         var culturaId = 1;
-        var response = await GetAsync($"v1/culturas/{culturaId}");
+        var response = await GetAsync($"api/culturas/{culturaId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -216,7 +216,7 @@ public class TestCulturas : BaseTestCase, IClassFixture<TestWebApplicationFactor
         await AuthenticateAsProducerAsync();
 
         var startTime = DateTime.UtcNow;
-        var response = await GetAsync("v1/culturas/");
+        var response = await GetAsync("api/culturas/");
         var endTime = DateTime.UtcNow;
 
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
@@ -231,7 +231,7 @@ public class TestCulturas : BaseTestCase, IClassFixture<TestWebApplicationFactor
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/culturas/");
+        var response = await GetAsync("api/culturas/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);

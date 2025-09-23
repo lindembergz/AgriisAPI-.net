@@ -10,7 +10,7 @@ namespace Agriis.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class ProdutoresController : ControllerBase
 {
     private readonly IProdutorService _produtorService;

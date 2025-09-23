@@ -201,6 +201,7 @@ public class AgriisDbContext : DbContext
         modelBuilder.Ignore<Agriis.Compartilhado.Dominio.ObjetosValor.Cpf>();
         modelBuilder.Ignore<Agriis.Compartilhado.Dominio.ObjetosValor.Cnpj>();
         modelBuilder.Ignore<Agriis.Compartilhado.Dominio.ObjetosValor.AreaPlantio>();
+        modelBuilder.Ignore<Agriis.Produtos.Dominio.ObjetosValor.DimensoesProduto>();
     }
 
     private void AplicarAuditoriaAutomatica()

@@ -3,6 +3,7 @@ using Agriis.Usuarios.Dominio.Entidades;
 using Agriis.Usuarios.Dominio.Interfaces;
 using Agriis.Compartilhado.Dominio.Enums;
 using Agriis.Compartilhado.Infraestrutura.Persistencia;
+using Agriis.Compartilhado.Dominio.ObjetosValor;
 
 namespace Agriis.Usuarios.Infraestrutura.Repositorios;
 
@@ -23,8 +24,9 @@ public class UsuarioRepository : RepositoryBase<Usuario, DbContext>, IUsuarioRep
     
     public async Task<Usuario?> ObterPorCpfAsync(string cpf, CancellationToken cancellationToken = default)
     {
+        var cpfObj = new Cpf(cpf);
         return await Context.Set<Usuario>()
-            .FirstOrDefaultAsync(u => u.Cpf != null && u.Cpf.Valor == cpf, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Cpf != null && u.Cpf == cpfObj, cancellationToken);
     }
     
     public async Task<IEnumerable<Usuario>> ObterPorRoleAsync(Roles role, CancellationToken cancellationToken = default)
@@ -58,8 +60,9 @@ public class UsuarioRepository : RepositoryBase<Usuario, DbContext>, IUsuarioRep
     
     public async Task<bool> ExisteCpfAsync(string cpf, int? usuarioIdExcluir = null, CancellationToken cancellationToken = default)
     {
+        var cpfObj = new Cpf(cpf);
         var query = Context.Set<Usuario>()
-            .Where(u => u.Cpf != null && u.Cpf.Valor == cpf);
+            .Where(u => u.Cpf != null && u.Cpf == cpfObj);
         
         if (usuarioIdExcluir.HasValue)
         {

@@ -268,16 +268,55 @@ public class Produto : EntidadeRaizAgregada
     }
 
     /// <summary>
-    /// Calcula o peso para frete baseado no tipo de cálculo configurado
+    /// Calcula o peso do produto replicando exatamente a lógica Python
     /// </summary>
-    public decimal CalcularPesoParaFrete()
+    /// <returns>Peso do produto em quilogramas</returns>
+    public decimal CalcularPesoProduto()
     {
-        return TipoCalculoPeso switch
+        // Replicar lógica Python exata:
+        // if produto.categoria.nome == 'Sementes' and produto.unidade == TipoUnidade.SEMENTES:
+        //     peso_produto = ((produto.pms / 1000) / 1000) * produto.quantidade_minima
+        // else:
+        //     peso_produto = produto.peso_embalagem
+        
+        return Dimensoes.CalcularPesoProduto(Categoria?.Nome ?? string.Empty, Unidade);
+    }
+
+    /// <summary>
+    /// Calcula o peso para frete baseado no tipo de cálculo configurado (replicando lógica Python)
+    /// </summary>
+    /// <param name="quantidade">Quantidade de produtos para calcular o peso total</param>
+    /// <returns>Peso total para cálculo de frete</returns>
+    public decimal CalcularPesoParaFrete(decimal quantidade = 1)
+    {
+        decimal pesoUnitario;
+        
+        if (TipoCalculoPeso == TipoCalculoPeso.PesoCubado)
         {
-            TipoCalculoPeso.PesoNominal => Dimensoes.PesoNominal,
-            TipoCalculoPeso.PesoCubado => Dimensoes.ObterPesoParaFrete(),
-            _ => Dimensoes.PesoNominal
-        };
+            // Lógica Python para PESOCUBADO:
+            // dimensoes = produto.comprimento * produto.largura * produto.profundidade
+            // peso_produto = produto.peso_embalagem
+            // fator_cubagem = produto.faixa_densidade_inicial
+            // pre_peso_cubado = (dimensoes / 1000000) * fator_cubagem
+            // peso_cubado = pre_peso_cubado if pre_peso_cubado > peso_produto else peso_produto
+            // frete_peso = peso_cubado * quantidade
+            
+            var pesoCubado = Dimensoes.CalcularPesoCubado();
+            pesoUnitario = pesoCubado ?? Dimensoes.PesoEmbalagem;
+        }
+        else
+        {
+            // Lógica Python para PESONOMINAL:
+            // if produto.categoria.nome == 'Sementes' and produto.unidade == TipoUnidade.SEMENTES:
+            //     peso_produto = ((produto.pms / 1000) / 1000) * produto.quantidade_minima
+            // else:
+            //     peso_produto = produto.peso_embalagem
+            // frete_peso = peso_produto * quantidade
+            
+            pesoUnitario = CalcularPesoProduto();
+        }
+        
+        return pesoUnitario * quantidade;
     }
 
     /// <summary>

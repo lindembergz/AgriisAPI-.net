@@ -10,6 +10,7 @@ using Agriis.Safras.Aplicacao.Mapeamentos;
 using Agriis.Catalogos.Aplicacao.Mapeamentos;
 using Agriis.Pagamentos.Aplicacao.Mapeamentos;
 using Agriis.Combos.Aplicacao.Mapeamentos;
+using Agriis.Produtos.Aplicacao.Mapeamentos;
 
 namespace Agriis.Api.Configuration;
 
@@ -39,6 +40,8 @@ public static class AutoMapperConfiguration
             cfg.AddProfile<CatalogoMappingProfile>();
             cfg.AddProfile<PagamentoMappingProfile>();
             cfg.AddProfile<ComboMappingProfile>();
+            cfg.AddProfile<CategoriaMappingProfile>();
+            cfg.AddProfile<ProdutoMappingProfile>();
         });
 
         services.AddSingleton(config);

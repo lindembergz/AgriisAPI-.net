@@ -17,8 +17,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="9.0.0" />
-    <PackageReference Include="NetTopologySuite" Version="2.5.0" />
     
     <!-- Authentication & Authorization -->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
@@ -104,6 +102,9 @@
     <ProjectReference Include="..\Modulos\Combos\Agriis.Combos.Dominio\Agriis.Combos.Dominio.csproj" />
     <ProjectReference Include="..\Modulos\Combos\Agriis.Combos.Aplicacao\Agriis.Combos.Aplicacao.csproj" />
     <ProjectReference Include="..\Modulos\Combos\Agriis.Combos.Infraestrutura\Agriis.Combos.Infraestrutura.csproj" />
+    <ProjectReference Include="..\Modulos\Segmentacoes\Agriis.Segmentacoes.Dominio\Agriis.Segmentacoes.Dominio.csproj" />
+    <ProjectReference Include="..\Modulos\Segmentacoes\Agriis.Segmentacoes.Aplicacao\Agriis.Segmentacoes.Aplicacao.csproj" />
+    <ProjectReference Include="..\Modulos\Segmentacoes\Agriis.Segmentacoes.Infraestrutura\Agriis.Segmentacoes.Infraestrutura.csproj" />
   </ItemGroup>
 
 </Project>

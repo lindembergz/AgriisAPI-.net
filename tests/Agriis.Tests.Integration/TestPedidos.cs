@@ -34,7 +34,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             produtor_id = 1
         };
 
-        var response = await PostAsync("v1/pedidos/all/", requestData);
+        var response = await PostAsync("api/pedidos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -72,7 +72,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
         var fornecedorId = 1;
         var produtorId = 1;
 
-        var response = await GetAsync($"v1/pedidos/fornecedor/{fornecedorId}/produtor/{produtorId}/aberto/");
+        var response = await GetAsync($"api/pedidos/fornecedor/{fornecedorId}/produtor/{produtorId}/aberto/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -82,7 +82,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
         await AuthenticateAsProducerAsync(1);
         var pedidoId = 1;
 
-        var response = await GetAsync($"v1/pedidos/{pedidoId}/representante/");
+        var response = await GetAsync($"api/pedidos/{pedidoId}/representante/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -92,7 +92,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
         await AuthenticateAsProducerAsync(1);
         var pedidoId = 1;
 
-        var response = await GetAsync($"v1/pedidos/{pedidoId}/");
+        var response = await GetAsync($"api/pedidos/{pedidoId}/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -108,7 +108,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
         await AuthenticateAsProducerAsync(1);
         var itemId = 264;
 
-        var response = await GetAsync($"v1/pedidos/itens/{itemId}/");
+        var response = await GetAsync($"api/pedidos/itens/{itemId}/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -118,7 +118,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
         await AuthenticateAsProducerAsync(1);
         var pedidoId = 1;
 
-        var response = await GetAsync($"v1/pedidos/{pedidoId}/itens/");
+        var response = await GetAsync($"api/pedidos/{pedidoId}/itens/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -139,7 +139,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             }
         };
 
-        var response = await PostAsync("v1/pedidos/itens/calcular", requestData);
+        var response = await PostAsync("api/pedidos/itens/calcular", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -166,7 +166,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             }
         };
 
-        var response = await PostAsync("v1/pedidos/itens/", requestData);
+        var response = await PostAsync("api/pedidos/itens/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
     }
 
@@ -188,7 +188,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             }
         };
 
-        var response = await PutAsync($"v1/pedidos/itens/{itemId}/", requestData);
+        var response = await PutAsync($"api/pedidos/itens/{itemId}/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         // Verificar se o header Location contém o ID do item atualizado
@@ -206,7 +206,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             permite_contato = false
         };
 
-        var response = await PutAsync($"v1/pedidos/{pedidoId}/", requestData);
+        var response = await PutAsync($"api/pedidos/{pedidoId}/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -216,7 +216,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
         await AuthenticateAsProducerAsync(1);
         var itemId = 498;
 
-        var response = await DeleteAsync($"v1/pedidos/itens/{itemId}/");
+        var response = await DeleteAsync($"api/pedidos/itens/{itemId}/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -224,7 +224,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
     public async Task Test_Create_Proposta_Complete_Flow()
     {
         var pedidoId = 27;
-        var url = $"v1/pedidos/{pedidoId}/propostas/";
+        var url = $"api/pedidos/{pedidoId}/propostas/";
 
         // Inicia negociação como produtor
         await AuthenticateAsProducerAsync(1);
@@ -275,7 +275,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             max_per_page = 10
         };
 
-        var response = await PostAsync($"v1/pedidos/{pedidoId}/propostas/all/", requestData);
+        var response = await PostAsync($"api/pedidos/{pedidoId}/propostas/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -297,7 +297,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             }
         };
 
-        var response1 = await PostAsync("v1/pedidos/itens/", item1);
+        var response1 = await PostAsync("api/pedidos/itens/", item1);
         _jsonMatchers.ShouldHaveStatusCode(response1, HttpStatusCode.Created);
 
         // Adicionar segundo item
@@ -313,12 +313,12 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             }
         };
 
-        var response2 = await PostAsync("v1/pedidos/itens/", item2);
+        var response2 = await PostAsync("api/pedidos/itens/", item2);
         _jsonMatchers.ShouldHaveStatusCode(response2, HttpStatusCode.Created);
 
         // Verificar se o carrinho foi atualizado
         var pedidoId = 1;
-        var pedidoResponse = await GetAsync($"v1/pedidos/{pedidoId}/");
+        var pedidoResponse = await GetAsync($"api/pedidos/{pedidoId}/");
         _jsonMatchers.ShouldHaveStatusCode(pedidoResponse, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(pedidoResponse);
@@ -347,12 +347,12 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             }
         };
 
-        var response = await PutAsync($"v1/pedidos/itens/{itemId}/", updateData);
+        var response = await PutAsync($"api/pedidos/itens/{itemId}/", updateData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         // Verificar se os totais foram recalculados
         var pedidoId = 1;
-        var pedidoResponse = await GetAsync($"v1/pedidos/{pedidoId}/");
+        var pedidoResponse = await GetAsync($"api/pedidos/{pedidoId}/");
         _jsonMatchers.ShouldHaveStatusCode(pedidoResponse, HttpStatusCode.OK);
     }
 
@@ -365,7 +365,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
         await AuthenticateAsProducerAsync(1);
         var iniciarNegociacao = new { };
 
-        var response = await PostAsync($"v1/pedidos/{pedidoId}/propostas/", iniciarNegociacao);
+        var response = await PostAsync($"api/pedidos/{pedidoId}/propostas/", iniciarNegociacao);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         // Fornecedor responde com contraproposta
@@ -376,7 +376,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             desconto_percentual = 5.0m
         };
 
-        var contrapropostaResponse = await PostAsync($"v1/pedidos/{pedidoId}/propostas/", contraproposta);
+        var contrapropostaResponse = await PostAsync($"api/pedidos/{pedidoId}/propostas/", contraproposta);
         _jsonMatchers.ShouldHaveStatusCode(contrapropostaResponse, HttpStatusCode.Created);
 
         // Produtor aceita a proposta
@@ -386,7 +386,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             acao_comprador = "ACEITOU"
         };
 
-        var aceitarResponse = await PostAsync($"v1/pedidos/{pedidoId}/propostas/", aceitarProposta);
+        var aceitarResponse = await PostAsync($"api/pedidos/{pedidoId}/propostas/", aceitarProposta);
         _jsonMatchers.ShouldHaveStatusCode(aceitarResponse, HttpStatusCode.Created);
     }
 
@@ -397,7 +397,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
         var pedidoId = 1;
 
         // Verificar status inicial
-        var response = await GetAsync($"v1/pedidos/{pedidoId}/");
+        var response = await GetAsync($"api/pedidos/{pedidoId}/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -412,7 +412,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             status = "FECHADO"
         };
 
-        var updateResponse = await PutAsync($"v1/pedidos/{pedidoId}/", updateStatus);
+        var updateResponse = await PutAsync($"api/pedidos/{pedidoId}/", updateStatus);
         _jsonMatchers.ShouldHaveStatusCode(updateResponse, HttpStatusCode.OK);
     }
 
@@ -431,12 +431,12 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             data_limite_interacao = DateTime.UtcNow.AddDays(7).ToString("yyyy-MM-dd")
         };
 
-        var response = await PostAsync("v1/pedidos/", createData);
+        var response = await PostAsync("api/pedidos/", createData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         // Verificar se a data limite foi definida corretamente
         var pedidoId = 1;
-        var pedidoResponse = await GetAsync($"v1/pedidos/{pedidoId}/");
+        var pedidoResponse = await GetAsync($"api/pedidos/{pedidoId}/");
         _jsonMatchers.ShouldHaveStatusCode(pedidoResponse, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(pedidoResponse);
@@ -461,7 +461,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             transportes = new object[] { } // Array vazio
         };
 
-        var response = await PostAsync("v1/pedidos/itens/", invalidData);
+        var response = await PostAsync("api/pedidos/itens/", invalidData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -479,7 +479,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             produtor_id = 1
         };
 
-        var response = await PostAsync("v1/pedidos/all/", requestData);
+        var response = await PostAsync("api/pedidos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -490,7 +490,7 @@ public class TestPedidos : BaseTestCase, IClassFixture<TestWebApplicationFactory
         await AuthenticateAsProducerAsync(2);
         var pedidoId = 1; // Pedido do produtor 1
 
-        var response = await GetAsync($"v1/pedidos/{pedidoId}/");
+        var response = await GetAsync($"api/pedidos/{pedidoId}/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Forbidden);
     }
 }

@@ -27,7 +27,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
         await AuthenticateAsAdminAsync();
 
         var idParam = 1;
-        var response = await GetAsync($"v1/acessos/OUTRO/{idParam}");
+        var response = await GetAsync($"api/acessos/OUTRO/{idParam}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -64,7 +64,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             ponto_distribuicao = "mir"
         };
 
-        var response = await PostAsync("v1/acessos/all/", requestData);
+        var response = await PostAsync("api/acessos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -101,7 +101,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
     {
         ClearAuthentication();
 
-        var response = await GetAsync("v1/acessos/OUTRO/1");
+        var response = await GetAsync("api/acessos/OUTRO/1");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -116,7 +116,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             max_per_page = 10
         };
 
-        var response = await PostAsync("v1/acessos/all/", requestData);
+        var response = await PostAsync("api/acessos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -125,7 +125,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
     {
         await AuthenticateAsAdminAsync();
 
-        var response = await GetAsync("v1/acessos/OUTRO/99999");
+        var response = await GetAsync("api/acessos/OUTRO/99999");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.NotFound);
     }
 
@@ -140,7 +140,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             max_per_page = 0 // Valor inválido
         };
 
-        var response = await PostAsync("v1/acessos/all/", requestData);
+        var response = await PostAsync("api/acessos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -155,7 +155,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             max_per_page = 10
         };
 
-        var response = await PostAsync("v1/acessos/all/", requestData);
+        var response = await PostAsync("api/acessos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -168,7 +168,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
 
         foreach (var tipo in tipos)
         {
-            var response = await GetAsync($"v1/acessos/{tipo}/1");
+            var response = await GetAsync($"api/acessos/{tipo}/1");
             
             // Pode retornar OK se existe ou NotFound se não existe, mas não deve dar erro de autorização
             response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NotFound);
@@ -188,7 +188,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             tipo = "SERPRO"
         };
 
-        var response = await PostAsync("v1/acessos/all/", requestData);
+        var response = await PostAsync("api/acessos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -224,7 +224,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             max_per_page = 10
         };
 
-        var response = await PostAsync("v1/acessos/all/", requestData);
+        var response = await PostAsync("api/acessos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -261,7 +261,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             max_per_page = 10
         };
 
-        var response = await PostAsync("v1/acessos/all/", requestData);
+        var response = await PostAsync("api/acessos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -296,7 +296,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
     {
         await AuthenticateAsSupplierAsync();
 
-        var response = await GetAsync("v1/acessos/OUTRO/1");
+        var response = await GetAsync("api/acessos/OUTRO/1");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Forbidden);
     }
 
@@ -311,7 +311,7 @@ public class TestAcessos : BaseTestCase, IClassFixture<TestWebApplicationFactory
             max_per_page = 10
         };
 
-        var response = await PostAsync("v1/acessos/all/", requestData);
+        var response = await PostAsync("api/acessos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Forbidden);
     }
 }

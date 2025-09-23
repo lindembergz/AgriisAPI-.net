@@ -26,7 +26,7 @@ public class TestSafras : BaseTestCase, IClassFixture<TestWebApplicationFactory>
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/safras/");
+        var response = await GetAsync("api/safras/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -52,7 +52,7 @@ public class TestSafras : BaseTestCase, IClassFixture<TestWebApplicationFactory>
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/safras/atual");
+        var response = await GetAsync("api/safras/atual");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -76,7 +76,7 @@ public class TestSafras : BaseTestCase, IClassFixture<TestWebApplicationFactory>
     {
         ClearAuthentication();
 
-        var response = await GetAsync("v1/safras/");
+        var response = await GetAsync("api/safras/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -85,7 +85,7 @@ public class TestSafras : BaseTestCase, IClassFixture<TestWebApplicationFactory>
     {
         ClearAuthentication();
 
-        var response = await GetAsync("v1/safras/atual");
+        var response = await GetAsync("api/safras/atual");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -95,7 +95,7 @@ public class TestSafras : BaseTestCase, IClassFixture<TestWebApplicationFactory>
         await AuthenticateAsProducerAsync();
 
         var safraId = 1;
-        var response = await GetAsync($"v1/safras/{safraId}");
+        var response = await GetAsync($"api/safras/{safraId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -119,7 +119,7 @@ public class TestSafras : BaseTestCase, IClassFixture<TestWebApplicationFactory>
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/safras/99999");
+        var response = await GetAsync("api/safras/99999");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.NotFound);
     }
 
@@ -129,7 +129,7 @@ public class TestSafras : BaseTestCase, IClassFixture<TestWebApplicationFactory>
         await AuthenticateAsProducerAsync();
 
         var anoColheita = DateTime.Now.Year;
-        var response = await GetAsync($"v1/safras?ano_colheita={anoColheita}");
+        var response = await GetAsync($"api/safras?ano_colheita={anoColheita}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -150,7 +150,7 @@ public class TestSafras : BaseTestCase, IClassFixture<TestWebApplicationFactory>
         await AuthenticateAsProducerAsync();
 
         var tipo = "S1";
-        var response = await GetAsync($"v1/safras?tipo={tipo}");
+        var response = await GetAsync($"api/safras?tipo={tipo}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -170,7 +170,7 @@ public class TestSafras : BaseTestCase, IClassFixture<TestWebApplicationFactory>
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/safras/");
+        var response = await GetAsync("api/safras/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -197,7 +197,7 @@ public class TestSafras : BaseTestCase, IClassFixture<TestWebApplicationFactory>
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/safras/atual");
+        var response = await GetAsync("api/safras/atual");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -222,7 +222,7 @@ public class TestSafras : BaseTestCase, IClassFixture<TestWebApplicationFactory>
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/safras/");
+        var response = await GetAsync("api/safras/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);

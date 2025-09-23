@@ -80,7 +80,12 @@ public class DimensoesProdutoDto
     public decimal Largura { get; set; }
     public decimal Comprimento { get; set; }
     public decimal PesoNominal { get; set; }
-    public decimal? Densidade { get; set; }
+    public decimal PesoEmbalagem { get; set; }
+    public decimal? Pms { get; set; }
+    public decimal QuantidadeMinima { get; set; }
+    public string Embalagem { get; set; } = string.Empty;
+    public decimal? FaixaDensidadeInicial { get; set; }
+    public decimal? FaixaDensidadeFinal { get; set; }
     public decimal Volume { get; set; }
     public decimal? PesoCubado { get; set; }
     public decimal PesoParaFrete { get; set; }
@@ -95,7 +100,12 @@ public class CriarDimensoesProdutoDto
     public decimal Largura { get; set; }
     public decimal Comprimento { get; set; }
     public decimal PesoNominal { get; set; }
-    public decimal? Densidade { get; set; }
+    public decimal PesoEmbalagem { get; set; }
+    public decimal? Pms { get; set; }
+    public decimal QuantidadeMinima { get; set; }
+    public string Embalagem { get; set; } = string.Empty;
+    public decimal? FaixaDensidadeInicial { get; set; }
+    public decimal? FaixaDensidadeFinal { get; set; }
 }
 
 /// <summary>
@@ -107,7 +117,12 @@ public class AtualizarDimensoesProdutoDto
     public decimal Largura { get; set; }
     public decimal Comprimento { get; set; }
     public decimal PesoNominal { get; set; }
-    public decimal? Densidade { get; set; }
+    public decimal PesoEmbalagem { get; set; }
+    public decimal? Pms { get; set; }
+    public decimal QuantidadeMinima { get; set; }
+    public string Embalagem { get; set; } = string.Empty;
+    public decimal? FaixaDensidadeInicial { get; set; }
+    public decimal? FaixaDensidadeFinal { get; set; }
 }
 
 /// <summary>

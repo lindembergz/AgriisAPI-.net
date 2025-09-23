@@ -1,5 +1,6 @@
 using Serilog.Core;
 using Serilog.Events;
+using Microsoft.AspNetCore.Http;
 
 namespace Agriis.Compartilhado.Infraestrutura.Logging;
 
@@ -8,42 +9,54 @@ namespace Agriis.Compartilhado.Infraestrutura.Logging;
 /// </summary>
 public class CorrelationIdEnricher : ILogEventEnricher
 {
-    private readonly ILoggingContext _loggingContext;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public CorrelationIdEnricher(ILoggingContext loggingContext)
+    public CorrelationIdEnricher(IHttpContextAccessor httpContextAccessor)
     {
-        _loggingContext = loggingContext;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
     {
-        if (!string.IsNullOrEmpty(_loggingContext.CorrelationId))
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext == null) return;
+
+        // Correlation ID
+        if (httpContext.Request.Headers.TryGetValue("X-Correlation-ID", out var correlationId))
         {
-            var correlationIdProperty = propertyFactory.CreateProperty("CorrelationId", _loggingContext.CorrelationId);
+            var correlationIdProperty = propertyFactory.CreateProperty("CorrelationId", correlationId.ToString());
             logEvent.AddPropertyIfAbsent(correlationIdProperty);
         }
 
-        if (!string.IsNullOrEmpty(_loggingContext.RequestPath))
+        // Request Path
+        var requestPath = httpContext.Request.Path.Value;
+        if (!string.IsNullOrEmpty(requestPath))
         {
-            var requestPathProperty = propertyFactory.CreateProperty("RequestPath", _loggingContext.RequestPath);
+            var requestPathProperty = propertyFactory.CreateProperty("RequestPath", requestPath);
             logEvent.AddPropertyIfAbsent(requestPathProperty);
         }
 
-        if (!string.IsNullOrEmpty(_loggingContext.RequestMethod))
+        // Request Method
+        var requestMethod = httpContext.Request.Method;
+        if (!string.IsNullOrEmpty(requestMethod))
         {
-            var requestMethodProperty = propertyFactory.CreateProperty("RequestMethod", _loggingContext.RequestMethod);
+            var requestMethodProperty = propertyFactory.CreateProperty("RequestMethod", requestMethod);
             logEvent.AddPropertyIfAbsent(requestMethodProperty);
         }
 
-        if (!string.IsNullOrEmpty(_loggingContext.RemoteIpAddress))
+        // Remote IP Address
+        var remoteIp = httpContext.Connection.RemoteIpAddress?.ToString();
+        if (!string.IsNullOrEmpty(remoteIp))
         {
-            var remoteIpProperty = propertyFactory.CreateProperty("RemoteIpAddress", _loggingContext.RemoteIpAddress);
+            var remoteIpProperty = propertyFactory.CreateProperty("RemoteIpAddress", remoteIp);
             logEvent.AddPropertyIfAbsent(remoteIpProperty);
         }
 
-        if (!string.IsNullOrEmpty(_loggingContext.UserAgent))
+        // User Agent
+        var userAgent = httpContext.Request.Headers.UserAgent.FirstOrDefault();
+        if (!string.IsNullOrEmpty(userAgent))
         {
-            var userAgentProperty = propertyFactory.CreateProperty("UserAgent", _loggingContext.UserAgent);
+            var userAgentProperty = propertyFactory.CreateProperty("UserAgent", userAgent);
             logEvent.AddPropertyIfAbsent(userAgentProperty);
         }
     }

@@ -40,7 +40,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             data_pagamento = "04/11/2022"
         };
 
-        var response = await PostAsync("v1/combos/", requestData);
+        var response = await PostAsync("api/combos/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         var comboId = GetIdFromLocationHeader(response);
@@ -59,7 +59,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             max_per_page = 10
         };
 
-        var response = await PostAsync($"v1/combos/{comboId}/municipios/restritos/all/", requestData);
+        var response = await PostAsync($"api/combos/{comboId}/municipios/restritos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -72,7 +72,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
         var comboId = TestUserAuth.FornecedorWebSandbox.ComboId;
         var municipioId = 5203906;
 
-        var response = await PutAsync($"v1/combos/{comboId}/restringir/municipio/{municipioId}/", new { });
+        var response = await PutAsync($"api/combos/{comboId}/restringir/municipio/{municipioId}/", new { });
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -85,7 +85,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
         var comboId = TestUserAuth.FornecedorWebSandbox.ComboId;
         var municipioId = 5203906;
 
-        var response = await DeleteAsync($"v1/combos/{comboId}/restringir/municipio/{municipioId}/");
+        var response = await DeleteAsync($"api/combos/{comboId}/restringir/municipio/{municipioId}/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -102,7 +102,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             preco = 40.60
         };
 
-        var response = await PostAsync($"v1/combos/{comboId}/local/recebimento/", requestData);
+        var response = await PostAsync($"api/combos/{comboId}/local/recebimento/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -115,7 +115,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
         var comboId = TestUserAuth.FornecedorWebSandbox.ComboId;
         var localRecebimentoId = 2;
 
-        var response = await DeleteAsync($"v1/combos/{comboId}/local/recebimento/{localRecebimentoId}");
+        var response = await DeleteAsync($"api/combos/{comboId}/local/recebimento/{localRecebimentoId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -131,7 +131,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             max_per_page = 10
         };
 
-        var response = await PostAsync($"v1/combos/{comboId}/local/recebimento/all/", requestData);
+        var response = await PostAsync($"api/combos/{comboId}/local/recebimento/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -147,7 +147,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             max_per_page = 10
         };
 
-        var response = await PostAsync($"v1/combos/{comboId}/categoria/desconto/all/", requestData);
+        var response = await PostAsync($"api/combos/{comboId}/categoria/desconto/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -164,7 +164,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             pecentual_desconto = 40.60
         };
 
-        var response = await PostAsync($"v1/combos/{comboId}/categoria/{categoriaId}/desconto", requestData);
+        var response = await PostAsync($"api/combos/{comboId}/categoria/{categoriaId}/desconto", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -177,7 +177,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
         var comboId = TestUserAuth.FornecedorWebSandbox.ComboId;
         var categoriaId = TestUserAuth.FornecedorWebSandbox.CategoriaId;
 
-        var response = await DeleteAsync($"v1/combos/{comboId}/categoria/{categoriaId}/desconto");
+        var response = await DeleteAsync($"api/combos/{comboId}/categoria/{categoriaId}/desconto");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -192,7 +192,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             max_per_page = 10
         };
 
-        var response = await PostAsync("v1/combos/all/", requestData);
+        var response = await PostAsync("api/combos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -202,7 +202,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
         await AuthenticateAsSupplierAsync();
 
         var comboId = 1;
-        var response = await GetAsync($"v1/combos/{comboId}");
+        var response = await GetAsync($"api/combos/{comboId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -218,7 +218,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             max_per_page = 10
         };
 
-        var response = await PostAsync($"v1/combos/{comboId}/items/all/", requestData);
+        var response = await PostAsync($"api/combos/{comboId}/items/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -240,7 +240,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             data_pagamento = "04/11/2022"
         };
 
-        var response = await PostAsync("v1/combos/", requestData);
+        var response = await PostAsync("api/combos/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -262,7 +262,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             data_pagamento = "04/11/2022"
         };
 
-        var response = await PostAsync("v1/combos/", requestData);
+        var response = await PostAsync("api/combos/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -284,7 +284,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             data_pagamento = "04/11/2022"
         };
 
-        var response = await PostAsync("v1/combos/", requestData);
+        var response = await PostAsync("api/combos/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -300,7 +300,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             preco = -10.50 // Preço negativo
         };
 
-        var response = await PostAsync($"v1/combos/{comboId}/local/recebimento/", requestData);
+        var response = await PostAsync($"api/combos/{comboId}/local/recebimento/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -316,7 +316,7 @@ public class TestCombos : BaseTestCase, IClassFixture<TestWebApplicationFactory>
             pecentual_desconto = 150.0 // Percentual inválido
         };
 
-        var response = await PostAsync($"v1/combos/{comboId}/categoria/{categoriaId}/desconto", requestData);
+        var response = await PostAsync($"api/combos/{comboId}/categoria/{categoriaId}/desconto", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 }

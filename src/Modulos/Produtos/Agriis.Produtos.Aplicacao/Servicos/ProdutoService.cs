@@ -136,7 +136,12 @@ public class ProdutoService : IProdutoService
             dto.Dimensoes.Largura,
             dto.Dimensoes.Comprimento,
             dto.Dimensoes.PesoNominal,
-            dto.Dimensoes.Densidade);
+            dto.Dimensoes.PesoEmbalagem,
+            dto.Dimensoes.QuantidadeMinima,
+            dto.Dimensoes.Embalagem,
+            dto.Dimensoes.Pms,
+            dto.Dimensoes.FaixaDensidadeInicial,
+            dto.Dimensoes.FaixaDensidadeFinal);
 
         // Criar produto
         var produto = new Produto(
@@ -192,7 +197,12 @@ public class ProdutoService : IProdutoService
             dto.Dimensoes.Largura,
             dto.Dimensoes.Comprimento,
             dto.Dimensoes.PesoNominal,
-            dto.Dimensoes.Densidade);
+            dto.Dimensoes.PesoEmbalagem,
+            dto.Dimensoes.QuantidadeMinima,
+            dto.Dimensoes.Embalagem,
+            dto.Dimensoes.Pms,
+            dto.Dimensoes.FaixaDensidadeInicial,
+            dto.Dimensoes.FaixaDensidadeFinal);
         produto.AtualizarDimensoes(novasDimensoes);
 
         // Atualizar culturas

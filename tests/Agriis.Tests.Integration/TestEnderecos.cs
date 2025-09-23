@@ -26,7 +26,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/enderecos/estados");
+        var response = await GetAsync("api/enderecos/estados");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -61,7 +61,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
         await AuthenticateAsProducerAsync();
 
         var estadoId = 11;
-        var response = await GetAsync($"v1/enderecos/municipios?estado_id={estadoId}");
+        var response = await GetAsync($"api/enderecos/municipios?estado_id={estadoId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -103,7 +103,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
         await AuthenticateAsProducerAsync();
 
         var estadoId = 11;
-        var response = await GetAsync($"v1/enderecos/urevs?estado_id={estadoId}");
+        var response = await GetAsync($"api/enderecos/urevs?estado_id={estadoId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -125,7 +125,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
         await AuthenticateAsProducerAsync();
 
         var query = "Car";
-        var response = await GetAsync($"v1/enderecos/locais/recebimentos/full?query={query}");
+        var response = await GetAsync($"api/enderecos/locais/recebimentos/full?query={query}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -157,7 +157,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
     {
         ClearAuthentication();
 
-        var response = await GetAsync("v1/enderecos/estados");
+        var response = await GetAsync("api/enderecos/estados");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -166,7 +166,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
     {
         ClearAuthentication();
 
-        var response = await GetAsync("v1/enderecos/municipios?estado_id=11");
+        var response = await GetAsync("api/enderecos/municipios?estado_id=11");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -175,7 +175,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/enderecos/municipios");
+        var response = await GetAsync("api/enderecos/municipios");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -184,7 +184,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/enderecos/municipios?estado_id=99999");
+        var response = await GetAsync("api/enderecos/municipios?estado_id=99999");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.NotFound);
     }
 
@@ -193,7 +193,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/enderecos/estados");
+        var response = await GetAsync("api/enderecos/estados");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -226,7 +226,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
         await AuthenticateAsProducerAsync();
 
         var estadoId = 11;
-        var response = await GetAsync($"v1/enderecos/municipios?estado_id={estadoId}");
+        var response = await GetAsync($"api/enderecos/municipios?estado_id={estadoId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -259,7 +259,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
         await AuthenticateAsProducerAsync();
 
         var estadoId = 11;
-        var response = await GetAsync($"v1/enderecos/municipios?estado_id={estadoId}");
+        var response = await GetAsync($"api/enderecos/municipios?estado_id={estadoId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -286,7 +286,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/enderecos/estados");
+        var response = await GetAsync("api/enderecos/estados");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -311,7 +311,7 @@ public class TestEnderecos : BaseTestCase, IClassFixture<TestWebApplicationFacto
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/enderecos/locais/recebimentos/full?query=");
+        var response = await GetAsync("api/enderecos/locais/recebimentos/full?query=");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 }

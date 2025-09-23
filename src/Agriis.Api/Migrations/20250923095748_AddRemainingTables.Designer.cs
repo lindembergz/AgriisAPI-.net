@@ -4,6 +4,7 @@ using System.Text.Json;
 using Agriis.Api.Contexto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -13,9 +14,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Agriis.Api.Migrations
 {
     [DbContext(typeof(AgriisDbContext))]
-    partial class AgriisDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250923095748_AddRemainingTables")]
+    partial class AddRemainingTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

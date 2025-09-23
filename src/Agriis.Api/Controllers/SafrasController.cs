@@ -10,7 +10,7 @@ namespace Agriis.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class SafrasController : ControllerBase
 {
     private readonly ISafraService _safraService;

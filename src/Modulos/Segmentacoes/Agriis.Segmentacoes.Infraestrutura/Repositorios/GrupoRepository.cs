@@ -8,7 +8,7 @@ namespace Agriis.Segmentacoes.Infraestrutura.Repositorios;
 /// <summary>
 /// Implementação do repositório de grupos de segmentação
 /// </summary>
-public class GrupoRepository : RepositoryBase<Grupo>, IGrupoRepository
+public class GrupoRepository : RepositoryBase<Grupo, DbContext>, IGrupoRepository
 {
     public GrupoRepository(DbContext context) : base(context)
     {
@@ -21,7 +21,7 @@ public class GrupoRepository : RepositoryBase<Grupo>, IGrupoRepository
     /// <returns>Lista de grupos</returns>
     public async Task<IEnumerable<Grupo>> ObterPorSegmentacaoAsync(int segmentacaoId)
     {
-        return await _dbSet
+        return await DbSet
             .Where(g => g.SegmentacaoId == segmentacaoId)
             .OrderBy(g => g.AreaMinima)
             .ToListAsync();
@@ -34,7 +34,7 @@ public class GrupoRepository : RepositoryBase<Grupo>, IGrupoRepository
     /// <returns>Lista de grupos ativos</returns>
     public async Task<IEnumerable<Grupo>> ObterAtivosPorSegmentacaoAsync(int segmentacaoId)
     {
-        return await _dbSet
+        return await DbSet
             .Where(g => g.SegmentacaoId == segmentacaoId && g.Ativo)
             .OrderBy(g => g.AreaMinima)
             .ToListAsync();
@@ -48,7 +48,7 @@ public class GrupoRepository : RepositoryBase<Grupo>, IGrupoRepository
     /// <returns>Grupo que se enquadra ou null</returns>
     public async Task<Grupo?> ObterPorAreaAsync(int segmentacaoId, decimal area)
     {
-        return await _dbSet
+        return await DbSet
             .Where(g => g.SegmentacaoId == segmentacaoId && 
                        g.Ativo && 
                        g.AreaMinima <= area && 
@@ -64,7 +64,7 @@ public class GrupoRepository : RepositoryBase<Grupo>, IGrupoRepository
     /// <returns>Grupo completo</returns>
     public async Task<Grupo?> ObterComDescontosAsync(int id)
     {
-        return await _dbSet
+        return await DbSet
             .Include(g => g.GruposSegmentacao)
             .Where(g => g.Id == id)
             .FirstOrDefaultAsync();
@@ -80,7 +80,7 @@ public class GrupoRepository : RepositoryBase<Grupo>, IGrupoRepository
     /// <returns>True se existe sobreposição</returns>
     public async Task<bool> ExisteSobreposicaoAsync(int segmentacaoId, decimal areaMinima, decimal? areaMaxima, int? excluirId = null)
     {
-        var query = _dbSet.Where(g => g.SegmentacaoId == segmentacaoId && g.Ativo);
+        var query = DbSet.Where(g => g.SegmentacaoId == segmentacaoId && g.Ativo);
         
         if (excluirId.HasValue)
             query = query.Where(g => g.Id != excluirId.Value);
@@ -104,7 +104,7 @@ public class GrupoRepository : RepositoryBase<Grupo>, IGrupoRepository
     /// <summary>
     /// Sobrescreve o método base para incluir validações específicas
     /// </summary>
-    public override async Task<Grupo> AdicionarAsync(Grupo entidade)
+    public override async Task<Grupo> AdicionarAsync(Grupo entidade, CancellationToken cancellationToken = default)
     {
         // Validar sobreposição de faixas
         var existeSobreposicao = await ExisteSobreposicaoAsync(
@@ -119,13 +119,13 @@ public class GrupoRepository : RepositoryBase<Grupo>, IGrupoRepository
                 $"Área: {entidade.AreaMinima} - {entidade.AreaMaxima?.ToString() ?? "∞"} hectares.");
         }
         
-        return await base.AdicionarAsync(entidade);
+        return await base.AdicionarAsync(entidade, cancellationToken);
     }
     
     /// <summary>
     /// Sobrescreve o método base para incluir validações específicas
     /// </summary>
-    public override async Task AtualizarAsync(Grupo entidade)
+    public override async Task AtualizarAsync(Grupo entidade, CancellationToken cancellationToken = default)
     {
         // Validar sobreposição de faixas
         var existeSobreposicao = await ExisteSobreposicaoAsync(
@@ -141,6 +141,6 @@ public class GrupoRepository : RepositoryBase<Grupo>, IGrupoRepository
                 $"Área: {entidade.AreaMinima} - {entidade.AreaMaxima?.ToString() ?? "∞"} hectares.");
         }
         
-        await base.AtualizarAsync(entidade);
+        await base.AtualizarAsync(entidade, cancellationToken);
     }
 }

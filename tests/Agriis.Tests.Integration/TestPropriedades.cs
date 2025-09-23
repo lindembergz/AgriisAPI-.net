@@ -54,7 +54,7 @@ public class TestPropriedades : BaseTestCase, IClassFixture<TestWebApplicationFa
             }
         };
 
-        var response = await PostAsync("v1/propriedades/", requestData);
+        var response = await PostAsync("api/propriedades/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
     }
 
@@ -65,7 +65,7 @@ public class TestPropriedades : BaseTestCase, IClassFixture<TestWebApplicationFa
         await AuthenticateAsProducerAsync();
 
         var propriedadeId = TestUserAuth.ProdutorMobileSandbox.PropriedadeId;
-        var response = await DeleteAsync($"v1/propriedades/{propriedadeId}/");
+        var response = await DeleteAsync($"api/propriedades/{propriedadeId}/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -92,7 +92,7 @@ public class TestPropriedades : BaseTestCase, IClassFixture<TestWebApplicationFa
             }
         };
 
-        var response = await PostAsync("v1/propriedades/", requestData);
+        var response = await PostAsync("api/propriedades/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -118,7 +118,7 @@ public class TestPropriedades : BaseTestCase, IClassFixture<TestWebApplicationFa
             }
         };
 
-        var response = await PostAsync("v1/propriedades/", requestData);
+        var response = await PostAsync("api/propriedades/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -144,7 +144,7 @@ public class TestPropriedades : BaseTestCase, IClassFixture<TestWebApplicationFa
             }
         };
 
-        var response = await PostAsync("v1/propriedades/", requestData);
+        var response = await PostAsync("api/propriedades/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -170,7 +170,7 @@ public class TestPropriedades : BaseTestCase, IClassFixture<TestWebApplicationFa
             }
         };
 
-        var response = await PostAsync("v1/propriedades/", requestData);
+        var response = await PostAsync("api/propriedades/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -179,7 +179,7 @@ public class TestPropriedades : BaseTestCase, IClassFixture<TestWebApplicationFa
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await DeleteAsync("v1/propriedades/99999/");
+        var response = await DeleteAsync("api/propriedades/99999/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.NotFound);
     }
 }

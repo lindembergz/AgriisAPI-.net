@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 using Agriis.Compartilhado.Infraestrutura.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Agriis.Api.Middleware;
@@ -25,18 +26,15 @@ public class RequestLoggingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<RequestLoggingMiddleware> _logger;
-    private readonly ILoggingContext _loggingContext;
     private readonly RequestLoggingOptions _options;
 
     public RequestLoggingMiddleware(
         RequestDelegate next, 
         ILogger<RequestLoggingMiddleware> logger,
-        ILoggingContext loggingContext,
         IOptions<RequestLoggingOptions> options)
     {
         _next = next;
         _logger = logger;
-        _loggingContext = loggingContext;
         _options = options.Value;
     }
 
@@ -52,7 +50,11 @@ public class RequestLoggingMiddleware
         var stopwatch = Stopwatch.StartNew();
 
         // Configurar contexto de logging
-        SetupLoggingContext(context, correlationId);
+        var loggingContext = context.RequestServices.GetService<ILoggingContext>();
+        if (loggingContext != null)
+        {
+            SetupLoggingContext(context, correlationId, loggingContext);
+        }
 
         // Log da requisição de entrada
         await LogRequestAsync(context, correlationId);
@@ -91,7 +93,8 @@ public class RequestLoggingMiddleware
             context.Response.Body = originalResponseBodyStream;
 
             // Limpar contexto de logging
-            _loggingContext.Clear();
+            var loggingContextForCleanup = context.RequestServices.GetService<ILoggingContext>();
+            loggingContextForCleanup?.Clear();
         }
     }
 
@@ -111,18 +114,18 @@ public class RequestLoggingMiddleware
         return newCorrelationId;
     }
 
-    private void SetupLoggingContext(HttpContext context, string correlationId)
+    private void SetupLoggingContext(HttpContext context, string correlationId, ILoggingContext loggingContext)
     {
-        _loggingContext.CorrelationId = correlationId;
-        _loggingContext.RequestPath = context.Request.Path.Value;
-        _loggingContext.RequestMethod = context.Request.Method;
-        _loggingContext.RemoteIpAddress = context.Connection.RemoteIpAddress?.ToString();
-        _loggingContext.UserAgent = context.Request.Headers.UserAgent.ToString();
+        loggingContext.CorrelationId = correlationId;
+        loggingContext.RequestPath = context.Request.Path.Value;
+        loggingContext.RequestMethod = context.Request.Method;
+        loggingContext.RemoteIpAddress = context.Connection.RemoteIpAddress?.ToString();
+        loggingContext.UserAgent = context.Request.Headers.UserAgent.ToString();
 
         if (context.User?.Identity?.IsAuthenticated == true)
         {
-            _loggingContext.UserId = context.User.FindFirst("user_id")?.Value;
-            _loggingContext.UserEmail = context.User.FindFirst("email")?.Value;
+            loggingContext.UserId = context.User.FindFirst("user_id")?.Value;
+            loggingContext.UserEmail = context.User.FindFirst("email")?.Value;
         }
     }
 

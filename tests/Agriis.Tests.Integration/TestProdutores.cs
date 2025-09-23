@@ -42,11 +42,11 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
         };
 
         // Primeira tentativa - deve criar com sucesso
-        var response = await PostAsync("v1/produtores/", requestData);
+        var response = await PostAsync("api/produtores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         // Segunda tentativa com os mesmos dados - deve falhar
-        var duplicateResponse = await PostAsync("v1/produtores/", requestData);
+        var duplicateResponse = await PostAsync("api/produtores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(duplicateResponse, HttpStatusCode.BadRequest);
     }
 
@@ -64,11 +64,11 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
         };
 
         // Primeira tentativa - deve criar com sucesso
-        var response = await PostAsync("v1/produtores/", requestData);
+        var response = await PostAsync("api/produtores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         // Segunda tentativa com os mesmos dados - deve falhar
-        var duplicateResponse = await PostAsync("v1/produtores/", requestData);
+        var duplicateResponse = await PostAsync("api/produtores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(duplicateResponse, HttpStatusCode.BadRequest);
     }
 
@@ -85,7 +85,7 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
             // inscricao_estadual omitida intencionalmente
         };
 
-        var response = await PostAsync("v1/produtores/", requestData);
+        var response = await PostAsync("api/produtores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -96,7 +96,7 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
         var produtorId = 1;
         var propriedadeId = 3;
 
-        var response = await GetAsync($"v1/produtores/{produtorId}/propriedades/{propriedadeId}/");
+        var response = await GetAsync($"api/produtores/{produtorId}/propriedades/{propriedadeId}/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -120,7 +120,7 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
         var produtorId = 1;
         var propriedadeId = 3;
 
-        var response = await GetAsync($"v1/produtores/{produtorId}/propriedades/{propriedadeId}/fornecedores/");
+        var response = await GetAsync($"api/produtores/{produtorId}/propriedades/{propriedadeId}/fornecedores/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -156,7 +156,7 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
             nome = "s"
         };
 
-        var response = await PostAsync("v1/produtores/all/", requestData);
+        var response = await PostAsync("api/produtores/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -199,7 +199,7 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
             nome = "s"
         };
 
-        var response = await PostAsync("v1/produtores/all/", requestData);
+        var response = await PostAsync("api/produtores/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -216,7 +216,7 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
             nome = "s"
         };
 
-        var response = await PostAsync("v1/produtores/all/", requestData);
+        var response = await PostAsync("api/produtores/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -239,7 +239,7 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
             }
         };
 
-        var response = await PostAsync("v1/produtores/", requestData);
+        var response = await PostAsync("api/produtores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -257,7 +257,7 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
             inscricao_estadual = DataGenerator.GerarInscricaoEstadual()
         };
 
-        var response = await PostAsync("v1/produtores/", requestData);
+        var response = await PostAsync("api/produtores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -281,7 +281,7 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
             }
         };
 
-        var response = await PostAsync("v1/produtores/", requestData);
+        var response = await PostAsync("api/produtores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -303,7 +303,7 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
             }
         };
 
-        var response = await PostAsync("v1/produtores/", requestData);
+        var response = await PostAsync("api/produtores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -325,7 +325,7 @@ public class TestProdutores : BaseTestCase, IClassFixture<TestWebApplicationFact
             }
         };
 
-        var response = await PostAsync("v1/produtores/", requestData);
+        var response = await PostAsync("api/produtores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 }

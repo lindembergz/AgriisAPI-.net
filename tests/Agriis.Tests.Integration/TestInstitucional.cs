@@ -33,7 +33,7 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
             endereco = "mirante"
         };
 
-        var response = await PostAsync("v1/institucional/ifarmer/audit_cadastrese", requestData);
+        var response = await PostAsync("api/institucional/ifarmer/audit_cadastrese", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -51,7 +51,7 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
     public async Task Test_Get_Configuracao_Sistema()
     {
         // Teste para obter configurações do sistema
-        var response = await GetAsync("v1/institucional/configuracoes");
+        var response = await GetAsync("api/institucional/configuracoes");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -67,7 +67,7 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
     public async Task Test_Get_Termos_Uso()
     {
         // Teste para obter termos de uso
-        var response = await GetAsync("v1/institucional/termos-uso");
+        var response = await GetAsync("api/institucional/termos-uso");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -89,7 +89,7 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
     public async Task Test_Get_Politica_Privacidade()
     {
         // Teste para obter política de privacidade
-        var response = await GetAsync("v1/institucional/politica-privacidade");
+        var response = await GetAsync("api/institucional/politica-privacidade");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -127,14 +127,14 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
             }
         };
 
-        var response = await PostAsync("v1/institucional/configuracoes", requestData);
+        var response = await PostAsync("api/institucional/configuracoes", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         var configId = GetIdFromLocationHeader(response);
         configId.Should().BeGreaterThan(0);
 
         // Verificar se a configuração foi criada
-        var getResponse = await GetAsync($"v1/institucional/configuracoes/{configId}");
+        var getResponse = await GetAsync($"api/institucional/configuracoes/{configId}");
         _jsonMatchers.ShouldHaveStatusCode(getResponse, HttpStatusCode.OK);
 
         var getJson = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
@@ -164,7 +164,7 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
             }
         };
 
-        var createResponse = await PostAsync("v1/institucional/configuracoes", createData);
+        var createResponse = await PostAsync("api/institucional/configuracoes", createData);
         _jsonMatchers.ShouldHaveStatusCode(createResponse, HttpStatusCode.Created);
 
         var configId = GetIdFromLocationHeader(createResponse);
@@ -180,11 +180,11 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
             }
         };
 
-        var updateResponse = await PutAsync($"v1/institucional/configuracoes/{configId}", updateData);
+        var updateResponse = await PutAsync($"api/institucional/configuracoes/{configId}", updateData);
         _jsonMatchers.ShouldHaveStatusCode(updateResponse, HttpStatusCode.OK);
 
         // Verificar se foi atualizada
-        var getResponse = await GetAsync($"v1/institucional/configuracoes/{configId}");
+        var getResponse = await GetAsync($"api/institucional/configuracoes/{configId}");
         var getJson = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
         var getObj = _jsonMatchers.ShouldBeObject(getJson);
 
@@ -212,17 +212,17 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
             }
         };
 
-        var createResponse = await PostAsync("v1/institucional/configuracoes", createData);
+        var createResponse = await PostAsync("api/institucional/configuracoes", createData);
         _jsonMatchers.ShouldHaveStatusCode(createResponse, HttpStatusCode.Created);
 
         var configId = GetIdFromLocationHeader(createResponse);
 
         // Deletar a configuração
-        var deleteResponse = await DeleteAsync($"v1/institucional/configuracoes/{configId}");
+        var deleteResponse = await DeleteAsync($"api/institucional/configuracoes/{configId}");
         _jsonMatchers.ShouldHaveStatusCode(deleteResponse, HttpStatusCode.OK);
 
         // Verificar se foi deletada
-        var getResponse = await GetAsync($"v1/institucional/configuracoes/{configId}");
+        var getResponse = await GetAsync($"api/institucional/configuracoes/{configId}");
         _jsonMatchers.ShouldHaveStatusCode(getResponse, HttpStatusCode.NotFound);
     }
 
@@ -238,7 +238,7 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
             chave = "sistema"
         };
 
-        var response = await PostAsync("v1/institucional/configuracoes/all", requestData);
+        var response = await PostAsync("api/institucional/configuracoes/all", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -281,7 +281,7 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
             endereco = ""
         };
 
-        var response = await PostAsync("v1/institucional/ifarmer/audit_cadastrese", requestData);
+        var response = await PostAsync("api/institucional/ifarmer/audit_cadastrese", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -299,7 +299,7 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
             }
         };
 
-        var response = await PostAsync("v1/institucional/configuracoes", requestData);
+        var response = await PostAsync("api/institucional/configuracoes", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -317,7 +317,7 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
             }
         };
 
-        var response = await PostAsync("v1/institucional/configuracoes", requestData);
+        var response = await PostAsync("api/institucional/configuracoes", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Forbidden);
     }
 
@@ -338,11 +338,11 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
         };
 
         // Primeira criação - deve funcionar
-        var response1 = await PostAsync("v1/institucional/configuracoes", requestData);
+        var response1 = await PostAsync("api/institucional/configuracoes", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response1, HttpStatusCode.Created);
 
         // Segunda criação com a mesma chave - deve falhar
-        var response2 = await PostAsync("v1/institucional/configuracoes", requestData);
+        var response2 = await PostAsync("api/institucional/configuracoes", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response2, HttpStatusCode.BadRequest);
     }
 
@@ -352,7 +352,7 @@ public class TestInstitucional : BaseTestCase, IClassFixture<TestWebApplicationF
         await AuthenticateAsAdminAsync();
 
         var chave = "versao_sistema";
-        var response = await GetAsync($"v1/institucional/configuracoes/chave/{chave}");
+        var response = await GetAsync($"api/institucional/configuracoes/chave/{chave}");
         
         // Pode retornar OK se existe ou NotFound se não existe
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NotFound);

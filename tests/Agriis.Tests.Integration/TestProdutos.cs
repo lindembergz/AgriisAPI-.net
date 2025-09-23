@@ -26,7 +26,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
     {
         await AuthenticateAsProducerAsync(1);
 
-        var response = await GetAsync("v1/produtos/categorias");
+        var response = await GetAsync("api/produtos/categorias");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -50,7 +50,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
         await AuthenticateAsProducerAsync(1);
         var produtoId = 179;
 
-        var response = await GetAsync($"v1/produtos/{produtoId}");
+        var response = await GetAsync($"api/produtos/{produtoId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -113,7 +113,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
         multipartContent.Add(rotuloContent, "rotulo", "rotulo.pdf");
 
         // Criar produto
-        var createResponse = await Client.PostAsync("v1/produtos/", multipartContent);
+        var createResponse = await Client.PostAsync("api/produtos/", multipartContent);
         _jsonMatchers.ShouldHaveStatusCode(createResponse, HttpStatusCode.Created);
 
         // Extrair ID do produto do header Location
@@ -133,18 +133,18 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
         );
         updateContent.Add(updateJsonContent, "jsonData");
 
-        var updateResponse = await Client.PutAsync($"v1/produtos/{produtoId}/", updateContent);
+        var updateResponse = await Client.PutAsync($"api/produtos/{produtoId}/", updateContent);
         _jsonMatchers.ShouldHaveStatusCode(updateResponse, HttpStatusCode.OK);
 
         // Deletar documentos
-        var deleteBulaResponse = await DeleteAsync($"v1/produtos/{produtoId}/documentos/bula");
+        var deleteBulaResponse = await DeleteAsync($"api/produtos/{produtoId}/documentos/bula");
         _jsonMatchers.ShouldHaveStatusCode(deleteBulaResponse, HttpStatusCode.OK);
 
-        var deleteRotuloResponse = await DeleteAsync($"v1/produtos/{produtoId}/documentos/rotulo");
+        var deleteRotuloResponse = await DeleteAsync($"api/produtos/{produtoId}/documentos/rotulo");
         _jsonMatchers.ShouldHaveStatusCode(deleteRotuloResponse, HttpStatusCode.OK);
 
         // Deletar produto
-        var deleteResponse = await DeleteAsync($"v1/produtos/{produtoId}/");
+        var deleteResponse = await DeleteAsync($"api/produtos/{produtoId}/");
         _jsonMatchers.ShouldHaveStatusCode(deleteResponse, HttpStatusCode.OK);
     }
 
@@ -159,7 +159,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
             max_per_page = 10
         };
 
-        var response = await PostAsync("v1/produtos/all/", requestData);
+        var response = await PostAsync("api/produtos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -197,7 +197,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
             max_per_page = 0 // Valor inválido
         };
 
-        var response = await PostAsync("v1/produtos/all/", requestData);
+        var response = await PostAsync("api/produtos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -212,7 +212,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
             max_per_page = 10
         };
 
-        var response = await PostAsync("v1/produtos/all/", requestData);
+        var response = await PostAsync("api/produtos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -231,7 +231,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
         };
 
         var queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={kvp.Value}"));
-        var response = await GetAsync($"v1/produtos/propriedade/{propriedadeId}/?{queryString}");
+        var response = await GetAsync($"api/produtos/propriedade/{propriedadeId}/?{queryString}");
 
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
@@ -263,7 +263,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
         );
         multipartContent.Add(jsonContent, "jsonData");
 
-        var response = await Client.PostAsync("v1/produtos/", multipartContent);
+        var response = await Client.PostAsync("api/produtos/", multipartContent);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -295,7 +295,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
         multipartContent1.Add(jsonContent1, "jsonData");
 
         // Primeira criação - deve funcionar
-        var response1 = await Client.PostAsync("v1/produtos/", multipartContent1);
+        var response1 = await Client.PostAsync("api/produtos/", multipartContent1);
         _jsonMatchers.ShouldHaveStatusCode(response1, HttpStatusCode.Created);
 
         // Segunda criação com mesmo nome - deve falhar
@@ -307,7 +307,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
         );
         multipartContent2.Add(jsonContent2, "jsonData");
 
-        var response2 = await Client.PostAsync("v1/produtos/", multipartContent2);
+        var response2 = await Client.PostAsync("api/produtos/", multipartContent2);
         _jsonMatchers.ShouldHaveStatusCode(response2, HttpStatusCode.BadRequest);
     }
 
@@ -316,7 +316,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
     {
         ClearAuthentication();
 
-        var response = await GetAsync("v1/produtos/categorias");
+        var response = await GetAsync("api/produtos/categorias");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -347,7 +347,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
         );
         multipartContent.Add(jsonContent, "jsonData");
 
-        var response = await Client.PostAsync("v1/produtos/", multipartContent);
+        var response = await Client.PostAsync("api/produtos/", multipartContent);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Forbidden);
     }
 
@@ -377,14 +377,14 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
         );
         multipartContent.Add(jsonContent, "jsonData");
 
-        var response = await Client.PostAsync("v1/produtos/", multipartContent);
+        var response = await Client.PostAsync("api/produtos/", multipartContent);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         // Verificar se as culturas foram associadas corretamente
         var location = response.Headers.Location?.ToString();
         var produtoId = ExtractIdFromLocation(location!);
 
-        var getResponse = await GetAsync($"v1/produtos/{produtoId}");
+        var getResponse = await GetAsync($"api/produtos/{produtoId}");
         _jsonMatchers.ShouldHaveStatusCode(getResponse, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
@@ -426,14 +426,14 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
         );
         multipartContent.Add(jsonContent, "jsonData");
 
-        var response = await Client.PostAsync("v1/produtos/", multipartContent);
+        var response = await Client.PostAsync("api/produtos/", multipartContent);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         // Verificar se as dimensões foram salvas corretamente
         var location = response.Headers.Location?.ToString();
         var produtoId = ExtractIdFromLocation(location!);
 
-        var getResponse = await GetAsync($"v1/produtos/{produtoId}");
+        var getResponse = await GetAsync($"api/produtos/{produtoId}");
         _jsonMatchers.ShouldHaveStatusCode(getResponse, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
@@ -474,7 +474,7 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
         );
         fabricanteContent.Add(fabricanteJsonContent, "jsonData");
 
-        var fabricanteResponse = await Client.PostAsync("v1/produtos/", fabricanteContent);
+        var fabricanteResponse = await Client.PostAsync("api/produtos/", fabricanteContent);
         _jsonMatchers.ShouldHaveStatusCode(fabricanteResponse, HttpStatusCode.Created);
 
         var fabricanteLocation = fabricanteResponse.Headers.Location?.ToString();
@@ -504,14 +504,14 @@ public class TestProdutos : BaseTestCase, IClassFixture<TestWebApplicationFactor
         );
         revendedorContent.Add(revendedorJsonContent, "jsonData");
 
-        var revendedorResponse = await Client.PostAsync("v1/produtos/", revendedorContent);
+        var revendedorResponse = await Client.PostAsync("api/produtos/", revendedorContent);
         _jsonMatchers.ShouldHaveStatusCode(revendedorResponse, HttpStatusCode.Created);
 
         // Verificar hierarquia
         var revendedorLocation = revendedorResponse.Headers.Location?.ToString();
         var revendedorId = ExtractIdFromLocation(revendedorLocation!);
 
-        var getResponse = await GetAsync($"v1/produtos/{revendedorId}");
+        var getResponse = await GetAsync($"api/produtos/{revendedorId}");
         _jsonMatchers.ShouldHaveStatusCode(getResponse, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);

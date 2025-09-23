@@ -68,6 +68,7 @@ public abstract class RepositoryBase<T, TContext> : IRepository<T>
             throw new ArgumentNullException(nameof(entidade));
             
         var entityEntry = await DbSet.AddAsync(entidade, cancellationToken);
+        await Context.SaveChangesAsync(cancellationToken);
         return entityEntry.Entity;
     }
     
@@ -80,19 +81,20 @@ public abstract class RepositoryBase<T, TContext> : IRepository<T>
             throw new ArgumentNullException(nameof(entidades));
             
         await DbSet.AddRangeAsync(entidades, cancellationToken);
+        await Context.SaveChangesAsync(cancellationToken);
     }
     
     /// <summary>
     /// Atualiza uma entidade existente
     /// </summary>
-    public virtual Task AtualizarAsync(T entidade, CancellationToken cancellationToken = default)
+    public virtual async Task AtualizarAsync(T entidade, CancellationToken cancellationToken = default)
     {
         if (entidade == null)
             throw new ArgumentNullException(nameof(entidade));
             
         entidade.AtualizarDataModificacao();
         DbSet.Update(entidade);
-        return Task.CompletedTask;
+        await Context.SaveChangesAsync(cancellationToken);
     }
     
     /// <summary>
@@ -104,31 +106,32 @@ public abstract class RepositoryBase<T, TContext> : IRepository<T>
         if (entidade != null)
         {
             DbSet.Remove(entidade);
+            await Context.SaveChangesAsync(cancellationToken);
         }
     }
     
     /// <summary>
     /// Remove uma entidade
     /// </summary>
-    public virtual Task RemoverAsync(T entidade, CancellationToken cancellationToken = default)
+    public virtual async Task RemoverAsync(T entidade, CancellationToken cancellationToken = default)
     {
         if (entidade == null)
             throw new ArgumentNullException(nameof(entidade));
             
         DbSet.Remove(entidade);
-        return Task.CompletedTask;
+        await Context.SaveChangesAsync(cancellationToken);
     }
     
     /// <summary>
     /// Remove múltiplas entidades
     /// </summary>
-    public virtual Task RemoverVariasAsync(IEnumerable<T> entidades, CancellationToken cancellationToken = default)
+    public virtual async Task RemoverVariasAsync(IEnumerable<T> entidades, CancellationToken cancellationToken = default)
     {
         if (entidades == null)
             throw new ArgumentNullException(nameof(entidades));
             
         DbSet.RemoveRange(entidades);
-        return Task.CompletedTask;
+        await Context.SaveChangesAsync(cancellationToken);
     }
     
     /// <summary>

@@ -70,15 +70,16 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
             .IsRequired();
 
         builder.Property(f => f.DataAtualizacao)
-            .HasColumnName("DataAtualizacao");      
-  // Objeto de valor CNPJ
-        builder.OwnsOne(f => f.Cnpj, cnpj =>
-        {
-            cnpj.Property(c => c.Valor)
-                .HasColumnName("Cnpj")
-                .HasMaxLength(14)
-                .IsRequired();
-        });
+            .HasColumnName("DataAtualizacao");
+            
+        // Objeto de valor CNPJ
+        builder.Property(f => f.Cnpj)
+            .HasColumnName("Cnpj")
+            .HasMaxLength(14)
+            .IsRequired()
+            .HasConversion(
+                v => v.Valor,
+                v => new Agriis.Compartilhado.Dominio.ObjetosValor.Cnpj(v));
 
         // Propriedades JSON
         builder.Property(f => f.DadosAdicionais)
@@ -92,7 +93,7 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
             .OnDelete(DeleteBehavior.Cascade);
 
         // Índices
-        builder.HasIndex(f => f.Cnpj!.Valor)
+        builder.HasIndex("Cnpj")
             .HasDatabaseName("IX_Fornecedor_Cnpj")
             .IsUnique();
 

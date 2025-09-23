@@ -25,7 +25,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
     {
         await AuthenticateAsSupplierAsync();
 
-        var response = await GetAsync("v1/fornecedores/?is_fabricante=true");
+        var response = await GetAsync("api/fornecedores/?is_fabricante=true");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -49,7 +49,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
         await AuthenticateAsProducerAsync();
         var fornecedorId = 1;
 
-        var response = await GetAsync($"v1/fornecedores/{fornecedorId}");
+        var response = await GetAsync($"api/fornecedores/{fornecedorId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -69,7 +69,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
         await AuthenticateAsSupplierAsync(fornecedorId: 1);
         var fornecedorId = 1;
 
-        var response = await GetAsync($"v1/fornecedores/{fornecedorId}/pontos_distribuicao/");
+        var response = await GetAsync($"api/fornecedores/{fornecedorId}/pontos_distribuicao/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -105,7 +105,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
             municipio_id = 1505031
         };
 
-        var response = await PostAsync("v1/fornecedores/", requestData);
+        var response = await PostAsync("api/fornecedores/", requestData);
         
         // Deve criar com sucesso ou retornar conflito se já existe
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Created, HttpStatusCode.Conflict);
@@ -131,7 +131,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
                 municipio_id = 1505031
             };
 
-            var response = await PostAsync("v1/fornecedores/", requestData);
+            var response = await PostAsync("api/fornecedores/", requestData);
             if (response.StatusCode != HttpStatusCode.Created)
             {
                 emailsNaoAdicionados.Add(fornEmail);
@@ -157,7 +157,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
             url_site = "www.teste.com.br"
         };
 
-        var response = await PutAsync($"v1/fornecedores/{fornecedorId}", updateData);
+        var response = await PutAsync($"api/fornecedores/{fornecedorId}", updateData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -176,7 +176,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
             municipio_id = 1505031
         };
 
-        var response = await PostAsync("v1/fornecedores/", requestData);
+        var response = await PostAsync("api/fornecedores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -196,7 +196,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
             municipio_id = 1505031
         };
 
-        var response = await PostAsync("v1/fornecedores/", requestData);
+        var response = await PostAsync("api/fornecedores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -216,7 +216,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
             municipio_id = 1505031
         };
 
-        var response = await PostAsync("v1/fornecedores/", requestData);
+        var response = await PostAsync("api/fornecedores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -236,7 +236,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
             municipio_id = 1505031
         };
 
-        var response = await PostAsync("v1/fornecedores/", requestData);
+        var response = await PostAsync("api/fornecedores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -256,7 +256,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
             municipio_id = 99999999 // Município inexistente
         };
 
-        var response = await PostAsync("v1/fornecedores/", requestData);
+        var response = await PostAsync("api/fornecedores/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -274,7 +274,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
             municipio_id = 1505031
         };
 
-        var response = await PutAsync($"v1/fornecedores/{fornecedorId}", updateData);
+        var response = await PutAsync($"api/fornecedores/{fornecedorId}", updateData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Forbidden);
     }
 
@@ -284,7 +284,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
         await AuthenticateAsProducerAsync();
         var fornecedorId = 99999; // ID inexistente
 
-        var response = await GetAsync($"v1/fornecedores/{fornecedorId}");
+        var response = await GetAsync($"api/fornecedores/{fornecedorId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.NotFound);
     }
 
@@ -293,7 +293,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
     {
         ClearAuthentication();
 
-        var response = await GetAsync("v1/fornecedores/?is_fabricante=true");
+        var response = await GetAsync("api/fornecedores/?is_fabricante=true");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -310,7 +310,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
             url_site = "url-invalida" // URL inválida
         };
 
-        var response = await PutAsync($"v1/fornecedores/{fornecedorId}", updateData);
+        var response = await PutAsync($"api/fornecedores/{fornecedorId}", updateData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -333,7 +333,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
         };
 
         // Primeira criação
-        var firstResponse = await PostAsync("v1/fornecedores/", requestData);
+        var firstResponse = await PostAsync("api/fornecedores/", requestData);
         
         // Segunda criação com mesmo email
         var duplicateData = new
@@ -346,7 +346,7 @@ public class TestFornecedores : BaseTestCase, IClassFixture<TestWebApplicationFa
             municipio_id = 1505031
         };
 
-        var duplicateResponse = await PostAsync("v1/fornecedores/", duplicateData);
+        var duplicateResponse = await PostAsync("api/fornecedores/", duplicateData);
         
         // Deve falhar por email duplicado
         duplicateResponse.StatusCode.Should().BeOneOf(HttpStatusCode.BadRequest, HttpStatusCode.Conflict);

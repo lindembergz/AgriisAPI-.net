@@ -34,7 +34,7 @@ public class TestPontosDistribuicao : BaseTestCase, IClassFixture<TestWebApplica
             endereco = "mirante"
         };
 
-        var response = await PostAsync("v1/pontos_distribuicao/all/", requestData);
+        var response = await PostAsync("api/pontos_distribuicao/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -74,7 +74,7 @@ public class TestPontosDistribuicao : BaseTestCase, IClassFixture<TestWebApplica
             endereco = "mirante"
         };
 
-        var response = await PostAsync("v1/pontos_distribuicao/all/", requestData);
+        var response = await PostAsync("api/pontos_distribuicao/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -91,7 +91,7 @@ public class TestPontosDistribuicao : BaseTestCase, IClassFixture<TestWebApplica
             endereco = "mirante"
         };
 
-        var response = await PostAsync("v1/pontos_distribuicao/all/", requestData);
+        var response = await PostAsync("api/pontos_distribuicao/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -101,7 +101,7 @@ public class TestPontosDistribuicao : BaseTestCase, IClassFixture<TestWebApplica
         await AuthenticateAsProducerAsync();
 
         var pontoDistribuicaoId = 5;
-        var response = await GetAsync($"v1/pontos_distribuicao/{pontoDistribuicaoId}");
+        var response = await GetAsync($"api/pontos_distribuicao/{pontoDistribuicaoId}");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -128,14 +128,14 @@ public class TestPontosDistribuicao : BaseTestCase, IClassFixture<TestWebApplica
             location = new[] { 0.0000, 90.0000 }
         };
 
-        var response = await PostAsync("v1/pontos_distribuicao/", requestData);
+        var response = await PostAsync("api/pontos_distribuicao/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         var pontoDistribuicaoId = GetIdFromLocationHeader(response);
         pontoDistribuicaoId.Should().BeGreaterThan(0);
 
         // Teste de exclusão
-        var deleteResponse = await DeleteAsync($"v1/pontos_distribuicao/{pontoDistribuicaoId}/");
+        var deleteResponse = await DeleteAsync($"api/pontos_distribuicao/{pontoDistribuicaoId}/");
         _jsonMatchers.ShouldHaveStatusCode(deleteResponse, HttpStatusCode.OK);
     }
 
@@ -151,7 +151,7 @@ public class TestPontosDistribuicao : BaseTestCase, IClassFixture<TestWebApplica
             location = new[] { 0.0000, 90.0000 }
         };
 
-        var response = await PostAsync("v1/pontos_distribuicao/", requestData);
+        var response = await PostAsync("api/pontos_distribuicao/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -167,7 +167,7 @@ public class TestPontosDistribuicao : BaseTestCase, IClassFixture<TestWebApplica
             location = new[] { 0.0000, 90.0000 }
         };
 
-        var response = await PostAsync("v1/pontos_distribuicao/", requestData);
+        var response = await PostAsync("api/pontos_distribuicao/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -183,7 +183,7 @@ public class TestPontosDistribuicao : BaseTestCase, IClassFixture<TestWebApplica
             location = new[] { 200.0000, 200.0000 } // Coordenadas inválidas
         };
 
-        var response = await PostAsync("v1/pontos_distribuicao/", requestData);
+        var response = await PostAsync("api/pontos_distribuicao/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -192,7 +192,7 @@ public class TestPontosDistribuicao : BaseTestCase, IClassFixture<TestWebApplica
     {
         await AuthenticateAsProducerAsync();
 
-        var response = await GetAsync("v1/pontos_distribuicao/99999");
+        var response = await GetAsync("api/pontos_distribuicao/99999");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.NotFound);
     }
 
@@ -201,7 +201,7 @@ public class TestPontosDistribuicao : BaseTestCase, IClassFixture<TestWebApplica
     {
         await AuthenticateAsSupplierAsync();
 
-        var response = await DeleteAsync("v1/pontos_distribuicao/99999/");
+        var response = await DeleteAsync("api/pontos_distribuicao/99999/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.NotFound);
     }
 
@@ -217,7 +217,7 @@ public class TestPontosDistribuicao : BaseTestCase, IClassFixture<TestWebApplica
             location = new[] { 0.0000, 90.0000 }
         };
 
-        var response = await PostAsync("v1/pontos_distribuicao/", requestData);
+        var response = await PostAsync("api/pontos_distribuicao/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -234,7 +234,7 @@ public class TestPontosDistribuicao : BaseTestCase, IClassFixture<TestWebApplica
             endereco = "test"
         };
 
-        var response = await PostAsync("v1/pontos_distribuicao/all/", requestData);
+        var response = await PostAsync("api/pontos_distribuicao/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);

@@ -32,7 +32,7 @@ public class TestSegmentacoes : BaseTestCase, IClassFixture<TestWebApplicationFa
             max_per_page = 10
         };
 
-        var response = await PostAsync("v1/segmentacoes/grupos/all/", requestData);
+        var response = await PostAsync("api/segmentacoes/grupos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -73,7 +73,7 @@ public class TestSegmentacoes : BaseTestCase, IClassFixture<TestWebApplicationFa
             max_per_page = 0 // Valor inválido
         };
 
-        var response = await PostAsync("v1/segmentacoes/grupos/all/", requestData);
+        var response = await PostAsync("api/segmentacoes/grupos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -88,7 +88,7 @@ public class TestSegmentacoes : BaseTestCase, IClassFixture<TestWebApplicationFa
             max_per_page = 10
         };
 
-        var response = await PostAsync("v1/segmentacoes/grupos/all/", requestData);
+        var response = await PostAsync("api/segmentacoes/grupos/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -113,7 +113,7 @@ public class TestSegmentacoes : BaseTestCase, IClassFixture<TestWebApplicationFa
             }
         };
 
-        var response = await PostAsync("v1/segmentacoes/grupos/", requestData);
+        var response = await PostAsync("api/segmentacoes/grupos/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Created);
 
         var grupoId = GetIdFromLocationHeader(response);
@@ -135,11 +135,11 @@ public class TestSegmentacoes : BaseTestCase, IClassFixture<TestWebApplicationFa
             }
         };
 
-        var updateResponse = await PutAsync($"v1/segmentacoes/grupos/{grupoId}/", updateData);
+        var updateResponse = await PutAsync($"api/segmentacoes/grupos/{grupoId}/", updateData);
         _jsonMatchers.ShouldHaveStatusCode(updateResponse, HttpStatusCode.OK);
 
         // Teste de consulta por ID
-        var getResponse = await GetAsync($"v1/segmentacoes/grupos/{grupoId}/");
+        var getResponse = await GetAsync($"api/segmentacoes/grupos/{grupoId}/");
         _jsonMatchers.ShouldHaveStatusCode(getResponse, HttpStatusCode.OK);
 
         var getJson = await _jsonMatchers.ShouldHaveValidJsonAsync(getResponse);
@@ -155,7 +155,7 @@ public class TestSegmentacoes : BaseTestCase, IClassFixture<TestWebApplicationFa
         _jsonMatchers.ShouldHaveProperty(getObj, "grupo_segmentacoes");
 
         // Teste de exclusão
-        var deleteResponse = await DeleteAsync($"v1/segmentacoes/grupos/{grupoId}/");
+        var deleteResponse = await DeleteAsync($"api/segmentacoes/grupos/{grupoId}/");
         _jsonMatchers.ShouldHaveStatusCode(deleteResponse, HttpStatusCode.OK);
     }
 
@@ -168,7 +168,7 @@ public class TestSegmentacoes : BaseTestCase, IClassFixture<TestWebApplicationFa
         var segmentacaoId = 3;
         var produtorId = 27;
 
-        var response = await PostAsync($"v1/segmentacoes/{segmentacaoId}/produtor/{produtorId}/", new { });
+        var response = await PostAsync($"api/segmentacoes/{segmentacaoId}/produtor/{produtorId}/", new { });
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -178,7 +178,7 @@ public class TestSegmentacoes : BaseTestCase, IClassFixture<TestWebApplicationFa
         // Teste de listagem de todas as segmentações
         await AuthenticateAsSupplierAsync();
 
-        var response = await GetAsync("v1/segmentacoes/");
+        var response = await GetAsync("api/segmentacoes/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -215,7 +215,7 @@ public class TestSegmentacoes : BaseTestCase, IClassFixture<TestWebApplicationFa
             }
         };
 
-        var response = await PostAsync("v1/segmentacoes/grupos/", requestData);
+        var response = await PostAsync("api/segmentacoes/grupos/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -238,7 +238,7 @@ public class TestSegmentacoes : BaseTestCase, IClassFixture<TestWebApplicationFa
             }
         };
 
-        var response = await PostAsync("v1/segmentacoes/grupos/", requestData);
+        var response = await PostAsync("api/segmentacoes/grupos/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 
@@ -261,7 +261,7 @@ public class TestSegmentacoes : BaseTestCase, IClassFixture<TestWebApplicationFa
             }
         };
 
-        var response = await PostAsync("v1/segmentacoes/grupos/", requestData);
+        var response = await PostAsync("api/segmentacoes/grupos/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
     }
 }

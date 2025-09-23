@@ -57,28 +57,28 @@ public class ProdutorConfiguration : IEntityTypeConfiguration<Produtor>
         builder.Property(p => p.DataAtualizacao)
             .HasColumnName("DataAtualizacao");
 
-        // Objetos de valor
-        builder.OwnsOne(p => p.Cpf, cpf =>
-        {
-            cpf.Property(c => c.Valor)
-                .HasColumnName("Cpf")
-                .HasMaxLength(11);
-        });
+        // Objetos de valor - configuração simplificada
+        builder.Property(p => p.Cpf)
+            .HasColumnName("Cpf")
+            .HasMaxLength(11)
+            .HasConversion(
+                v => v != null ? v.Valor : null,
+                v => v != null ? new Cpf(v) : null);
 
-        builder.OwnsOne(p => p.Cnpj, cnpj =>
-        {
-            cnpj.Property(c => c.Valor)
-                .HasColumnName("Cnpj")
-                .HasMaxLength(14);
-        });
+        builder.Property(p => p.Cnpj)
+            .HasColumnName("Cnpj")
+            .HasMaxLength(14)
+            .HasConversion(
+                v => v != null ? v.Valor : null,
+                v => v != null ? new Cnpj(v) : null);
 
-        builder.OwnsOne(p => p.AreaPlantio, area =>
-        {
-            area.Property(a => a.Valor)
-                .HasColumnName("AreaPlantio")
-                .HasColumnType("decimal(18,4)")
-                .IsRequired();
-        });
+        builder.Property(p => p.AreaPlantio)
+            .HasColumnName("AreaPlantio")
+            .HasColumnType("decimal(18,4)")
+            .IsRequired()
+            .HasConversion(
+                v => v.Valor,
+                v => new AreaPlantio(v));
 
         // Propriedades JSON
         builder.Property(p => p.RetornosApiCheckProdutor)
@@ -104,12 +104,12 @@ public class ProdutorConfiguration : IEntityTypeConfiguration<Produtor>
             .OnDelete(DeleteBehavior.Cascade);
 
         // Índices
-        builder.HasIndex(p => p.Cpf!.Valor)
+        builder.HasIndex("Cpf")
             .HasDatabaseName("IX_Produtor_Cpf")
             .IsUnique()
             .HasFilter("\"Cpf\" IS NOT NULL");
 
-        builder.HasIndex(p => p.Cnpj!.Valor)
+        builder.HasIndex("Cnpj")
             .HasDatabaseName("IX_Produtor_Cnpj")
             .IsUnique()
             .HasFilter("\"Cnpj\" IS NOT NULL");
@@ -120,7 +120,7 @@ public class ProdutorConfiguration : IEntityTypeConfiguration<Produtor>
         builder.HasIndex(p => p.DataCriacao)
             .HasDatabaseName("IX_Produtor_DataCriacao");
 
-        builder.HasIndex(p => p.AreaPlantio!.Valor)
+        builder.HasIndex("AreaPlantio")
             .HasDatabaseName("IX_Produtor_AreaPlantio");
 
         // Configurações adicionais

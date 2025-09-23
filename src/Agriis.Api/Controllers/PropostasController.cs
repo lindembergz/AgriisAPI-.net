@@ -10,7 +10,7 @@ namespace Agriis.Api.Controllers;
 /// Controller para gerenciamento de propostas
 /// </summary>
 [ApiController]
-[Route("api/v1/pedidos/{pedidoId}/propostas")]
+[Route("api/pedidos/{pedidoId}/propostas")]
 [Authorize]
 public class PropostasController : ControllerBase
 {

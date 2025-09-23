@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -274,16 +275,16 @@ public class ExchangeRateResponse
 // Background service para atualizar taxas periodicamente
 public class CurrencyRateUpdateService : BackgroundService
 {
-    private readonly ICurrencyConverterService _currencyService;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<CurrencyRateUpdateService> _logger;
     private readonly TimeSpan _updateInterval;
 
     public CurrencyRateUpdateService(
-        ICurrencyConverterService currencyService,
+        IServiceProvider serviceProvider,
         IConfiguration configuration,
         ILogger<CurrencyRateUpdateService> logger)
     {
-        _currencyService = currencyService ?? throw new ArgumentNullException(nameof(currencyService));
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         
         var intervalMinutes = configuration.GetValue<int>("CurrencySettings:UpdateIntervalMinutes", 60);
@@ -298,7 +299,10 @@ public class CurrencyRateUpdateService : BackgroundService
         {
             try
             {
-                await _currencyService.RefreshRatesAsync();
+                using var scope = _serviceProvider.CreateScope();
+                var currencyService = scope.ServiceProvider.GetRequiredService<ICurrencyConverterService>();
+                
+                await currencyService.RefreshRatesAsync();
                 _logger.LogInformation("Taxas de câmbio atualizadas automaticamente");
             }
             catch (Exception ex)

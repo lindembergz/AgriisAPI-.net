@@ -58,7 +58,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
 
         // Nota: Este teste simula o upload de foto, mas em um ambiente real
         // seria necessário implementar o upload de arquivo multipart/form-data
-        var response = await PostAsync("v1/usuarios/produtor/", requestData);
+        var response = await PostAsync("api/usuarios/produtor/", requestData);
         
         // Deve criar com sucesso ou retornar erro de validação
         response.StatusCode.Should().BeOneOf(
@@ -75,7 +75,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
         await AuthenticateAsProducerAsync(produtorId: 1);
         var usuarioId = 1;
 
-        var response = await GetAsync($"v1/usuarios/{usuarioId}/produtores/");
+        var response = await GetAsync($"api/usuarios/{usuarioId}/produtores/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -92,7 +92,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
         await AuthenticateAsProducerAsync(produtorId: 1);
         var usuarioId = 1;
 
-        var response = await GetAsync($"v1/usuarios/{usuarioId}/propriedades/");
+        var response = await GetAsync($"api/usuarios/{usuarioId}/propriedades/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -109,7 +109,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
         await AuthenticateAsProducerAsync(produtorId: 1);
         var usuarioId = 1;
 
-        var response = await GetAsync($"v1/usuarios/{usuarioId}/");
+        var response = await GetAsync($"api/usuarios/{usuarioId}/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -127,7 +127,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
         await AuthenticateAsSupplierAsync(fornecedorId: 1);
         var usuarioId = 2; // ID do usuário fornecedor
 
-        var response = await GetAsync($"v1/usuarios/{usuarioId}/colaborador/");
+        var response = await GetAsync($"api/usuarios/{usuarioId}/colaborador/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -154,7 +154,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
 
         // Nota: Este teste simula o upload de logo, mas em um ambiente real
         // seria necessário implementar o upload de arquivo multipart/form-data
-        var response = await PutAsync($"v1/usuarios/{usuarioId}/colaborador/", updateData);
+        var response = await PutAsync($"api/usuarios/{usuarioId}/colaborador/", updateData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -170,7 +170,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
             perfil = "rep"
         };
 
-        var response = await PostAsync("v1/usuarios/representante/all/", requestData);
+        var response = await PostAsync("api/usuarios/representante/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -191,7 +191,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
             apresentacao = "PA"
         };
 
-        var response = await PostAsync($"v1/usuarios/{usuarioId}/colaborador/territorio/all/", requestData);
+        var response = await PostAsync($"api/usuarios/{usuarioId}/colaborador/territorio/all/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
 
         var json = await _jsonMatchers.ShouldHaveValidJsonAsync(response);
@@ -210,7 +210,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
             municipios = new[] { 1501105 }
         };
 
-        var response = await PutAsync($"v1/usuarios/{usuarioId}/colaborador/territorio/adicionar/", requestData);
+        var response = await PutAsync($"api/usuarios/{usuarioId}/colaborador/territorio/adicionar/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -225,7 +225,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
             estados = new[] { 3, 4, 5, 9, 11, 12, 13, 14, 20, 25, 26, 27 }
         };
 
-        var response = await DeleteAsync($"v1/usuarios/{usuarioId}/colaborador/territorio/remover/");
+        var response = await DeleteAsync($"api/usuarios/{usuarioId}/colaborador/territorio/remover/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.OK);
     }
 
@@ -261,7 +261,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
         Client.DefaultRequestHeaders.Authorization = 
             new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", "PRODUTOR_MOBILE_TOKEN");
 
-        var response = await PostAsync("v1/usuarios/produtor/", requestData);
+        var response = await PostAsync("api/usuarios/produtor/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -298,7 +298,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
         Client.DefaultRequestHeaders.Authorization = 
             new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", "PRODUTOR_MOBILE_TOKEN");
 
-        var response = await PostAsync("v1/usuarios/produtor/", requestData);
+        var response = await PostAsync("api/usuarios/produtor/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }
@@ -310,7 +310,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
         await AuthenticateAsProducerAsync(produtorId: 1);
         var otherUsuarioId = 999; // ID de outro usuário
 
-        var response = await GetAsync($"v1/usuarios/{otherUsuarioId}/");
+        var response = await GetAsync($"api/usuarios/{otherUsuarioId}/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Forbidden);
     }
 
@@ -327,7 +327,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
             cargo = "Cargo Não Autorizado"
         };
 
-        var response = await PutAsync($"v1/usuarios/{usuarioId}/colaborador/", updateData);
+        var response = await PutAsync($"api/usuarios/{usuarioId}/colaborador/", updateData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Forbidden);
     }
 
@@ -344,7 +344,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
             perfil = "rep"
         };
 
-        var response = await PostAsync("v1/usuarios/representante/all/", invalidPageData);
+        var response = await PostAsync("api/usuarios/representante/all/", invalidPageData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.UnprocessableEntity);
 
         // Teste com max_per_page inválido
@@ -355,7 +355,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
             perfil = "rep"
         };
 
-        var response2 = await PostAsync("v1/usuarios/representante/all/", invalidMaxPerPageData);
+        var response2 = await PostAsync("api/usuarios/representante/all/", invalidMaxPerPageData);
         _jsonMatchers.ShouldHaveStatusCode(response2, HttpStatusCode.UnprocessableEntity);
     }
 
@@ -372,7 +372,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
             municipios = new[] { 1501105 }
         };
 
-        var response = await PutAsync($"v1/usuarios/{usuarioId}/colaborador/territorio/adicionar/", invalidEstadosData);
+        var response = await PutAsync($"api/usuarios/{usuarioId}/colaborador/territorio/adicionar/", invalidEstadosData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
 
         // Teste adicionar território com municípios inválidos
@@ -382,7 +382,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
             municipios = new[] { 99999999 } // Município inexistente
         };
 
-        var response2 = await PutAsync($"v1/usuarios/{usuarioId}/colaborador/territorio/adicionar/", invalidMunicipiosData);
+        var response2 = await PutAsync($"api/usuarios/{usuarioId}/colaborador/territorio/adicionar/", invalidMunicipiosData);
         _jsonMatchers.ShouldHaveStatusCode(response2, HttpStatusCode.BadRequest);
     }
 
@@ -417,7 +417,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
         };
 
         // Não define Authorization header
-        var response = await PostAsync("v1/usuarios/produtor/", requestData);
+        var response = await PostAsync("api/usuarios/produtor/", requestData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.Unauthorized);
     }
 
@@ -427,7 +427,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
         await AuthenticateAsAdminAsync(); // Admin pode acessar qualquer usuário
         var usuarioId = 99999; // ID inexistente
 
-        var response = await GetAsync($"v1/usuarios/{usuarioId}/");
+        var response = await GetAsync($"api/usuarios/{usuarioId}/");
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.NotFound);
     }
 
@@ -444,7 +444,7 @@ public class TestUsuarios : BaseTestCase, IClassFixture<TestWebApplicationFactor
             celular = "123" // Celular inválido
         };
 
-        var response = await PutAsync($"v1/usuarios/{usuarioId}/colaborador/", updateData);
+        var response = await PutAsync($"api/usuarios/{usuarioId}/colaborador/", updateData);
         _jsonMatchers.ShouldHaveStatusCode(response, HttpStatusCode.BadRequest);
         await _jsonMatchers.ShouldHaveErrorStructureAsync(response);
     }

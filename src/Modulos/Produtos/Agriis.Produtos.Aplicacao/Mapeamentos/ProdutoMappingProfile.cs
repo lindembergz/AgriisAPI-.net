@@ -37,7 +37,12 @@ public class ProdutoMappingProfile : Profile
                     src.Dimensoes.Largura,
                     src.Dimensoes.Comprimento,
                     src.Dimensoes.PesoNominal,
-                    src.Dimensoes.Densidade),
+                    src.Dimensoes.PesoEmbalagem,
+                    src.Dimensoes.QuantidadeMinima,
+                    src.Dimensoes.Embalagem,
+                    src.Dimensoes.Pms,
+                    src.Dimensoes.FaixaDensidadeInicial,
+                    src.Dimensoes.FaixaDensidadeFinal),
                 src.CategoriaId,
                 src.FornecedorId,
                 src.Descricao,
@@ -52,7 +57,7 @@ public class ProdutoMappingProfile : Profile
         CreateMap<DimensoesProduto, DimensoesProdutoDto>()
             .ForMember(dest => dest.Volume, opt => opt.MapFrom(src => src.CalcularVolume()))
             .ForMember(dest => dest.PesoCubado, opt => opt.MapFrom(src => src.CalcularPesoCubado()))
-            .ForMember(dest => dest.PesoParaFrete, opt => opt.MapFrom(src => src.ObterPesoParaFrete()));
+            .ForMember(dest => dest.PesoParaFrete, opt => opt.Ignore()); // Será calculado no serviço com contexto
 
         // CriarDimensoesProdutoDto -> DimensoesProduto
         CreateMap<CriarDimensoesProdutoDto, DimensoesProduto>()
@@ -61,7 +66,12 @@ public class ProdutoMappingProfile : Profile
                 src.Largura,
                 src.Comprimento,
                 src.PesoNominal,
-                src.Densidade))
+                src.PesoEmbalagem,
+                src.QuantidadeMinima,
+                src.Embalagem,
+                src.Pms,
+                src.FaixaDensidadeInicial,
+                src.FaixaDensidadeFinal))
             .ForAllMembers(opt => opt.Ignore());
 
         // AtualizarDimensoesProdutoDto -> DimensoesProduto
@@ -71,7 +81,12 @@ public class ProdutoMappingProfile : Profile
                 src.Largura,
                 src.Comprimento,
                 src.PesoNominal,
-                src.Densidade))
+                src.PesoEmbalagem,
+                src.QuantidadeMinima,
+                src.Embalagem,
+                src.Pms,
+                src.FaixaDensidadeInicial,
+                src.FaixaDensidadeFinal))
             .ForAllMembers(opt => opt.Ignore());
     }
 }

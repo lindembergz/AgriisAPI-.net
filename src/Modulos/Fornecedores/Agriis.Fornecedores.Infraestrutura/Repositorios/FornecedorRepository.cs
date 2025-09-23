@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Agriis.Compartilhado.Infraestrutura.Persistencia;
 using Agriis.Fornecedores.Dominio.Entidades;
 using Agriis.Fornecedores.Dominio.Interfaces;
+using Agriis.Compartilhado.Dominio.ObjetosValor;
 
 namespace Agriis.Fornecedores.Infraestrutura.Repositorios;
 
@@ -19,11 +20,10 @@ public class FornecedorRepository : RepositoryBase<Fornecedor, DbContext>, IForn
         if (string.IsNullOrWhiteSpace(cnpj))
             return null;
 
-        // Remove formatação do CNPJ para busca
-        var cnpjLimpo = cnpj.Replace(".", "").Replace("/", "").Replace("-", "");
+        var cnpjObj = new Cnpj(cnpj);
 
         return await DbSet
-            .FirstOrDefaultAsync(f => f.Cnpj.Valor == cnpjLimpo, cancellationToken);
+            .FirstOrDefaultAsync(f => f.Cnpj == cnpjObj, cancellationToken);
     }
 
     public async Task<IEnumerable<Fornecedor>> ObterAtivosAsync(CancellationToken cancellationToken = default)
@@ -90,8 +90,8 @@ public class FornecedorRepository : RepositoryBase<Fornecedor, DbContext>, IForn
 
         if (!string.IsNullOrWhiteSpace(cnpj))
         {
-            var cnpjLimpo = cnpj.Replace(".", "").Replace("/", "").Replace("-", "");
-            query = query.Where(f => f.Cnpj.Valor.Contains(cnpjLimpo));
+            var cnpjObj = new Cnpj(cnpj);
+            query = query.Where(f => f.Cnpj == cnpjObj);
         }
 
         if (ativo.HasValue)
@@ -114,9 +114,9 @@ public class FornecedorRepository : RepositoryBase<Fornecedor, DbContext>, IForn
         if (string.IsNullOrWhiteSpace(cnpj))
             return false;
 
-        var cnpjLimpo = cnpj.Replace(".", "").Replace("/", "").Replace("-", "");
+        var cnpjObj = new Cnpj(cnpj);
 
-        var query = DbSet.Where(f => f.Cnpj.Valor == cnpjLimpo);
+        var query = DbSet.Where(f => f.Cnpj == cnpjObj);
 
         if (fornecedorIdExcluir.HasValue)
         {

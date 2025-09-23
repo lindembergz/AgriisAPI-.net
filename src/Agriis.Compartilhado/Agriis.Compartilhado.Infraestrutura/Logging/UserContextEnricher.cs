@@ -1,5 +1,7 @@
 using Serilog.Core;
 using Serilog.Events;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Agriis.Compartilhado.Infraestrutura.Logging;
 
@@ -8,46 +10,52 @@ namespace Agriis.Compartilhado.Infraestrutura.Logging;
 /// </summary>
 public class UserContextEnricher : ILogEventEnricher
 {
-    private readonly ILoggingContext _loggingContext;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserContextEnricher(ILoggingContext loggingContext)
+    public UserContextEnricher(IHttpContextAccessor httpContextAccessor)
     {
-        _loggingContext = loggingContext;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
     {
-        if (!string.IsNullOrEmpty(_loggingContext.UserId))
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext?.User?.Identity?.IsAuthenticated != true) return;
+
+        // User ID
+        var userId = httpContext.User.FindFirst("user_id")?.Value ?? 
+                    httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
         {
-            var userIdProperty = propertyFactory.CreateProperty("UserId", _loggingContext.UserId);
+            var userIdProperty = propertyFactory.CreateProperty("UserId", userId);
             logEvent.AddPropertyIfAbsent(userIdProperty);
         }
 
-        if (!string.IsNullOrEmpty(_loggingContext.UserEmail))
+        // User Email
+        var userEmail = httpContext.User.FindFirst("email")?.Value ?? 
+                       httpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+        if (!string.IsNullOrEmpty(userEmail))
         {
-            var userEmailProperty = propertyFactory.CreateProperty("UserEmail", _loggingContext.UserEmail);
+            var userEmailProperty = propertyFactory.CreateProperty("UserEmail", userEmail);
             logEvent.AddPropertyIfAbsent(userEmailProperty);
         }
 
-        // Adicionar propriedades customizadas
-        var customProperties = _loggingContext.GetProperties();
-        foreach (var kvp in customProperties)
+        // User Name
+        var userName = httpContext.User.FindFirst("name")?.Value ?? 
+                      httpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+        if (!string.IsNullOrEmpty(userName))
         {
-            if (!string.IsNullOrEmpty(kvp.Key) && kvp.Value != null)
-            {
-                // Evitar duplicar propriedades já adicionadas
-                if (kvp.Key != nameof(_loggingContext.CorrelationId) &&
-                    kvp.Key != nameof(_loggingContext.UserId) &&
-                    kvp.Key != nameof(_loggingContext.UserEmail) &&
-                    kvp.Key != nameof(_loggingContext.RequestPath) &&
-                    kvp.Key != nameof(_loggingContext.RequestMethod) &&
-                    kvp.Key != nameof(_loggingContext.RemoteIpAddress) &&
-                    kvp.Key != nameof(_loggingContext.UserAgent))
-                {
-                    var customProperty = propertyFactory.CreateProperty(kvp.Key, kvp.Value);
-                    logEvent.AddPropertyIfAbsent(customProperty);
-                }
-            }
+            var userNameProperty = propertyFactory.CreateProperty("UserName", userName);
+            logEvent.AddPropertyIfAbsent(userNameProperty);
+        }
+
+        // User Role
+        var userRole = httpContext.User.FindFirst("role")?.Value ?? 
+                      httpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+        if (!string.IsNullOrEmpty(userRole))
+        {
+            var userRoleProperty = propertyFactory.CreateProperty("UserRole", userRole);
+            logEvent.AddPropertyIfAbsent(userRoleProperty);
         }
     }
 }
