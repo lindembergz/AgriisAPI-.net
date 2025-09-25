@@ -1,0 +1,224 @@
+<div class="endereco-form-container">
+  <!-- Header with Add Button -->
+  <div class="form-header">
+    <h3 class="form-title">
+      <i class="pi pi-map-marker"></i>
+      Endereços
+    </h3>
+    <p-button 
+      *ngIf="!readonly"
+      label="Adicionar Endereço" 
+      icon="pi pi-plus" 
+      severity="primary"
+      size="small"
+      [outlined]="true"
+      (onClick)="addEndereco()">
+    </p-button>
+  </div>
+
+  <!-- Endereco Cards -->
+  <div class="endereco-list">
+    <div 
+      *ngFor="let endereco of enderecosFormArray.controls; let i = index"
+      class="endereco-card">
+      
+      <p-card>
+        <!-- Card Header -->
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="pi pi-home"></i>
+              <span>{{ getEnderecoTitle(i) }}</span>
+            </div>
+            <p-button 
+              *ngIf="canRemoveEndereco()"
+              icon="pi pi-trash" 
+              severity="danger"
+              size="small"
+              [outlined]="true"
+              [text]="true"
+              (onClick)="removeEndereco(i)"
+              pTooltip="Remover endereço"
+              tooltipPosition="top">
+            </p-button>
+          </div>
+        </ng-template>
+
+        <!-- Card Content -->
+        <div [formGroup]="getEnderecoFormGroup(i)" class="endereco-form">
+          
+          <!-- Row 1: CEP -->
+          <div class="form-row">
+            <div class="form-field">
+              <label [for]="'cep-' + i" class="field-label required">CEP</label>
+              <p-inputMask 
+                [id]="'cep-' + i"
+                formControlName="cep"
+                mask="99999-999"
+                placeholder="Digite o CEP"
+                [class.ng-invalid]="hasFieldError(i, 'cep')"
+                [readonly]="readonly"
+                (onBlur)="onCepBlur(i)"
+                styleClass="w-full">
+              </p-inputMask>
+              <small 
+                *ngIf="hasFieldError(i, 'cep')" 
+                class="error-message">
+                {{ getFieldErrorMessage(i, 'cep') }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Row 2: Logradouro and Número -->
+          <div class="form-row">
+            <div class="form-field flex-2">
+              <label [for]="'logradouro-' + i" class="field-label required">Logradouro</label>
+              <input 
+                pInputText 
+                [id]="'logradouro-' + i"
+                formControlName="logradouro"
+                placeholder="Digite o logradouro"
+                [class.ng-invalid]="hasFieldError(i, 'logradouro')"
+                [readonly]="readonly"
+                class="w-full">
+              <small 
+                *ngIf="hasFieldError(i, 'logradouro')" 
+                class="error-message">
+                {{ getFieldErrorMessage(i, 'logradouro') }}
+              </small>
+            </div>
+
+            <div class="form-field flex-1">
+              <label [for]="'numero-' + i" class="field-label required">Número</label>
+              <input 
+                pInputText 
+                [id]="'numero-' + i"
+                formControlName="numero"
+                placeholder="Nº"
+                [class.ng-invalid]="hasFieldError(i, 'numero')"
+                [readonly]="readonly"
+                class="w-full">
+              <small 
+                *ngIf="hasFieldError(i, 'numero')" 
+                class="error-message">
+                {{ getFieldErrorMessage(i, 'numero') }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Row 3: Complemento -->
+          <div class="form-row">
+            <div class="form-field">
+              <label [for]="'complemento-' + i" class="field-label">Complemento</label>
+              <input 
+                pInputText 
+                [id]="'complemento-' + i"
+                formControlName="complemento"
+                placeholder="Apartamento, bloco, etc."
+                [readonly]="readonly"
+                class="w-full">
+            </div>
+          </div>
+
+          <!-- Row 4: Bairro -->
+          <div class="form-row">
+            <div class="form-field">
+              <label [for]="'bairro-' + i" class="field-label required">Bairro</label>
+              <input 
+                pInputText 
+                [id]="'bairro-' + i"
+                formControlName="bairro"
+                placeholder="Digite o bairro"
+                [class.ng-invalid]="hasFieldError(i, 'bairro')"
+                [readonly]="readonly"
+                class="w-full">
+              <small 
+                *ngIf="hasFieldError(i, 'bairro')" 
+                class="error-message">
+                {{ getFieldErrorMessage(i, 'bairro') }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Row 5: Cidade and UF -->
+          <div class="form-row">
+            <div class="form-field flex-2">
+              <label [for]="'cidade-' + i" class="field-label required">Cidade</label>
+              <input 
+                pInputText 
+                [id]="'cidade-' + i"
+                formControlName="cidade"
+                placeholder="Digite a cidade"
+                [class.ng-invalid]="hasFieldError(i, 'cidade')"
+                [readonly]="readonly"
+                class="w-full">
+              <small 
+                *ngIf="hasFieldError(i, 'cidade')" 
+                class="error-message">
+                {{ getFieldErrorMessage(i, 'cidade') }}
+              </small>
+            </div>
+
+            <div class="form-field flex-1">
+              <label [for]="'uf-' + i" class="field-label required">UF</label>
+              <p-select 
+                [id]="'uf-' + i"
+                formControlName="uf"
+                [options]="ufOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="UF"
+                [class.ng-invalid]="hasFieldError(i, 'uf')"
+                [disabled]="readonly"
+                styleClass="w-full">
+              </p-select>
+              <small 
+                *ngIf="hasFieldError(i, 'uf')" 
+                class="error-message">
+                {{ getFieldErrorMessage(i, 'uf') }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Row 6: Coordinates (if available) -->
+          <div 
+            *ngIf="getFormControl(i, 'latitude')?.value || getFormControl(i, 'longitude')?.value" 
+            class="form-row coordinates-row">
+            <div class="form-field flex-1">
+              <label [for]="'latitude-' + i" class="field-label">Latitude</label>
+              <input 
+                pInputText 
+                [id]="'latitude-' + i"
+                formControlName="latitude"
+                placeholder="Latitude"
+                [readonly]="true"
+                class="w-full">
+            </div>
+
+            <div class="form-field flex-1">
+              <label [for]="'longitude-' + i" class="field-label">Longitude</label>
+              <input 
+                pInputText 
+                [id]="'longitude-' + i"
+                formControlName="longitude"
+                placeholder="Longitude"
+                [readonly]="true"
+                class="w-full">
+            </div>
+          </div>
+
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="enderecosFormArray.length === 0" class="empty-state">
+    <i class="pi pi-map-marker empty-icon"></i>
+    <h4>Nenhum endereço cadastrado</h4>
+    <p>Clique em "Adicionar Endereço" para começar.</p>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<p-confirmDialog></p-confirmDialog>

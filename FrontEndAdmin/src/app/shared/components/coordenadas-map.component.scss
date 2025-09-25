@@ -1,0 +1,72 @@
+@import '../styles/index';
+
+.map-container {
+  .coordinate-display {
+    font-family: 'Courier New', monospace;
+    font-size: $font-size-sm;
+    text-align: center;
+    background-color: var(--surface-100);
+    border: 1px solid var(--surface-300);
+    padding: $spacing-md;
+    border-radius: $border-radius-md;
+  }
+
+  google-map {
+    display: block;
+    border: 2px solid var(--surface-300);
+    box-shadow: $shadow-md;
+    border-radius: $border-radius-md;
+    transition: all $transition-normal;
+    
+    &:hover {
+      border-color: var(--primary-color);
+      box-shadow: $shadow-lg;
+    }
+  }
+
+  // Button styling is handled by global styles
+}
+
+// Loading spinner styling
+.pi-spinner {
+  color: var(--primary-color);
+}
+
+// Responsive adjustments
+@media (max-width: $breakpoint-md) {
+  .map-container {
+    .coordinate-display {
+      font-size: $font-size-xs;
+      padding: $spacing-sm;
+    }
+    
+    .flex.gap-2 {
+      flex-direction: column;
+      
+      .p-button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .map-container {
+    google-map {
+      border-width: 3px;
+    }
+    
+    .coordinate-display {
+      border-width: 2px;
+      font-weight: bold;
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .pi-spinner {
+    animation: none;
+  }
+}

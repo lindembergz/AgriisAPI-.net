@@ -1,0 +1,747 @@
+body .p-state-disabled, body .p-widget:disabled {
+  /* opacity: 0.5;*/
+  background-color: #ECEFF1 !important;
+}
+
+/*#########################
+   primeng datatable - table - paginator
+#########################*/
+
+
+body .p-paginator {
+  line-height: 50px;
+  height: 50px;
+  padding: 0 1.2rem;
+  background: white;
+  color: #ededed;
+  margin: 10px;
+  box-sizing: border-box;
+}
+
+body .p-paginator .p-paginator-first,
+body .p-paginator .p-paginator-prev,
+body .p-paginator .p-paginator-next,
+body .p-paginator .p-paginator-last {
+  box-sizing: border-box;
+  background-color: #fff;
+  border: 1px solid #626e82;
+  height: 32px;
+  min-width: 34px;
+  line-height: 22px;
+  border-radius: 3px;
+  margin: 0 3px;
+  text-align: center;
+  color: #7c8091;
+}
+
+body .p-paginator .p-paginator-first:not(.p-state-disabled):not(.p-state-active):hover,
+body .p-paginator .p-paginator-prev:not(.p-state-disabled):not(.p-state-active):hover,
+body .p-paginator .p-paginator-next:not(.p-state-disabled):not(.p-state-active):hover,
+body .p-paginator .p-paginator-last:not(.p-state-disabled):not(.p-state-active):hover {
+  background-color: #545454;
+  font-weight: bold;
+  color: white;
+}
+
+.p-paginator a.p-state-disabled {
+  cursor: not-allowed !important;
+}
+
+
+body .p-paginator .p-paginator-pages {
+  height: unset !important;
+}
+
+body .p-paginator .p-paginator-pages .p-paginator-page {
+  box-sizing: border-box;
+  background-color: #fff;
+  border: 1px solid #626e82;
+  height: 32px;
+  min-width: 34px;
+  line-height: 22px;
+  border-radius: 3px;
+  margin: 0 3px;
+  text-align: center;
+  padding-top: 5px;
+  color: #7c8091;
+
+}
+
+body .p-paginator .p-paginator-pages .p-paginator-page.p-state-active {
+  background-color: #545454;
+  font-weight: bold;
+  color: white;
+}
+
+body .p-paginator .p-paginator-pages .p-paginator-page:not(.p-state-active):hover {
+  background-color: #545454;
+  font-weight: bold;
+  color: white;
+}
+
+/*#########################
+   primeng datatable - table - paginator
+#########################*/
+
+/*#########################
+    primeng - p-dropdown
+#########################*/
+
+body .p-dropdown {
+  background: #ffffff;
+  border: 1px solid #a6a6a6;
+  -moz-transition: border-color 0.2s;
+  -o-transition: border-color 0.2s;
+  -webkit-transition: border-color 0.2s;
+  transition: border-color 0.2s;
+}
+
+body .p-dropdown:not(.p-state-disabled):hover {
+  border-color: #212121;
+}
+
+body .p-dropdown:not(.p-state-disabled).p-state-focus {
+  border-color: #007ad9;
+  outline: 0 none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
+body .p-dropdown-label {
+  padding-right: 2em;
+}
+
+body .p-dropdown-trigger {
+  background-color: #ffffff;
+  width: 2em;
+  line-height: 2em;
+  text-align: center;
+  padding: 0;
+  color: #848484;
+}
+
+body .p-dropdown-clear-icon {
+  color: #848484;
+}
+
+body .p-dropdown-clearable .p-dropdown-label {
+  padding-right: 4em;
+}
+
+body .p-dropdown-panel {
+  padding: 0;
+  border: 1px solid #c8c8c8;
+  background-color: #ffffff;
+  -webkit-box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+  -moz-box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+  box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+}
+
+body .p-dropdown-panel .p-dropdown-filter-container {
+  padding: 0.429em 0.857em 0.429em 0.857em;
+  border-bottom: 1px solid #eaeaea;
+  color: #333333;
+  background-color: #ffffff;
+  margin: 0;
+}
+
+body .p-dropdown-panel .p-dropdown-filter-container .p-dropdown-filter {
+  width: 100%;
+  padding-right: 2em;
+}
+
+body .p-dropdown-panel .p-dropdown-filter-container .p-dropdown-filter-icon {
+  top: 50%;
+  margin-top: -.5em;
+  right: 1.357em;
+  color: #007ad9;
+}
+
+body .p-dropdown-panel .p-dropdown-items {
+  padding: 0;
+}
+
+body .p-dropdown-panel .p-dropdown-items .p-dropdown-item, body .p-dropdown-panel .p-dropdown-items .p-dropdown-item-group {
+  margin: 0;
+  padding: 0.429em 0.857em;
+  border: 0 none;
+  color: #333333;
+  background-color: transparent;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+}
+
+body .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-state-highlight, body .p-dropdown-panel .p-dropdown-items .p-dropdown-item-group.p-state-highlight {
+  color: #ffffff;
+  background-color: #007ad9;
+}
+
+body .p-dropdown-panel .p-dropdown-items .p-dropdown-item:not(.p-state-highlight):not(.p-state-disabled):hover, body .p-dropdown-panel .p-dropdown-items .p-dropdown-item-group:not(.p-state-highlight):not(.p-state-disabled):hover {
+  color: #333333;
+  background-color: #eaeaea;
+}
+
+
+/*#########################
+    primeng - p-dropdown
+#########################*/
+
+/*#########################
+    primeng - p-multiselect
+#########################*/
+
+body .p-multiselect {
+  background: #ffffff;
+  border: 1px solid #a6a6a6;
+  -moz-transition: border-color 0.2s;
+  -o-transition: border-color 0.2s;
+  -webkit-transition: border-color 0.2s;
+  transition: border-color 0.2s;
+}
+
+body .p-multiselect:not(.p-state-disabled):hover {
+  border-color: #212121;
+}
+
+body .p-multiselect:not(.p-state-disabled).p-state-focus {
+  border-color: #007ad9;
+  outline: 0 none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
+body .p-multiselect .p-multiselect-label {
+  padding-right: 2em;
+  color: #333333;
+}
+
+.p-multiselect .p-multiselect-label-container {
+  overflow: unset !important;
+}
+
+body .p-multiselect .p-multiselect-trigger {
+  background-color: #ffffff;
+  width: 2em;
+  line-height: 2em;
+  text-align: center;
+  padding: 0;
+  color: #848484;
+}
+
+body .p-multiselect-panel {
+  padding: 0;
+  border: 1px solid #c8c8c8;
+  background-color: #ffffff;
+  -webkit-box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+  -moz-box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+  box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+}
+
+body .p-multiselect-panel .p-multiselect-header {
+  padding: 0.429em 0.857em 0.429em 0.857em;
+  border-bottom: 1px solid #eaeaea;
+  color: #333333;
+  background-color: #ffffff;
+  margin: 0;
+}
+
+body .p-multiselect-panel .p-multiselect-header .p-multiselect-filter-container {
+  float: none;
+  width: 70%;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0;
+}
+
+body .p-multiselect-panel .p-multiselect-header .p-multiselect-filter-container .p-inputtext {
+  padding: 0.429em;
+  padding-right: 2em;
+}
+
+body .p-multiselect-panel .p-multiselect-header .p-multiselect-filter-container .p-multiselect-filter-icon {
+  color: #007ad9;
+  top: 50%;
+  margin-top: -.5em;
+  right: .5em;
+  left: auto;
+}
+
+body .p-multiselect-panel .p-multiselect-header .p-chkbox {
+  margin-right: 0.5em;
+  float: none;
+  vertical-align: middle;
+}
+
+body .p-multiselect-panel .p-multiselect-header .p-multiselect-close {
+  color: #848484;
+  top: 50%;
+  margin-top: -.5em;
+  -moz-transition: color 0.2s;
+  -o-transition: color 0.2s;
+  -webkit-transition: color 0.2s;
+  transition: color 0.2s;
+}
+
+body .p-multiselect-panel .p-multiselect-header .p-multiselect-close:hover {
+  color: #333333;
+}
+
+body .p-multiselect-panel .p-multiselect-items {
+  padding: 0;
+}
+
+body .p-multiselect-panel .p-multiselect-items .p-multiselect-item {
+  margin: 0;
+  padding: 0.429em 0.857em;
+  border: 0 none;
+  color: #333333;
+  background-color: white;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+}
+
+body .p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-state-highlight {
+  color: #ffffff;
+  background-color: #007ad9;
+}
+
+body .p-multiselect-panel .p-multiselect-items .p-multiselect-item:not(.p-state-highlight):not(.p-state-disabled):hover {
+  color: #333333;
+  background-color: #eaeaea;
+}
+
+body .p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-state-disabled .p-chkbox-box {
+  cursor: auto;
+}
+
+body .p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-state-disabled .p-chkbox-box:hover {
+  border: 1px solid #a6a6a6;
+}
+
+body .p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-state-disabled .p-chkbox-box.p-state-active:hover {
+  border-color: #007ad9;
+}
+
+body .p-multiselect-panel .p-multiselect-items .p-multiselect-item .p-chkbox {
+  position: static;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 0.5em 0 0;
+}
+
+body .p-multiselect-panel .p-multiselect-items .p-multiselect-item label {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/*#########################
+    primeng - multiselect
+#########################*/
+
+/*#########################
+    primeng - chkbox
+#########################*/
+body .p-chkbox {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  width: 20px;
+  height: 20px;
+}
+
+body .p-chkbox .p-chkbox-box {
+  border: 1px solid #a6a6a6;
+  background-color: #ffffff;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  -moz-transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  -o-transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  -webkit-transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+body .p-chkbox .p-chkbox-box:not(.p-state-disabled):hover {
+  border-color: #212121;
+}
+
+body .p-chkbox .p-chkbox-box.p-state-focus {
+  border-color: #007ad9;
+  background-color: #ffffff;
+  color: #007ad9;
+  -webkit-box-shadow: 0 0 0 0.2em #8dcdff;
+  -moz-box-shadow: 0 0 0 0.2em #8dcdff;
+  box-shadow: 0 0 0 0.2em #8dcdff;
+}
+
+body .p-chkbox .p-chkbox-box.p-state-active {
+  border-color: #007ad9;
+  background-color: #007ad9;
+  color: #ffffff;
+}
+
+body .p-chkbox .p-chkbox-box.p-state-active:not(.p-state-disabled):hover {
+  border-color: #005b9f;
+  background-color: #005b9f;
+  color: #ffffff;
+}
+
+body .p-chkbox .p-chkbox-box.p-state-active.p-state-focus {
+  border-color: #007ad9;
+  background-color: #007ad9;
+  color: #ffffff;
+}
+
+body .p-chkbox .p-chkbox-box .p-chkbox-icon {
+  overflow: hidden;
+  position: relative;
+  font-size: 18px;
+}
+
+body .p-chkbox-label {
+  margin: 0 0 0 0.5em;
+}
+
+/*#########################
+    primeng - p-chkbox
+#########################*/
+
+
+/*#########################
+    primeng - p-autocomplete
+#########################*/
+
+body .p-autocomplete .p-autocomplete-input {
+  padding: 0.429em;
+}
+
+body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container {
+  padding: 0.2145em 0.429em;
+}
+
+body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container:not(.p-state-disabled):hover {
+  border-color: #212121;
+}
+
+body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container:not(.p-state-disabled).p-state-focus {
+  border-color: #007ad9;
+  outline: 0 none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
+body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container .p-autocomplete-input-token {
+  margin: 0;
+  padding: 0.2145em 0;
+  color: #333333;
+}
+
+body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container .p-autocomplete-input-token input {
+  font-family: "Open Sans", "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  padding: 0;
+  margin: 0;
+}
+
+body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container .p-autocomplete-token {
+  font-size: 14px;
+  padding: 0.2145em 0.429em;
+  margin: 0 0.286em 0 0;
+  background: #007ad9;
+  color: #ffffff;
+}
+
+body .p-autocomplete-panel {
+  padding: 0;
+  border: 1px solid #c8c8c8;
+  background-color: #ffffff;
+  -webkit-box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+  -moz-box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+  box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+}
+
+body .p-autocomplete-panel .p-autocomplete-items {
+  padding: 0;
+}
+
+body .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-list-item {
+  margin: 0;
+  padding: 0.429em 0.857em;
+  border: 0 none;
+  color: #333333;
+  background-color: transparent;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+}
+
+body .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-list-item.p-state-highlight {
+  color: #ffffff;
+  background-color: #007ad9;
+}
+
+body .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-group {
+  padding: 0.429em 0.857em;
+  background-color: #d8dae2;
+  color: #333333;
+}
+
+/*.p-calendar .p-datepicker {
+  min-width: 300px !important;
+}*/
+
+/*#########################
+    primeng - p-autocomplete
+#########################*/
+
+/*#########################
+    primeng - p-datepicker
+#########################*/
+body .p-datepicker {
+  padding: 0.857em;
+  min-width: 20em;
+  background-color: #ffffff;
+  color: #333333;
+  border: 1px solid #a6a6a6;
+}
+
+body .p-datepicker:not(.p-datepicker-inline) {
+  border: 1px solid #c8c8c8;
+  -webkit-box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+  -moz-box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+  box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+}
+
+body .p-datepicker:not(.p-state-disabled) .p-datepicker-header .p-datepicker-prev:hover,
+body .p-datepicker:not(.p-state-disabled) .p-datepicker-header .p-datepicker-next:hover {
+  color: #007ad9;
+}
+
+body .p-datepicker:not(.p-state-disabled) .p-datepicker-header .p-datepicker-prev:focus,
+body .p-datepicker:not(.p-state-disabled) .p-datepicker-header .p-datepicker-next:focus {
+  outline: 0 none;
+  color: #007ad9;
+}
+
+body .p-datepicker:not(.p-state-disabled) table td a:not(.p-state-active):not(.p-state-highlight):hover {
+  background-color: #eaeaea;
+}
+
+body .p-datepicker:not(.p-state-disabled) .p-monthpicker a.p-monthpicker-month:not(.p-state-active):hover {
+  background-color: #eaeaea;
+}
+
+body .p-datepicker .p-datepicker-header {
+  padding: 0.429em 0.857em 0.429em 0.857em;
+  background-color: #ffffff;
+  color: #333333;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+}
+
+body .p-datepicker .p-datepicker-header .p-datepicker-prev,
+body .p-datepicker .p-datepicker-header .p-datepicker-next {
+  cursor: pointer;
+  top: 0;
+  color: #a6a6a6;
+  -moz-transition: color 0.2s;
+  -o-transition: color 0.2s;
+  -webkit-transition: color 0.2s;
+  transition: color 0.2s;
+}
+
+body .p-datepicker .p-datepicker-header .p-datepicker-title {
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+body .p-datepicker .p-datepicker-header .p-datepicker-title select {
+  margin-top: -.35em;
+  margin-bottom: 0;
+}
+
+body .p-datepicker table {
+  font-size: 14px;
+  margin: 0.857em 0 0 0;
+}
+
+body .p-datepicker table th {
+  padding: 0.5em;
+}
+
+body .p-datepicker table td {
+  padding: 0.5em;
+}
+
+body .p-datepicker table td > a, body .p-datepicker table td > span {
+  display: block;
+  text-align: center;
+  color: #333333;
+  padding: 0.5em;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+}
+
+body .p-datepicker table td > a.p-state-active, body .p-datepicker table td > span.p-state-active {
+  color: #ffffff;
+  background-color: #007ad9;
+}
+
+body .p-datepicker table td > a {
+  cursor: pointer;
+}
+
+body .p-datepicker table td.p-datepicker-today > a, body .p-datepicker table td.p-datepicker-today > span {
+  background-color: #d0d0d0;
+  color: #333333;
+}
+
+body .p-datepicker table td.p-datepicker-today > a.p-state-active, body .p-datepicker table td.p-datepicker-today > span.p-state-active {
+  color: #ffffff;
+  background-color: #007ad9;
+}
+
+body .p-datepicker table td.p-datepicker-weekheader, body .p-datepicker table td.p-datepicker-weeknumber {
+  border-right: 1px solid #a6a6a6;
+}
+
+body .p-datepicker .p-datepicker-buttonbar {
+  border-top: 1px solid #d8dae2;
+}
+
+body .p-datepicker .p-timepicker {
+  border: 0 none;
+  border-top: 1px solid #d8dae2;
+  padding: 0.857em;
+}
+
+body .p-datepicker .p-timepicker a {
+  color: #333333;
+  font-size: 1.286em;
+}
+
+body .p-datepicker .p-timepicker a:hover {
+  color: #007ad9;
+}
+
+body .p-datepicker .p-timepicker span {
+  font-size: 1.286em;
+}
+
+body .p-datepicker .p-monthpicker .p-monthpicker-month {
+  color: #333333;
+}
+
+body .p-datepicker .p-monthpicker .p-monthpicker-month.p-state-active {
+  color: #ffffff;
+  background-color: #007ad9;
+}
+
+body .p-datepicker.p-datepicker-timeonly {
+  padding: 0;
+}
+
+body .p-datepicker.p-datepicker-timeonly .p-timepicker {
+  border-top: 0 none;
+}
+
+body .p-datepicker.p-datepicker-multiple-month .p-datepicker-group {
+  border-right: 1px solid #d8dae2;
+  padding-right: 0.857em;
+  padding-left: 0.857em;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+body .p-datepicker.p-datepicker-multiple-month .p-datepicker-group:first-child {
+  padding-left: 0;
+}
+
+body .p-datepicker.p-datepicker-multiple-month .p-datepicker-group:last-child {
+  padding-right: 0;
+  border-right: 0 none;
+}
+
+/*#########################
+    primeng - p-datepicker
+#########################*/
+
+
+/*#########################
+    primeng - p-p-calendar
+#########################*/
+.p-calendar {
+  display: block !important;
+}
+
+.p-calendar .p-inputtext {
+  width: unset !important;;
+}
+
+body .p-calendar.p-calendar-w-btn .p-inputtext {
+  -moz-border-radius-topright: 0;
+  -webkit-border-top-right-radius: 0;
+  border-top-right-radius: 0;
+  -moz-border-radius-bottomright: 0;
+  -webkit-border-bottom-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 0 none;
+}
+
+body .p-calendar.p-calendar-w-btn .p-inputtext:enabled:hover:not(.p-state-error), body .p-calendar.p-calendar-w-btn .p-inputtext:enabled:focus:not(.p-state-error) {
+  border-right: 0 none;
+}
+
+body .p-calendar.p-calendar-w-btn .p-datepicker-trigger.p-button {
+  width: 2.357em;
+  -moz-border-radius-topleft: 0;
+  -webkit-border-top-left-radius: 0;
+  border-top-left-radius: 0;
+  -moz-border-radius-bottomleft: 0;
+  -webkit-border-bottom-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/*#########################
+    primeng - p-calendar
+#########################*/
+
+
+/*#########################
+    primeng - p-widget
+#########################*/
+body .p-widget {
+  font-family: "Open Sans", "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+body .p-widget-content p {
+  line-height: 1.5;
+  margin: 0;
+}
+
+body .p-widget-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+body .p-corner-all {
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+}
+
+/*#########################
+    primeng - p-widget
+#########################*/

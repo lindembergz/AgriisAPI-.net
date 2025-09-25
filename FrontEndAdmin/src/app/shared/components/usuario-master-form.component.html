@@ -1,0 +1,209 @@
+<div class="usuario-master-form-container">
+  <!-- Card wrapper (optional) -->
+  <p-card *ngIf="showCard">
+    <!-- Card Header -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="card-title">
+          <i class="pi pi-user"></i>
+          <span>Usuário Master</span>
+        </div>
+        <div class="card-actions" *ngIf="!readonly">
+          <p-button 
+            icon="pi pi-key" 
+            severity="secondary"
+            size="small"
+            [outlined]="true"
+            [text]="true"
+            (onClick)="generatePassword()"
+            pTooltip="Gerar senha aleatória"
+            tooltipPosition="top">
+          </p-button>
+          <p-button 
+            icon="pi pi-refresh" 
+            severity="secondary"
+            size="small"
+            [outlined]="true"
+            [text]="true"
+            (onClick)="clearForm()"
+            pTooltip="Limpar formulário"
+            tooltipPosition="top">
+          </p-button>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Card Content -->
+    <div [formGroup]="usuarioFormGroup" class="usuario-form">
+      <ng-container *ngTemplateOutlet="formContent"></ng-container>
+    </div>
+  </p-card>
+
+  <!-- Direct form (without card) -->
+  <div *ngIf="!showCard" [formGroup]="usuarioFormGroup" class="usuario-form">
+    <!-- Form Header -->
+    <div class="form-header">
+      <h3 class="form-title">
+        <i class="pi pi-user"></i>
+        Usuário Master
+      </h3>
+      <div class="form-actions" *ngIf="!readonly">
+        <p-button 
+          icon="pi pi-key" 
+          severity="secondary"
+          size="small"
+          [outlined]="true"
+          [text]="true"
+          (onClick)="generatePassword()"
+          pTooltip="Gerar senha aleatória"
+          tooltipPosition="top">
+        </p-button>
+        <p-button 
+          icon="pi pi-refresh" 
+          severity="secondary"
+          size="small"
+          [outlined]="true"
+          [text]="true"
+          (onClick)="clearForm()"
+          pTooltip="Limpar formulário"
+          tooltipPosition="top">
+        </p-button>
+      </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <ng-container *ngTemplateOutlet="formContent"></ng-container>
+  </div>
+
+  <!-- Form Content Template -->
+  <ng-template #formContent>
+    <!-- Row 1: Nome -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="usuario-nome" class="field-label required">Nome Completo</label>
+        <input 
+          pInputText 
+          id="usuario-nome"
+          formControlName="nome"
+          placeholder="Digite o nome completo"
+          [class.ng-invalid]="hasFieldError('nome')"
+          [readonly]="readonly"
+          class="w-full">
+        <small 
+          *ngIf="hasFieldError('nome')" 
+          class="error-message">
+          {{ getFieldErrorMessage('nome') }}
+        </small>
+      </div>
+    </div>
+
+    <!-- Row 2: Email -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="usuario-email" class="field-label required">E-mail</label>
+        <input 
+          pInputText 
+          id="usuario-email"
+          formControlName="email"
+          type="email"
+          placeholder="Digite o e-mail"
+          [class.ng-invalid]="hasFieldError('email')"
+          [readonly]="readonly"
+          class="w-full">
+        <small 
+          *ngIf="hasFieldError('email')" 
+          class="error-message">
+          {{ getFieldErrorMessage('email') }}
+        </small>
+      </div>
+    </div>
+
+    <!-- Row 3: Telefone -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="usuario-telefone" class="field-label">Telefone</label>
+        <input 
+          pInputText 
+          id="usuario-telefone"
+          formControlName="telefone"
+          placeholder="(11) 99999-9999"
+          [class.ng-invalid]="hasFieldError('telefone')"
+          [readonly]="readonly"
+          class="w-full">
+        <small 
+          *ngIf="hasFieldError('telefone')" 
+          class="error-message">
+          {{ getFieldErrorMessage('telefone') }}
+        </small>
+      </div>
+    </div>
+
+    <!-- Row 4: Senha -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="usuario-senha" class="field-label required">Senha</label>
+        <div class="password-field">
+          <p-password 
+            id="usuario-senha"
+            formControlName="senha"
+            placeholder="Digite a senha"
+            [class.ng-invalid]="hasFieldError('senha')"
+            [disabled]="readonly"
+            [feedback]="!readonly"
+            [toggleMask]="true"
+            [promptLabel]="'Digite uma senha'"
+            [weakLabel]="'Fraca'"
+            [mediumLabel]="'Média'"
+            [strongLabel]="'Forte'"
+            styleClass="w-full">
+          </p-password>
+          <p-button 
+            *ngIf="!readonly"
+            icon="pi pi-key" 
+            severity="secondary"
+            size="small"
+            [outlined]="true"
+            [text]="true"
+            (onClick)="generatePassword()"
+            pTooltip="Gerar senha aleatória"
+            tooltipPosition="top"
+            class="generate-password-btn">
+          </p-button>
+        </div>
+        <small 
+          *ngIf="hasFieldError('senha')" 
+          class="error-message">
+          {{ getFieldErrorMessage('senha') }}
+        </small>
+      </div>
+    </div>
+
+    <!-- Form Status Info -->
+    <div class="form-status" *ngIf="!readonly">
+      <div class="status-item">
+        <i class="pi" [class.pi-check-circle]="isFormValid" [class.pi-times-circle]="!isFormValid"></i>
+        <span [class.text-success]="isFormValid" [class.text-danger]="!isFormValid">
+          {{ isFormValid ? 'Formulário válido' : 'Formulário inválido' }}
+        </span>
+      </div>
+      <div class="status-item" *ngIf="isFormDirty">
+        <i class="pi pi-exclamation-triangle text-warning"></i>
+        <span class="text-warning">Alterações não salvas</span>
+      </div>
+    </div>
+
+    <!-- Help Text -->
+    <div class="help-text" *ngIf="!readonly">
+      <p>
+        <i class="pi pi-info-circle"></i>
+        O usuário master terá acesso completo ao sistema e poderá gerenciar outros usuários.
+      </p>
+      <ul>
+        <li>A senha deve ter pelo menos 6 caracteres</li>
+        <li>Use uma combinação de letras, números e símbolos</li>
+        <li>O e-mail será usado para login no sistema</li>
+      </ul>
+    </div>
+  </ng-template>
+</div>

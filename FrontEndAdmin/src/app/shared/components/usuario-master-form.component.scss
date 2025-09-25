@@ -1,0 +1,364 @@
+@import '../styles/index';
+
+.usuario-master-form-container {
+  // Card header styles
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      font-weight: $font-weight-semibold;
+      color: var(--text-color);
+
+      i {
+        color: var(--primary-color);
+      }
+    }
+
+    .card-actions {
+      display: flex;
+      gap: $spacing-sm;
+    }
+  }
+
+  // Form header styles (when not using card)
+  .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-xl;
+
+    .form-title {
+      margin: 0;
+      color: var(--text-color);
+      font-size: $font-size-xl;
+      font-weight: $font-weight-semibold;
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+
+      i {
+        color: var(--primary-color);
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: $spacing-sm;
+    }
+  }
+
+  // Form styles
+  .usuario-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+
+    .form-row {
+      display: flex;
+      gap: $spacing-xl;
+      align-items: start;
+
+      @media (max-width: $breakpoint-md) {
+        flex-direction: column;
+        gap: $spacing-md;
+      }
+    }
+
+    .form-field {
+      @include form-field;
+      flex: 1;
+
+      .field-label {
+        @include form-label;
+      }
+
+      .error-message {
+        @include error-message;
+      }
+
+      // Password field with generate button
+      .password-field {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+
+        ::ng-deep .p-password {
+          flex: 1;
+        }
+
+        .generate-password-btn {
+          flex-shrink: 0;
+        }
+      }
+
+      ::ng-deep {
+        .p-inputtext,
+        .p-password,
+        .p-password .p-inputtext {
+          width: 100%;
+
+          &.ng-invalid.ng-touched,
+          &.ng-invalid.ng-dirty {
+            border-color: var(--red-500);
+          }
+
+          &[readonly] {
+            background-color: var(--surface-100);
+            color: var(--text-color-secondary);
+          }
+        }
+
+        // Password component specific styles
+        .p-password {
+          .p-password-input {
+            width: 100%;
+          }
+
+          .p-password-panel {
+            z-index: 1100;
+          }
+
+          &.p-password-clearable .p-password-input {
+            padding-right: 2.5rem;
+          }
+        }
+      }
+    }
+
+    // Form status section
+    .form-status {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+      padding: $spacing-xl;
+      background: var(--surface-50);
+      border: 1px solid var(--surface-border);
+      border-radius: $border-radius-md;
+
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        font-size: $font-size-sm;
+
+        i {
+          font-size: $font-size-md;
+
+          &.pi-check-circle {
+            color: var(--success-500);
+          }
+
+          &.pi-times-circle {
+            color: var(--secondary-500);
+          }
+
+          &.pi-exclamation-triangle {
+            color: var(--warning-500);
+          }
+        }
+
+        .text-success {
+          color: var(--success-600);
+        }
+
+        .text-danger {
+          color: var(--secondary-600);
+        }
+
+        .text-warning {
+          color: var(--warning-600);
+        }
+      }
+    }
+
+    // Help text section
+    .help-text {
+      @include message-info;
+
+      p {
+        margin: 0 0 $spacing-md 0;
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        font-weight: $font-weight-medium;
+        color: var(--text-color);
+      }
+
+      ul {
+        margin: 0;
+        padding-left: $spacing-2xl;
+
+        li {
+          margin-bottom: $spacing-xs;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+
+  // Card specific styles
+  ::ng-deep {
+    .p-card {
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      .p-card-header {
+        background: var(--surface-50);
+        border-bottom: 1px solid var(--surface-border);
+        padding: 1rem 1.5rem;
+        border-radius: 8px 8px 0 0;
+      }
+
+      .p-card-body {
+        padding: 1.5rem;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: $breakpoint-md) {
+  .usuario-master-form-container {
+    .card-header,
+    .form-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+
+      .card-title,
+      .form-title {
+        justify-content: center;
+      }
+
+      .card-actions,
+      .form-actions {
+        justify-content: center;
+      }
+    }
+
+    .usuario-form {
+      .password-field {
+        flex-direction: column;
+        align-items: stretch;
+
+        .generate-password-btn {
+          align-self: flex-end;
+        }
+      }
+
+      .form-status {
+        .status-item {
+          justify-content: center;
+        }
+      }
+    }
+
+    ::ng-deep .p-card {
+      .p-card-header {
+        padding: 0.75rem 1rem;
+      }
+
+      .p-card-body {
+        padding: 1rem;
+      }
+    }
+  }
+}
+
+// Loading state
+.usuario-master-form-container {
+  &.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+}
+
+// Dark theme adjustments
+@media (prefers-color-scheme: dark) {
+  .usuario-master-form-container {
+    .usuario-form {
+      .form-status {
+        background: var(--surface-100);
+        border-color: var(--surface-border);
+      }
+
+      .help-text {
+        background: var(--surface-100);
+        border-color: var(--surface-border);
+      }
+    }
+
+    ::ng-deep .p-card {
+      background: var(--surface-card);
+      border-color: var(--surface-border);
+
+      .p-card-header {
+        background: var(--surface-100);
+        border-bottom-color: var(--surface-border);
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .usuario-master-form-container {
+    .card-actions,
+    .form-actions {
+      display: none;
+    }
+
+    .usuario-form {
+      .form-status,
+      .help-text {
+        display: none;
+      }
+
+      .password-field .generate-password-btn {
+        display: none;
+      }
+    }
+
+    ::ng-deep .p-card {
+      box-shadow: none;
+      border: 1px solid #ccc;
+    }
+  }
+}
+
+// Focus styles for accessibility
+.usuario-master-form-container {
+  .usuario-form {
+    .form-field {
+      ::ng-deep {
+        .p-inputtext:focus,
+        .p-password .p-inputtext:focus {
+          outline: 2px solid var(--primary-color);
+          outline-offset: 2px;
+        }
+      }
+    }
+  }
+}
+
+// Animation for form status changes
+.usuario-master-form-container {
+  .usuario-form {
+    .form-status {
+      transition: all 0.3s ease;
+
+      .status-item {
+        transition: all 0.2s ease;
+      }
+    }
+  }
+}

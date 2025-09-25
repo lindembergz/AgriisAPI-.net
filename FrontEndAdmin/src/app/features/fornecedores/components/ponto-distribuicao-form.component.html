@@ -1,0 +1,223 @@
+<div class="ponto-distribuicao-form-container">
+  <!-- Header with Add Button -->
+  <div class="form-header">
+    <div class="header-info">
+      <h4>Pontos de Distribuição</h4>
+      <p class="header-description">
+        {{ hasPontosDistribuicao ? 
+           `${pontosDistribuicaoFormArray.length} ponto(s) de distribuição cadastrado(s)` : 
+           'Nenhum ponto de distribuição cadastrado' }}
+      </p>
+    </div>
+    <p-button 
+      label="Adicionar Ponto de Distribuição" 
+      icon="pi pi-plus" 
+      severity="primary"
+      size="small"
+      (onClick)="addPontoDistribuicao()"
+      [disabled]="readonly">
+    </p-button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!hasPontosDistribuicao" class="empty-state">
+    <i class="pi pi-map-marker placeholder-icon"></i>
+    <h3>Nenhum Ponto de Distribuição</h3>
+    <p>{{ emptyStateMessage }}</p>
+  </div>
+
+  <!-- Pontos Distribuicao List -->
+  <div *ngIf="hasPontosDistribuicao" class="pontos-list">
+    <p-accordion [multiple]="true" styleClass="pontos-accordion">
+      <p-accordion-panel *ngFor="let pontoGroup of pontosDistribuicaoFormArray.controls; let i = index" [value]="i.toString()">
+        <p-accordion-header>
+          <div class="accordion-header">
+            <div class="header-content">
+              <h5 class="ponto-title">{{ getPontoDistribuicaoTitle(i) }}</h5>
+              <p class="ponto-summary">{{ getPontoDistribuicaoSummary(i) }}</p>
+            </div>
+            <div class="header-actions">
+              <p-button 
+                icon="pi pi-trash" 
+                severity="danger"
+                size="small"
+                [outlined]="true"
+                (onClick)="removePontoDistribuicao(i)"
+                [disabled]="readonly"
+                pTooltip="Remover ponto de distribuição"
+                tooltipPosition="top">
+              </p-button>
+            </div>
+          </div>
+        </p-accordion-header>
+        <p-accordion-content>
+          <div class="ponto-content" [formGroup]="getPontoDistribuicaoFormGroup(i)">
+            
+            <!-- Nome do Ponto -->
+            <div class="form-section">
+              <h6 class="section-title">Informações Básicas</h6>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label for="nome-{{i}}" class="field-label required">Nome do Ponto de Distribuição</label>
+                  <input 
+                    pInputText 
+                    id="nome-{{i}}"
+                    formControlName="nome"
+                    placeholder="Digite o nome do ponto de distribuição"
+                    [class.ng-invalid]="hasFieldError(i, 'nome')"
+                    [readonly]="readonly"
+                    class="w-full">
+                  <small 
+                    *ngIf="hasFieldError(i, 'nome')" 
+                    class="error-message">
+                    {{ getFieldErrorMessage(i, 'nome') }}
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endereço -->
+            <div class="form-section">
+              <h6 class="section-title">Endereço</h6>
+              <div class="endereco-wrapper" formGroupName="endereco">
+                <div class="form-grid">
+                  
+                  <!-- Logradouro -->
+                  <div class="form-field">
+                    <label for="logradouro-{{i}}" class="field-label required">Logradouro</label>
+                    <input 
+                      pInputText 
+                      id="logradouro-{{i}}"
+                      formControlName="logradouro"
+                      placeholder="Digite o logradouro"
+                      [readonly]="readonly"
+                      class="w-full">
+                  </div>
+
+                  <!-- Número -->
+                  <div class="form-field">
+                    <label for="numero-{{i}}" class="field-label required">Número</label>
+                    <input 
+                      pInputText 
+                      id="numero-{{i}}"
+                      formControlName="numero"
+                      placeholder="Número"
+                      [readonly]="readonly"
+                      class="w-full">
+                  </div>
+
+                  <!-- Complemento -->
+                  <div class="form-field">
+                    <label for="complemento-{{i}}" class="field-label">Complemento</label>
+                    <input 
+                      pInputText 
+                      id="complemento-{{i}}"
+                      formControlName="complemento"
+                      placeholder="Complemento (opcional)"
+                      [readonly]="readonly"
+                      class="w-full">
+                  </div>
+
+                  <!-- Bairro -->
+                  <div class="form-field">
+                    <label for="bairro-{{i}}" class="field-label required">Bairro</label>
+                    <input 
+                      pInputText 
+                      id="bairro-{{i}}"
+                      formControlName="bairro"
+                      placeholder="Digite o bairro"
+                      [readonly]="readonly"
+                      class="w-full">
+                  </div>
+
+                  <!-- Cidade -->
+                  <div class="form-field">
+                    <label for="cidade-{{i}}" class="field-label required">Cidade</label>
+                    <input 
+                      pInputText 
+                      id="cidade-{{i}}"
+                      formControlName="cidade"
+                      placeholder="Digite a cidade"
+                      [readonly]="readonly"
+                      class="w-full">
+                  </div>
+
+                  <!-- UF -->
+                  <div class="form-field">
+                    <label for="uf-{{i}}" class="field-label required">UF</label>
+                    <input 
+                      pInputText 
+                      id="uf-{{i}}"
+                      formControlName="uf"
+                      placeholder="UF"
+                      maxlength="2"
+                      [readonly]="readonly"
+                      class="w-full">
+                  </div>
+
+                  <!-- CEP -->
+                  <div class="form-field">
+                    <label for="cep-{{i}}" class="field-label required">CEP</label>
+                    <input 
+                      pInputText 
+                      id="cep-{{i}}"
+                      formControlName="cep"
+                      placeholder="00000-000"
+                      [readonly]="readonly"
+                      class="w-full">
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Coordenadas -->
+            <div class="form-section">
+              <h6 class="section-title">Coordenadas Geográficas</h6>
+              <div class="coordinates-section">
+                <div class="coordinates-info">
+                  <div class="coordinates-display">
+                    <span class="coordinates-label">Coordenadas:</span>
+                    <span class="coordinates-value" [class.has-coordinates]="hasCoordinates(i)">
+                      {{ getCoordinatesText(i) }}
+                    </span>
+                  </div>
+                  <div class="coordinates-actions" *ngIf="!readonly">
+                    <p-button 
+                      label="Definir no Mapa" 
+                      icon="pi pi-map" 
+                      severity="secondary"
+                      size="small"
+                      [outlined]="true"
+                      pTooltip="Clique para definir coordenadas no mapa principal"
+                      tooltipPosition="top">
+                    </p-button>
+                    <p-button 
+                      *ngIf="hasCoordinates(i)"
+                      label="Limpar" 
+                      icon="pi pi-times" 
+                      severity="danger"
+                      size="small"
+                      [outlined]="true"
+                      (onClick)="clearCoordinates(i)"
+                      pTooltip="Limpar coordenadas"
+                      tooltipPosition="top">
+                    </p-button>
+                  </div>
+                </div>
+                <small class="coordinates-help">
+                  <i class="pi pi-info-circle"></i>
+                  Use a aba "Coordenadas" para definir a localização geográfica deste ponto de distribuição no mapa.
+                </small>
+              </div>
+            </div>
+
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+    </p-accordion>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<p-confirmDialog></p-confirmDialog>

@@ -1,0 +1,258 @@
+@import '../styles/index';
+
+.endereco-form-container {
+  .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-2xl;
+    padding-bottom: $spacing-xl;
+    border-bottom: 1px solid var(--surface-border);
+
+    .form-title {
+      margin: 0;
+      color: var(--text-color);
+      font-size: $font-size-xl;
+      font-weight: $font-weight-semibold;
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+
+      i {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  .endereco-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xl;
+
+    .endereco-card {
+      ::ng-deep {
+        .p-card {
+          border: 1px solid var(--surface-border);
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          transition: all 0.2s ease;
+
+          &:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+          }
+
+          .p-card-header {
+            background: var(--surface-50);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 1rem 1.5rem;
+            border-radius: 8px 8px 0 0;
+          }
+
+          .p-card-body {
+            padding: 1.5rem;
+          }
+        }
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .card-title {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-weight: 600;
+          color: var(--text-color);
+
+          i {
+            color: var(--primary-color);
+          }
+        }
+      }
+
+      .endereco-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        .form-row {
+          display: flex;
+          gap: 1rem;
+          align-items: start;
+
+          @media (max-width: 768px) {
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+
+          &.coordinates-row {
+            background: var(--surface-50);
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--surface-border);
+
+            .form-field {
+              margin-bottom: 0;
+            }
+          }
+        }
+
+        .form-field {
+          @include form-field;
+          flex: 1;
+
+          &.flex-1 {
+            flex: 1;
+          }
+
+          &.flex-2 {
+            flex: 2;
+          }
+
+          .field-label {
+            @include form-label;
+          }
+
+          .error-message {
+            @include error-message;
+          }
+
+          ::ng-deep {
+            .p-inputtext,
+            .p-select,
+            .p-inputmask {
+              width: 100%;
+
+              &.ng-invalid.ng-touched,
+              &.ng-invalid.ng-dirty {
+                border-color: var(--red-500);
+              }
+
+              &[readonly] {
+                background-color: var(--surface-100);
+                color: var(--text-color-secondary);
+              }
+            }
+
+            .p-select-overlay {
+              z-index: 1100;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    @include empty-state;
+
+    .empty-icon {
+      color: var(--primary-color);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: $breakpoint-md) {
+  .endereco-form-container {
+    .form-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+
+      .form-title {
+        justify-content: center;
+      }
+    }
+
+    .endereco-list {
+      gap: 1rem;
+
+      .endereco-card {
+        ::ng-deep {
+          .p-card {
+            .p-card-header {
+              padding: 0.75rem 1rem;
+            }
+
+            .p-card-body {
+              padding: 1rem;
+            }
+          }
+        }
+
+        .card-header {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 0.75rem;
+
+          .card-title {
+            justify-content: center;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Loading state
+.endereco-form-container {
+  &.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+}
+
+// Dark theme adjustments
+@media (prefers-color-scheme: dark) {
+  .endereco-form-container {
+    .form-header {
+      border-bottom-color: var(--surface-border);
+    }
+
+    .endereco-list .endereco-card {
+      ::ng-deep .p-card {
+        background: var(--surface-card);
+        border-color: var(--surface-border);
+
+        .p-card-header {
+          background: var(--surface-100);
+          border-bottom-color: var(--surface-border);
+        }
+      }
+    }
+
+    .empty-state {
+      background: var(--surface-100);
+      border-color: var(--surface-border);
+
+      .empty-icon {
+        opacity: 0.3;
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .endereco-form-container {
+    .form-header p-button {
+      display: none;
+    }
+
+    .endereco-list .endereco-card {
+      .card-header p-button {
+        display: none;
+      }
+
+      ::ng-deep .p-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        page-break-inside: avoid;
+        margin-bottom: 1rem;
+      }
+    }
+  }
+}

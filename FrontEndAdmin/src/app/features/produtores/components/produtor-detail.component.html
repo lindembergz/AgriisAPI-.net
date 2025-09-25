@@ -1,0 +1,338 @@
+<div class="produtor-detail-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">
+      {{ isEditMode() ? 'Editar Produtor' : 'Novo Produtor' }}
+    </h1>
+    <div class="header-actions">
+      <p-button 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="onCancel()"
+        [disabled]="saving()">
+      </p-button>
+      <p-button 
+        label="Salvar" 
+        icon="pi pi-check" 
+        severity="primary"
+        (onClick)="onSave()"
+        [loading]="saving()"
+        [disabled]="loading()">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-container">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Carregando dados do produtor...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading()" class="content-container">
+    <form [formGroup]="produtorForm" novalidate>
+      <p-tabs 
+        [value]="activeTabIndex()" 
+        (valueChange)="onTabChange($event)"
+        styleClass="produtor-tabs">
+        
+        <p-tablist>
+          <p-tab [value]="0">Dados Gerais</p-tab>
+          <p-tab [value]="1">Endereços</p-tab>
+          <p-tab [value]="2">Propriedades</p-tab>
+          <p-tab [value]="3">Culturas</p-tab>
+          <p-tab [value]="4">Coordenadas</p-tab>
+          <p-tab [value]="5">Usuário Master</p-tab>
+        </p-tablist>
+        
+        <p-tabpanels>
+          <!-- Tab 1: Dados Gerais -->
+          <p-tabpanel [value]="0">
+            <div class="tab-content">
+              <p-card>
+                <div class="form-grid" formGroupName="dadosGerais">
+                
+                <!-- Nome -->
+                <div class="form-field">
+                  <label for="nome" class="field-label required">Nome</label>
+                  <input 
+                    pInputText 
+                    id="nome"
+                    formControlName="nome"
+                    placeholder="Digite o nome do produtor"
+                    [class.ng-invalid]="hasFieldError('dadosGerais.nome')"
+                    class="w-full">
+                  <small 
+                    *ngIf="hasFieldError('dadosGerais.nome')" 
+                    class="error-message">
+                    {{ getFieldErrorMessage('dadosGerais.nome') }}
+                  </small>
+                </div>
+
+                <!-- Tipo Cliente -->
+                <div class="form-field">
+                  <label for="tipoCliente" class="field-label required">Tipo de Cliente</label>
+                  <p-select 
+                    id="tipoCliente"
+                    formControlName="tipoCliente"
+                    [options]="tipoClienteOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Selecione o tipo"
+                    [class.ng-invalid]="hasFieldError('dadosGerais.tipoCliente')"
+                    styleClass="w-full">
+                  </p-select>
+                  <small 
+                    *ngIf="hasFieldError('dadosGerais.tipoCliente')" 
+                    class="error-message">
+                    {{ getFieldErrorMessage('dadosGerais.tipoCliente') }}
+                  </small>
+                </div>
+
+                <!-- CPF/CNPJ -->
+                <div class="form-field">
+                  <label for="cpfCnpj" class="field-label required">
+                    {{ produtorForm.get('dadosGerais.tipoCliente')?.value === 'PF' ? 'CPF' : 'CNPJ' }}
+                  </label>
+                  <p-inputMask 
+                    id="cpfCnpj"
+                    formControlName="cpfCnpj"
+                    [mask]="getCpfCnpjMask()"
+                    placeholder="Digite o {{ produtorForm.get('dadosGerais.tipoCliente')?.value === 'PF' ? 'CPF' : 'CNPJ' }}"
+                    [class.ng-invalid]="hasFieldError('dadosGerais.cpfCnpj')"
+                    styleClass="w-full">
+                  </p-inputMask>
+                  <small 
+                    *ngIf="hasFieldError('dadosGerais.cpfCnpj')" 
+                    class="error-message">
+                    {{ getFieldErrorMessage('dadosGerais.cpfCnpj') }}
+                  </small>
+                </div>
+
+                <!-- Telefone 1 -->
+                <div class="form-field">
+                  <label for="telefone1" class="field-label">Telefone 1</label>
+                  <p-inputMask 
+                    id="telefone1"
+                    formControlName="telefone1"
+                    mask="(99) 99999-9999"
+                    placeholder="Digite o telefone principal"
+                    [class.ng-invalid]="hasFieldError('dadosGerais.telefone1')"
+                    styleClass="w-full">
+                  </p-inputMask>
+                  <small 
+                    *ngIf="hasFieldError('dadosGerais.telefone1')" 
+                    class="error-message">
+                    {{ getFieldErrorMessage('dadosGerais.telefone1') }}
+                  </small>
+                </div>
+
+                <!-- Telefone 2 -->
+                <div class="form-field">
+                  <label for="telefone2" class="field-label">Telefone 2</label>
+                  <p-inputMask 
+                    id="telefone2"
+                    formControlName="telefone2"
+                    mask="(99) 99999-9999"
+                    placeholder="Digite o telefone secundário"
+                    [class.ng-invalid]="hasFieldError('dadosGerais.telefone2')"
+                    styleClass="w-full">
+                  </p-inputMask>
+                  <small 
+                    *ngIf="hasFieldError('dadosGerais.telefone2')" 
+                    class="error-message">
+                    {{ getFieldErrorMessage('dadosGerais.telefone2') }}
+                  </small>
+                </div>
+
+                <!-- Telefone 3 -->
+                <div class="form-field">
+                  <label for="telefone3" class="field-label">Telefone 3</label>
+                  <p-inputMask 
+                    id="telefone3"
+                    formControlName="telefone3"
+                    mask="(99) 99999-9999"
+                    placeholder="Digite o telefone terciário"
+                    [class.ng-invalid]="hasFieldError('dadosGerais.telefone3')"
+                    styleClass="w-full">
+                  </p-inputMask>
+                  <small 
+                    *ngIf="hasFieldError('dadosGerais.telefone3')" 
+                    class="error-message">
+                    {{ getFieldErrorMessage('dadosGerais.telefone3') }}
+                  </small>
+                </div>
+
+                <!-- Email -->
+                <div class="form-field">
+                  <label for="email" class="field-label">E-mail</label>
+                  <input 
+                    pInputText 
+                    id="email"
+                    formControlName="email"
+                    type="email"
+                    placeholder="Digite o e-mail"
+                    [class.ng-invalid]="hasFieldError('dadosGerais.email')"
+                    class="w-full">
+                  <small 
+                    *ngIf="hasFieldError('dadosGerais.email')" 
+                    class="error-message">
+                    {{ getFieldErrorMessage('dadosGerais.email') }}
+                  </small>
+                </div>
+
+              </div>
+            </p-card>
+          </div>
+        </p-tabpanel>
+
+        <!-- Tab 2: Endereços -->
+        <p-tabpanel [value]="1">
+          <div class="tab-content">
+            <div class="tab-header">
+              <h3>Endereços</h3>
+              <p class="tab-description">Cadastre os endereços do produtor. Pelo menos um endereço é obrigatório.</p>
+            </div>
+            <app-endereco-form
+              [enderecosFormArray]="enderecosFormArray"
+              [readonly]="saving()"
+              (enderecosChange)="onEnderecosChange()">
+            </app-endereco-form>
+            <div *ngIf="enderecosFormArray.length === 0" class="validation-warning">
+              <i class="pi pi-exclamation-triangle"></i>
+              Pelo menos um endereço é obrigatório
+            </div>
+          </div>
+        </p-tabpanel>
+
+        <!-- Tab 3: Propriedades -->
+        <p-tabpanel [value]="2">
+          <div class="tab-content">
+            <div class="tab-header">
+              <h3>Propriedades Rurais</h3>
+              <p class="tab-description">Cadastre as propriedades rurais do produtor. Pelo menos uma propriedade é obrigatória.</p>
+            </div>
+            <app-propriedade-form
+              [propriedadesFormArray]="propriedadesFormArray"
+              [readonly]="saving()"
+              (propriedadesChange)="onPropriedadesChange($event)">
+            </app-propriedade-form>
+            <div *ngIf="propriedadesFormArray.length === 0" class="validation-warning">
+              <i class="pi pi-exclamation-triangle"></i>
+              Pelo menos uma propriedade é obrigatória
+            </div>
+          </div>
+        </p-tabpanel>
+
+        <!-- Tab 4: Culturas -->
+        <p-tabpanel [value]="3">
+          <div class="tab-content">
+            <div class="tab-header">
+              <h3>Culturas por Safra</h3>
+              <p class="tab-description">Cadastre as culturas cultivadas em cada propriedade por ano safra.</p>
+            </div>
+            <div *ngIf="propriedadesFormArray.length === 0" class="empty-state">
+              <i class="pi pi-info-circle"></i>
+              <p>Cadastre pelo menos uma propriedade na aba anterior para poder adicionar culturas.</p>
+            </div>
+            <app-cultura-form
+              *ngIf="propriedadesFormArray.length > 0"
+              [propriedadesFormArray]="propriedadesFormArray"
+              [readonly]="saving()"
+              (culturasChange)="onCulturasChange()">
+            </app-cultura-form>
+          </div>
+        </p-tabpanel>
+
+        <!-- Tab 5: Coordenadas -->
+        <p-tabpanel [value]="4">
+          <div class="tab-content">
+            <div class="tab-header">
+              <h3>Coordenadas Geográficas</h3>
+              <p class="tab-description">Selecione as coordenadas geográficas principais do produtor no mapa.</p>
+            </div>
+            <app-coordenadas-map
+              [readonly]="saving()"
+              [height]="'500px'"
+              (coordinatesSelected)="onCoordinatesSelected($event)">
+            </app-coordenadas-map>
+            <div class="coordinates-info">
+              <i class="pi pi-info-circle"></i>
+              <small>As coordenadas selecionadas aqui serão aplicadas à primeira propriedade cadastrada.</small>
+            </div>
+          </div>
+        </p-tabpanel>
+
+        <!-- Tab 6: Usuário Master -->
+        <p-tabpanel [value]="5">
+          <div class="tab-content">
+            <div class="tab-header">
+              <h3>Usuário Master</h3>
+              <p class="tab-description">Cadastre o usuário master que terá acesso ao sistema para este produtor.</p>
+            </div>
+            <!-- Formulário inline do usuário master -->
+            <div formGroupName="usuarioMaster" class="usuario-master-inline">
+              <div class="form-grid">
+
+                <!-- Nome -->
+                <div class="form-field">
+                  <label for="usuario-nome" class="field-label required">Nome Completo</label>
+                  <input pInputText id="usuario-nome" formControlName="nome" placeholder="Digite o nome completo"
+                    [class.ng-invalid]="hasFieldError('usuarioMaster.nome')" class="w-full">
+                  <small *ngIf="hasFieldError('usuarioMaster.nome')" class="error-message">
+                    {{ getFieldErrorMessage('usuarioMaster.nome') }}
+                  </small>
+                </div>
+
+                <!-- Email -->
+                <div class="form-field">
+                  <label for="usuario-email" class="field-label required">E-mail</label>
+                  <input pInputText id="usuario-email" formControlName="email" type="email"
+                    placeholder="Digite o e-mail" [class.ng-invalid]="hasFieldError('usuarioMaster.email')"
+                    class="w-full">
+                  <small *ngIf="hasFieldError('usuarioMaster.email')" class="error-message">
+                    {{ getFieldErrorMessage('usuarioMaster.email') }}
+                  </small>
+                </div>
+
+                <!-- Telefone -->
+                <div class="form-field">
+                  <label for="usuario-telefone" class="field-label">Telefone</label>
+                  <p-inputMask id="usuario-telefone" formControlName="telefone" mask="(99) 99999-9999"
+                    placeholder="(11) 99999-9999" [class.ng-invalid]="hasFieldError('usuarioMaster.telefone')"
+                    styleClass="w-full">
+                  </p-inputMask>
+                  <small *ngIf="hasFieldError('usuarioMaster.telefone')" class="error-message">
+                    {{ getFieldErrorMessage('usuarioMaster.telefone') }}
+                  </small>
+                </div>
+
+                <!-- Senha -->
+                <div class="form-field">
+                  <label for="usuario-senha" class="field-label required">Senha</label>
+                  <input pInputText id="usuario-senha" formControlName="senha" type="password"
+                    placeholder="Digite a senha" [class.ng-invalid]="hasFieldError('usuarioMaster.senha')"
+                    class="w-full">
+                  <small *ngIf="hasFieldError('usuarioMaster.senha')" class="error-message">
+                    {{ getFieldErrorMessage('usuarioMaster.senha') }}
+                  </small>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </p-tabpanel>
+        </p-tabpanels>
+
+      </p-tabs>
+    </form>
+  </div>
+</div>
+
+<!-- Toast for notifications -->
+<p-toast></p-toast>
+
+<!-- Confirm dialog -->
+<p-confirmDialog></p-confirmDialog>

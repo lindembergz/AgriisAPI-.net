@@ -1,0 +1,60 @@
+// ================================================================================================
+// 	File Name: components.scss
+// 	Description: Common components file to includ all theme specific custom components.
+// 	----------------------------------------------------------------------------------------------
+//  Item Name: Item Name: Modern Admin -Angular 8+ Bootstrap 4 Admin Dashboard Template
+//	 Version: 3.0
+// 	Author: PIXINVENT
+// 	Author URL: http://www.themeforest.net/user/pixinvent
+// ================================================================================================
+
+// Variables
+// ------------------------------
+
+// Core variables and mixins
+@use "bootstrap/functions";
+@use "bootstrap/mixins";
+@use "bootstrap-extended/mixins";
+
+// Core variables and mixins overrides
+@use "core/variables/bootstrap-variables";
+@use "bootstrap/variables";
+
+@use "core/variables/components-variables";
+@use "core/mixins/transitions";
+
+// Perfect Scrollbar
+
+// Core
+// ------------------------------
+// layouts
+@use "core/layouts/content";
+@use "core/layouts/sidebar";
+@use "core/layouts/horizontal";
+@use "core/layouts/footer";
+// menu
+@use "core/menu/navigation";
+
+// Components
+// ------------------------------
+@use "components/helper";
+@use "components/avatar";
+@use "components/search";
+@use "components/chart";
+@use "components/callout";
+@use "components/bootstrap-social";
+@use "components/content-header-image";
+@use "components/demo"; // Plugins demo, remove in real project
+@use "components/customizer"; // Customizer demo, remove in real project
+@use "components/footer"; // Scroll to Top, remove in real project
+
+// Plugins
+// ------------------------------
+@use "plugins/menu/perfect-scrollbar/ps-custom";
+@use "plugins/ui/breakpoints";
+@use "plugins/editors/editors";
+// TODO:A: Set this scss page specific
+@use "plugins/forms/tags/basic-input";
+@use "plugins/forms/select2/select2";
+@use "plugins/tables/datatables";
+@use "plugins/pagination/pagination";

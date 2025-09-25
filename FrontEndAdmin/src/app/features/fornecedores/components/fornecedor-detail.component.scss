@@ -1,0 +1,251 @@
+@import '../../../shared/styles/index';
+
+.fornecedor-detail-container {
+  @include container;
+  padding-top: $spacing-2xl;
+  padding-bottom: $spacing-2xl;
+
+  .page-header {
+    @include page-header;
+  }
+
+  .loading-container {
+    @include loading-state;
+  }
+
+  .content-container {
+    .fornecedor-tabs {
+      ::ng-deep {
+        .p-tabs-nav {
+          background: var(--surface-card);
+          border: 1px solid var(--surface-border);
+          border-radius: 6px 6px 0 0;
+
+          .p-tab-header {
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            color: var(--text-color-secondary);
+            border: none;
+            background: transparent;
+            transition: all 0.2s;
+
+            &:hover {
+              background: var(--surface-hover);
+              color: var(--text-color);
+            }
+
+            .p-tab-header-icon {
+              margin-right: 0.5rem;
+            }
+          }
+
+          .p-tab-header.p-highlight {
+            background: var(--primary-color);
+            color: var(--primary-color-text);
+            border-color: var(--primary-color);
+          }
+        }
+
+        .p-tabs-panels {
+          background: var(--surface-card);
+          border: 1px solid var(--surface-border);
+          border-top: none;
+          border-radius: 0 0 6px 6px;
+          padding: 0;
+
+          .p-tab-panel {
+            padding: 0;
+          }
+        }
+      }
+    }
+
+    .tab-content {
+      padding: $spacing-2xl;
+
+      .tab-header {
+        margin-bottom: $spacing-2xl;
+        padding-bottom: $spacing-xl;
+        border-bottom: 1px solid var(--surface-border);
+
+        h3 {
+          margin: 0 0 $spacing-sm 0;
+          color: var(--text-color);
+          font-size: $font-size-xl;
+          font-weight: $font-weight-semibold;
+        }
+
+        .tab-description {
+          margin: 0;
+          color: var(--text-color-secondary);
+          font-size: $font-size-sm;
+          line-height: 1.5;
+        }
+      }
+
+      .validation-warning {
+        @include message-warning;
+        margin-top: $spacing-lg;
+      }
+
+      .empty-state {
+        @include empty-state;
+      }
+
+      .coordinates-info {
+        @include message-info;
+        margin-top: $spacing-lg;
+
+        small {
+          font-size: $font-size-xs;
+          line-height: 1.4;
+        }
+      }
+
+      .p-card {
+        border: none;
+        box-shadow: none;
+        background: transparent;
+
+        ::ng-deep .p-card-body {
+          padding: 0;
+        }
+      }
+    }
+
+    .form-grid {
+      @include form-grid;
+    }
+
+    .form-field {
+      @include form-field;
+
+      .field-label {
+        @include form-label;
+      }
+
+      .error-message {
+        @include error-message;
+      }
+    }
+
+    .placeholder-content {
+      @include empty-state;
+    }
+
+    .info-message {
+      @include message-info;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: $breakpoint-md) {
+  .fornecedor-detail-container {
+    .content-container {
+      .tab-content {
+        padding: $spacing-xl;
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .fornecedor-detail-container {
+    .page-header .header-actions {
+      display: none !important;
+    }
+
+    .content-container .fornecedor-tabs {
+      ::ng-deep {
+        .p-tabs-nav {
+          display: none !important;
+        }
+
+        .p-tabs-panels {
+          border: none;
+          border-radius: 0;
+
+          .p-tab-panel {
+            display: block !important;
+            page-break-inside: avoid;
+          }
+        }
+      }
+    }
+  }
+}
+// E
+stilos específicos para a aba de coordenadas
+.coordinates-display {
+  margin-bottom: $spacing-xl;
+  padding: $spacing-lg;
+  background: var(--surface-ground);
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+
+  .coordinates-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-lg;
+
+    @media (max-width: $breakpoint-sm) {
+      grid-template-columns: 1fr;
+    }
+
+    .coordinate-field {
+      .field-label {
+        @include form-label;
+        margin-bottom: $spacing-xs;
+        font-weight: 600;
+        color: var(--text-color);
+      }
+
+      .coordinate-readonly {
+        background: var(--surface-card);
+        border: 1px solid var(--surface-border);
+        color: var(--text-color-secondary);
+        font-family: 'Courier New', monospace;
+        font-size: $font-size-sm;
+        text-align: center;
+
+        &::placeholder {
+          color: var(--text-color-secondary);
+          font-style: italic;
+        }
+      }
+    }
+  }
+}
+
+.coordinates-info {
+  margin-top: $spacing-lg;
+  padding: $spacing-md;
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+
+  .pi-info-circle {
+    color: var(--blue-500);
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  small {
+    color: var(--blue-700);
+    line-height: 1.4;
+  }
+}
+
+// Estilos para o componente de mapa
+app-coordenadas-map {
+  display: block;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

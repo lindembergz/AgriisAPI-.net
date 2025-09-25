@@ -1,0 +1,678 @@
+// Shared component styles for consistent UI patterns
+
+// Button Styles - Following requirements (red for cancel, blue for save)
+.btn-primary {
+  @include button-primary;
+}
+
+.btn-secondary {
+  @include button-secondary;
+}
+
+.btn-outlined-primary {
+  @include button-outlined-primary;
+}
+
+.btn-outlined-secondary {
+  @include button-outlined-secondary;
+}
+
+// PrimeNG Button Overrides for consistent styling
+::ng-deep {
+  // Primary buttons (Save actions)
+  .p-button.p-button-primary {
+    @include button-primary;
+  }
+
+  // Secondary buttons (Cancel actions)
+  .p-button.p-button-secondary {
+    @include button-secondary;
+  }
+
+  // Outlined buttons
+  .p-button.p-button-outlined {
+    &.p-button-primary {
+      @include button-outlined-primary;
+    }
+
+    &.p-button-secondary {
+      @include button-outlined-secondary;
+    }
+  }
+
+  // Small buttons
+  .p-button.p-button-sm {
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-xs;
+
+    i {
+      font-size: $font-size-xs;
+    }
+  }
+
+  // Large buttons
+  .p-button.p-button-lg {
+    padding: $spacing-xl $spacing-2xl;
+    font-size: $font-size-lg;
+
+    i {
+      font-size: $font-size-lg;
+    }
+  }
+
+  // Icon-only buttons
+  .p-button.p-button-icon-only {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+
+    &.p-button-sm {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    &.p-button-lg {
+      width: 3rem;
+      height: 3rem;
+    }
+  }
+}
+
+// Form Components
+.form-container {
+  @include container;
+  padding-top: $spacing-2xl;
+  padding-bottom: $spacing-2xl;
+}
+
+.form-card {
+  @include card;
+}
+
+.form-field {
+  @include form-field;
+
+  .field-label {
+    @include form-label;
+  }
+
+  .error-message {
+    @include error-message;
+  }
+}
+
+.form-grid {
+  @include form-grid;
+}
+
+// PrimeNG Form Input Overrides
+::ng-deep {
+  .p-inputtext,
+  .p-inputmask,
+  .p-select,
+  .p-multiselect,
+  .p-textarea {
+    @include form-input;
+  }
+
+  .p-select,
+  .p-multiselect {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .p-select-overlay,
+  .p-multiselect-overlay {
+    z-index: $z-index-dropdown;
+    border-radius: $border-radius-md;
+    box-shadow: $shadow-lg;
+  }
+
+  .p-select-option,
+  .p-multiselect-option {
+    padding: $spacing-md;
+    transition: all $transition-fast;
+
+    &:hover {
+      background-color: var(--primary-50);
+    }
+
+    &.p-select-option-selected,
+    &.p-multiselect-option-selected {
+      background-color: var(--primary-500);
+      color: white;
+    }
+  }
+}
+
+// Page Layout Components
+.page-container {
+  @include container;
+  padding-top: $spacing-2xl;
+  padding-bottom: $spacing-2xl;
+  min-height: calc(100vh - 120px);
+}
+
+.page-header {
+  @include page-header;
+}
+
+.page-content {
+  @include fade-in;
+}
+
+// Loading States
+.loading-container {
+  @include loading-state;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $z-index-modal;
+  border-radius: inherit;
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba(0, 0, 0, 0.8);
+  }
+}
+
+// Empty States
+.empty-state {
+  @include empty-state;
+}
+
+// Message Components
+.message-info {
+  @include message-info;
+}
+
+.message-warning {
+  @include message-warning;
+}
+
+.message-error {
+  @include message-error;
+}
+
+.message-success {
+  @include message-success;
+}
+
+// Card Components
+.card {
+  @include card;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-2xl;
+  padding-bottom: $spacing-xl;
+  border-bottom: 1px solid var(--surface-border);
+
+  .card-title {
+    margin: 0;
+    color: var(--text-color);
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+  }
+
+  .card-subtitle {
+    margin: $spacing-xs 0 0 0;
+    color: var(--text-color-secondary);
+    font-size: $font-size-sm;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: $spacing-sm;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-lg;
+
+    .card-actions {
+      justify-content: flex-end;
+    }
+  }
+}
+
+// Tab Components - PrimeNG Tabs Override
+::ng-deep {
+  .p-tabs {
+    .p-tabs-nav {
+      background: var(--surface-card);
+      border: 1px solid var(--surface-border);
+      border-radius: $border-radius-md $border-radius-md 0 0;
+      padding: 0;
+
+      .p-tab-header {
+        padding: $spacing-xl $spacing-2xl;
+        font-weight: $font-weight-medium;
+        color: var(--text-color-secondary);
+        border: none;
+        background: transparent;
+        transition: all $transition-normal;
+        cursor: pointer;
+
+        &:hover {
+          background: var(--surface-hover);
+          color: var(--text-color);
+        }
+
+        &.p-highlight {
+          background: var(--primary-500);
+          color: white;
+          border-color: var(--primary-500);
+        }
+
+        .p-tab-header-icon {
+          margin-right: $spacing-sm;
+        }
+      }
+    }
+
+    .p-tabs-panels {
+      background: var(--surface-card);
+      border: 1px solid var(--surface-border);
+      border-top: none;
+      border-radius: 0 0 $border-radius-md $border-radius-md;
+      padding: 0;
+
+      .p-tab-panel {
+        padding: 0;
+      }
+    }
+
+    @media (max-width: $breakpoint-md) {
+      .p-tabs-nav {
+        flex-wrap: wrap;
+
+        .p-tab-header {
+          padding: $spacing-md $spacing-lg;
+          font-size: $font-size-sm;
+        }
+      }
+    }
+  }
+}
+
+.tab-content {
+  padding: $spacing-2xl;
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-xl;
+  }
+}
+
+.tab-header {
+  margin-bottom: $spacing-2xl;
+  padding-bottom: $spacing-xl;
+  border-bottom: 1px solid var(--surface-border);
+
+  h3 {
+    margin: 0 0 $spacing-sm 0;
+    color: var(--text-color);
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+  }
+
+  .tab-description {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: $font-size-sm;
+    line-height: 1.5;
+  }
+}
+
+// Table Components - PrimeNG Table Override
+::ng-deep {
+  .p-datatable {
+    border-radius: $border-radius-md;
+    overflow: hidden;
+    box-shadow: $shadow-sm;
+
+    .p-datatable-header {
+      background: var(--surface-section);
+      border: 1px solid var(--surface-border);
+      color: var(--text-color);
+      font-weight: $font-weight-semibold;
+      padding: $spacing-xl;
+    }
+
+    .p-datatable-thead > tr > th {
+      background: var(--surface-section);
+      color: var(--text-color);
+      border: 1px solid var(--surface-border);
+      font-weight: $font-weight-semibold;
+      padding: $spacing-xl;
+      text-align: left;
+      font-size: $font-size-sm;
+    }
+
+    .p-datatable-tbody > tr > td {
+      background: var(--surface-card);
+      color: var(--text-color);
+      border: 1px solid var(--surface-border);
+      padding: $spacing-xl;
+      font-size: $font-size-sm;
+    }
+
+    .p-datatable-tbody > tr:nth-child(even) > td {
+      background: var(--surface-ground);
+    }
+
+    .p-datatable-tbody > tr:hover > td {
+      background: var(--surface-hover);
+    }
+
+    .p-datatable-emptymessage {
+      @include empty-state;
+      border: none;
+      background: transparent;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-size-xs;
+
+      .p-datatable-thead > tr > th,
+      .p-datatable-tbody > tr > td {
+        padding: $spacing-md;
+      }
+    }
+  }
+}
+
+// Toolbar Components - PrimeNG Toolbar Override
+::ng-deep {
+  .p-toolbar {
+    background: transparent;
+    border: none;
+    padding: 0 0 $spacing-xl 0;
+    border-radius: 0;
+
+    .p-toolbar-group-left {
+      h1, h2, h3 {
+        color: var(--text-color);
+        font-weight: $font-weight-semibold;
+        margin: 0;
+      }
+    }
+
+    .p-toolbar-group-right {
+      display: flex;
+      gap: $spacing-md;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      flex-direction: column;
+      gap: $spacing-lg;
+      align-items: stretch;
+
+      .p-toolbar-group-left,
+      .p-toolbar-group-right {
+        justify-content: center;
+      }
+    }
+  }
+}
+
+// Accordion Components - PrimeNG Accordion Override
+::ng-deep {
+  .p-accordion {
+    .p-accordion-tab {
+      margin-bottom: $spacing-lg;
+      border: 1px solid var(--surface-border);
+      border-radius: $border-radius-md;
+      overflow: hidden;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .p-accordion-header {
+        background: var(--surface-card);
+        border: none;
+        border-radius: 0;
+
+        .p-accordion-header-link {
+          padding: 0;
+          border: none;
+          background: transparent;
+
+          &:focus {
+            box-shadow: none;
+          }
+        }
+      }
+
+      .p-accordion-content {
+        border: none;
+        border-top: 1px solid var(--surface-border);
+        padding: 0;
+        background: var(--surface-card);
+      }
+    }
+  }
+}
+
+// Progress Components
+::ng-deep {
+  .p-progressspinner {
+    .p-progressspinner-circle {
+      stroke: var(--primary-500);
+      animation: p-progressspinner-rotate 2s linear infinite;
+    }
+  }
+
+  .p-progressbar {
+    border-radius: $border-radius-md;
+    overflow: hidden;
+
+    .p-progressbar-value {
+      background: var(--primary-500);
+      transition: width $transition-normal;
+    }
+  }
+}
+
+// Toast Components - PrimeNG Toast Override
+::ng-deep {
+  .p-toast {
+    .p-toast-message {
+      border-radius: $border-radius-md;
+      box-shadow: $shadow-lg;
+      margin: $spacing-md;
+
+      &.p-toast-message-info {
+        background: var(--info-50);
+        border: 1px solid var(--info-200);
+        color: var(--info-700);
+
+        .p-toast-message-icon {
+          color: var(--info-500);
+        }
+      }
+
+      &.p-toast-message-success {
+        background: var(--success-50);
+        border: 1px solid var(--success-200);
+        color: var(--success-700);
+
+        .p-toast-message-icon {
+          color: var(--success-500);
+        }
+      }
+
+      &.p-toast-message-warn {
+        background: var(--warning-50);
+        border: 1px solid var(--warning-200);
+        color: var(--warning-700);
+
+        .p-toast-message-icon {
+          color: var(--warning-500);
+        }
+      }
+
+      &.p-toast-message-error {
+        background: var(--secondary-50);
+        border: 1px solid var(--secondary-200);
+        color: var(--secondary-700);
+
+        .p-toast-message-icon {
+          color: var(--secondary-500);
+        }
+      }
+    }
+  }
+}
+
+// Utility Classes
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.font-weight-normal {
+  font-weight: $font-weight-normal;
+}
+
+.font-weight-medium {
+  font-weight: $font-weight-medium;
+}
+
+.font-weight-semibold {
+  font-weight: $font-weight-semibold;
+}
+
+.font-weight-bold {
+  font-weight: $font-weight-bold;
+}
+
+.text-muted {
+  color: var(--text-color-secondary);
+}
+
+.text-primary {
+  color: var(--primary-500);
+}
+
+.text-secondary {
+  color: var(--secondary-500);
+}
+
+.text-success {
+  color: var(--success-500);
+}
+
+.text-warning {
+  color: var(--warning-500);
+}
+
+.text-info {
+  color: var(--info-500);
+}
+
+.bg-primary {
+  background-color: var(--primary-500);
+  color: white;
+}
+
+.bg-secondary {
+  background-color: var(--secondary-500);
+  color: white;
+}
+
+.bg-success {
+  background-color: var(--success-500);
+  color: white;
+}
+
+.bg-warning {
+  background-color: var(--warning-500);
+  color: white;
+}
+
+.bg-info {
+  background-color: var(--info-500);
+  color: white;
+}
+
+.visually-hidden {
+  @include visually-hidden;
+}
+
+.truncate {
+  @include truncate;
+}
+
+// Responsive utilities
+.d-none {
+  display: none;
+}
+
+.d-block {
+  display: block;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.d-grid {
+  display: grid;
+}
+
+@media (max-width: $breakpoint-md) {
+  .d-md-none {
+    display: none;
+  }
+
+  .d-md-block {
+    display: block;
+  }
+
+  .d-md-flex {
+    display: flex;
+  }
+
+  .d-md-grid {
+    display: grid;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .d-sm-none {
+    display: none;
+  }
+
+  .d-sm-block {
+    display: block;
+  }
+
+  .d-sm-flex {
+    display: flex;
+  }
+
+  .d-sm-grid {
+    display: grid;
+  }
+}

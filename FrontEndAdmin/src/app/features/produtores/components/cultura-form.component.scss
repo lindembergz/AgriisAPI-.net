@@ -1,0 +1,499 @@
+.cultura-form-container {
+  .form-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--surface-border);
+
+    .form-title {
+      margin: 0 0 0.5rem 0;
+      color: var(--text-color);
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      i {
+        color: var(--orange-500);
+      }
+    }
+
+    .header-info small {
+      color: var(--text-color-secondary);
+      font-size: 0.875rem;
+    }
+  }
+
+  .propriedades-accordion {
+    ::ng-deep {
+      .p-accordion {
+        .p-accordion-tab {
+          margin-bottom: 1rem;
+          border: 1px solid var(--surface-border);
+          border-radius: 8px;
+          overflow: hidden;
+
+          .p-accordion-header {
+            background: var(--surface-50);
+            border: none;
+            border-radius: 0;
+
+            .p-accordion-header-link {
+              padding: 1rem 1.5rem;
+              background: transparent;
+              border: none;
+              color: var(--text-color);
+
+              &:hover {
+                background: var(--surface-hover);
+              }
+
+              &:focus {
+                box-shadow: inset 0 0 0 0.15rem var(--primary-color);
+              }
+            }
+          }
+
+          &.p-accordion-tab-active {
+            .p-accordion-header .p-accordion-header-link {
+              background: var(--primary-color);
+              color: var(--primary-color-text);
+            }
+          }
+
+          .p-accordion-content {
+            border: none;
+            background: var(--surface-card);
+            padding: 0;
+
+            .p-accordion-content-wrapper {
+              padding: 1.5rem;
+            }
+          }
+        }
+      }
+    }
+
+    .accordion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+
+      .propriedade-info {
+        flex: 1;
+
+        .propriedade-name {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-weight: 600;
+          margin-bottom: 0.25rem;
+
+          i {
+            color: var(--primary-color);
+          }
+        }
+
+        .propriedade-summary {
+          font-size: 0.875rem;
+          color: var(--text-color-secondary);
+        }
+      }
+
+      .area-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.25rem;
+        min-width: 120px;
+
+        .area-bar {
+          width: 100px;
+          height: 6px;
+          background: var(--surface-300);
+          border-radius: 3px;
+          overflow: hidden;
+
+          .area-fill {
+            height: 100%;
+            background: var(--green-500);
+            transition: width 0.3s ease;
+
+            &.exceeded {
+              background: var(--red-500);
+            }
+          }
+        }
+
+        small {
+          font-size: 0.75rem;
+          color: var(--text-color-secondary);
+        }
+
+        &.area-exceeded {
+          .area-bar .area-fill {
+            background: var(--red-500);
+          }
+
+          small {
+            color: var(--red-500);
+            font-weight: 500;
+          }
+        }
+      }
+    }
+
+    .accordion-content {
+      .area-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: var(--surface-50);
+        border-radius: 6px;
+        border: 1px solid var(--surface-border);
+
+        &.area-exceeded {
+          background: var(--red-50);
+          border-color: var(--red-200);
+        }
+
+        .summary-item {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+
+          label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-color-secondary);
+            text-transform: uppercase;
+          }
+
+          span {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-color);
+
+            &.negative {
+              color: var(--red-500);
+            }
+          }
+        }
+      }
+
+      .area-warning {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        background: var(--red-50);
+        border: 1px solid var(--red-200);
+        border-radius: 6px;
+        color: var(--red-700);
+        font-size: 0.875rem;
+        font-weight: 500;
+
+        i {
+          color: var(--red-500);
+        }
+      }
+
+      .add-cultura-section {
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .culturas-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        .cultura-card {
+          ::ng-deep {
+            .p-card {
+              border: 1px solid var(--surface-border);
+              border-radius: 6px;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+              .p-card-header {
+                background: var(--surface-card);
+                border-bottom: 1px solid var(--surface-border);
+                padding: 1rem;
+              }
+
+              .p-card-body {
+                padding: 1rem;
+              }
+            }
+          }
+
+          .cultura-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .cultura-info {
+              flex: 1;
+
+              .cultura-type {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 600;
+                margin-bottom: 0.25rem;
+
+                i {
+                  font-size: 0.875rem;
+                }
+              }
+
+              .cultura-area {
+                font-size: 0.875rem;
+                color: var(--text-color-secondary);
+                font-weight: 500;
+              }
+            }
+          }
+
+          .cultura-form {
+            .form-row {
+              display: flex;
+              gap: 1rem;
+              margin-bottom: 1rem;
+
+              @media (max-width: 768px) {
+                flex-direction: column;
+                gap: 0.75rem;
+              }
+
+              &:last-child {
+                margin-bottom: 0;
+              }
+            }
+
+            .form-field {
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              flex: 1;
+
+              &.flex-1 {
+                flex: 1;
+              }
+
+              &.flex-2 {
+                flex: 2;
+              }
+
+              .field-label {
+                font-weight: 500;
+                color: var(--text-color);
+                font-size: 0.875rem;
+
+                &.required::after {
+                  content: ' *';
+                  color: var(--red-500);
+                }
+              }
+
+              .error-message {
+                color: var(--red-500);
+                font-size: 0.75rem;
+              }
+
+              .help-text {
+                color: var(--text-color-secondary);
+                font-size: 0.75rem;
+                font-style: italic;
+              }
+
+              ::ng-deep {
+                .p-dropdown,
+                .p-inputnumber {
+                  width: 100%;
+
+                  &.ng-invalid.ng-touched,
+                  &.ng-invalid.ng-dirty {
+                    border-color: var(--red-500);
+                  }
+                }
+
+                .p-dropdown-panel {
+                  z-index: 1100;
+                }
+
+                .p-inputnumber-input {
+                  text-align: right;
+                }
+              }
+            }
+
+            .cultura-option {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+
+              i {
+                font-size: 0.875rem;
+              }
+            }
+          }
+        }
+      }
+
+      .culturas-empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        text-align: center;
+        color: var(--text-color-secondary);
+        background: var(--surface-50);
+        border: 2px dashed var(--surface-border);
+        border-radius: 6px;
+
+        .empty-icon {
+          font-size: 2.5rem;
+          margin-bottom: 1rem;
+          opacity: 0.5;
+          color: var(--orange-500);
+        }
+
+        h4 {
+          margin: 0 0 0.5rem 0;
+          color: var(--text-color);
+          font-weight: 500;
+        }
+
+        p {
+          margin: 0;
+          font-size: 0.875rem;
+        }
+      }
+    }
+  }
+
+  .propriedades-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--text-color-secondary);
+    background: var(--surface-50);
+    border: 2px dashed var(--surface-border);
+    border-radius: 8px;
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+      color: var(--primary-color);
+    }
+
+    h4 {
+      margin: 0 0 0.5rem 0;
+      color: var(--text-color);
+      font-weight: 500;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .cultura-form-container {
+    .propriedades-accordion {
+      .accordion-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+
+        .area-indicator {
+          align-items: center;
+          min-width: auto;
+        }
+      }
+
+      .accordion-content {
+        .area-summary {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0.75rem;
+          padding: 0.75rem;
+        }
+      }
+    }
+  }
+}
+
+// Dark theme adjustments
+@media (prefers-color-scheme: dark) {
+  .cultura-form-container {
+    .form-header {
+      border-bottom-color: var(--surface-border);
+    }
+
+    .propriedades-accordion {
+      ::ng-deep .p-accordion .p-accordion-tab {
+        background: var(--surface-card);
+        border-color: var(--surface-border);
+
+        .p-accordion-header {
+          background: var(--surface-100);
+        }
+
+        .p-accordion-content {
+          background: var(--surface-card);
+        }
+      }
+    }
+
+    .propriedades-empty-state,
+    .culturas-empty-state {
+      background: var(--surface-100);
+      border-color: var(--surface-border);
+
+      .empty-icon {
+        opacity: 0.3;
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .cultura-form-container {
+    .add-cultura-section,
+    .cultura-header p-button {
+      display: none;
+    }
+
+    .propriedades-accordion {
+      ::ng-deep .p-accordion .p-accordion-tab {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        page-break-inside: avoid;
+        margin-bottom: 1rem;
+
+        .p-accordion-header .p-accordion-header-link {
+          background: #f5f5f5 !important;
+          color: #333 !important;
+        }
+
+        .p-accordion-content {
+          display: block !important;
+        }
+      }
+    }
+  }
+}

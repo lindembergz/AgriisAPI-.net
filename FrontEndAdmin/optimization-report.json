@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-09-24T00:11:25.823Z",
+  "optimizations": [
+    "Unused imports check completed",
+    "Lazy loading is implemented",
+    "Angular configuration optimized",
+    "Webpack configuration optimized"
+  ],
+  "warnings": [
+    "Bundle analysis failed: Command failed: ng build --stats-json",
+    "Consider replacing rxjs with Ensure using specific imports from rxjs/operators",
+    "Large library detected: chart.js - ensure it's lazy loaded when possible",
+    "Large library detected: @angular/google-maps - ensure it's lazy loaded when possible",
+    "Large library detected: primeng - ensure it's lazy loaded when possible",
+    "Service worker setup failed: Command failed: ng add @angular/pwa --skip-confirmation"
+  ],
+  "metrics": {}
+}

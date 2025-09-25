@@ -1,0 +1,300 @@
+@import '../../../shared/styles/index';
+
+.ponto-distribuicao-form-container {
+  .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: $spacing-2xl;
+    padding-bottom: $spacing-xl;
+    border-bottom: 1px solid var(--surface-border);
+
+    .header-info {
+      flex: 1;
+
+      h4 {
+        margin: 0 0 $spacing-xs 0;
+        color: var(--text-color);
+        font-size: $font-size-lg;
+        font-weight: $font-weight-semibold;
+      }
+
+      .header-description {
+        margin: 0;
+        color: var(--text-color-secondary);
+        font-size: $font-size-sm;
+      }
+    }
+  }
+
+  .empty-state {
+    @include empty-state;
+  }
+
+  .pontos-list {
+    .pontos-accordion {
+      ::ng-deep {
+        .p-accordion-tab {
+          margin-bottom: 1rem;
+          border: 1px solid var(--surface-border);
+          border-radius: 6px;
+          overflow: hidden;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          .p-accordion-header {
+            background: var(--surface-card);
+            border: none;
+            border-radius: 0;
+
+            .p-accordion-header-link {
+              padding: 0;
+              border: none;
+              background: transparent;
+
+              &:focus {
+                box-shadow: none;
+              }
+            }
+          }
+
+          .p-accordion-content {
+            border: none;
+            border-top: 1px solid var(--surface-border);
+            padding: 0;
+            background: var(--surface-card);
+          }
+
+          .p-accordion-content-wrapper {
+            padding: 0;
+          }
+        }
+      }
+
+      .accordion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: $spacing-xl $spacing-2xl;
+        width: 100%;
+
+        .header-content {
+          flex: 1;
+          min-width: 0;
+
+          .ponto-title {
+            margin: 0 0 $spacing-xs 0;
+            color: var(--text-color);
+            font-size: $font-size-md;
+            font-weight: $font-weight-semibold;
+            @include truncate;
+          }
+
+          .ponto-summary {
+            margin: 0;
+            color: var(--text-color-secondary);
+            font-size: $font-size-sm;
+            @include truncate;
+          }
+        }
+
+        .header-actions {
+          margin-left: $spacing-xl;
+          flex-shrink: 0;
+        }
+      }
+    }
+  }
+
+  .ponto-content {
+    padding: $spacing-2xl;
+
+    .form-section {
+      margin-bottom: $spacing-3xl;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .section-title {
+        margin: 0 0 $spacing-xl 0;
+        color: var(--text-color);
+        font-size: $font-size-md;
+        font-weight: $font-weight-semibold;
+        padding-bottom: $spacing-sm;
+        border-bottom: 1px solid var(--surface-border);
+      }
+    }
+
+    .form-grid {
+      @include responsive-grid(250px);
+    }
+
+    .form-field {
+      @include form-field;
+
+      .field-label {
+        @include form-label;
+      }
+
+      .error-message {
+        @include error-message;
+      }
+
+      ::ng-deep {
+        .p-inputtext {
+          &[readonly] {
+            background: var(--surface-100);
+            color: var(--text-color-secondary);
+          }
+        }
+      }
+    }
+
+    .endereco-wrapper {
+      background: var(--surface-50);
+      padding: $spacing-xl;
+      border-radius: $border-radius-md;
+      border: 1px solid var(--surface-200);
+    }
+
+    .coordinates-section {
+      .coordinates-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: $spacing-xl;
+        background: var(--surface-50);
+        border: 1px solid var(--surface-200);
+        border-radius: $border-radius-md;
+        margin-bottom: $spacing-md;
+
+        .coordinates-display {
+          display: flex;
+          align-items: center;
+          gap: $spacing-sm;
+
+          .coordinates-label {
+            font-weight: $font-weight-medium;
+            color: var(--text-color-secondary);
+            font-size: $font-size-sm;
+          }
+
+          .coordinates-value {
+            font-family: 'Courier New', monospace;
+            font-size: $font-size-sm;
+            color: var(--text-color-secondary);
+            padding: $spacing-xs $spacing-sm;
+            background: var(--surface-100);
+            border-radius: $border-radius-sm;
+
+            &.has-coordinates {
+              color: var(--success-600);
+              background: var(--success-50);
+              border: 1px solid var(--success-200);
+            }
+          }
+        }
+
+        .coordinates-actions {
+          display: flex;
+          gap: $spacing-sm;
+        }
+      }
+
+      .coordinates-help {
+        @include message-info;
+        padding: $spacing-md;
+        font-size: $font-size-xs;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: $breakpoint-md) {
+  .ponto-distribuicao-form-container {
+    .form-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: $spacing-lg;
+    }
+
+    .pontos-list .pontos-accordion {
+      .accordion-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: $spacing-lg;
+
+        .header-actions {
+          margin-left: 0;
+          align-self: flex-end;
+        }
+      }
+    }
+
+    .ponto-content {
+      padding: $spacing-xl;
+
+      .coordinates-section .coordinates-info {
+        flex-direction: column;
+        align-items: stretch;
+        gap: $spacing-lg;
+
+        .coordinates-actions {
+          justify-content: flex-end;
+        }
+      }
+    }
+  }
+}
+
+// Dark theme adjustments
+@media (prefers-color-scheme: dark) {
+  .ponto-distribuicao-form-container {
+    .ponto-content {
+      .endereco-wrapper {
+        background: var(--surface-800);
+        border-color: var(--surface-700);
+      }
+
+      .coordinates-section {
+        .coordinates-info {
+          background: var(--surface-800);
+          border-color: var(--surface-700);
+
+          .coordinates-value {
+            background: var(--surface-900);
+
+            &.has-coordinates {
+              background: var(--success-900);
+              border-color: var(--success-700);
+              color: var(--success-100);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .ponto-distribuicao-form-container {
+    .form-header .header-actions,
+    .pontos-list .accordion-header .header-actions,
+    .coordinates-section .coordinates-actions {
+      display: none !important;
+    }
+
+    .pontos-list .pontos-accordion {
+      ::ng-deep {
+        .p-accordion-tab .p-accordion-content {
+          display: block !important;
+        }
+      }
+    }
+  }
+}

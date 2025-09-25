@@ -1,0 +1,186 @@
+<div class="propriedade-form-container">
+  <!-- Header with Add Button -->
+  <div class="form-header">
+    <h3 class="form-title">
+      <i class="pi pi-home"></i>
+      Propriedades Rurais
+    </h3>
+    <p-button 
+      *ngIf="!readonly"
+      label="Adicionar Propriedade" 
+      icon="pi pi-plus" 
+      severity="primary"
+      size="small"
+      [outlined]="true"
+      (onClick)="addPropriedade()">
+    </p-button>
+  </div>
+
+  <!-- Propriedade Cards -->
+  <div class="propriedade-list">
+    <div 
+      *ngFor="let propriedade of propriedadesFormArray.controls; let i = index"
+      class="propriedade-card">
+      
+      <p-card>
+        <!-- Card Header -->
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <div class="card-info">
+              <div class="card-title">
+                <i class="pi pi-home"></i>
+                <span>{{ getPropriedadeTitle(i) }}</span>
+              </div>
+              <div class="card-summary">
+                {{ getPropriedadeSummary(i) }}
+              </div>
+            </div>
+            <p-button 
+              *ngIf="canRemovePropriedade()"
+              icon="pi pi-trash" 
+              severity="danger"
+              size="small"
+              [outlined]="true"
+              [text]="true"
+              (onClick)="removePropriedade(i)"
+              pTooltip="Remover propriedade"
+              tooltipPosition="top">
+            </p-button>
+          </div>
+        </ng-template>
+
+        <!-- Card Content -->
+        <div [formGroup]="getPropriedadeFormGroup(i)" class="propriedade-form">
+          
+          <!-- Row 1: Nome da Propriedade -->
+          <div class="form-row">
+            <div class="form-field">
+              <label [for]="'nome-' + i" class="field-label required">Nome da Propriedade</label>
+              <input 
+                pInputText 
+                [id]="'nome-' + i"
+                formControlName="nome"
+                placeholder="Digite o nome da propriedade"
+                [class.ng-invalid]="hasFieldError(i, 'nome')"
+                [readonly]="readonly"
+                class="w-full">
+              <small 
+                *ngIf="hasFieldError(i, 'nome')" 
+                class="error-message">
+                {{ getFieldErrorMessage(i, 'nome') }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Row 2: Área -->
+          <div class="form-row">
+            <div class="form-field">
+              <label [for]="'area-' + i" class="field-label required">Área (hectares)</label>
+              <p-inputNumber
+                [id]="'area-' + i"
+                formControlName="area"
+                mode="decimal"
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                [min]="0.01"
+                [step]="0.01"
+                placeholder="0,00"
+                suffix=" ha"
+                [class.ng-invalid]="hasFieldError(i, 'area')"
+                [readonly]="readonly"
+                styleClass="w-full">
+              </p-inputNumber>
+              <small 
+                *ngIf="hasFieldError(i, 'area')" 
+                class="error-message">
+                {{ getFieldErrorMessage(i, 'area') }}
+              </small>
+              <small 
+                *ngIf="!hasFieldError(i, 'area') && getFormControl(i, 'area')?.value" 
+                class="help-text">
+                {{ formatArea(getFormControl(i, 'area')?.value) }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Row 3: Coordenadas GPS -->
+          <div class="form-row coordinates-section">
+            <div class="coordinates-header">
+              <h4 class="coordinates-title">
+                <i class="pi pi-map-marker"></i>
+                Coordenadas GPS
+              </h4>
+              <div class="coordinates-actions">
+                <p-button 
+                  *ngIf="hasCoordinates(i) && !readonly"
+                  label="Limpar" 
+                  icon="pi pi-times" 
+                  severity="secondary"
+                  size="small"
+                  [text]="true"
+                  (onClick)="clearCoordinates(i)">
+                </p-button>
+              </div>
+            </div>
+
+            <div class="coordinates-content">
+              <div *ngIf="hasCoordinates(i)" class="coordinates-display">
+                <div class="coordinate-item">
+                  <label>Latitude:</label>
+                  <span>{{ getFormControl(i, 'latitude')?.value?.toFixed(6) }}</span>
+                </div>
+                <div class="coordinate-item">
+                  <label>Longitude:</label>
+                  <span>{{ getFormControl(i, 'longitude')?.value?.toFixed(6) }}</span>
+                </div>
+              </div>
+
+              <div *ngIf="!hasCoordinates(i)" class="coordinates-placeholder">
+                <i class="pi pi-map-marker placeholder-icon"></i>
+                <p>Coordenadas não definidas</p>
+                <small>Use o mapa na aba "Coordenadas" para definir a localização</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 4: Culturas Summary -->
+          <div class="form-row culturas-section">
+            <div class="culturas-header">
+              <h4 class="culturas-title">
+                <i class="pi pi-sun"></i>
+                Culturas
+              </h4>
+            </div>
+
+            <div class="culturas-content">
+              <div *ngIf="getCulturasFormArray(i).length > 0" class="culturas-summary">
+                <div class="culture-count">
+                  <i class="pi pi-check-circle"></i>
+                  <span>{{ getCulturasFormArray(i).length }} cultura(s) cadastrada(s)</span>
+                </div>
+                <small>Gerencie as culturas na aba "Culturas"</small>
+              </div>
+
+              <div *ngIf="getCulturasFormArray(i).length === 0" class="culturas-placeholder">
+                <i class="pi pi-sun placeholder-icon"></i>
+                <p>Nenhuma cultura cadastrada</p>
+                <small>Use a aba "Culturas" para adicionar culturas a esta propriedade</small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="propriedadesFormArray.length === 0" class="empty-state">
+    <i class="pi pi-home empty-icon"></i>
+    <h4>Nenhuma propriedade cadastrada</h4>
+    <p>Clique em "Adicionar Propriedade" para começar.</p>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<p-confirmDialog></p-confirmDialog>

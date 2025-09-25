@@ -1,0 +1,76 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-card {
+  .logo {
+    display: block;
+    margin: 2rem auto 1rem;
+    width: 150px;
+  }
+
+  .p-card-body {
+    padding: 2rem;
+  }
+
+  .p-field {
+    margin-bottom: 1.5rem;
+
+    .p-error {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+      color: #e24c4c;
+    }
+
+    input.ng-invalid.ng-touched,
+    .p-password.ng-invalid.ng-touched input {
+      border-color: #e24c4c;
+    }
+  }
+
+  .p-field-checkbox {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .p-card-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 2rem 2rem;
+
+    .login-button {
+      width: 100%;
+      background-color: #007ad9;
+      border-color: #007ad9;
+
+      &:hover:not(:disabled) {
+        background-color: #0056b3;
+        border-color: #0056b3;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .forgot-password {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+}

@@ -1,0 +1,438 @@
+.propriedade-form-container {
+  .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--surface-border);
+
+    .form-title {
+      margin: 0;
+      color: var(--text-color);
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      i {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  .propriedade-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    .propriedade-card {
+      ::ng-deep {
+        .p-card {
+          border: 1px solid var(--surface-border);
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          transition: all 0.2s ease;
+
+          &:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+          }
+
+          .p-card-header {
+            background: var(--surface-50);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 1rem 1.5rem;
+            border-radius: 8px 8px 0 0;
+          }
+
+          .p-card-body {
+            padding: 1.5rem;
+          }
+        }
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .card-info {
+          flex: 1;
+
+          .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.25rem;
+
+            i {
+              color: var(--primary-color);
+            }
+          }
+
+          .card-summary {
+            font-size: 0.875rem;
+            color: var(--text-color-secondary);
+          }
+        }
+      }
+
+      .propriedade-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+
+        .form-row {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+
+          &.coordinates-section,
+          &.culturas-section {
+            background: var(--surface-50);
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--surface-border);
+          }
+        }
+
+        .form-field {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+
+          .field-label {
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 0.875rem;
+
+            &.required::after {
+              content: ' *';
+              color: var(--red-500);
+            }
+          }
+
+          .error-message {
+            color: var(--red-500);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+          }
+
+          .help-text {
+            color: var(--text-color-secondary);
+            font-size: 0.75rem;
+            font-style: italic;
+          }
+
+          ::ng-deep {
+            .p-inputtext,
+            .p-inputnumber {
+              width: 100%;
+
+              &.ng-invalid.ng-touched,
+              &.ng-invalid.ng-dirty {
+                border-color: var(--red-500);
+              }
+
+              &[readonly] {
+                background-color: var(--surface-100);
+                color: var(--text-color-secondary);
+              }
+            }
+
+            .p-inputnumber-input {
+              text-align: right;
+            }
+          }
+        }
+
+        // Coordinates Section
+        .coordinates-section {
+          .coordinates-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+
+            .coordinates-title {
+              margin: 0;
+              font-size: 1rem;
+              font-weight: 600;
+              color: var(--text-color);
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+
+              i {
+                color: var(--primary-color);
+              }
+            }
+          }
+
+          .coordinates-content {
+            .coordinates-display {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 1rem;
+
+              @media (max-width: 768px) {
+                grid-template-columns: 1fr;
+              }
+
+              .coordinate-item {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+
+                label {
+                  font-size: 0.875rem;
+                  font-weight: 500;
+                  color: var(--text-color-secondary);
+                }
+
+                span {
+                  font-family: 'Courier New', monospace;
+                  font-size: 0.875rem;
+                  color: var(--text-color);
+                  background: var(--surface-card);
+                  padding: 0.5rem;
+                  border-radius: 4px;
+                  border: 1px solid var(--surface-border);
+                }
+              }
+            }
+
+            .coordinates-placeholder {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              text-align: center;
+              padding: 1rem;
+              color: var(--text-color-secondary);
+
+              .placeholder-icon {
+                font-size: 2rem;
+                margin-bottom: 0.5rem;
+                opacity: 0.5;
+              }
+
+              p {
+                margin: 0 0 0.25rem 0;
+                font-weight: 500;
+              }
+
+              small {
+                font-size: 0.75rem;
+              }
+            }
+          }
+        }
+
+        // Culturas Section
+        .culturas-section {
+          .culturas-header {
+            margin-bottom: 1rem;
+
+            .culturas-title {
+              margin: 0;
+              font-size: 1rem;
+              font-weight: 600;
+              color: var(--text-color);
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+
+              i {
+                color: var(--orange-500);
+              }
+            }
+          }
+
+          .culturas-content {
+            .culturas-summary {
+              .culture-count {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-bottom: 0.5rem;
+                color: var(--green-600);
+                font-weight: 500;
+
+                i {
+                  color: var(--green-500);
+                }
+              }
+
+              small {
+                color: var(--text-color-secondary);
+                font-size: 0.75rem;
+              }
+            }
+
+            .culturas-placeholder {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              text-align: center;
+              padding: 1rem;
+              color: var(--text-color-secondary);
+
+              .placeholder-icon {
+                font-size: 2rem;
+                margin-bottom: 0.5rem;
+                opacity: 0.5;
+              }
+
+              p {
+                margin: 0 0 0.25rem 0;
+                font-weight: 500;
+              }
+
+              small {
+                font-size: 0.75rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--text-color-secondary);
+    background: var(--surface-50);
+    border: 2px dashed var(--surface-border);
+    border-radius: 8px;
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+      color: var(--primary-color);
+    }
+
+    h4 {
+      margin: 0 0 0.5rem 0;
+      color: var(--text-color);
+      font-weight: 500;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .propriedade-form-container {
+    .form-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+
+      .form-title {
+        justify-content: center;
+      }
+    }
+
+    .propriedade-list {
+      gap: 1rem;
+
+      .propriedade-card {
+        ::ng-deep {
+          .p-card {
+            .p-card-header {
+              padding: 0.75rem 1rem;
+            }
+
+            .p-card-body {
+              padding: 1rem;
+            }
+          }
+        }
+
+        .card-header {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 0.75rem;
+
+          .card-info .card-title {
+            justify-content: center;
+          }
+        }
+
+        .propriedade-form {
+          gap: 1rem;
+
+          .coordinates-section,
+          .culturas-section {
+            padding: 0.75rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Dark theme adjustments
+@media (prefers-color-scheme: dark) {
+  .propriedade-form-container {
+    .form-header {
+      border-bottom-color: var(--surface-border);
+    }
+
+    .propriedade-list .propriedade-card {
+      ::ng-deep .p-card {
+        background: var(--surface-card);
+        border-color: var(--surface-border);
+
+        .p-card-header {
+          background: var(--surface-100);
+          border-bottom-color: var(--surface-border);
+        }
+      }
+    }
+
+    .empty-state {
+      background: var(--surface-100);
+      border-color: var(--surface-border);
+
+      .empty-icon {
+        opacity: 0.3;
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .propriedade-form-container {
+    .form-header p-button {
+      display: none;
+    }
+
+    .propriedade-list .propriedade-card {
+      .card-header p-button {
+        display: none;
+      }
+
+      ::ng-deep .p-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        page-break-inside: avoid;
+        margin-bottom: 1rem;
+      }
+    }
+  }
+}

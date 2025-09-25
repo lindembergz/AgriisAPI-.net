@@ -1,0 +1,102 @@
+{
+  "name": "fornecedor-web-v20x2x0",
+  "version": "0.0.0",
+  "aws": {
+    "environments": {
+      "production": {
+        "cloudfront": {
+          "id": "EYPU44I15XVLR"
+        },
+        "s3": {
+          "bucket": "ifarmer-applications",
+          "deployment_folder": "fornecedor-web",
+          "upload_folder": "fornecedor-web-uploads"
+        }
+      },
+      "sandbox": {
+        "cloudfront": {
+          "id": "E1ARLX8DXOH8PM"
+        },
+        "s3": {
+          "bucket": "ifarmer-applications-sandbox",
+          "deployment_folder": "fornecedor-web",
+          "upload_folder": "fornecedor-web-uploads"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "build:stats": "ng build --stats-json",
+    "build:prod": "ng build --configuration production",
+    "build:analyze": "ng build --stats-json && npx webpack-bundle-analyzer dist/stats.json",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "test:coverage": "ng test --code-coverage --watch=false",
+    "optimize": "node scripts/optimize-bundle.js",
+    "performance:audit": "ng build --prod && npx lighthouse http://localhost:4200 --output=json --output-path=./performance-audit.json",
+    "migrate:modern": "node scripts/migrate-to-modern-angular.js",
+    "migrate:clean-backups": "find src -name '*.backup' -delete",
+    "lint:modern": "echo 'Verificando conformidade com práticas modernas do Angular...' && npm run migrate:modern -- --dry-run"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^20.3.1",
+    "@angular/cdk": "^20.2.2",
+    "@angular/common": "^20.2.0",
+    "@angular/compiler": "^20.2.0",
+    "@angular/core": "^20.2.0",
+    "@angular/forms": "^20.2.0",
+    "@angular/google-maps": "^20.2.2",
+    "@angular/platform-browser": "^20.3.1",
+    "@angular/router": "^20.2.0",
+    "@angular/service-worker": "^20.3.1",
+    "@ngx-loading-bar/core": "^7.0.0",
+    "@primeuix/themes": "^1.2.3",
+    "@types/node": "^24.5.2",
+    "bootstrap": "^5.3.8",
+    "chart.js": "^4.5.0",
+    "primeflex": "^4.0.0",
+    "primeicons": "^7.0.0",
+    "primeng": "^20.1.1",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "xlsx": "^0.18.5",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular-eslint/builder": "^18.4.3",
+    "@angular-eslint/eslint-plugin": "^18.4.3",
+    "@angular-eslint/eslint-plugin-template": "^18.4.3",
+    "@angular-eslint/schematics": "18.4.3",
+    "@angular-eslint/template-parser": "^18.4.3",
+    "@angular/build": "^20.2.2",
+    "@angular/cli": "^20.2.2",
+    "@angular/compiler-cli": "^20.2.0",
+    "@types/jasmine": "~5.1.0",
+    "@typescript-eslint/eslint-plugin": "^7.11.0",
+    "@typescript-eslint/parser": "7.11.0",
+    "eslint": "^8.57.1",
+    "jasmine-core": "~5.9.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "typescript": "~5.9.2"
+  }
+}

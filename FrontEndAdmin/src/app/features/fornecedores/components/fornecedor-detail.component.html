@@ -1,0 +1,345 @@
+<div class="fornecedor-detail-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">
+      {{ isEditMode() ? 'Editar Fornecedor' : 'Novo Fornecedor' }}
+    </h1>
+    <div class="header-actions">
+      <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()"
+        [disabled]="saving()">
+      </p-button>
+      <p-button label="Salvar" icon="pi pi-check" severity="primary" (onClick)="onSave()" [loading]="saving()"
+        [disabled]="loading()">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-container">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Carregando dados do fornecedor...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading()" class="content-container">
+    <form [formGroup]="fornecedorForm" novalidate>
+      <p-tabs [value]="activeTabIndex()" (valueChange)="onTabChange($event)" styleClass="fornecedor-tabs">
+
+        <p-tablist>
+          <p-tab [value]="0">Dados Gerais</p-tab>
+          <p-tab [value]="1">Endereço do fornecedor</p-tab>
+          <!-- <p-tab [value]="2">Pontos de Distribuição</p-tab>-->
+          <p-tab [value]="3">Coordenadas</p-tab>
+          <p-tab [value]="4">Usuário Master</p-tab>
+        </p-tablist>
+
+        <p-tabpanels>
+          <!-- Tab 1: Dados Gerais -->
+          <p-tabpanel [value]="0">
+            <div class="tab-content">
+              <p-card>
+                <div class="form-grid" formGroupName="dadosGerais">
+
+                  <!-- Nome -->
+                  <div class="form-field">
+                    <label for="nome" class="field-label required">Nome</label>
+                    <input pInputText id="nome" formControlName="nome" placeholder="Digite o nome do fornecedor"
+                      [class.ng-invalid]="hasFieldError('dadosGerais.nome')" class="w-full">
+                    <small *ngIf="hasFieldError('dadosGerais.nome')" class="error-message">
+                      {{ getFieldErrorMessage('dadosGerais.nome') }}
+                    </small>
+                  </div>
+
+                  <!-- Tipo Cliente -->
+                  <div class="form-field">
+                    <label for="tipoCliente" class="field-label required">Tipo de Cliente</label>
+                    <p-select id="tipoCliente" formControlName="tipoCliente" [options]="tipoClienteOptions"
+                      optionLabel="label" optionValue="value" placeholder="Selecione o tipo"
+                      [class.ng-invalid]="hasFieldError('dadosGerais.tipoCliente')" styleClass="w-full">
+                    </p-select>
+                    <small *ngIf="hasFieldError('dadosGerais.tipoCliente')" class="error-message">
+                      {{ getFieldErrorMessage('dadosGerais.tipoCliente') }}
+                    </small>
+                  </div>
+
+                  <!-- CPF/CNPJ -->
+                  <div class="form-field">
+                    <label for="cpfCnpj" class="field-label required">
+                      {{ fornecedorForm.get('dadosGerais.tipoCliente')?.value === 'PF' ? 'CPF' : 'CNPJ' }}
+                    </label>
+                    <p-inputMask id="cpfCnpj" formControlName="cpfCnpj" [mask]="getCpfCnpjMask()"
+                      placeholder="Digite o {{ fornecedorForm.get('dadosGerais.tipoCliente')?.value === 'PF' ? 'CPF' : 'CNPJ' }}"
+                      [class.ng-invalid]="hasFieldError('dadosGerais.cpfCnpj')" styleClass="w-full">
+                    </p-inputMask>
+                    <small *ngIf="hasFieldError('dadosGerais.cpfCnpj')" class="error-message">
+                      {{ getFieldErrorMessage('dadosGerais.cpfCnpj') }}
+                    </small>
+                  </div>
+
+                  <!-- Telefone -->
+                  <div class="form-field">
+                    <label for="telefone" class="field-label">Telefone</label>
+                    <p-inputMask id="telefone" formControlName="telefone" mask="(99) 99999-9999"
+                      placeholder="Digite o telefone" [class.ng-invalid]="hasFieldError('dadosGerais.telefone')"
+                      styleClass="w-full">
+                    </p-inputMask>
+                    <small *ngIf="hasFieldError('dadosGerais.telefone')" class="error-message">
+                      {{ getFieldErrorMessage('dadosGerais.telefone') }}
+                    </small>
+                  </div>
+
+                  <!-- Email -->
+                  <div class="form-field">
+                    <label for="email" class="field-label">E-mail</label>
+                    <input pInputText id="email" formControlName="email" type="email" placeholder="Digite o e-mail"
+                      [class.ng-invalid]="hasFieldError('dadosGerais.email')" class="w-full">
+                    <small *ngIf="hasFieldError('dadosGerais.email')" class="error-message">
+                      {{ getFieldErrorMessage('dadosGerais.email') }}
+                    </small>
+                  </div>
+
+                </div>
+              </p-card>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab 2: Endereço -->
+          <p-tabpanel [value]="1">
+            <div class="tab-content">
+              <div class="tab-header">
+                <h3>Endereço</h3>
+                <p class="tab-description">Cadastre o endereço principal do fornecedor.</p>
+              </div>
+
+              <p-card>
+                <div class="form-grid">
+
+                  <!-- Inscrição Estadual -->
+                  <div class="form-field">
+                    <label for="inscricaoEstadual" class="field-label">Inscrição Estadual</label>
+                    <input pInputText id="inscricaoEstadual" formControlName="inscricaoEstadual"
+                      placeholder="Digite a inscrição estadual" class="w-full">
+                  </div>
+
+                </div>
+
+                <div class="form-grid" formGroupName="endereco">
+
+                  <!-- Logradouro -->
+                  <div class="form-field">
+                    <label for="logradouro" class="field-label">Logradouro *</label>
+                    <input pInputText id="logradouro" formControlName="logradouro" placeholder="Digite o logradouro"
+                      [class.ng-invalid]="hasFieldError('endereco.logradouro')" class="w-full">
+                    <small *ngIf="hasFieldError('endereco.logradouro')" class="error-message">
+                      {{ getFieldErrorMessage('endereco.logradouro') }}
+                    </small>
+                  </div>
+
+                  <!-- Número -->
+                  <div class="form-field">
+                    <label for="numero" class="field-label">Número</label>
+                    <input pInputText id="numero" formControlName="numero" placeholder="Digite o número" class="w-full">
+                  </div>
+
+                  <!-- Complemento -->
+                  <div class="form-field">
+                    <label for="complemento" class="field-label">Complemento</label>
+                    <input pInputText id="complemento" formControlName="complemento" placeholder="Digite o complemento"
+                      class="w-full">
+                  </div>
+
+                  <!-- Bairro -->
+                  <div class="form-field">
+                    <label for="bairro" class="field-label">Bairro *</label>
+                    <input pInputText id="bairro" formControlName="bairro" placeholder="Digite o bairro"
+                      [class.ng-invalid]="hasFieldError('endereco.bairro')" class="w-full">
+                    <small *ngIf="hasFieldError('endereco.bairro')" class="error-message">
+                      {{ getFieldErrorMessage('endereco.bairro') }}
+                    </small>
+                  </div>
+
+                  <!-- Cidade -->
+                  <div class="form-field">
+                    <label for="cidade" class="field-label">Cidade *</label>
+                    <input pInputText id="cidade" formControlName="cidade" placeholder="Digite a cidade"
+                      [class.ng-invalid]="hasFieldError('endereco.cidade')" class="w-full">
+                    <small *ngIf="hasFieldError('endereco.cidade')" class="error-message">
+                      {{ getFieldErrorMessage('endereco.cidade') }}
+                    </small>
+                  </div>
+
+                  <!-- UF -->
+                  <div class="form-field">
+                    <label for="uf" class="field-label">UF *</label>
+                    <input pInputText id="uf" formControlName="uf" placeholder="Digite a UF" maxlength="2"
+                      [class.ng-invalid]="hasFieldError('endereco.uf')" class="w-full">
+                    <small *ngIf="hasFieldError('endereco.uf')" class="error-message">
+                      {{ getFieldErrorMessage('endereco.uf') }}
+                    </small>
+                  </div>
+
+                  <!-- CEP -->
+                  <div class="form-field">
+                    <label for="cep" class="field-label">CEP *</label>
+                    <p-inputMask id="cep" formControlName="cep" mask="99999-999" placeholder="Digite o CEP"
+                      [class.ng-invalid]="hasFieldError('endereco.cep')" styleClass="w-full">
+                    </p-inputMask>
+                    <small *ngIf="hasFieldError('endereco.cep')" class="error-message">
+                      {{ getFieldErrorMessage('endereco.cep') }}
+                    </small>
+                  </div>
+
+                  <!-- Latitude -->
+                  <div class="form-field">
+                    <label for="latitude" class="field-label">Latitude</label>
+                    <input pInputText id="latitude" formControlName="latitude" type="number" step="any"
+                      placeholder="Digite a latitude" class="w-full">
+                  </div>
+
+                  <!-- Longitude -->
+                  <div class="form-field">
+                    <label for="longitude" class="field-label">Longitude</label>
+                    <input pInputText id="longitude" formControlName="longitude" type="number" step="any"
+                      placeholder="Digite a longitude" class="w-full">
+                  </div>
+
+                </div>
+              </p-card>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab 3: Pontos de Distribuição 
+        <p-tabpanel [value]="2">
+          <div class="tab-content">
+            <div class="tab-header">
+              <h3>Pontos de Distribuição</h3>
+              <p class="tab-description">Cadastre os pontos de distribuição do fornecedor. Esta informação é opcional.</p>
+            </div>
+            <app-ponto-distribuicao-form
+              [pontosDistribuicaoFormArray]="pontosDistribuicaoFormArray"
+              [readonly]="saving()"
+              (pontosDistribuicaoChange)="onPontosDistribuicaoChange($event)">
+            </app-ponto-distribuicao-form>
+          </div>
+        </p-tabpanel>-->
+
+          <!-- Tab 3: Coordenadas -->
+          <p-tabpanel [value]="3">
+            <div class="tab-content">
+              <div class="tab-header">
+                <h3>Coordenadas Geográficas</h3>
+                <p class="tab-description">Selecione as coordenadas geográficas do endereço do fornecedor no mapa.</p>
+              </div>
+
+              <!-- Coordenadas atuais -->
+              <div class="coordinates-display" formGroupName="endereco">
+                <div class="coordinates-grid">
+                  <div class="coordinate-field">
+                    <label for="current-latitude" class="field-label">Latitude Atual</label>
+                    <input pInputText id="current-latitude" formControlName="latitude" type="number" step="any"
+                      placeholder="Clique no mapa para definir" readonly class="w-full coordinate-readonly">
+                  </div>
+                  <div class="coordinate-field">
+                    <label for="current-longitude" class="field-label">Longitude Atual</label>
+                    <input pInputText id="current-longitude" formControlName="longitude" type="number" step="any"
+                      placeholder="Clique no mapa para definir" readonly class="w-full coordinate-readonly">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mapa do Google -->
+              <app-coordenadas-map 
+                [readonly]="saving()" 
+                [height]="'500px'" 
+                [coordenadas]="currentCoordinates"
+                (coordinatesSelected)="onCoordinatesSelected($event)">
+              </app-coordenadas-map>
+
+              <div class="coordinates-info">
+                <i class="pi pi-info-circle"></i>
+                <small>Clique no mapa para definir as coordenadas do endereço do fornecedor. As coordenadas serão
+                  automaticamente preenchidas nos campos acima.</small>
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab 5: Usuário Master -->
+          <p-tabpanel [value]="4">
+            <div class="tab-content">
+              <div class="tab-header">
+                <h3>Usuário Master</h3>
+                <p class="tab-description">Cadastre o usuário master que terá acesso ao sistema para este fornecedor.
+                </p>
+              </div>
+              <!-- Formulário inline do usuário master -->
+              <div formGroupName="usuarioMaster" class="usuario-master-inline">
+                <div class="form-grid">
+
+                  <!-- Nome -->
+                  <div class="form-field">
+                    <label for="usuario-nome" class="field-label required">Nome Completo</label>
+                    <input pInputText id="usuario-nome" formControlName="nome" placeholder="Digite o nome completo"
+                      [class.ng-invalid]="hasFieldError('usuarioMaster.nome')" class="w-full">
+                    <small *ngIf="hasFieldError('usuarioMaster.nome')" class="error-message">
+                      {{ getFieldErrorMessage('usuarioMaster.nome') }}
+                    </small>
+                  </div>
+
+                  <!-- Email -->
+                  <div class="form-field">
+                    <label for="usuario-email" class="field-label required">E-mail</label>
+                    <input pInputText id="usuario-email" formControlName="email" type="email"
+                      placeholder="Digite o e-mail" [class.ng-invalid]="hasFieldError('usuarioMaster.email')"
+                      class="w-full">
+                    <small *ngIf="hasFieldError('usuarioMaster.email')" class="error-message">
+                      {{ getFieldErrorMessage('usuarioMaster.email') }}
+                    </small>
+                  </div>
+
+                  <!-- Telefone -->
+                  <div class="form-field">
+                    <label for="usuario-telefone" class="field-label">Telefone</label>
+                    <p-inputMask id="usuario-telefone" formControlName="telefone" mask="(99) 99999-9999"
+                      placeholder="(11) 99999-9999" [class.ng-invalid]="hasFieldError('usuarioMaster.telefone')"
+                      styleClass="w-full">
+                    </p-inputMask>
+                    <small *ngIf="hasFieldError('usuarioMaster.telefone')" class="error-message">
+                      {{ getFieldErrorMessage('usuarioMaster.telefone') }}
+                    </small>
+                  </div>
+
+                  <!-- Senha -->
+                  <div class="form-field">
+                    <label for="usuario-senha" class="field-label required">Senha</label>
+                    <input pInputText id="usuario-senha" formControlName="senha" type="password"
+                      placeholder="Digite a senha" [class.ng-invalid]="hasFieldError('usuarioMaster.senha')"
+                      class="w-full">
+                    <small *ngIf="hasFieldError('usuarioMaster.senha')" class="error-message">
+                      {{ getFieldErrorMessage('usuarioMaster.senha') }}
+                    </small>
+                  </div>
+
+                  <!-- Botão de teste -->
+                  <div class="form-field">
+                    <button type="button" (click)="testFillUsuarioMaster()"
+                      style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                      🧪 Preencher Dados de Teste
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </p-tabpanel>
+        </p-tabpanels>
+
+      </p-tabs>
+    </form>
+  </div>
+</div>
+
+<!-- Toast for notifications -->
+<p-toast></p-toast>
+
+<!-- Confirm dialog -->
+<p-confirmDialog></p-confirmDialog>

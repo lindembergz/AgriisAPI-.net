@@ -1,0 +1,241 @@
+<div class="cultura-form-container">
+  <!-- Header -->
+  <div class="form-header">
+    <h3 class="form-title">
+      <i class="pi pi-sun"></i>
+      Culturas e Safras
+    </h3>
+    <div class="header-info">
+      <small>Gerencie as culturas por propriedade e ano safra</small>
+    </div>
+  </div>
+
+  <!-- Propriedades Cards -->
+  <div *ngIf="propriedadesWithCulturas.length > 0" class="propriedades-cards">
+    <div 
+      *ngFor="let propriedade of propriedadesWithCulturas; let i = index"
+      class="propriedade-card">
+      
+      <p-card>
+        <!-- Card Header -->
+        <ng-template pTemplate="header">
+          <div class="accordion-header">
+            <div class="propriedade-info">
+              <div class="propriedade-name">
+                <i class="pi pi-home"></i>
+                <span>{{ propriedade.nome }}</span>
+              </div>
+              <div class="propriedade-summary">
+                {{ getPropriedadeSummary(propriedade) }}
+              </div>
+            </div>
+            <div class="area-indicator" [class.area-exceeded]="hasAreaExceeded(i)">
+              <div class="area-bar">
+                <div 
+                  class="area-fill" 
+                  [style.width.%]="getAreaUtilization(i)"
+                  [class.exceeded]="hasAreaExceeded(i)">
+                </div>
+              </div>
+              <small>{{ formatArea(getTotalAreaCultivada(i)) }} / {{ formatArea(propriedade.area) }} ha</small>
+            </div>
+          </div>
+        </ng-template>
+
+        <!-- Card Content -->
+        <div class="card-content">
+          
+          <!-- Area Summary -->
+          <div class="area-summary" [class.area-exceeded]="hasAreaExceeded(i)">
+            <div class="summary-item">
+              <label>Área Total:</label>
+              <span>{{ formatArea(propriedade.area) }} ha</span>
+            </div>
+            <div class="summary-item">
+              <label>Área Cultivada:</label>
+              <span>{{ formatArea(getTotalAreaCultivada(i)) }} ha</span>
+            </div>
+            <div class="summary-item">
+              <label>Área Disponível:</label>
+              <span [class.negative]="hasAreaExceeded(i)">
+                {{ formatArea(getRemainingArea(i)) }} ha
+              </span>
+            </div>
+            <div class="summary-item">
+              <label>Utilização:</label>
+              <span>{{ getAreaUtilization(i).toFixed(1) }}%</span>
+            </div>
+          </div>
+
+          <!-- Area Exceeded Warning -->
+          <div *ngIf="hasAreaExceeded(i)" class="area-warning">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>A área cultivada excede a área total da propriedade!</span>
+          </div>
+
+          <!-- Add Cultura Button -->
+          <div class="add-cultura-section">
+            <p-button 
+              *ngIf="!readonly"
+              label="Adicionar Cultura" 
+              icon="pi pi-plus" 
+              severity="primary"
+              size="small"
+              [outlined]="true"
+              (onClick)="addCultura(i)">
+            </p-button>
+          </div>
+
+          <!-- Culturas List -->
+          <div class="culturas-list">
+            <div 
+              *ngFor="let cultura of propriedade.culturas.controls; let j = index"
+              class="cultura-card">
+              
+              <p-card>
+                <!-- Card Header -->
+                <ng-template pTemplate="header">
+                  <div class="cultura-header">
+                    <div class="cultura-info">
+                      <div class="cultura-type">
+                        <i 
+                          [class]="getCulturaTypeOption(getCulturaFormGroup(i, j).value.tipo || TipoCultura.SOJA)?.icon"
+                          [style.color]="getCulturaTypeOption(getCulturaFormGroup(i, j).value.tipo || TipoCultura.SOJA)?.color">
+                        </i>
+                        <span>{{ getCulturaDisplayName(i, j) }}</span>
+                      </div>
+                      <div class="cultura-area">
+                        {{ formatArea(getCulturaFormGroup(i, j).value.areaCultivada || 0) }} ha
+                      </div>
+                    </div>
+                    <p-button 
+                      *ngIf="!readonly"
+                      icon="pi pi-trash" 
+                      severity="danger"
+                      size="small"
+                      [outlined]="true"
+                      [text]="true"
+                      (onClick)="removeCultura(i, j)"
+                      pTooltip="Remover cultura"
+                      tooltipPosition="top">
+                    </p-button>
+                  </div>
+                </ng-template>
+
+                <!-- Card Content -->
+                <div [formGroup]="getCulturaFormGroup(i, j)" class="cultura-form">
+                  
+                  <!-- Row 1: Tipo de Cultura -->
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label [for]="'tipo-' + i + '-' + j" class="field-label required">Tipo de Cultura</label>
+                      <p-select 
+                        [id]="'tipo-' + i + '-' + j"
+                        formControlName="tipo"
+                        [options]="tipoCulturaOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Selecione o tipo"
+                        [class.ng-invalid]="hasFieldError(i, j, 'tipo')"
+                        [disabled]="readonly"
+                        styleClass="w-full">
+                        <ng-template pTemplate="selectedItem" let-option>
+                          <div class="cultura-option">
+                            <i [class]="option.icon" [style.color]="option.color"></i>
+                            <span>{{ option.label }}</span>
+                          </div>
+                        </ng-template>
+                        <ng-template pTemplate="item" let-option>
+                          <div class="cultura-option">
+                            <i [class]="option.icon" [style.color]="option.color"></i>
+                            <span>{{ option.label }}</span>
+                          </div>
+                        </ng-template>
+                      </p-select>
+                      <small 
+                        *ngIf="hasFieldError(i, j, 'tipo')" 
+                        class="error-message">
+                        {{ getFieldErrorMessage(i, j, 'tipo') }}
+                      </small>
+                    </div>
+                  </div>
+
+                  <!-- Row 2: Ano Safra and Área Cultivada -->
+                  <div class="form-row">
+                    <div class="form-field flex-1">
+                      <label [for]="'anoSafra-' + i + '-' + j" class="field-label required">Ano Safra</label>
+                      <p-inputNumber
+                        [id]="'anoSafra-' + i + '-' + j"
+                        formControlName="anoSafra"
+                        [useGrouping]="false"
+                        [min]="2000"
+                        [max]="currentYear + 5"
+                        placeholder="2024"
+                        [class.ng-invalid]="hasFieldError(i, j, 'anoSafra')"
+                        [readonly]="readonly"
+                        styleClass="w-full">
+                      </p-inputNumber>
+                      <small 
+                        *ngIf="hasFieldError(i, j, 'anoSafra')" 
+                        class="error-message">
+                        {{ getFieldErrorMessage(i, j, 'anoSafra') }}
+                      </small>
+                    </div>
+
+                    <div class="form-field flex-2">
+                      <label [for]="'areaCultivada-' + i + '-' + j" class="field-label required">Área Cultivada (ha)</label>
+                      <p-inputNumber
+                        [id]="'areaCultivada-' + i + '-' + j"
+                        formControlName="areaCultivada"
+                        mode="decimal"
+                        [minFractionDigits]="2"
+                        [maxFractionDigits]="2"
+                        [min]="0.01"
+                        [max]="propriedade.area"
+                        [step]="0.01"
+                        placeholder="0,00"
+                        suffix=" ha"
+                        [class.ng-invalid]="hasFieldError(i, j, 'areaCultivada')"
+                        [readonly]="readonly"
+                        styleClass="w-full">
+                      </p-inputNumber>
+                      <small 
+                        *ngIf="hasFieldError(i, j, 'areaCultivada')" 
+                        class="error-message">
+                        {{ getFieldErrorMessage(i, j, 'areaCultivada') }}
+                      </small>
+                      <small 
+                        *ngIf="!hasFieldError(i, j, 'areaCultivada') && getFormControl(i, j, 'areaCultivada')?.value" 
+                        class="help-text">
+                        {{ ((getFormControl(i, j, 'areaCultivada')?.value / propriedade.area) * 100).toFixed(1) }}% da propriedade
+                      </small>
+                    </div>
+                  </div>
+
+                </div>
+              </p-card>
+            </div>
+          </div>
+
+          <!-- Empty State for Culturas -->
+          <div *ngIf="propriedade.culturas.length === 0" class="culturas-empty-state">
+            <i class="pi pi-sun empty-icon"></i>
+            <h4>Nenhuma cultura cadastrada</h4>
+            <p>Clique em "Adicionar Cultura" para começar.</p>
+          </div>
+
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Empty State for Propriedades -->
+  <div *ngIf="propriedadesWithCulturas.length === 0" class="propriedades-empty-state">
+    <i class="pi pi-home empty-icon"></i>
+    <h4>Nenhuma propriedade cadastrada</h4>
+    <p>Cadastre propriedades na aba "Propriedades" para poder adicionar culturas.</p>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<p-confirmDialog></p-confirmDialog>

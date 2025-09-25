@@ -1,0 +1,80 @@
+<p-card header="Coordenadas Geográficas" styleClass="mb-3">
+  <!-- Loading state -->
+  <div *ngIf="loading()" class="text-center p-4">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    <p class="mt-2">Carregando mapa...</p>
+  </div>
+
+  <!-- Error state -->
+  <p-message 
+    *ngIf="error()" 
+    severity="error" 
+    [text]="error()!"
+    styleClass="mb-3">
+  </p-message>
+
+  <!-- Map container -->
+  <div *ngIf="!loading() && !error()" class="map-container">
+    <!-- Map instructions -->
+    <div class="mb-3">
+      <p-message 
+        *ngIf="!readonly" 
+        severity="info" 
+        text="Clique no mapa para selecionar as coordenadas geográficas"
+        styleClass="mb-2">
+      </p-message>
+      
+      <!-- Current coordinates display -->
+      <div class="coordinate-display p-2 border-round surface-100">
+        <strong>{{ getCoordenadasDisplay() }}</strong>
+      </div>
+    </div>
+
+    <!-- Google Map -->
+    <google-map
+      [height]="height"
+      [width]="width"
+      [options]="mapOptions"
+      (mapClick)="onMapClick($event)"
+      (mapLoad)="onMapLoad()"
+      class="border-round overflow-hidden">
+      
+      <!-- Marker for selected coordinates -->
+      <map-marker
+        *ngIf="markerPosition"
+        [position]="markerPosition"
+        [options]="markerOptions">
+      </map-marker>
+    </google-map>
+
+    <!-- Action buttons -->
+    <div class="flex gap-2 mt-3" *ngIf="!readonly">
+      <p-button
+        label="Limpar Coordenadas"
+        icon="pi pi-times"
+        severity="secondary"
+        size="small"
+        [disabled]="!hasValidCoordenadas()"
+        (onClick)="clearCoordenadas()">
+      </p-button>
+      
+      <p-button
+        label="Centralizar no Ponto"
+        icon="pi pi-map-marker"
+        severity="info"
+        size="small"
+        [disabled]="!hasValidCoordenadas()"
+        (onClick)="centerOnCoordenadas()">
+      </p-button>
+    </div>
+
+    <!-- Read-only mode indicator -->
+    <div *ngIf="readonly" class="mt-2">
+      <p-message 
+        severity="warn" 
+        text="Modo somente leitura - coordenadas não podem ser alteradas"
+        styleClass="w-full">
+      </p-message>
+    </div>
+  </div>
+</p-card>

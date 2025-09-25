@@ -1,0 +1,479 @@
+// Shared SCSS Mixins for consistent styling patterns
+
+// Button Mixins
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-xl;
+  border: 1px solid transparent;
+  border-radius: $border-radius-md;
+  font-family: $font-family-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all $transition-normal;
+  user-select: none;
+  white-space: nowrap;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(var(--primary-500), 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  i {
+    font-size: $font-size-sm;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background-color: var(--primary-500);
+  border-color: var(--primary-500);
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: var(--primary-600);
+    border-color: var(--primary-600);
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--primary-700);
+    border-color: var(--primary-700);
+    transform: translateY(0);
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background-color: var(--secondary-500);
+  border-color: var(--secondary-500);
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: var(--secondary-600);
+    border-color: var(--secondary-600);
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--secondary-700);
+    border-color: var(--secondary-700);
+    transform: translateY(0);
+  }
+}
+
+@mixin button-outlined-primary {
+  @include button-base;
+  background-color: transparent;
+  border-color: var(--primary-500);
+  color: var(--primary-500);
+
+  &:hover:not(:disabled) {
+    background-color: var(--primary-50);
+    border-color: var(--primary-600);
+    color: var(--primary-600);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--primary-100);
+    border-color: var(--primary-700);
+    color: var(--primary-700);
+  }
+}
+
+@mixin button-outlined-secondary {
+  @include button-base;
+  background-color: transparent;
+  border-color: var(--secondary-500);
+  color: var(--secondary-500);
+
+  &:hover:not(:disabled) {
+    background-color: var(--secondary-50);
+    border-color: var(--secondary-600);
+    color: var(--secondary-600);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--secondary-100);
+    border-color: var(--secondary-700);
+    color: var(--secondary-700);
+  }
+}
+
+// Form Mixins
+@mixin form-field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+}
+
+@mixin form-label {
+  font-weight: $font-weight-medium;
+  color: var(--text-color);
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-xs;
+
+  &.required::after {
+    content: ' *';
+    color: var(--secondary-500);
+    font-weight: $font-weight-bold;
+  }
+}
+
+@mixin form-input {
+  width: 100%;
+  padding: $spacing-md;
+  border: 1px solid var(--surface-border);
+  border-radius: $border-radius-md;
+  font-family: $font-family-primary;
+  font-size: $font-size-sm;
+  background-color: var(--surface-card);
+  color: var(--text-color);
+  transition: all $transition-normal;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 2px rgba(var(--primary-500), 0.1);
+  }
+
+  &.ng-invalid.ng-touched,
+  &.ng-invalid.ng-dirty {
+    border-color: var(--secondary-500);
+    box-shadow: 0 0 0 2px rgba(var(--secondary-500), 0.1);
+  }
+
+  &:disabled,
+  &[readonly] {
+    background-color: var(--surface-100);
+    color: var(--text-color-secondary);
+    cursor: not-allowed;
+  }
+}
+
+@mixin error-message {
+  color: var(--secondary-500);
+  font-size: $font-size-xs;
+  margin-top: $spacing-xs;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  i {
+    font-size: $font-size-xs;
+  }
+}
+
+// Layout Mixins
+@mixin container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-lg;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 0 $spacing-md;
+  }
+}
+
+@mixin page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-3xl;
+  padding-bottom: $spacing-xl;
+  border-bottom: 1px solid var(--surface-border);
+
+  .page-title {
+    margin: 0;
+    color: var(--text-color);
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-semibold;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: $spacing-md;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-lg;
+
+    .header-actions {
+      justify-content: flex-end;
+    }
+  }
+}
+
+@mixin card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+  padding: $spacing-2xl;
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-xl;
+  }
+}
+
+@mixin loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-5xl $spacing-3xl;
+  text-align: center;
+
+  p {
+    margin-top: $spacing-lg;
+    color: var(--text-color-secondary);
+    font-size: $font-size-sm;
+  }
+}
+
+@mixin empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-5xl $spacing-3xl;
+  text-align: center;
+  background: var(--surface-50);
+  border: 1px dashed var(--surface-300);
+  border-radius: $border-radius-lg;
+  color: var(--text-color-secondary);
+
+  .placeholder-icon {
+    font-size: $spacing-5xl;
+    margin-bottom: $spacing-xl;
+    color: var(--surface-400);
+    opacity: 0.6;
+  }
+
+  h3 {
+    margin: 0 0 $spacing-sm 0;
+    color: var(--text-color);
+    font-weight: $font-weight-medium;
+    font-size: $font-size-lg;
+  }
+
+  p {
+    margin: 0;
+    font-size: $font-size-sm;
+    line-height: 1.5;
+    max-width: 400px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: var(--surface-900);
+    border-color: var(--surface-700);
+
+    .placeholder-icon {
+      color: var(--surface-600);
+      opacity: 0.4;
+    }
+  }
+}
+
+// Message Mixins
+@mixin message-base {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+  padding: $spacing-xl;
+  border-radius: $border-radius-md;
+  font-size: $font-size-sm;
+  line-height: 1.5;
+
+  i {
+    font-size: $font-size-lg;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+@mixin message-info {
+  @include message-base;
+  background: var(--info-50);
+  border: 1px solid var(--info-200);
+  color: var(--info-700);
+
+  i {
+    color: var(--info-500);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: var(--info-900);
+    border-color: var(--info-700);
+    color: var(--info-100);
+
+    i {
+      color: var(--info-300);
+    }
+  }
+}
+
+@mixin message-warning {
+  @include message-base;
+  background: var(--warning-50);
+  border: 1px solid var(--warning-200);
+  color: var(--warning-700);
+
+  i {
+    color: var(--warning-500);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: var(--warning-900);
+    border-color: var(--warning-700);
+    color: var(--warning-100);
+
+    i {
+      color: var(--warning-300);
+    }
+  }
+}
+
+@mixin message-error {
+  @include message-base;
+  background: var(--secondary-50);
+  border: 1px solid var(--secondary-200);
+  color: var(--secondary-700);
+
+  i {
+    color: var(--secondary-500);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: var(--secondary-900);
+    border-color: var(--secondary-700);
+    color: var(--secondary-100);
+
+    i {
+      color: var(--secondary-300);
+    }
+  }
+}
+
+@mixin message-success {
+  @include message-base;
+  background: var(--success-50);
+  border: 1px solid var(--success-200);
+  color: var(--success-700);
+
+  i {
+    color: var(--success-500);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: var(--success-900);
+    border-color: var(--success-700);
+    color: var(--success-100);
+
+    i {
+      color: var(--success-300);
+    }
+  }
+}
+
+// Grid Mixins
+@mixin form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: $spacing-2xl;
+  align-items: start;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+  }
+}
+
+@mixin responsive-grid($min-width: 250px) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
+  gap: $spacing-lg;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+  }
+}
+
+// Animation Mixins
+@mixin fade-in {
+  animation: fadeIn $transition-normal ease-in-out;
+}
+
+@mixin slide-up {
+  animation: slideUp $transition-normal ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Utility Mixins
+@mixin visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@mixin truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@mixin clearfix {
+  &::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+}
