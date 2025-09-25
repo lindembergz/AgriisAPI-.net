@@ -36,6 +36,30 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
             .HasColumnName("Endereco")
             .HasMaxLength(500);
 
+        builder.Property(f => f.Municipio)
+            .HasColumnName("Municipio")
+            .HasMaxLength(100);
+
+        builder.Property(f => f.Uf)
+            .HasColumnName("Uf")
+            .HasMaxLength(2);
+
+        builder.Property(f => f.Cep)
+            .HasColumnName("Cep")
+            .HasMaxLength(10);
+
+        builder.Property(f => f.Complemento)
+            .HasColumnName("Complemento")
+            .HasMaxLength(200);
+
+        builder.Property(f => f.Latitude)
+            .HasColumnName("Latitude")
+            .HasColumnType("decimal(10,8)");
+
+        builder.Property(f => f.Longitude)
+            .HasColumnName("Longitude")
+            .HasColumnType("decimal(11,8)");
+
         builder.Property(f => f.Telefone)
             .HasColumnName("Telefone")
             .HasMaxLength(20);

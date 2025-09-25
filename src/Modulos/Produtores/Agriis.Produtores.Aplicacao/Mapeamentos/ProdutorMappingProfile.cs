@@ -36,6 +36,10 @@ public class ProdutorMappingProfile : Profile
                 !string.IsNullOrEmpty(src.Cnpj) ? new Cnpj(src.Cnpj) : null,
                 src.InscricaoEstadual,
                 src.TipoAtividade,
+                src.Telefone1,
+                src.Telefone2,
+                src.Telefone3,
+                src.Email,
                 new AreaPlantio(src.AreaPlantio)))
             .ForMember(dest => dest.Culturas, opt => opt.MapFrom(src => src.Culturas));
 

@@ -31,7 +31,8 @@ public static class ExternalIntegrationsConfiguration
         {
             client.Timeout = TimeSpan.FromSeconds(30);
             client.DefaultRequestHeaders.Add("User-Agent", "Agriis-API/1.0");
-        });
+        })
+        .SetHandlerLifetime(TimeSpan.FromMinutes(10)); // Reduz a frequência de cleanup
         services.AddScoped<ICurrencyConverterService, CurrencyConverterService>();
 
         // Background Services

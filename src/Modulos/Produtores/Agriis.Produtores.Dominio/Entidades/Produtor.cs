@@ -36,6 +36,26 @@ public class Produtor : EntidadeRaizAgregada
     public string? TipoAtividade { get; private set; }
     
     /// <summary>
+    /// Telefone principal do produtor
+    /// </summary>
+    public string? Telefone1 { get; private set; }
+    
+    /// <summary>
+    /// Telefone secundário do produtor
+    /// </summary>
+    public string? Telefone2 { get; private set; }
+    
+    /// <summary>
+    /// Telefone terciário do produtor
+    /// </summary>
+    public string? Telefone3 { get; private set; }
+    
+    /// <summary>
+    /// Email do produtor
+    /// </summary>
+    public string? Email { get; private set; }
+    
+    /// <summary>
     /// Área total de plantio do produtor em hectares
     /// </summary>
     public AreaPlantio AreaPlantio { get; private set; } = new(0);
@@ -89,13 +109,21 @@ public class Produtor : EntidadeRaizAgregada
     /// <param name="cnpj">CNPJ do produtor (opcional)</param>
     /// <param name="inscricaoEstadual">Inscrição estadual</param>
     /// <param name="tipoAtividade">Tipo de atividade</param>
+    /// <param name="telefone1">Telefone principal</param>
+    /// <param name="telefone2">Telefone secundário</param>
+    /// <param name="telefone3">Telefone terciário</param>
+    /// <param name="email">Email</param>
     /// <param name="areaPlantio">Área de plantio</param>
     public Produtor(
         string nome, 
         Cpf? cpf = null, 
         Cnpj? cnpj = null, 
         string? inscricaoEstadual = null,
-        string? tipoAtividade = null, 
+        string? tipoAtividade = null,
+        string? telefone1 = null,
+        string? telefone2 = null,
+        string? telefone3 = null,
+        string? email = null,
         AreaPlantio? areaPlantio = null)
     {
         if (string.IsNullOrWhiteSpace(nome))
@@ -109,11 +137,47 @@ public class Produtor : EntidadeRaizAgregada
         Cnpj = cnpj;
         InscricaoEstadual = inscricaoEstadual?.Trim();
         TipoAtividade = tipoAtividade?.Trim();
+        Telefone1 = telefone1?.Trim();
+        Telefone2 = telefone2?.Trim();
+        Telefone3 = telefone3?.Trim();
+        Email = email?.Trim();
         AreaPlantio = areaPlantio ?? new AreaPlantio(0);
         Status = StatusProdutor.PendenteValidacaoAutomatica;
         DataAutorizacao = DateTime.UtcNow;
         Culturas = new List<int>();
         UsuariosProdutores = new List<UsuarioProdutor>();
+    }
+    
+    /// <summary>
+    /// Atualiza os dados básicos do produtor
+    /// </summary>
+    /// <param name="nome">Nome do produtor</param>
+    /// <param name="inscricaoEstadual">Inscrição estadual</param>
+    /// <param name="tipoAtividade">Tipo de atividade</param>
+    /// <param name="telefone1">Telefone principal</param>
+    /// <param name="telefone2">Telefone secundário</param>
+    /// <param name="telefone3">Telefone terciário</param>
+    /// <param name="email">Email</param>
+    public void AtualizarDados(
+        string nome,
+        string? inscricaoEstadual = null,
+        string? tipoAtividade = null,
+        string? telefone1 = null,
+        string? telefone2 = null,
+        string? telefone3 = null,
+        string? email = null)
+    {
+        if (string.IsNullOrWhiteSpace(nome))
+            throw new ArgumentException("Nome do produtor é obrigatório", nameof(nome));
+            
+        Nome = nome.Trim();
+        InscricaoEstadual = inscricaoEstadual?.Trim();
+        TipoAtividade = tipoAtividade?.Trim();
+        Telefone1 = telefone1?.Trim();
+        Telefone2 = telefone2?.Trim();
+        Telefone3 = telefone3?.Trim();
+        Email = email?.Trim();
+        AtualizarDataModificacao();
     }
     
     /// <summary>

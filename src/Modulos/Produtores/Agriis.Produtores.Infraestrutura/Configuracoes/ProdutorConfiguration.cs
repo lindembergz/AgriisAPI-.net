@@ -38,6 +38,22 @@ public class ProdutorConfiguration : IEntityTypeConfiguration<Produtor>
             .HasColumnName("TipoAtividade")
             .HasMaxLength(100);
 
+        builder.Property(p => p.Telefone1)
+            .HasColumnName("Telefone1")
+            .HasMaxLength(20);
+
+        builder.Property(p => p.Telefone2)
+            .HasColumnName("Telefone2")
+            .HasMaxLength(20);
+
+        builder.Property(p => p.Telefone3)
+            .HasColumnName("Telefone3")
+            .HasMaxLength(20);
+
+        builder.Property(p => p.Email)
+            .HasColumnName("Email")
+            .HasMaxLength(100);
+
         builder.Property(p => p.DataAutorizacao)
             .HasColumnName("DataAutorizacao")
             .IsRequired();

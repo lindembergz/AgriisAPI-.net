@@ -3,6 +3,7 @@ using Agriis.Compartilhado.Infraestrutura.Persistencia;
 using Agriis.Fornecedores.Dominio.Entidades;
 using Agriis.Fornecedores.Dominio.Interfaces;
 using Agriis.Compartilhado.Dominio.ObjetosValor;
+using Agriis.Compartilhado.Aplicacao.Resultados;
 
 namespace Agriis.Fornecedores.Infraestrutura.Repositorios;
 
@@ -14,6 +15,42 @@ public class FornecedorRepository : RepositoryBase<Fornecedor, DbContext>, IForn
     public FornecedorRepository(DbContext context) : base(context)
     {
     }
+
+
+    public async Task<PagedResult<Fornecedor>> ObterPaginadoAsync(
+    int pagina,
+    int tamanhoPagina,
+    string? filtro = null)
+    {
+        var query = Context.Set<Fornecedor>()
+            .Include(p => p.UsuariosFornecedores)
+            .ThenInclude(up => up.Usuario)
+            .AsQueryable();
+
+        // Aplicar filtros
+        if (!string.IsNullOrWhiteSpace(filtro))
+        {
+            var filtroLimpo = filtro.Trim().ToLower();
+            query = query.Where(p =>
+                p.Nome.ToLower().Contains(filtroLimpo));
+            // Nota: Filtros por CPF/CNPJ foram removidos para evitar problemas de tradução LINQ
+            // Estes filtros podem ser implementados em memória após a consulta se necessário
+        }
+
+
+        // Ordenação
+        query = query.OrderByDescending(p => p.DataCriacao);
+
+        // Paginação
+        var totalItems = await query.CountAsync();
+        var items = await query
+            .Skip((pagina - 1) * tamanhoPagina)
+            .Take(tamanhoPagina)
+            .ToListAsync();
+
+        return new PagedResult<Fornecedor>(items, pagina, tamanhoPagina, totalItems);
+    }
+
 
     public async Task<Fornecedor?> ObterPorCnpjAsync(string cnpj, CancellationToken cancellationToken = default)
     {

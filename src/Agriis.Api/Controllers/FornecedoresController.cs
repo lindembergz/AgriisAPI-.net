@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Agriis.Fornecedores.Aplicacao.DTOs;
 using Agriis.Fornecedores.Aplicacao.Interfaces;
+using Agriis.Produtores.Aplicacao.DTOs;
 
 namespace Agriis.Api.Controllers;
 
@@ -28,7 +29,7 @@ public class FornecedoresController : ControllerBase
     /// Obtém todos os fornecedores
     /// </summary>
     /// <returns>Lista de fornecedores</returns>
-    [HttpGet]
+    /*[HttpGet]
     public async Task<ActionResult<IEnumerable<FornecedorDto>>> ObterTodos()
     {
         try
@@ -39,6 +40,29 @@ public class FornecedoresController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao obter todos os fornecedores");
+            return StatusCode(500, new { error_code = "ERRO_INTERNO", error_description = "Erro interno do servidor" });
+        }
+    }*/
+
+    [HttpGet]
+    public async Task<ActionResult<object>> ObterPaginado([FromQuery] FiltrosFornecedorDto filtros)
+    {
+        try
+        {
+            var resultado = await _fornecedorService.ObterPaginadoAsync(filtros);
+
+            return Ok(new
+            {
+                items = resultado.Items,
+                total_items = resultado.TotalCount,
+                page = resultado.PageNumber,
+                page_size = resultado.PageSize,
+                total_pages = resultado.TotalPages
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter fornecedores paginados");
             return StatusCode(500, new { error_code = "ERRO_INTERNO", error_description = "Erro interno do servidor" });
         }
     }
@@ -156,6 +180,34 @@ public class FornecedoresController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao obter fornecedores com filtros");
+            return StatusCode(500, new { error_code = "ERRO_INTERNO", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Cria um novo fornecedor com estrutura completa (frontend)
+    /// </summary>
+    /// <param name="request">Dados completos do fornecedor</param>
+    /// <returns>Fornecedor criado</returns>
+    [HttpPost("completo")]
+    public async Task<ActionResult<FornecedorDto>> CriarCompleto([FromBody] CriarFornecedorCompletoRequest request)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var fornecedor = await _fornecedorService.CriarCompletoAsync(request);
+            return CreatedAtAction(nameof(ObterPorId), new { id = fornecedor.Id }, fornecedor);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Erro de validação ao criar fornecedor completo");
+            return BadRequest(new { error_code = "VALIDACAO_ERRO", error_description = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao criar fornecedor completo");
             return StatusCode(500, new { error_code = "ERRO_INTERNO", error_description = "Erro interno do servidor" });
         }
     }

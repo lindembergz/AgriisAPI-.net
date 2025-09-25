@@ -1,112 +1,85 @@
 using Microsoft.EntityFrameworkCore;
-using Agriis.Compartilhado.Infraestrutura.Persistencia;
 using Agriis.Produtores.Dominio.Entidades;
 using Agriis.Produtores.Dominio.Interfaces;
 
 namespace Agriis.Produtores.Infraestrutura.Repositorios;
 
 /// <summary>
-/// Implementação do repositório de relacionamentos usuário-produtor
+/// Implementação do repositório de relacionamento usuário-produtor
 /// </summary>
-public class UsuarioProdutorRepository : RepositoryBase<UsuarioProdutor, DbContext>, IUsuarioProdutorRepository
+public class UsuarioProdutorRepository : IUsuarioProdutorRepository
 {
-    public UsuarioProdutorRepository(DbContext context) : base(context)
+    private readonly DbContext _context;
+
+    public UsuarioProdutorRepository(DbContext context)
     {
+        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    /// <inheritdoc />
-    public async Task<IEnumerable<UsuarioProdutor>> ObterPorUsuarioAsync(int usuarioId, bool apenasAtivos = true)
+    public async Task<UsuarioProdutor> AdicionarAsync(UsuarioProdutor usuarioProdutor, CancellationToken cancellationToken = default)
     {
-        var query = Context.Set<UsuarioProdutor>()
-            .Include(up => up.Usuario)
-            .Include(up => up.Produtor)
-            .Where(up => up.UsuarioId == usuarioId);
+        if (usuarioProdutor == null)
+            throw new ArgumentNullException(nameof(usuarioProdutor));
 
-        if (apenasAtivos)
-        {
-            query = query.Where(up => up.Ativo);
-        }
-
-        return await query
-            .OrderByDescending(up => up.EhProprietario)
-            .ThenBy(up => up.Produtor.Nome)
-            .ToListAsync();
+        _context.Set<UsuarioProdutor>().Add(usuarioProdutor);
+        await _context.SaveChangesAsync(cancellationToken);
+        return usuarioProdutor;
     }
 
-    /// <inheritdoc />
-    public async Task<IEnumerable<UsuarioProdutor>> ObterPorProdutorAsync(int produtorId, bool apenasAtivos = true)
+    public async Task<UsuarioProdutor?> ObterPorIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var query = Context.Set<UsuarioProdutor>()
-            .Include(up => up.Usuario)
-            .Include(up => up.Produtor)
-            .Where(up => up.ProdutorId == produtorId);
-
-        if (apenasAtivos)
-        {
-            query = query.Where(up => up.Ativo);
-        }
-
-        return await query
-            .OrderByDescending(up => up.EhProprietario)
-            .ThenBy(up => up.Usuario.Nome)
-            .ToListAsync();
-    }
-
-    /// <inheritdoc />
-    public async Task<UsuarioProdutor?> ObterPorUsuarioEProdutorAsync(int usuarioId, int produtorId)
-    {
-        return await Context.Set<UsuarioProdutor>()
-            .Include(up => up.Usuario)
-            .Include(up => up.Produtor)
-            .FirstOrDefaultAsync(up => up.UsuarioId == usuarioId && up.ProdutorId == produtorId);
-    }
-
-    /// <inheritdoc />
-    public async Task<UsuarioProdutor?> ObterProprietarioPrincipalAsync(int produtorId)
-    {
-        return await Context.Set<UsuarioProdutor>()
-            .Include(up => up.Usuario)
-            .Include(up => up.Produtor)
-            .FirstOrDefaultAsync(up => up.ProdutorId == produtorId && up.EhProprietario && up.Ativo);
-    }
-
-    /// <inheritdoc />
-    public async Task<bool> UsuarioTemAcessoAoProdutorAsync(int usuarioId, int produtorId)
-    {
-        return await Context.Set<UsuarioProdutor>()
-            .AnyAsync(up => up.UsuarioId == usuarioId && up.ProdutorId == produtorId && up.Ativo);
-    }
-
-    /// <inheritdoc />
-    public async Task<IEnumerable<Produtor>> ObterProdutoresDoUsuarioAsync(int usuarioId)
-    {
-        return await Context.Set<UsuarioProdutor>()
-            .Include(up => up.Produtor)
-            .ThenInclude(p => p.UsuariosProdutores)
-            .ThenInclude(up => up.Usuario)
-            .Where(up => up.UsuarioId == usuarioId && up.Ativo)
-            .Select(up => up.Produtor)
-            .OrderBy(p => p.Nome)
-            .ToListAsync();
-    }
-
-    /// <inheritdoc />
-    public override async Task<UsuarioProdutor?> ObterPorIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        return await Context.Set<UsuarioProdutor>()
+        return await _context.Set<UsuarioProdutor>()
             .Include(up => up.Usuario)
             .Include(up => up.Produtor)
             .FirstOrDefaultAsync(up => up.Id == id, cancellationToken);
     }
 
-    /// <inheritdoc />
-    public override async Task<IEnumerable<UsuarioProdutor>> ObterTodosAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<UsuarioProdutor>> ObterPorUsuarioAsync(int usuarioId, CancellationToken cancellationToken = default)
     {
-        return await Context.Set<UsuarioProdutor>()
+        return await _context.Set<UsuarioProdutor>()
+            .Include(up => up.Produtor)
+            .Where(up => up.UsuarioId == usuarioId)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<UsuarioProdutor>> ObterPorProdutorAsync(int produtorId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<UsuarioProdutor>()
+            .Include(up => up.Usuario)
+            .Where(up => up.ProdutorId == produtorId)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<UsuarioProdutor?> ObterPorUsuarioEProdutorAsync(int usuarioId, int produtorId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<UsuarioProdutor>()
             .Include(up => up.Usuario)
             .Include(up => up.Produtor)
-            .OrderBy(up => up.Usuario.Nome)
-            .ThenBy(up => up.Produtor.Nome)
-            .ToListAsync(cancellationToken);
+            .FirstOrDefaultAsync(up => up.UsuarioId == usuarioId && up.ProdutorId == produtorId, cancellationToken);
+    }
+
+    public async Task AtualizarAsync(UsuarioProdutor usuarioProdutor, CancellationToken cancellationToken = default)
+    {
+        if (usuarioProdutor == null)
+            throw new ArgumentNullException(nameof(usuarioProdutor));
+
+        _context.Set<UsuarioProdutor>().Update(usuarioProdutor);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task RemoverAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var usuarioProdutor = await _context.Set<UsuarioProdutor>().FindAsync(new object[] { id }, cancellationToken);
+        if (usuarioProdutor != null)
+        {
+            _context.Set<UsuarioProdutor>().Remove(usuarioProdutor);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    public async Task<bool> ExisteRelacionamentoAsync(int usuarioId, int produtorId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<UsuarioProdutor>()
+            .AnyAsync(up => up.UsuarioId == usuarioId && up.ProdutorId == produtorId, cancellationToken);
     }
 }

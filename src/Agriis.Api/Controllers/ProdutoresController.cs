@@ -149,6 +149,30 @@ public class ProdutoresController : ControllerBase
     }
 
     /// <summary>
+    /// Cria um novo produtor com estrutura completa (usuário master e relacionamentos)
+    /// </summary>
+    /// <param name="request">Dados completos do produtor</param>
+    /// <returns>Produtor criado</returns>
+    [HttpPost("completo")]
+    public async Task<ActionResult<ProdutorDto>> CriarCompleto([FromBody] CriarProdutorCompletoRequest request)
+    {
+        try
+        {
+            var resultado = await _produtorService.CriarCompletoAsync(request);
+            
+            if (!resultado.IsSuccess)
+                return BadRequest(new { error_code = "ERRO_VALIDACAO", error_description = resultado.Error });
+
+            return CreatedAtAction(nameof(ObterPorId), new { id = resultado.Value!.Id }, resultado.Value);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao criar produtor completo");
+            return StatusCode(500, new { error_code = "ERRO_INTERNO", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
     /// Atualiza um produtor existente
     /// </summary>
     /// <param name="id">ID do produtor</param>

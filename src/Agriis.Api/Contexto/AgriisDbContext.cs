@@ -129,9 +129,6 @@ public class AgriisDbContext : DbContext
                 maxRetryCount: 3,
                 maxRetryDelay: TimeSpan.FromSeconds(30),
                 errorCodesToAdd: null);
-            
-            // Habilitar extensão PostGIS para suporte geográfico
-            options.UseNetTopologySuite();
         });
 
         // Configurações de desenvolvimento

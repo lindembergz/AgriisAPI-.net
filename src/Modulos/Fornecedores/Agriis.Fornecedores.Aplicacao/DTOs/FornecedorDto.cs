@@ -97,3 +97,11 @@ public class FornecedorDto
     /// </summary>
     public List<UsuarioFornecedorDto> Usuarios { get; set; } = new();
 }
+
+
+public class FiltrosFornecedorDto
+{
+    public string? Filtro { get; set; }
+    public int Pagina { get; set; } = 1;
+    public int TamanhoPagina { get; set; } = 20;
+}

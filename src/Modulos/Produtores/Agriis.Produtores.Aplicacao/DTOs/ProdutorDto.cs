@@ -15,6 +15,10 @@ public class ProdutorDto
     public string? CnpjFormatado { get; set; }
     public string? InscricaoEstadual { get; set; }
     public string? TipoAtividade { get; set; }
+    public string? Telefone1 { get; set; }
+    public string? Telefone2 { get; set; }
+    public string? Telefone3 { get; set; }
+    public string? Email { get; set; }
     public decimal AreaPlantio { get; set; }
     public string AreaPlantioFormatada { get; set; } = string.Empty;
     public DateTime DataAutorizacao { get; set; }
@@ -42,6 +46,10 @@ public class CriarProdutorDto
     public string? Cnpj { get; set; }
     public string? InscricaoEstadual { get; set; }
     public string? TipoAtividade { get; set; }
+    public string? Telefone1 { get; set; }
+    public string? Telefone2 { get; set; }
+    public string? Telefone3 { get; set; }
+    public string? Email { get; set; }
     public decimal AreaPlantio { get; set; }
     public List<int> Culturas { get; set; } = new();
 }
@@ -54,6 +62,10 @@ public class AtualizarProdutorDto
     public string Nome { get; set; } = string.Empty;
     public string? InscricaoEstadual { get; set; }
     public string? TipoAtividade { get; set; }
+    public string? Telefone1 { get; set; }
+    public string? Telefone2 { get; set; }
+    public string? Telefone3 { get; set; }
+    public string? Email { get; set; }
     public decimal AreaPlantio { get; set; }
     public List<int> Culturas { get; set; } = new();
 }

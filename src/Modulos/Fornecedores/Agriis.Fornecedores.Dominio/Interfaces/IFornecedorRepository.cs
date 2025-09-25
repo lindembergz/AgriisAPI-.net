@@ -1,4 +1,5 @@
 using Agriis.Compartilhado.Dominio.Interfaces;
+using Agriis.Compartilhado.Aplicacao.Resultados;
 using Agriis.Fornecedores.Dominio.Entidades;
 
 namespace Agriis.Fornecedores.Dominio.Interfaces;
@@ -14,6 +15,12 @@ public interface IFornecedorRepository : IRepository<Fornecedor>
     /// <param name="cnpj">CNPJ do fornecedor</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Fornecedor encontrado ou null</returns>
+    /// 
+
+    Task<PagedResult<Fornecedor>> ObterPaginadoAsync(
+        int pagina,
+        int tamanhoPagina,
+        string? filtro = null);
     Task<Fornecedor?> ObterPorCnpjAsync(string cnpj, CancellationToken cancellationToken = default);
     
     /// <summary>

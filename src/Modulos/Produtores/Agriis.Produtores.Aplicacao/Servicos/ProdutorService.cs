@@ -1,12 +1,15 @@
 using AutoMapper;
 using Agriis.Compartilhado.Aplicacao.Resultados;
 using Agriis.Compartilhado.Dominio.ObjetosValor;
+using Agriis.Compartilhado.Dominio.Enums;
 using Agriis.Produtores.Aplicacao.DTOs;
 using Agriis.Produtores.Aplicacao.Interfaces;
 using Agriis.Produtores.Dominio.Entidades;
 using Agriis.Produtores.Dominio.Enums;
 using Agriis.Produtores.Dominio.Interfaces;
 using Agriis.Produtores.Dominio.Servicos;
+using Agriis.Usuarios.Aplicacao.Interfaces;
+using Agriis.Usuarios.Aplicacao.DTOs;
 
 namespace Agriis.Produtores.Aplicacao.Servicos;
 
@@ -18,15 +21,21 @@ public class ProdutorService : IProdutorService
     private readonly IProdutorRepository _produtorRepository;
     private readonly IMapper _mapper;
     private readonly ProdutorDomainService _domainService;
+    private readonly IUsuarioService _usuarioService;
+    private readonly IUsuarioProdutorRepository _usuarioProdutorRepository;
 
     public ProdutorService(
         IProdutorRepository produtorRepository,
         IMapper mapper,
-        ProdutorDomainService domainService)
+        ProdutorDomainService domainService,
+        IUsuarioService usuarioService,
+        IUsuarioProdutorRepository usuarioProdutorRepository)
     {
         _produtorRepository = produtorRepository ?? throw new ArgumentNullException(nameof(produtorRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _domainService = domainService ?? throw new ArgumentNullException(nameof(domainService));
+        _usuarioService = usuarioService ?? throw new ArgumentNullException(nameof(usuarioService));
+        _usuarioProdutorRepository = usuarioProdutorRepository ?? throw new ArgumentNullException(nameof(usuarioProdutorRepository));
     }
 
     /// <inheritdoc />
@@ -109,6 +118,10 @@ public class ProdutorService : IProdutorService
                 !string.IsNullOrWhiteSpace(dto.Cnpj) ? new Cnpj(dto.Cnpj) : null,
                 dto.InscricaoEstadual,
                 dto.TipoAtividade,
+                dto.Telefone1,
+                dto.Telefone2,
+                dto.Telefone3,
+                dto.Email,
                 new AreaPlantio(dto.AreaPlantio));
 
             // Adiciona culturas
@@ -136,6 +149,90 @@ public class ProdutorService : IProdutorService
         }
     }
 
+    public async Task<Result<ProdutorDto>> CriarCompletoAsync(CriarProdutorCompletoRequest request, CancellationToken cancellationToken = default)
+    {
+        if (request == null)
+            throw new ArgumentNullException(nameof(request));
+
+        try
+        {
+            // 1. Validar documento
+            Cpf? cpf = null;
+            Cnpj? cnpj = null;
+            
+            if (request.TipoCliente.ToUpper() == "PF")
+            {
+                cpf = new Cpf(request.CpfCnpj);
+                var existeCpf = await _produtorRepository.ExistePorCpfAsync(cpf.Valor);
+                if (existeCpf)
+                    return Result<ProdutorDto>.Failure("Já existe um produtor cadastrado com este CPF");
+            }
+            else
+            {
+                cnpj = new Cnpj(request.CpfCnpj);
+                var existeCnpj = await _produtorRepository.ExistePorCnpjAsync(cnpj.Valor);
+                if (existeCnpj)
+                    return Result<ProdutorDto>.Failure("Já existe um produtor cadastrado com este CNPJ");
+            }
+
+            // 2. Criar produtor
+            var produtor = new Produtor(
+                request.Nome,
+                cpf,
+                cnpj,
+                request.InscricaoEstadual,
+                request.TipoAtividade,
+                request.Telefone1,
+                request.Telefone2,
+                request.Telefone3,
+                request.Email,
+                new AreaPlantio(request.AreaPlantio));
+
+            // Adicionar culturas
+            foreach (var culturaId in request.Culturas)
+            {
+                produtor.AdicionarCultura(culturaId);
+            }
+
+            var produtorCriado = await _produtorRepository.AdicionarAsync(produtor);
+
+            // 3. Criar usuário master
+            var criarUsuarioDto = new CriarUsuarioDto
+            {
+                Nome = request.UsuarioMaster.Nome,
+                Email = request.UsuarioMaster.Email,
+                Celular = request.UsuarioMaster.Telefone,
+                Cpf = request.UsuarioMaster.Cpf,
+                Senha = request.UsuarioMaster.Senha,
+                Roles = new List<Roles> { Roles.RoleComprador }
+            };
+            
+            var usuarioCriado = await _usuarioService.CriarAsync(criarUsuarioDto, cancellationToken);
+
+            // 4. Criar relacionamento UsuarioProdutor
+            var usuarioProdutor = new UsuarioProdutor(
+                usuarioCriado.Id,
+                produtorCriado.Id,
+                true); // É proprietário principal
+            
+            await _usuarioProdutorRepository.AdicionarAsync(usuarioProdutor, cancellationToken);
+
+            // 5. Tentar validação automática
+            await _domainService.ValidarAutomaticamenteAsync(produtorCriado);
+
+            var produtorDto = _mapper.Map<ProdutorDto>(produtorCriado);
+            return Result<ProdutorDto>.Success(produtorDto);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result<ProdutorDto>.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return Result<ProdutorDto>.Failure($"Erro interno: {ex.Message}");
+        }
+    }
+
     /// <inheritdoc />
     public async Task<Result<ProdutorDto>> AtualizarAsync(int id, AtualizarProdutorDto dto)
     {
@@ -148,25 +245,15 @@ public class ProdutorService : IProdutorService
             if (!_domainService.PodeSerEditado(produtor))
                 return Result<ProdutorDto>.Failure("Este produtor não pode ser editado");
 
-            // Atualiza os dados
-            if (!string.IsNullOrWhiteSpace(dto.Nome))
-            {
-                // Usar reflection para atualizar o nome (já que é private set)
-                var nomeProperty = typeof(Produtor).GetProperty("Nome");
-                nomeProperty?.SetValue(produtor, dto.Nome.Trim());
-            }
-
-            if (!string.IsNullOrWhiteSpace(dto.InscricaoEstadual))
-            {
-                var inscricaoProperty = typeof(Produtor).GetProperty("InscricaoEstadual");
-                inscricaoProperty?.SetValue(produtor, dto.InscricaoEstadual.Trim());
-            }
-
-            if (!string.IsNullOrWhiteSpace(dto.TipoAtividade))
-            {
-                var tipoAtividadeProperty = typeof(Produtor).GetProperty("TipoAtividade");
-                tipoAtividadeProperty?.SetValue(produtor, dto.TipoAtividade.Trim());
-            }
+            // Atualiza os dados básicos
+            produtor.AtualizarDados(
+                dto.Nome,
+                dto.InscricaoEstadual,
+                dto.TipoAtividade,
+                dto.Telefone1,
+                dto.Telefone2,
+                dto.Telefone3,
+                dto.Email);
 
             // Atualiza área de plantio
             produtor.AtualizarAreaPlantio(new AreaPlantio(dto.AreaPlantio));
@@ -238,7 +325,7 @@ public class ProdutorService : IProdutorService
             if (produtor == null)
                 return Result<ProdutorDto>.Failure("Produtor não encontrado");
 
-            produtor.AtualizarStatus(StatusProdutor.AutorizadoManualmente, usuarioAutorizacaoId);
+            produtor.AtualizarStatus(Agriis.Produtores.Dominio.Enums.StatusProdutor.AutorizadoManualmente, usuarioAutorizacaoId);
             await _produtorRepository.AtualizarAsync(produtor);
 
             var produtorDto = _mapper.Map<ProdutorDto>(produtor);
@@ -259,7 +346,7 @@ public class ProdutorService : IProdutorService
             if (produtor == null)
                 return Result<ProdutorDto>.Failure("Produtor não encontrado");
 
-            produtor.AtualizarStatus(StatusProdutor.Negado, usuarioAutorizacaoId);
+            produtor.AtualizarStatus(Agriis.Produtores.Dominio.Enums.StatusProdutor.Negado, usuarioAutorizacaoId);
             await _produtorRepository.AtualizarAsync(produtor);
 
             var produtorDto = _mapper.Map<ProdutorDto>(produtor);

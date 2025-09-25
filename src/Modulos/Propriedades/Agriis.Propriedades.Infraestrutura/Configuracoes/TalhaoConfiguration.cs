@@ -34,13 +34,9 @@ public class TalhaoConfiguration : IEntityTypeConfiguration<Talhao>
             .HasColumnName("Descricao")
             .HasMaxLength(500);
 
-        builder.Property(t => t.Localizacao)
-            .HasColumnName("Localizacao")
-            .HasColumnType("geography(POINT, 4326)");
-
-        builder.Property(t => t.Geometria)
-            .HasColumnName("Geometria")
-            .HasColumnType("geography(POLYGON, 4326)");
+        // Ignorar propriedades geográficas até implementar suporte adequado
+        builder.Ignore(t => t.Localizacao);
+        builder.Ignore(t => t.Geometria);
 
         builder.Property(t => t.PropriedadeId)
             .HasColumnName("PropriedadeId")
@@ -68,14 +64,6 @@ public class TalhaoConfiguration : IEntityTypeConfiguration<Talhao>
         builder.HasIndex(t => t.Nome)
             .HasDatabaseName("IX_Talhao_Nome");
 
-        // Índice espacial para localização
-        builder.HasIndex(t => t.Localizacao)
-            .HasDatabaseName("IX_Talhao_Localizacao")
-            .HasMethod("gist");
-
-        // Índice espacial para geometria
-        builder.HasIndex(t => t.Geometria)
-            .HasDatabaseName("IX_Talhao_Geometria")
-            .HasMethod("gist");
+        // Índices espaciais removidos - propriedades geográficas ignoradas
     }
 }

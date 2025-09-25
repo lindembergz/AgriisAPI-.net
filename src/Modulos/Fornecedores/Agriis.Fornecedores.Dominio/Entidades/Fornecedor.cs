@@ -26,9 +26,39 @@ public class Fornecedor : EntidadeRaizAgregada
     public string? InscricaoEstadual { get; private set; }
     
     /// <summary>
-    /// Endereço completo do fornecedor
+    /// Logradouro do fornecedor
     /// </summary>
     public string? Endereco { get; private set; }
+    
+    /// <summary>
+    /// Município do fornecedor
+    /// </summary>
+    public string? Municipio { get; private set; }
+    
+    /// <summary>
+    /// UF (Estado) do fornecedor
+    /// </summary>
+    public string? Uf { get; private set; }
+    
+    /// <summary>
+    /// CEP do fornecedor
+    /// </summary>
+    public string? Cep { get; private set; }
+    
+    /// <summary>
+    /// Complemento do endereço
+    /// </summary>
+    public string? Complemento { get; private set; }
+    
+    /// <summary>
+    /// Latitude da localização
+    /// </summary>
+    public decimal? Latitude { get; private set; }
+    
+    /// <summary>
+    /// Longitude da localização
+    /// </summary>
+    public decimal? Longitude { get; private set; }
     
     /// <summary>
     /// Telefone de contato do fornecedor
@@ -88,6 +118,12 @@ public class Fornecedor : EntidadeRaizAgregada
     /// <param name="cnpj">CNPJ do fornecedor</param>
     /// <param name="inscricaoEstadual">Inscrição estadual</param>
     /// <param name="endereco">Endereço</param>
+    /// <param name="municipio">Município</param>
+    /// <param name="uf">UF</param>
+    /// <param name="cep">CEP</param>
+    /// <param name="complemento">Complemento</param>
+    /// <param name="latitude">Latitude</param>
+    /// <param name="longitude">Longitude</param>
     /// <param name="telefone">Telefone</param>
     /// <param name="email">Email</param>
     /// <param name="moedaPadrao">Moeda padrão</param>
@@ -96,6 +132,12 @@ public class Fornecedor : EntidadeRaizAgregada
         Cnpj cnpj,
         string? inscricaoEstadual = null,
         string? endereco = null,
+        string? municipio = null,
+        string? uf = null,
+        string? cep = null,
+        string? complemento = null,
+        decimal? latitude = null,
+        decimal? longitude = null,
         string? telefone = null,
         string? email = null,
         Moeda moedaPadrao = Moeda.Real)
@@ -107,6 +149,12 @@ public class Fornecedor : EntidadeRaizAgregada
         Cnpj = cnpj ?? throw new ArgumentNullException(nameof(cnpj));
         InscricaoEstadual = inscricaoEstadual?.Trim();
         Endereco = endereco?.Trim();
+        Municipio = municipio?.Trim();
+        Uf = uf?.Trim();
+        Cep = cep?.Trim();
+        Complemento = complemento?.Trim();
+        Latitude = latitude;
+        Longitude = longitude;
         Telefone = telefone?.Trim();
         Email = email?.Trim();
         MoedaPadrao = moedaPadrao;
@@ -120,12 +168,24 @@ public class Fornecedor : EntidadeRaizAgregada
     /// <param name="nome">Nome/Razão social</param>
     /// <param name="inscricaoEstadual">Inscrição estadual</param>
     /// <param name="endereco">Endereço</param>
+    /// <param name="municipio">Município</param>
+    /// <param name="uf">UF</param>
+    /// <param name="cep">CEP</param>
+    /// <param name="complemento">Complemento</param>
+    /// <param name="latitude">Latitude</param>
+    /// <param name="longitude">Longitude</param>
     /// <param name="telefone">Telefone</param>
     /// <param name="email">Email</param>
     public void AtualizarDados(
         string nome,
         string? inscricaoEstadual = null,
         string? endereco = null,
+        string? municipio = null,
+        string? uf = null,
+        string? cep = null,
+        string? complemento = null,
+        decimal? latitude = null,
+        decimal? longitude = null,
         string? telefone = null,
         string? email = null)
     {
@@ -135,6 +195,12 @@ public class Fornecedor : EntidadeRaizAgregada
         Nome = nome.Trim();
         InscricaoEstadual = inscricaoEstadual?.Trim();
         Endereco = endereco?.Trim();
+        Municipio = municipio?.Trim();
+        Uf = uf?.Trim();
+        Cep = cep?.Trim();
+        Complemento = complemento?.Trim();
+        Latitude = latitude;
+        Longitude = longitude;
         Telefone = telefone?.Trim();
         Email = email?.Trim();
         AtualizarDataModificacao();

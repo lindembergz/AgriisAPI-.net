@@ -32,12 +32,14 @@ public static class ProdutoresDependencyInjection
         // Serviços de infraestrutura
         services.AddScoped<ISerproService, SerproService>();
         
-        // HttpClient para SERPRO
+        //HttpClient para SERPRO
         services.AddHttpClient<ISerproService, SerproService>(client =>
         {
             client.BaseAddress = new Uri("https://gateway.apiserpro.serpro.gov.br/");
             client.Timeout = TimeSpan.FromSeconds(30);
-        });
+        })
+        .SetHandlerLifetime(TimeSpan.FromMinutes(10)); // Reduz a frequência de cleanup
+       
         
         return services;
     }

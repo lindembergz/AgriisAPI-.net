@@ -1,56 +1,75 @@
-using Agriis.Compartilhado.Dominio.Interfaces;
 using Agriis.Produtores.Dominio.Entidades;
 
 namespace Agriis.Produtores.Dominio.Interfaces;
 
 /// <summary>
-/// Interface do repositório de relacionamentos usuário-produtor
+/// Interface para repositório de relacionamento usuário-produtor
 /// </summary>
-public interface IUsuarioProdutorRepository : IRepository<UsuarioProdutor>
+public interface IUsuarioProdutorRepository
 {
+    /// <summary>
+    /// Adiciona um novo relacionamento usuário-produtor
+    /// </summary>
+    /// <param name="usuarioProdutor">Relacionamento a ser adicionado</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Relacionamento adicionado</returns>
+    Task<UsuarioProdutor> AdicionarAsync(UsuarioProdutor usuarioProdutor, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Obtém um relacionamento por ID
+    /// </summary>
+    /// <param name="id">ID do relacionamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Relacionamento encontrado ou null</returns>
+    Task<UsuarioProdutor?> ObterPorIdAsync(int id, CancellationToken cancellationToken = default);
+    
     /// <summary>
     /// Obtém relacionamentos por usuário
     /// </summary>
     /// <param name="usuarioId">ID do usuário</param>
-    /// <param name="apenasAtivos">Se deve retornar apenas relacionamentos ativos</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de relacionamentos</returns>
-    Task<IEnumerable<UsuarioProdutor>> ObterPorUsuarioAsync(int usuarioId, bool apenasAtivos = true);
+    Task<IEnumerable<UsuarioProdutor>> ObterPorUsuarioAsync(int usuarioId, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Obtém relacionamentos por produtor
     /// </summary>
     /// <param name="produtorId">ID do produtor</param>
-    /// <param name="apenasAtivos">Se deve retornar apenas relacionamentos ativos</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de relacionamentos</returns>
-    Task<IEnumerable<UsuarioProdutor>> ObterPorProdutorAsync(int produtorId, bool apenasAtivos = true);
+    Task<IEnumerable<UsuarioProdutor>> ObterPorProdutorAsync(int produtorId, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Obtém um relacionamento específico
+    /// Obtém relacionamento específico entre usuário e produtor
     /// </summary>
     /// <param name="usuarioId">ID do usuário</param>
     /// <param name="produtorId">ID do produtor</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Relacionamento encontrado ou null</returns>
-    Task<UsuarioProdutor?> ObterPorUsuarioEProdutorAsync(int usuarioId, int produtorId);
+    Task<UsuarioProdutor?> ObterPorUsuarioEProdutorAsync(int usuarioId, int produtorId, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Obtém o proprietário principal de um produtor
+    /// Atualiza um relacionamento
     /// </summary>
-    /// <param name="produtorId">ID do produtor</param>
-    /// <returns>Relacionamento do proprietário ou null</returns>
-    Task<UsuarioProdutor?> ObterProprietarioPrincipalAsync(int produtorId);
+    /// <param name="usuarioProdutor">Relacionamento a ser atualizado</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Task</returns>
+    Task AtualizarAsync(UsuarioProdutor usuarioProdutor, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Verifica se um usuário tem acesso a um produtor
+    /// Remove um relacionamento
+    /// </summary>
+    /// <param name="id">ID do relacionamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Task</returns>
+    Task RemoverAsync(int id, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Verifica se existe relacionamento entre usuário e produtor
     /// </summary>
     /// <param name="usuarioId">ID do usuário</param>
     /// <param name="produtorId">ID do produtor</param>
-    /// <returns>True se tem acesso</returns>
-    Task<bool> UsuarioTemAcessoAoProdutorAsync(int usuarioId, int produtorId);
-    
-    /// <summary>
-    /// Obtém todos os produtores que um usuário tem acesso
-    /// </summary>
-    /// <param name="usuarioId">ID do usuário</param>
-    /// <returns>Lista de produtores</returns>
-    Task<IEnumerable<Produtor>> ObterProdutoresDoUsuarioAsync(int usuarioId);
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>True se existe</returns>
+    Task<bool> ExisteRelacionamentoAsync(int usuarioId, int produtorId, CancellationToken cancellationToken = default);
 }

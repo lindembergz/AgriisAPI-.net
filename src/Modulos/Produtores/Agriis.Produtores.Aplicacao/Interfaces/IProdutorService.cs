@@ -44,6 +44,14 @@ public interface IProdutorService
     Task<Result<ProdutorDto>> CriarAsync(CriarProdutorDto dto);
     
     /// <summary>
+    /// Cria um novo produtor com estrutura completa (usuário master e relacionamentos)
+    /// </summary>
+    /// <param name="request">Dados completos do produtor</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Produtor criado</returns>
+    Task<Result<ProdutorDto>> CriarCompletoAsync(CriarProdutorCompletoRequest request, CancellationToken cancellationToken = default);
+    
+    /// <summary>
     /// Atualiza um produtor existente
     /// </summary>
     /// <param name="id">ID do produtor</param>

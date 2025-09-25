@@ -1,3 +1,4 @@
+using Agriis.Compartilhado.Aplicacao.Resultados;
 using Agriis.Fornecedores.Aplicacao.DTOs;
 
 namespace Agriis.Fornecedores.Aplicacao.Interfaces;
@@ -12,6 +13,9 @@ public interface IFornecedorService
     /// </summary>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de fornecedores</returns>
+    /// 
+    Task<PagedResult<FornecedorDto>> ObterPaginadoAsync(FiltrosFornecedorDto filtros);
+
     Task<IEnumerable<FornecedorDto>> ObterTodosAsync(CancellationToken cancellationToken = default);
     
     /// <summary>
@@ -71,6 +75,14 @@ public interface IFornecedorService
     Task<FornecedorDto> CriarAsync(CriarFornecedorRequest request, CancellationToken cancellationToken = default);
     
     /// <summary>
+    /// Cria um novo fornecedor com estrutura completa (endereços, usuário master, pontos de distribuição)
+    /// </summary>
+    /// <param name="request">Dados completos do fornecedor</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Fornecedor criado</returns>
+    Task<FornecedorDto> CriarCompletoAsync(CriarFornecedorCompletoRequest request, CancellationToken cancellationToken = default);
+    
+    /// <summary>
     /// Atualiza um fornecedor existente
     /// </summary>
     /// <param name="id">ID do fornecedor</param>
@@ -78,6 +90,15 @@ public interface IFornecedorService
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Fornecedor atualizado</returns>
     Task<FornecedorDto> AtualizarAsync(int id, AtualizarFornecedorRequest request, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Atualiza um fornecedor existente com estrutura completa (endereços, usuário master, pontos de distribuição)
+    /// </summary>
+    /// <param name="id">ID do fornecedor</param>
+    /// <param name="request">Novos dados completos do fornecedor</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Fornecedor atualizado</returns>
+    Task<FornecedorDto> AtualizarCompletoAsync(int id, AtualizarFornecedorCompletoRequest request, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Ativa um fornecedor
