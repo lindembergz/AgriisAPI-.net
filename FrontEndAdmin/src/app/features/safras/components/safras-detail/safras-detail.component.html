@@ -1,0 +1,140 @@
+<div class="safras-detail-container">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading()" class="loading-container">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Carregando safra...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading()" class="content">
+    <!-- Header -->
+    <div class="page-header">
+      <h1>{{ pageTitle }}</h1>
+      <p class="page-subtitle">
+        {{ isEditMode() ? 'Edite as informações da safra' : 'Preencha as informações para criar uma nova safra' }}
+      </p>
+    </div>
+
+    <!-- Form Card -->
+    <p-card>
+      <form [formGroup]="safraForm" (ngSubmit)="onSave()" class="safra-form">
+        <!-- Data Início Plantio Field -->
+        <div class="form-field">
+          <label for="plantioInicial" class="field-label required">Data Início Plantio</label>
+          <p-datepicker
+            id="plantioInicial"
+            formControlName="plantioInicial"
+            [showIcon]="true"
+            [minDate]="minDate"
+            [maxDate]="maxDate"
+            dateFormat="dd/mm/yy"
+            placeholder="Selecione a data de início do plantio"
+            [class.field-error]="hasFieldError('plantioInicial')"
+            [class.field-success]="isFieldValid('plantioInicial')"
+            class="w-full"
+          ></p-datepicker>
+          <small 
+            *ngIf="hasFieldError('plantioInicial')" 
+            class="error-message"
+          >
+            {{ getFieldErrorMessage('plantioInicial') }}
+          </small>
+          <small class="field-help">Data não pode ser anterior a 1900</small>
+        </div>
+
+        <!-- Data Fim Plantio Field -->
+        <div class="form-field">
+          <label for="plantioFinal" class="field-label required">Data Fim Plantio</label>
+          <p-datepicker
+            id="plantioFinal"
+            formControlName="plantioFinal"
+            [showIcon]="true"
+            [minDate]="minDate"
+            [maxDate]="maxDate"
+            dateFormat="dd/mm/yy"
+            placeholder="Selecione a data de fim do plantio"
+            [class.field-error]="hasFieldError('plantioFinal')"
+            [class.field-success]="isFieldValid('plantioFinal')"
+            class="w-full"
+          ></p-datepicker>
+          <small 
+            *ngIf="hasFieldError('plantioFinal')" 
+            class="error-message"
+          >
+            {{ getFieldErrorMessage('plantioFinal') }}
+          </small>
+          <small class="field-help">Data deve ser posterior à data de início e não superior a 10 anos no futuro</small>
+        </div>
+
+        <!-- Nome do Plantio Field -->
+        <div class="form-field">
+          <label for="plantioNome" class="field-label required">Nome do Plantio</label>
+          <input
+            id="plantioNome"
+            type="text"
+            pInputText
+            formControlName="plantioNome"
+            placeholder="Digite o nome do plantio"
+            maxlength="256"
+            [class.field-error]="hasFieldError('plantioNome')"
+            [class.field-success]="isFieldValid('plantioNome')"
+            class="w-full"
+          />
+          <small 
+            *ngIf="hasFieldError('plantioNome')" 
+            class="error-message"
+          >
+            {{ getFieldErrorMessage('plantioNome') }}
+          </small>
+          <small class="field-help">Máximo 256 caracteres</small>
+        </div>
+
+        <!-- Descrição Field -->
+        <div class="form-field">
+          <label for="descricao" class="field-label required">Descrição</label>
+          <textarea
+            id="descricao"
+            pTextarea
+            formControlName="descricao"
+            placeholder="Digite uma descrição para a safra"
+            maxlength="64"
+            rows="3"
+            [class.field-error]="hasFieldError('descricao')"
+            [class.field-success]="isFieldValid('descricao')"
+            class="w-full"
+          ></textarea>
+          <small 
+            *ngIf="hasFieldError('descricao')" 
+            class="error-message"
+          >
+            {{ getFieldErrorMessage('descricao') }}
+          </small>
+          <small class="field-help">Máximo 64 caracteres</small>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            type="button"
+            pButton
+            label="Cancelar"
+            icon="pi pi-times"
+            class="p-button-outlined p-button-danger"
+            (click)="onCancel()"
+            [disabled]="saving()"
+          ></button>
+          
+          <button
+            type="submit"
+            pButton
+            [label]="saveButtonText"
+            icon="pi pi-check"
+            class="p-button-primary"
+            [loading]="saving()"
+            [disabled]="safraForm.invalid || saving()"
+          ></button>
+        </div>
+      </form>
+    </p-card>
+  </div>
+</div>

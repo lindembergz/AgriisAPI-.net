@@ -5,6 +5,7 @@ using Agriis.Produtos.Dominio.Entidades;
 using Agriis.Produtos.Dominio.Enums;
 using Agriis.Produtos.Dominio.Interfaces;
 using Agriis.Produtos.Dominio.ObjetosValor;
+using Agriis.Referencias.Aplicacao.Interfaces;
 
 namespace Agriis.Produtos.Aplicacao.Servicos;
 
@@ -16,30 +17,43 @@ public class ProdutoService : IProdutoService
     private readonly IProdutoRepository _produtoRepository;
     private readonly ICategoriaRepository _categoriaRepository;
     private readonly IProdutoCulturaRepository _produtoCulturaRepository;
+    private readonly IUnidadeMedidaService _unidadeMedidaService;
+    private readonly IEmbalagemService _embalagemService;
+    private readonly IAtividadeAgropecuariaService _atividadeAgropecuariaService;
     private readonly IMapper _mapper;
 
     public ProdutoService(
         IProdutoRepository produtoRepository,
         ICategoriaRepository categoriaRepository,
         IProdutoCulturaRepository produtoCulturaRepository,
+        IUnidadeMedidaService unidadeMedidaService,
+        IEmbalagemService embalagemService,
+        IAtividadeAgropecuariaService atividadeAgropecuariaService,
         IMapper mapper)
     {
         _produtoRepository = produtoRepository;
         _categoriaRepository = categoriaRepository;
         _produtoCulturaRepository = produtoCulturaRepository;
+        _unidadeMedidaService = unidadeMedidaService;
+        _embalagemService = embalagemService;
+        _atividadeAgropecuariaService = atividadeAgropecuariaService;
         _mapper = mapper;
     }
 
     public async Task<ProdutoDto?> ObterPorIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var produto = await _produtoRepository.ObterPorIdAsync(id, cancellationToken);
-        return produto != null ? _mapper.Map<ProdutoDto>(produto) : null;
+        if (produto == null) return null;
+
+        return _mapper.Map<ProdutoDto>(produto);
     }
 
     public async Task<ProdutoDto?> ObterPorCodigoAsync(string codigo, CancellationToken cancellationToken = default)
     {
         var produto = await _produtoRepository.ObterPorCodigoAsync(codigo, cancellationToken);
-        return produto != null ? _mapper.Map<ProdutoDto>(produto) : null;
+        if (produto == null) return null;
+
+        return _mapper.Map<ProdutoDto>(produto);
     }
 
     public async Task<IEnumerable<ProdutoDto>> ObterTodosAsync(CancellationToken cancellationToken = default)
@@ -115,6 +129,9 @@ public class ProdutoService : IProdutoService
         if (categoria == null)
             throw new ArgumentException("Categoria não encontrada", nameof(dto.CategoriaId));
 
+        // Validar todas as referências
+        await ValidarReferenciasAsync(dto.UnidadeMedidaId, dto.EmbalagemId, dto.AtividadeAgropecuariaId, cancellationToken);
+
         // Validar se código já existe
         if (await _produtoRepository.ExisteComCodigoAsync(dto.Codigo, cancellationToken: cancellationToken))
             throw new InvalidOperationException("Já existe um produto com este código");
@@ -148,7 +165,7 @@ public class ProdutoService : IProdutoService
             dto.Nome,
             dto.Codigo,
             dto.Tipo,
-            dto.Unidade,
+            dto.UnidadeMedidaId,
             dimensoes,
             dto.CategoriaId,
             dto.FornecedorId,
@@ -157,7 +174,9 @@ public class ProdutoService : IProdutoService
             dto.TipoCalculoPeso,
             dto.ProdutoRestrito,
             dto.ObservacoesRestricao,
-            dto.ProdutoPaiId);
+            dto.ProdutoPaiId,
+            dto.EmbalagemId,
+            dto.AtividadeAgropecuariaId);
 
         // Adicionar culturas
         foreach (var culturaId in dto.CulturasIds)
@@ -180,6 +199,9 @@ public class ProdutoService : IProdutoService
         if (categoria == null)
             throw new ArgumentException("Categoria não encontrada", nameof(dto.CategoriaId));
 
+        // Validar todas as referências
+        await ValidarReferenciasAsync(dto.UnidadeMedidaId, dto.EmbalagemId, dto.AtividadeAgropecuariaId, cancellationToken);
+
         // Validar se código já existe (excluindo o produto atual)
         if (await _produtoRepository.ExisteComCodigoAsync(dto.Codigo, id, cancellationToken))
             throw new InvalidOperationException("Já existe um produto com este código");
@@ -188,6 +210,9 @@ public class ProdutoService : IProdutoService
         produto.AtualizarInformacoes(dto.Nome, dto.Descricao, dto.Marca);
         produto.AtualizarCodigo(dto.Codigo);
         produto.AtualizarCategoria(dto.CategoriaId);
+        produto.AtualizarUnidadeMedida(dto.UnidadeMedidaId);
+        produto.AtualizarEmbalagem(dto.EmbalagemId);
+        produto.AtualizarAtividadeAgropecuaria(dto.AtividadeAgropecuariaId);
         produto.AtualizarTipoCalculoPeso(dto.TipoCalculoPeso);
         produto.DefinirRestricao(dto.ProdutoRestrito, dto.ObservacoesRestricao);
 
@@ -291,5 +316,36 @@ public class ProdutoService : IProdutoService
     public async Task<bool> ExisteComCodigoAsync(string codigo, int? idExcluir = null, CancellationToken cancellationToken = default)
     {
         return await _produtoRepository.ExisteComCodigoAsync(codigo, idExcluir, cancellationToken);
+    }
+
+
+
+    /// <summary>
+    /// Valida se todas as entidades de referência existem
+    /// </summary>
+    private async Task ValidarReferenciasAsync(int unidadeMedidaId, int? embalagemId, int? atividadeAgropecuariaId, CancellationToken cancellationToken = default)
+    {
+        // Validar se unidade de medida existe
+        var unidadeMedida = await _unidadeMedidaService.ObterPorIdAsync(unidadeMedidaId, cancellationToken);
+        if (unidadeMedida == null)
+            throw new ArgumentException("Unidade de medida não encontrada", nameof(unidadeMedidaId));
+
+        // Validar se embalagem existe (se especificada)
+        if (embalagemId.HasValue)
+        {
+            var embalagem = await _embalagemService.ObterPorIdAsync(embalagemId.Value, cancellationToken);
+            if (embalagem == null)
+                throw new ArgumentException("Embalagem não encontrada", nameof(embalagemId));
+        }
+
+        // Validar se atividade agropecuária existe (se especificada)
+        if (atividadeAgropecuariaId.HasValue)
+        {
+            var atividade = await _atividadeAgropecuariaService.ObterPorIdAsync(atividadeAgropecuariaId.Value, cancellationToken);
+            if (atividade == null)
+                throw new ArgumentException("Atividade agropecuária não encontrada", nameof(atividadeAgropecuariaId));
+        }
+
+        // TODO: Validar fornecedor e culturas quando os serviços estiverem disponíveis
     }
 }

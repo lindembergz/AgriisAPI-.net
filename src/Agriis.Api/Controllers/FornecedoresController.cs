@@ -364,6 +364,48 @@ public class FornecedoresController : ControllerBase
             return StatusCode(500, new { error_code = "ERRO_INTERNO", error_description = "Erro interno do servidor" });
         }
     }
+
+    /// <summary>
+    /// Obtém fornecedores filtrados por UF
+    /// </summary>
+    /// <param name="ufId">ID da UF</param>
+    /// <returns>Lista de fornecedores da UF</returns>
+    [HttpGet("uf/{ufId:int}")]
+    public async Task<ActionResult<IEnumerable<FornecedorDto>>> ObterPorUf(int ufId)
+    {
+        try
+        {
+            var fornecedores = await _fornecedorService.ObterComFiltrosAsync(ativo: true);
+            var fornecedoresFiltrados = fornecedores.Where(f => f.UfId == ufId);
+            return Ok(fornecedoresFiltrados);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter fornecedores por UF: {UfId}", ufId);
+            return StatusCode(500, new { error_code = "ERRO_INTERNO", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Obtém fornecedores filtrados por município
+    /// </summary>
+    /// <param name="municipioId">ID do município</param>
+    /// <returns>Lista de fornecedores do município</returns>
+    [HttpGet("municipio/{municipioId:int}")]
+    public async Task<ActionResult<IEnumerable<FornecedorDto>>> ObterPorMunicipio(int municipioId)
+    {
+        try
+        {
+            var fornecedores = await _fornecedorService.ObterComFiltrosAsync(ativo: true);
+            var fornecedoresFiltrados = fornecedores.Where(f => f.MunicipioId == municipioId);
+            return Ok(fornecedoresFiltrados);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter fornecedores por município: {MunicipioId}", municipioId);
+            return StatusCode(500, new { error_code = "ERRO_INTERNO", error_description = "Erro interno do servidor" });
+        }
+    }
 }
 
 /// <summary>

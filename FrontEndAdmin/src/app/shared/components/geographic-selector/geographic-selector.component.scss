@@ -1,0 +1,250 @@
+.geographic-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    
+    label {
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 0.9rem;
+      
+      &.required {
+        .required-asterisk {
+          color: var(--red-500);
+          margin-left: 0.25rem;
+        }
+      }
+    }
+    
+    :host ::ng-deep {
+      .p-select {
+        width: 100%;
+        
+        &.p-invalid {
+          border-color: var(--red-500);
+        }
+        
+        .p-select-label {
+          padding: 0.75rem;
+        }
+        
+        .p-select-dropdown {
+          width: 2.5rem;
+        }
+      }
+      
+      .p-select-overlay {
+        .p-select-items {
+          .p-select-item {
+            padding: 0.75rem;
+            
+            &:hover {
+              background: var(--surface-hover);
+            }
+            
+            &.p-selected {
+              background: var(--primary-color);
+              color: var(--primary-color-text);
+            }
+          }
+        }
+      }
+    }
+    
+    .selected-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      
+      span {
+        font-weight: 500;
+      }
+    }
+    
+    .dropdown-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      
+      .item-name {
+        font-weight: 500;
+        color: var(--text-color);
+      }
+      
+      .item-code {
+        color: var(--text-color-secondary);
+        font-size: 0.8rem;
+      }
+    }
+    
+    .empty-message {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      color: var(--text-color-secondary);
+      font-style: italic;
+      
+      i {
+        font-size: 1.1rem;
+      }
+    }
+    
+    .error-container {
+      margin-top: 0.25rem;
+      
+      :host ::ng-deep {
+        .p-message {
+          margin: 0;
+          
+          .p-message-wrapper {
+            padding: 0.5rem;
+          }
+        }
+      }
+    }
+  }
+  
+  .loading-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--surface-section);
+    border-radius: var(--border-radius);
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+    
+    :host ::ng-deep {
+      .p-progressspinner {
+        .p-progressspinner-circle {
+          stroke: var(--primary-color);
+        }
+      }
+    }
+  }
+}
+
+// Horizontal layout variant
+.geographic-selector.horizontal {
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 1rem;
+  
+  .field {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// Compact layout variant
+.geographic-selector.compact {
+  gap: 0.75rem;
+  
+  .field {
+    gap: 0.25rem;
+    
+    label {
+      font-size: 0.8rem;
+    }
+    
+    :host ::ng-deep {
+      .p-select .p-select-label {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .geographic-selector {
+    &.horizontal {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .field {
+      .dropdown-item {
+        .item-code {
+          font-size: 0.75rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .geographic-selector {
+    gap: 0.75rem;
+    
+    .field {
+      label {
+        font-size: 0.85rem;
+      }
+      
+      :host ::ng-deep {
+        .p-select .p-select-label {
+          padding: 0.6rem;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+// Loading states
+:host ::ng-deep {
+  .p-select.p-disabled {
+    opacity: 0.6;
+    
+    .p-select-label {
+      color: var(--text-color-secondary);
+    }
+  }
+  
+  .p-select-loading {
+    .p-select-dropdown {
+      .pi-chevron-down::before {
+        content: '\e9ba'; // spinner icon
+        animation: spin 1s linear infinite;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Focus states
+:host ::ng-deep {
+  .p-select:not(.p-disabled):hover {
+    border-color: var(--primary-color);
+  }
+  
+  .p-select.p-focus {
+    outline: 0 none;
+    outline-offset: 0;
+    box-shadow: 0 0 0 0.2rem var(--primary-color-alpha);
+    border-color: var(--primary-color);
+  }
+}
+
+// Error states
+:host ::ng-deep {
+  .p-select.p-invalid {
+    border-color: var(--red-500);
+    
+    &.p-focus {
+      box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2);
+    }
+  }
+}

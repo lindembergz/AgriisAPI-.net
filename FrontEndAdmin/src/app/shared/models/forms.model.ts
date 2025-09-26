@@ -27,6 +27,9 @@ export interface EnderecoFormControls {
   cep: FormControl<string>;
   latitude: FormControl<number | null>;
   longitude: FormControl<number | null>;
+  // New geographic reference fields
+  ufId?: FormControl<number | null>;
+  municipioId?: FormControl<number | null>;
 }
 
 /**

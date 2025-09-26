@@ -23,6 +23,9 @@ import { LoadingOperations } from '../../../shared/utils/loading-state.util';
 import { LoadingOverlayComponent } from '../../../shared/components/loading-overlay.component';
 import { LoadingButtonComponent } from '../../../shared/components/loading-button.component';
 import { LoadingStateDirective } from '../../../shared/directives/loading-state.directive';
+import { UfDto, MunicipioDto } from '../../../shared/models/reference.model';
+import { UfService } from '../../referencias/ufs/services/uf.service';
+import { MunicipioService } from '../../referencias/municipios/services/municipio.service';
 
 /**
  * Interface for table column configuration
@@ -96,6 +99,64 @@ interface FilterOption {
           </span>
         </div>
 
+        <div class="col-12 md:col-2">
+          <p-select
+            [options]="tipoClienteOptions"
+            [(ngModel)]="selectedTipoCliente"
+            (onChange)="onFilterChange()"
+            placeholder="Tipo Cliente"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            class="w-full">
+          </p-select>
+        </div>
+
+        <div class="col-12 md:col-2">
+          <p-select
+            [options]="availableUfs()"
+            [(ngModel)]="selectedUf"
+            (onChange)="onUfFilterChange($event)"
+            placeholder="UF"
+            optionLabel="nome"
+            optionValue="id"
+            [showClear]="true"
+            [loading]="ufsLoading()"
+            class="w-full">
+            <ng-template pTemplate="selectedItem" let-selectedOption>
+              <span *ngIf="selectedOption">{{ getUfDisplayName(selectedOption) }}</span>
+            </ng-template>
+            <ng-template pTemplate="item" let-uf>
+              <span>{{ uf.nome }} ({{ uf.codigo }})</span>
+            </ng-template>
+          </p-select>
+        </div>
+
+        <div class="col-12 md:col-2">
+          <p-select
+            [options]="availableMunicipios()"
+            [(ngModel)]="selectedMunicipio"
+            (onChange)="onMunicipioFilterChange($event)"
+            placeholder="Município"
+            optionLabel="nome"
+            optionValue="id"
+            [showClear]="true"
+            [loading]="municipiosLoading()"
+            [disabled]="!selectedUf"
+            class="w-full">
+          </p-select>
+        </div>
+
+        <div class="col-12 md:col-2">
+          <p-button 
+            label="Limpar Filtros" 
+            icon="pi pi-filter-slash" 
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="clearFilters()"
+            class="w-full">
+          </p-button>
+        </div>
       </div>
 
       <!-- Data Table -->
@@ -113,7 +174,7 @@ interface FilterOption {
         [rowsPerPageOptions]="[10, 25, 50]"
         styleClass="p-datatable-gridlines"
         [tableStyle]="{ 'min-width': '50rem' }"
-        [globalFilterFields]="['nome', 'cpfCnpj', 'codigo']"
+        [globalFilterFields]="['nome', 'cpfCnpj', 'codigo', 'endereco.municipioNome', 'endereco.ufNome', 'endereco.cidade', 'endereco.uf']"
       >
         <ng-template pTemplate="header">
           <tr>
@@ -136,7 +197,7 @@ interface FilterOption {
                 [severity]="getTipoClienteSeverity(fornecedor.tipoCliente)"
               ></p-tag>
             </td>
-            <td>{{ getLocalidade(fornecedor) }}</td>
+            <td>{{ getCompleteGeographicInfo(fornecedor) }}</td>
             <td>{{ getUf(fornecedor) }}</td>
             <td>
               <div class="flex gap-2">
@@ -163,7 +224,7 @@ interface FilterOption {
               <div class="flex flex-column align-items-center justify-content-center py-5">
                 <i class="pi pi-users" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
                 <p class="mt-3 mb-0" style="color: var(--text-color-secondary);">
-                  {{ searchTerm || selectedTipoCliente || selectedUf ? 'Nenhum fornecedor encontrado com os filtros aplicados' : 'Nenhum fornecedor cadastrado' }}
+                  {{ searchTerm || selectedTipoCliente || selectedUf || selectedMunicipio ? 'Nenhum fornecedor encontrado com os filtros aplicados' : 'Nenhum fornecedor cadastrado' }}
                 </p>
               </div>
             </td>
@@ -195,6 +256,8 @@ export class FornecedorListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private confirmationService = inject(ConfirmationService);
   public userFeedback = inject(UserFeedbackService);
+  private ufService = inject(UfService);
+  private municipioService = inject(MunicipioService);
 
   // Signals for reactive state management
   fornecedores = signal<Fornecedor[]>([]);
@@ -209,6 +272,13 @@ export class FornecedorListComponent implements OnInit {
   searchTerm = '';
   selectedTipoCliente: string | null = null;
   selectedUf: string | null = null;
+  selectedMunicipio: string | null = null;
+  
+  // Geographic data signals
+  availableUfs = signal<UfDto[]>([]);
+  availableMunicipios = signal<MunicipioDto[]>([]);
+  ufsLoading = signal<boolean>(false);
+  municipiosLoading = signal<boolean>(false);
 
   // Pagination
   pageSize = 10;
@@ -247,17 +317,52 @@ export class FornecedorListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadInitialData();
+    this.loadUfsForFilter();
   }
 
   /**
    * Load initial data
    */
-
-
   private loadInitialData(): void {
     this.loadFornecedores({
       first: 0,
       rows: this.pageSize
+    });
+  }
+
+  /**
+   * Load UFs for filter dropdown
+   */
+  private loadUfsForFilter(): void {
+    this.ufsLoading.set(true);
+    
+    this.ufService.obterAtivos().subscribe({
+      next: (ufs) => {
+        this.availableUfs.set(ufs);
+        this.ufsLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading UFs for filter:', error);
+        this.ufsLoading.set(false);
+      }
+    });
+  }
+
+  /**
+   * Load Municípios for filter dropdown based on selected UF
+   */
+  private loadMunicipiosForFilter(ufId: number): void {
+    this.municipiosLoading.set(true);
+    
+    this.municipioService.obterAtivosPorUf(ufId).subscribe({
+      next: (municipios) => {
+        this.availableMunicipios.set(municipios);
+        this.municipiosLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading Municípios for filter:', error);
+        this.municipiosLoading.set(false);
+      }
     });
   }
 
@@ -283,6 +388,9 @@ export class FornecedorListComponent implements OnInit {
     }
     if (this.selectedUf) {
       params.uf = this.selectedUf;
+    }
+    if (this.selectedMunicipio) {
+      params.municipio = this.selectedMunicipio;
     }
    
    this.fornecedorService.list(params).subscribe({
@@ -327,12 +435,37 @@ export class FornecedorListComponent implements OnInit {
   }
 
   /**
+   * Handle UF filter change
+   */
+  onUfFilterChange(ufId: string | null): void {
+    this.selectedUf = ufId;
+    this.selectedMunicipio = null; // Reset município when UF changes
+    this.availableMunicipios.set([]); // Clear município options
+    
+    if (ufId) {
+      this.loadMunicipiosForFilter(parseInt(ufId));
+    }
+    
+    this.onFilterChange();
+  }
+
+  /**
+   * Handle Município filter change
+   */
+  onMunicipioFilterChange(municipioId: string | null): void {
+    this.selectedMunicipio = municipioId;
+    this.onFilterChange();
+  }
+
+  /**
    * Clear all filters
    */
   clearFilters(): void {
     this.searchTerm = '';
     this.selectedTipoCliente = null;
     this.selectedUf = null;
+    this.selectedMunicipio = null;
+    this.availableMunicipios.set([]);
     this.onFilterChange();
   }
 
@@ -418,22 +551,56 @@ export class FornecedorListComponent implements OnInit {
   }
 
   /**
-   * Get localidade from address
+   * Get localidade from address with complete geographic information
    */
   getLocalidade(fornecedor: Fornecedor): string {
-    if (fornecedor.endereco?.cidade) {
-      return fornecedor.endereco.cidade;
+    if (fornecedor.endereco) {
+      const endereco = fornecedor.endereco as any;
+      // Use enriched geographic data if available, fallback to original fields
+      const municipioNome = endereco.municipioNome || endereco.cidade;
+      return municipioNome || '-';
     }
     return '-';
   }
 
   /**
-   * Get UF from address
+   * Get UF from address with complete geographic information
    */
   getUf(fornecedor: Fornecedor): string {
-    if (fornecedor.endereco?.uf) {
-      return fornecedor.endereco.uf;
+    if (fornecedor.endereco) {
+      const endereco = fornecedor.endereco as any;
+      // Use enriched geographic data if available, fallback to original fields
+      const ufCodigo = endereco.ufCodigo || endereco.uf;
+      return ufCodigo || '-';
     }
     return '-';
+  }
+
+  /**
+   * Get complete geographic information for display
+   */
+  getCompleteGeographicInfo(fornecedor: Fornecedor): string {
+    if (fornecedor.endereco) {
+      const endereco = fornecedor.endereco as any;
+      const municipio = endereco.municipioNome || endereco.cidade;
+      const uf = endereco.ufCodigo || endereco.uf;
+      
+      if (municipio && uf) {
+        return `${municipio} - ${uf}`;
+      } else if (municipio) {
+        return municipio;
+      } else if (uf) {
+        return uf;
+      }
+    }
+    return '-';
+  }
+
+  /**
+   * Get UF display name for filter dropdown
+   */
+  getUfDisplayName(ufId: string): string {
+    const uf = this.availableUfs().find(u => u.id.toString() === ufId);
+    return uf ? `${uf.nome} (${uf.codigo})` : '';
   }
 }

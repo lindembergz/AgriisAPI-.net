@@ -14,6 +14,8 @@ using Agriis.Catalogos.Dominio.Entidades;
 using Agriis.Pagamentos.Dominio.Entidades;
 using Agriis.Pedidos.Dominio.Entidades;
 using Agriis.Combos.Dominio.Entidades;
+using Agriis.Referencias.Dominio.Entidades;
+using Agriis.Produtos.Dominio.Entidades;
 
 namespace Agriis.Api.Contexto;
 
@@ -27,7 +29,7 @@ public class AgriisDbContext : DbContext
     
     // Módulo de Endereços
     public DbSet<Estado> Estados { get; set; }
-    public DbSet<Municipio> Municipios { get; set; }
+    public DbSet<Agriis.Enderecos.Dominio.Entidades.Municipio> Municipios { get; set; }
     public DbSet<Endereco> Enderecos { get; set; }
     
     // Módulo de Usuários
@@ -79,6 +81,19 @@ public class AgriisDbContext : DbContext
     public DbSet<ComboItem> ComboItens { get; set; }
     public DbSet<ComboLocalRecebimento> ComboLocaisRecebimento { get; set; }
     public DbSet<ComboCategoriaDesconto> ComboCategoriasDesconto { get; set; }
+    
+    // Módulo de Referências
+    public DbSet<Moeda> Moedas { get; set; }
+    public DbSet<AtividadeAgropecuaria> AtividadesAgropecuarias { get; set; }
+    public DbSet<UnidadeMedida> UnidadesMedida { get; set; }
+    public DbSet<Embalagem> Embalagens { get; set; }
+    public DbSet<Agriis.Referencias.Dominio.Entidades.Uf> UfsReferencia { get; set; }
+    public DbSet<Agriis.Referencias.Dominio.Entidades.Municipio> MunicipiosReferencia { get; set; }
+    
+    // Módulo de Produtos
+    public DbSet<Agriis.Produtos.Dominio.Entidades.Produto> Produtos { get; set; }
+    public DbSet<Agriis.Produtos.Dominio.Entidades.Categoria> Categorias { get; set; }
+    public DbSet<Agriis.Produtos.Dominio.Entidades.ProdutoCultura> ProdutosCulturas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -112,6 +127,8 @@ public class AgriisDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Pagamentos.Infraestrutura.Configuracoes.FormaPagamentoConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Pedidos.Infraestrutura.Configuracoes.PedidoConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Combos.Infraestrutura.Configuracoes.ComboConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Referencias.Infraestrutura.Configuracoes.MoedaConfiguration).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Produtos.Infraestrutura.Configuracoes.ProdutoConfiguration).Assembly);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

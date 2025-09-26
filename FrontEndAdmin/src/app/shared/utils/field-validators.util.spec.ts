@@ -1,4 +1,4 @@
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { 
   phoneValidator, 
   emailValidator, 
@@ -11,7 +11,16 @@ import {
   yearValidator,
   getValidationErrorMessage,
   hasFieldError,
-  isFieldInvalid
+  isFieldInvalid,
+  requiredValidator,
+  maxLengthValidator,
+  dateRangeValidator,
+  safraDateValidator,
+  culturaNomeValidator,
+  safraPlantioNomeValidator,
+  safraDescricaoValidator,
+  getFormValidationErrorMessage,
+  VALIDATION_MESSAGES
 } from './field-validators.util';
 
 describe('FieldValidators', () => {
@@ -415,6 +424,264 @@ describe('FieldValidators', () => {
         
         expect(isFieldInvalid(control)).toBe(false);
       });
+    });
+  });
+
+  describe('requiredValidator', () => {
+    it('should return null for valid values', () => {
+      const validator = requiredValidator('Nome');
+      expect(validator(new FormControl('Valid value'))).toBeNull();
+      expect(validator(new FormControl('  Valid  '))).toBeNull();
+    });
+
+    it('should reject empty values', () => {
+      const validator = requiredValidator('Nome');
+      
+      expect(validator(new FormControl(''))).toEqual({
+        required: { message: 'Nome é obrigatório' }
+      });
+
+      expect(validator(new FormControl('   '))).toEqual({
+        required: { message: 'Nome é obrigatório' }
+      });
+
+      expect(validator(new FormControl(null))).toEqual({
+        required: { message: 'Nome é obrigatório' }
+      });
+    });
+  });
+
+  describe('maxLengthValidator', () => {
+    it('should return null for valid lengths', () => {
+      const validator = maxLengthValidator(10, 'Nome');
+      expect(validator(new FormControl('Short'))).toBeNull();
+      expect(validator(new FormControl('1234567890'))).toBeNull();
+      expect(validator(new FormControl(''))).toBeNull();
+    });
+
+    it('should reject values that are too long', () => {
+      const validator = maxLengthValidator(5, 'Nome');
+      
+      expect(validator(new FormControl('TooLong'))).toEqual({
+        maxlength: { 
+          message: 'Nome não pode ter mais de 5 caracteres',
+          requiredLength: 5,
+          actualLength: 7
+        }
+      });
+    });
+  });
+
+  describe('dateRangeValidator', () => {
+    it('should return null for valid date ranges', () => {
+      const form = new FormGroup({
+        startDate: new FormControl('2024-01-01'),
+        endDate: new FormControl('2024-12-31')
+      });
+      
+      const validator = dateRangeValidator('startDate', 'endDate');
+      expect(validator(form.get('endDate')!)).toBeNull();
+    });
+
+    it('should reject invalid date ranges', () => {
+      const form = new FormGroup({
+        startDate: new FormControl('2024-12-31'),
+        endDate: new FormControl('2024-01-01')
+      });
+      
+      const validator = dateRangeValidator('startDate', 'endDate');
+      expect(validator(form.get('endDate')!)).toEqual({
+        dateRange: { message: 'Data final deve ser posterior à data inicial' }
+      });
+    });
+
+    it('should return null when dates are missing', () => {
+      const form = new FormGroup({
+        startDate: new FormControl(''),
+        endDate: new FormControl('')
+      });
+      
+      const validator = dateRangeValidator('startDate', 'endDate');
+      expect(validator(form.get('endDate')!)).toBeNull();
+    });
+  });
+
+  describe('safraDateValidator', () => {
+    const validator = safraDateValidator();
+
+    it('should return null for valid dates', () => {
+      expect(validator(new FormControl('2024-06-15'))).toBeNull();
+      expect(validator(new FormControl(new Date('2023-01-01')))).toBeNull();
+      expect(validator(new FormControl(''))).toBeNull();
+    });
+
+    it('should reject dates before 1900', () => {
+      expect(validator(new FormControl('1899-12-31'))).toEqual({
+        safraDate: { message: 'Data não pode ser anterior a 1900' }
+      });
+    });
+
+    it('should reject dates too far in the future', () => {
+      const futureYear = new Date().getFullYear() + 15;
+      expect(validator(new FormControl(`${futureYear}-01-01`))).toEqual({
+        safraDate: { message: `Data não pode ser superior a ${new Date().getFullYear() + 10}` }
+      });
+    });
+
+    it('should reject invalid dates', () => {
+      expect(validator(new FormControl('invalid-date'))).toEqual({
+        safraDate: { message: 'Data inválida' }
+      });
+    });
+  });
+
+  describe('culturaNomeValidator', () => {
+    const validator = culturaNomeValidator();
+
+    it('should return null for valid cultura names', () => {
+      expect(validator(new FormControl('Soja'))).toBeNull();
+      expect(validator(new FormControl('Milho Safrinha'))).toBeNull();
+      expect(validator(new FormControl('Algodão-BT'))).toBeNull();
+    });
+
+    it('should reject empty values', () => {
+      expect(validator(new FormControl(''))).toEqual({
+        required: { message: 'Nome da cultura é obrigatório' }
+      });
+
+      expect(validator(new FormControl('   '))).toEqual({
+        required: { message: 'Nome da cultura é obrigatório' }
+      });
+
+      expect(validator(new FormControl(null))).toEqual({
+        required: { message: 'Nome da cultura é obrigatório' }
+      });
+    });
+
+    it('should reject names that are too long', () => {
+      const longName = 'A'.repeat(257);
+      expect(validator(new FormControl(longName))).toEqual({
+        maxlength: { 
+          message: 'Nome da cultura não pode ter mais de 256 caracteres',
+          requiredLength: 256,
+          actualLength: 257
+        }
+      });
+    });
+
+    it('should reject names with invalid characters', () => {
+      expect(validator(new FormControl('Soja@#$'))).toEqual({
+        pattern: { message: 'Nome da cultura contém caracteres inválidos' }
+      });
+    });
+  });
+
+  describe('safraPlantioNomeValidator', () => {
+    const validator = safraPlantioNomeValidator();
+
+    it('should return null for valid plantio names', () => {
+      expect(validator(new FormControl('Plantio Principal'))).toBeNull();
+      expect(validator(new FormControl('Safrinha 2024'))).toBeNull();
+    });
+
+    it('should reject empty values', () => {
+      expect(validator(new FormControl(''))).toEqual({
+        required: { message: 'Nome do plantio é obrigatório' }
+      });
+
+      expect(validator(new FormControl(null))).toEqual({
+        required: { message: 'Nome do plantio é obrigatório' }
+      });
+    });
+
+    it('should reject names that are too long', () => {
+      const longName = 'A'.repeat(257);
+      expect(validator(new FormControl(longName))).toEqual({
+        maxlength: { 
+          message: 'Nome do plantio não pode ter mais de 256 caracteres',
+          requiredLength: 256,
+          actualLength: 257
+        }
+      });
+    });
+  });
+
+  describe('safraDescricaoValidator', () => {
+    const validator = safraDescricaoValidator();
+
+    it('should return null for valid descriptions', () => {
+      expect(validator(new FormControl('Safra principal de soja'))).toBeNull();
+      expect(validator(new FormControl('Plantio de milho safrinha'))).toBeNull();
+    });
+
+    it('should reject empty values', () => {
+      expect(validator(new FormControl(''))).toEqual({
+        required: { message: 'Descrição é obrigatória' }
+      });
+
+      expect(validator(new FormControl(null))).toEqual({
+        required: { message: 'Descrição é obrigatória' }
+      });
+    });
+
+    it('should reject descriptions that are too long', () => {
+      const longDescription = 'A'.repeat(65);
+      expect(validator(new FormControl(longDescription))).toEqual({
+        maxlength: { 
+          message: 'Descrição não pode ter mais de 64 caracteres',
+          requiredLength: 64,
+          actualLength: 65
+        }
+      });
+    });
+  });
+
+  describe('getFormValidationErrorMessage', () => {
+    it('should return custom error messages', () => {
+      const control = new FormControl('');
+      control.setErrors({ required: { message: 'Custom required message' } });
+      
+      expect(getFormValidationErrorMessage(control, 'cultura', 'nome')).toBe('Custom required message');
+    });
+
+    it('should return specific cultura validation messages', () => {
+      const control = new FormControl('');
+      control.setErrors({ required: true });
+      
+      expect(getFormValidationErrorMessage(control, 'cultura', 'nome')).toBe('Nome da cultura é obrigatório');
+    });
+
+    it('should return specific safra validation messages', () => {
+      const control = new FormControl('');
+      control.setErrors({ required: true });
+      
+      expect(getFormValidationErrorMessage(control, 'safra', 'plantioNome')).toBe('Nome do plantio é obrigatório');
+    });
+
+    it('should fallback to generic messages', () => {
+      const control = new FormControl('');
+      control.setErrors({ unknownError: true });
+      
+      expect(getFormValidationErrorMessage(control, 'cultura', 'nome')).toBe('Campo inválido');
+    });
+
+    it('should return empty string for no errors', () => {
+      const control = new FormControl('valid');
+      
+      expect(getFormValidationErrorMessage(control, 'cultura', 'nome')).toBe('');
+    });
+  });
+
+  describe('VALIDATION_MESSAGES', () => {
+    it('should contain cultura validation messages', () => {
+      expect(VALIDATION_MESSAGES.cultura.nome.required).toBe('Nome da cultura é obrigatório');
+      expect(VALIDATION_MESSAGES.cultura.nome.maxlength).toBe('Nome da cultura não pode ter mais de 256 caracteres');
+    });
+
+    it('should contain safra validation messages', () => {
+      expect(VALIDATION_MESSAGES.safra.plantioInicial.required).toBe('Data inicial do plantio é obrigatória');
+      expect(VALIDATION_MESSAGES.safra.plantioFinal.dateRange).toBe('Data final deve ser posterior à data inicial');
+      expect(VALIDATION_MESSAGES.safra.descricao.maxlength).toBe('Descrição não pode ter mais de 64 caracteres');
     });
   });
 });

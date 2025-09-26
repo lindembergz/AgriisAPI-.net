@@ -430,3 +430,372 @@ export function hasFieldError(control: AbstractControl, errorType: string): bool
 export function isFieldInvalid(control: AbstractControl): boolean {
   return !!(control.invalid && (control.dirty || control.touched));
 }
+
+/**
+ * Required field validator with custom Portuguese message
+ */
+export function requiredValidator(fieldName: string): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value || (typeof control.value === 'string' && !control.value.trim())) {
+      return { 
+        required: { 
+          message: `${fieldName} é obrigatório` 
+        } 
+      };
+    }
+    return null;
+  };
+}
+
+/**
+ * Maximum length validator with custom Portuguese message
+ */
+export function maxLengthValidator(maxLength: number, fieldName: string): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null; // Don't validate empty values, use required validator for that
+    }
+
+    const value = control.value.toString();
+    if (value.length > maxLength) {
+      return { 
+        maxlength: { 
+          message: `${fieldName} não pode ter mais de ${maxLength} caracteres`,
+          requiredLength: maxLength,
+          actualLength: value.length
+        } 
+      };
+    }
+    return null;
+  };
+}
+
+/**
+ * Date range validator for safra dates
+ * Validates that end date is after start date and within reasonable limits
+ */
+export function dateRangeValidator(startDateControlName: string, endDateControlName: string): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.parent) {
+      return null;
+    }
+
+    const startDateControl = control.parent.get(startDateControlName);
+    const endDateControl = control.parent.get(endDateControlName);
+
+    if (!startDateControl || !endDateControl) {
+      return null;
+    }
+
+    const startDate = startDateControl.value;
+    const endDate = endDateControl.value;
+
+    if (!startDate || !endDate) {
+      return null; // Don't validate if either date is missing
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end <= start) {
+      return { 
+        dateRange: { 
+          message: 'Data final deve ser posterior à data inicial' 
+        } 
+      };
+    }
+
+    return null;
+  };
+}
+
+/**
+ * Safra date validator with specific business rules
+ * Validates dates according to agricultural season requirements
+ */
+export function safraDateValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null; // Don't validate empty values, use required validator for that
+    }
+
+    const date = new Date(control.value);
+    const currentYear = new Date().getFullYear();
+    const minYear = 1900;
+    const maxYear = currentYear + 10;
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return { 
+        safraDate: { 
+          message: 'Data inválida' 
+        } 
+      };
+    }
+
+    // Check year limits
+    const year = date.getFullYear();
+    if (year < minYear) {
+      return { 
+        safraDate: { 
+          message: `Data não pode ser anterior a ${minYear}` 
+        } 
+      };
+    }
+
+    if (year > maxYear) {
+      return { 
+        safraDate: { 
+          message: `Data não pode ser superior a ${maxYear}` 
+        } 
+      };
+    }
+
+    return null;
+  };
+}
+
+/**
+ * Cultura name validator with specific business rules
+ */
+export function culturaNomeValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return { 
+        required: { 
+          message: 'Nome da cultura é obrigatório' 
+        } 
+      };
+    }
+
+    const nome = control.value.toString().trim();
+
+    if (nome.length === 0) {
+      return { 
+        required: { 
+          message: 'Nome da cultura é obrigatório' 
+        } 
+      };
+    }
+
+    if (nome.length > 256) {
+      return { 
+        maxlength: { 
+          message: 'Nome da cultura não pode ter mais de 256 caracteres',
+          requiredLength: 256,
+          actualLength: nome.length
+        } 
+      };
+    }
+
+    // Check for valid characters (letters, numbers, spaces, hyphens)
+    const namePattern = /^[a-zA-ZÀ-ÿ0-9\s\-]+$/;
+    if (!namePattern.test(nome)) {
+      return { 
+        pattern: { 
+          message: 'Nome da cultura contém caracteres inválidos' 
+        } 
+      };
+    }
+
+    return null;
+  };
+}
+
+/**
+ * Safra plantio nome validator with specific business rules
+ */
+export function safraPlantioNomeValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return { 
+        required: { 
+          message: 'Nome do plantio é obrigatório' 
+        } 
+      };
+    }
+
+    const nome = control.value.toString().trim();
+
+    if (nome.length === 0) {
+      return { 
+        required: { 
+          message: 'Nome do plantio é obrigatório' 
+        } 
+      };
+    }
+
+    if (nome.length > 256) {
+      return { 
+        maxlength: { 
+          message: 'Nome do plantio não pode ter mais de 256 caracteres',
+          requiredLength: 256,
+          actualLength: nome.length
+        } 
+      };
+    }
+
+    return null;
+  };
+}
+
+/**
+ * Safra description validator with specific business rules
+ */
+export function safraDescricaoValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return { 
+        required: { 
+          message: 'Descrição é obrigatória' 
+        } 
+      };
+    }
+
+    const descricao = control.value.toString().trim();
+
+    if (descricao.length === 0) {
+      return { 
+        required: { 
+          message: 'Descrição é obrigatória' 
+        } 
+      };
+    }
+
+    if (descricao.length > 64) {
+      return { 
+        maxlength: { 
+          message: 'Descrição não pode ter mais de 64 caracteres',
+          requiredLength: 64,
+          actualLength: descricao.length
+        } 
+      };
+    }
+
+    return null;
+  };
+}
+
+/**
+ * Validation messages in Portuguese for common form errors
+ */
+export const VALIDATION_MESSAGES = {
+  cultura: {
+    nome: {
+      required: 'Nome da cultura é obrigatório',
+      maxlength: 'Nome da cultura não pode ter mais de 256 caracteres',
+      pattern: 'Nome da cultura contém caracteres inválidos'
+    },
+    descricao: {
+      maxlength: 'Descrição não pode ter mais de 500 caracteres'
+    }
+  },
+  safra: {
+    plantioInicial: {
+      required: 'Data inicial do plantio é obrigatória',
+      safraDate: 'Data inicial inválida'
+    },
+    plantioFinal: {
+      required: 'Data final do plantio é obrigatória',
+      safraDate: 'Data final inválida',
+      dateRange: 'Data final deve ser posterior à data inicial'
+    },
+    plantioNome: {
+      required: 'Nome do plantio é obrigatório',
+      maxlength: 'Nome do plantio não pode ter mais de 256 caracteres'
+    },
+    descricao: {
+      required: 'Descrição é obrigatória',
+      maxlength: 'Descrição não pode ter mais de 64 caracteres'
+    }
+  }
+};
+
+/**
+ * Get specific validation error message for culturas and safras
+ */
+export function getFormValidationErrorMessage(control: AbstractControl, fieldType: 'cultura' | 'safra', fieldName: string): string {
+  if (!control.errors) return '';
+
+  const errorKeys = Object.keys(control.errors);
+  const firstError = control.errors[errorKeys[0]];
+
+  // Check for custom error messages first
+  if (firstError && typeof firstError === 'object' && firstError.message) {
+    return firstError.message;
+  }
+
+  // Use specific messages from VALIDATION_MESSAGES
+  const messages = VALIDATION_MESSAGES[fieldType]?.[fieldName as keyof typeof VALIDATION_MESSAGES[typeof fieldType]];
+  if (messages) {
+    const errorType = errorKeys[0] as keyof typeof messages;
+    const message = messages[errorType];
+    if (message) {
+      return message;
+    }
+  }
+
+  // Fallback to generic message
+  return getValidationErrorMessage(control);
+}
+
+/**
+ * Field validators utility class for backward compatibility
+ */
+export class FieldValidatorsUtil {
+  static alphaNumeric(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+      
+      const alphaNumericPattern = /^[a-zA-Z0-9]+$/;
+      if (!alphaNumericPattern.test(control.value)) {
+        return { 
+          alphaNumeric: { 
+            message: 'Campo deve conter apenas letras e números' 
+          } 
+        };
+      }
+      
+      return null;
+    };
+  }
+
+  static upperCase(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+      
+      if (control.value !== control.value.toUpperCase()) {
+        return { 
+          upperCase: { 
+            message: 'Campo deve estar em maiúsculas' 
+          } 
+        };
+      }
+      
+      return null;
+    };
+  }
+
+  static noSpecialChars(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+      
+      const noSpecialCharsPattern = /^[a-zA-Z0-9\s]+$/;
+      if (!noSpecialCharsPattern.test(control.value)) {
+        return { 
+          noSpecialChars: { 
+            message: 'Campo não pode conter caracteres especiais' 
+          } 
+        };
+      }
+      
+      return null;
+    };
+  }
+}

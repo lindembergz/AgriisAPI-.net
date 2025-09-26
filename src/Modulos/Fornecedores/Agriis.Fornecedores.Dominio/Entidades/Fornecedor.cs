@@ -2,6 +2,7 @@ using System.Text.Json;
 using Agriis.Compartilhado.Dominio.Entidades;
 using Agriis.Compartilhado.Dominio.ObjetosValor;
 using Agriis.Compartilhado.Dominio.Enums;
+using Agriis.Referencias.Dominio.Entidades;
 
 namespace Agriis.Fornecedores.Dominio.Entidades;
 
@@ -28,17 +29,27 @@ public class Fornecedor : EntidadeRaizAgregada
     /// <summary>
     /// Logradouro do fornecedor
     /// </summary>
-    public string? Endereco { get; private set; }
+    public string? Logradouro { get; private set; }
+    
+    /// <summary>
+    /// ID da UF do fornecedor
+    /// </summary>
+    public int? UfId { get; private set; }
+    
+    /// <summary>
+    /// UF do fornecedor
+    /// </summary>
+    public virtual Uf? Uf { get; private set; }
+    
+    /// <summary>
+    /// ID do município do fornecedor
+    /// </summary>
+    public int? MunicipioId { get; private set; }
     
     /// <summary>
     /// Município do fornecedor
     /// </summary>
-    public string? Municipio { get; private set; }
-    
-    /// <summary>
-    /// UF (Estado) do fornecedor
-    /// </summary>
-    public string? Uf { get; private set; }
+    public virtual Municipio? Municipio { get; private set; }
     
     /// <summary>
     /// CEP do fornecedor
@@ -78,7 +89,7 @@ public class Fornecedor : EntidadeRaizAgregada
     /// <summary>
     /// Moeda padrão do fornecedor
     /// </summary>
-    public Moeda MoedaPadrao { get; private set; } = Moeda.Real;    
+    public MoedaFinanceira Moeda { get; private set; } = MoedaFinanceira.Real;    
  
    /// <summary>
     /// Valor mínimo de pedido para este fornecedor
@@ -117,9 +128,9 @@ public class Fornecedor : EntidadeRaizAgregada
     /// <param name="nome">Nome/Razão social</param>
     /// <param name="cnpj">CNPJ do fornecedor</param>
     /// <param name="inscricaoEstadual">Inscrição estadual</param>
-    /// <param name="endereco">Endereço</param>
-    /// <param name="municipio">Município</param>
-    /// <param name="uf">UF</param>
+    /// <param name="logradouro">Logradouro</param>
+    /// <param name="ufId">ID da UF</param>
+    /// <param name="municipioId">ID do município</param>
     /// <param name="cep">CEP</param>
     /// <param name="complemento">Complemento</param>
     /// <param name="latitude">Latitude</param>
@@ -131,16 +142,16 @@ public class Fornecedor : EntidadeRaizAgregada
         string nome,
         Cnpj cnpj,
         string? inscricaoEstadual = null,
-        string? endereco = null,
-        string? municipio = null,
-        string? uf = null,
+        string? logradouro = null,
+        int? ufId = null,
+        int? municipioId = null,
         string? cep = null,
         string? complemento = null,
         decimal? latitude = null,
         decimal? longitude = null,
         string? telefone = null,
         string? email = null,
-        Moeda moedaPadrao = Moeda.Real)
+        MoedaFinanceira moedaPadrao = MoedaFinanceira.Real)
     {
         if (string.IsNullOrWhiteSpace(nome))
             throw new ArgumentException("Nome do fornecedor é obrigatório", nameof(nome));
@@ -148,16 +159,16 @@ public class Fornecedor : EntidadeRaizAgregada
         Nome = nome.Trim();
         Cnpj = cnpj ?? throw new ArgumentNullException(nameof(cnpj));
         InscricaoEstadual = inscricaoEstadual?.Trim();
-        Endereco = endereco?.Trim();
-        Municipio = municipio?.Trim();
-        Uf = uf?.Trim();
+        Logradouro = logradouro?.Trim();
+        UfId = ufId;
+        MunicipioId = municipioId;
         Cep = cep?.Trim();
         Complemento = complemento?.Trim();
         Latitude = latitude;
         Longitude = longitude;
         Telefone = telefone?.Trim();
         Email = email?.Trim();
-        MoedaPadrao = moedaPadrao;
+        Moeda = moedaPadrao;
         Ativo = true;
         UsuariosFornecedores = new List<UsuarioFornecedor>();
     }    
@@ -167,9 +178,9 @@ public class Fornecedor : EntidadeRaizAgregada
     /// </summary>
     /// <param name="nome">Nome/Razão social</param>
     /// <param name="inscricaoEstadual">Inscrição estadual</param>
-    /// <param name="endereco">Endereço</param>
-    /// <param name="municipio">Município</param>
-    /// <param name="uf">UF</param>
+    /// <param name="logradouro">Logradouro</param>
+    /// <param name="ufId">ID da UF</param>
+    /// <param name="municipioId">ID do município</param>
     /// <param name="cep">CEP</param>
     /// <param name="complemento">Complemento</param>
     /// <param name="latitude">Latitude</param>
@@ -179,9 +190,9 @@ public class Fornecedor : EntidadeRaizAgregada
     public void AtualizarDados(
         string nome,
         string? inscricaoEstadual = null,
-        string? endereco = null,
-        string? municipio = null,
-        string? uf = null,
+        string? logradouro = null,
+        int? ufId = null,
+        int? municipioId = null,
         string? cep = null,
         string? complemento = null,
         decimal? latitude = null,
@@ -194,9 +205,9 @@ public class Fornecedor : EntidadeRaizAgregada
             
         Nome = nome.Trim();
         InscricaoEstadual = inscricaoEstadual?.Trim();
-        Endereco = endereco?.Trim();
-        Municipio = municipio?.Trim();
-        Uf = uf?.Trim();
+        Logradouro = logradouro?.Trim();
+        UfId = ufId;
+        MunicipioId = municipioId;
         Cep = cep?.Trim();
         Complemento = complemento?.Trim();
         Latitude = latitude;
@@ -277,9 +288,9 @@ public class Fornecedor : EntidadeRaizAgregada
     /// Altera a moeda padrão do fornecedor
     /// </summary>
     /// <param name="moedaPadrao">Nova moeda padrão</param>
-    public void AlterarMoedaPadrao(Moeda moedaPadrao)
+    public void AlterarMoedaPadrao(MoedaFinanceira moedaPadrao)
     {
-        MoedaPadrao = moedaPadrao;
+        Moeda = moedaPadrao;
         AtualizarDataModificacao();
     }
 }

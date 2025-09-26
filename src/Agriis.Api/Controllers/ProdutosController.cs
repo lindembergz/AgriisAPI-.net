@@ -1,6 +1,7 @@
 using Agriis.Produtos.Aplicacao.DTOs;
 using Agriis.Produtos.Aplicacao.Interfaces;
 using Agriis.Produtos.Dominio.Enums;
+using Agriis.Referencias.Aplicacao.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Agriis.Api.Controllers;
@@ -13,11 +14,22 @@ namespace Agriis.Api.Controllers;
 public class ProdutosController : ControllerBase
 {
     private readonly IProdutoService _produtoService;
+    private readonly IUnidadeMedidaService _unidadeMedidaService;
+    private readonly IEmbalagemService _embalagemService;
+    private readonly IAtividadeAgropecuariaService _atividadeAgropecuariaService;
     private readonly ILogger<ProdutosController> _logger;
 
-    public ProdutosController(IProdutoService produtoService, ILogger<ProdutosController> logger)
+    public ProdutosController(
+        IProdutoService produtoService,
+        IUnidadeMedidaService unidadeMedidaService,
+        IEmbalagemService embalagemService,
+        IAtividadeAgropecuariaService atividadeAgropecuariaService,
+        ILogger<ProdutosController> logger)
     {
         _produtoService = produtoService;
+        _unidadeMedidaService = unidadeMedidaService;
+        _embalagemService = embalagemService;
+        _atividadeAgropecuariaService = atividadeAgropecuariaService;
         _logger = logger;
     }
 
@@ -256,6 +268,11 @@ public class ProdutosController : ControllerBase
     {
         try
         {
+            // Validar referências antes de criar
+            var validationResult = await ValidarReferenciasAsync(dto.UnidadeMedidaId, dto.EmbalagemId, dto.AtividadeAgropecuariaId, cancellationToken);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
+
             var produto = await _produtoService.CriarAsync(dto, cancellationToken);
             return CreatedAtAction(nameof(ObterPorId), new { id = produto.Id }, produto);
         }
@@ -284,6 +301,11 @@ public class ProdutosController : ControllerBase
     {
         try
         {
+            // Validar referências antes de atualizar
+            var validationResult = await ValidarReferenciasAsync(dto.UnidadeMedidaId, dto.EmbalagemId, dto.AtividadeAgropecuariaId, cancellationToken);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
+
             var produto = await _produtoService.AtualizarAsync(id, dto, cancellationToken);
             return Ok(produto);
         }
@@ -445,5 +467,61 @@ public class ProdutosController : ControllerBase
             _logger.LogError(ex, "Erro ao remover cultura {CulturaId} do produto {ProdutoId}", culturaId, produtoId);
             return StatusCode(500, "Erro interno do servidor");
         }
+    }
+
+    /// <summary>
+    /// Valida se todas as entidades de referência existem e estão ativas
+    /// </summary>
+    private async Task<ValidationResult> ValidarReferenciasAsync(int unidadeMedidaId, int? embalagemId, int? atividadeAgropecuariaId, CancellationToken cancellationToken = default)
+    {
+        // Validar se unidade de medida existe e está ativa
+        var unidadeMedida = await _unidadeMedidaService.ObterPorIdAsync(unidadeMedidaId, cancellationToken);
+        if (unidadeMedida == null)
+            return ValidationResult.Invalid("Unidade de medida não encontrada");
+        
+        if (!unidadeMedida.Ativo)
+            return ValidationResult.Invalid("Unidade de medida está inativa");
+
+        // Validar se embalagem existe e está ativa (se especificada)
+        if (embalagemId.HasValue)
+        {
+            var embalagem = await _embalagemService.ObterPorIdAsync(embalagemId.Value, cancellationToken);
+            if (embalagem == null)
+                return ValidationResult.Invalid("Embalagem não encontrada");
+            
+            if (!embalagem.Ativo)
+                return ValidationResult.Invalid("Embalagem está inativa");
+        }
+
+        // Validar se atividade agropecuária existe e está ativa (se especificada)
+        if (atividadeAgropecuariaId.HasValue)
+        {
+            var atividade = await _atividadeAgropecuariaService.ObterPorIdAsync(atividadeAgropecuariaId.Value, cancellationToken);
+            if (atividade == null)
+                return ValidationResult.Invalid("Atividade agropecuária não encontrada");
+            
+            if (!atividade.Ativo)
+                return ValidationResult.Invalid("Atividade agropecuária está inativa");
+        }
+
+        return ValidationResult.Valid();
+    }
+
+    /// <summary>
+    /// Resultado da validação de referências
+    /// </summary>
+    private class ValidationResult
+    {
+        public bool IsValid { get; private set; }
+        public string? ErrorMessage { get; private set; }
+
+        private ValidationResult(bool isValid, string? errorMessage = null)
+        {
+            IsValid = isValid;
+            ErrorMessage = errorMessage;
+        }
+
+        public static ValidationResult Valid() => new(true);
+        public static ValidationResult Invalid(string errorMessage) => new(false, errorMessage);
     }
 }

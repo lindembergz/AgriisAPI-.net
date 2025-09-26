@@ -47,6 +47,33 @@
     flex-grow: 1;
     padding: 1rem 0;
     overflow-y: auto;
+
+    // Active menu item styles
+    ::ng-deep .active-menu-item {
+      .p-menuitem-link {
+        background-color: #e3f2fd !important;
+        color: #1976d2 !important;
+        font-weight: 600 !important;
+        border-left: 3px solid #1976d2 !important;
+      }
+    }
+
+    ::ng-deep .active-parent-menu-item {
+      > .p-menuitem-link {
+        background-color: #f5f5f5 !important;
+        color: #1976d2 !important;
+        font-weight: 600 !important;
+      }
+    }
+
+    // Hover effects
+    ::ng-deep .p-panelmenu .p-menuitem-link:hover {
+      background-color: #f5f5f5 !important;
+    }
+
+    ::ng-deep .active-menu-item .p-menuitem-link:hover {
+      background-color: #bbdefb !important;
+    }
   }
 }
 

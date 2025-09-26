@@ -12,10 +12,11 @@
     <ProjectReference Include="..\..\Usuarios\Agriis.Usuarios.Dominio\Agriis.Usuarios.Dominio.csproj" />
     <ProjectReference Include="..\..\Usuarios\Agriis.Usuarios.Aplicacao\Agriis.Usuarios.Aplicacao.csproj" />
     <ProjectReference Include="..\..\Enderecos\Agriis.Enderecos.Dominio\Agriis.Enderecos.Dominio.csproj" />
+    <ProjectReference Include="..\..\Referencias\Agriis.Referencias.Aplicacao\Agriis.Referencias.Aplicacao.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="FluentValidation" Version="11.10.0" />
     <PackageReference Include="MediatR" Version="12.4.1" />
   </ItemGroup>

@@ -158,25 +158,29 @@
                     </small>
                   </div>
 
-                  <!-- Cidade -->
-                  <div class="form-field">
-                    <label for="cidade" class="field-label">Cidade *</label>
-                    <input pInputText id="cidade" formControlName="cidade" placeholder="Digite a cidade"
-                      [class.ng-invalid]="hasFieldError('endereco.cidade')" class="w-full">
-                    <small *ngIf="hasFieldError('endereco.cidade')" class="error-message">
-                      {{ getFieldErrorMessage('endereco.cidade') }}
+                  <!-- Geographic Selector (UF and Município) -->
+                  <div class="form-field geographic-selector-field">
+                    <label class="field-label required">Localização Geográfica</label>
+                    <app-geographic-selector
+                      [showPais]="false"
+                      [showUf]="true"
+                      [showMunicipio]="true"
+                      [required]="true"
+                      [disabled]="saving() || geographicDataLoading()"
+                      (selectionChange)="onGeographicSelectionChange($event)"
+                      [ngModel]="selectedGeographicData()"
+                      class="w-full">
+                    </app-geographic-selector>
+                    <small *ngIf="hasFieldError('endereco.ufId') || hasFieldError('endereco.municipioId')" class="error-message">
+                      Por favor, selecione UF e Município
                     </small>
                   </div>
 
-                  <!-- UF -->
-                  <div class="form-field">
-                    <label for="uf" class="field-label">UF *</label>
-                    <input pInputText id="uf" formControlName="uf" placeholder="Digite a UF" maxlength="2"
-                      [class.ng-invalid]="hasFieldError('endereco.uf')" class="w-full">
-                    <small *ngIf="hasFieldError('endereco.uf')" class="error-message">
-                      {{ getFieldErrorMessage('endereco.uf') }}
-                    </small>
-                  </div>
+                  <!-- Hidden fields for backward compatibility -->
+                  <input type="hidden" formControlName="uf">
+                  <input type="hidden" formControlName="cidade">
+                  <input type="hidden" formControlName="ufId">
+                  <input type="hidden" formControlName="municipioId">
 
                   <!-- CEP -->
                   <div class="form-field">

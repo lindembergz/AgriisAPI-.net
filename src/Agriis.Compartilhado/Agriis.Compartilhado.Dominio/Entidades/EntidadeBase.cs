@@ -21,6 +21,11 @@ public abstract class EntidadeBase
     public DateTime? DataAtualizacao { get; protected set; }
     
     /// <summary>
+    /// Token de concorrência otimista
+    /// </summary>
+    public byte[] RowVersion { get; protected set; } = Array.Empty<byte>();
+    
+    /// <summary>
     /// Construtor protegido para uso pelas classes filhas
     /// </summary>
     protected EntidadeBase()

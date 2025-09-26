@@ -1,0 +1,259 @@
+@import '../../shared/styles/variables';
+@import '../../shared/styles/mixins';
+
+.produtos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// Filters section
+.filters-section {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  
+  .filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    
+    h3 {
+      margin: 0;
+      color: var(--text-color);
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+  }
+  
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    
+    .filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      
+      label {
+        font-weight: 500;
+        color: var(--text-color);
+        font-size: 0.875rem;
+      }
+      
+      .search-input {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.form-fields {
+  display: grid;
+  gap: 1.5rem;
+  
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    
+    label {
+      font-weight: 600;
+      color: var(--text-color);
+      
+      &.required::after {
+        content: ' *';
+        color: var(--red-500);
+      }
+    }
+    
+    .field-help {
+      font-size: 0.875rem;
+      color: var(--text-color-secondary);
+      font-style: italic;
+    }
+    
+    // Input styling
+    input[pInputText],
+    textarea[pTextarea] {
+      &.ng-invalid.ng-touched {
+        border-color: var(--red-500);
+      }
+    }
+    
+    // Select styling
+    p-select {
+      &.ng-invalid .p-select {
+        border-color: var(--red-500);
+      }
+    }
+    
+    // InputNumber styling
+    p-inputNumber {
+      &.ng-invalid ::ng-deep .p-inputnumber-input {
+        border-color: var(--red-500);
+      }
+    }
+  }
+  
+  // Categoria selector specific styling
+  .categoria-selector {
+    border: 1px solid var(--surface-border);
+    border-radius: var(--border-radius);
+    background: var(--surface-ground);
+    
+    &.ng-invalid {
+      border-color: var(--red-500);
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .produtos-container {
+    gap: 1rem;
+  }
+  
+  .filters-section {
+    padding: 1rem;
+    
+    .filters-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    
+    .filters-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+  
+  .form-fields {
+    gap: 1rem;
+    
+    .field {
+      gap: 0.25rem;
+    }
+  }
+}
+
+// Custom dropdown templates
+::ng-deep {
+  .p-select-panel {
+    .p-select-item {
+      padding: 0.75rem 1rem;
+      
+      strong {
+        color: var(--primary-color);
+      }
+    }
+  }
+  
+  // Hierarchical selector styling
+  .categoria-selector {
+    .hierarchical-selector {
+      .tree-container {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      
+      .tree-node-content {
+        padding: 0.5rem;
+        border-radius: var(--border-radius);
+        transition: background-color 0.2s;
+        
+        &:hover {
+          background-color: var(--surface-hover);
+        }
+        
+        &.node-selected {
+          background-color: var(--primary-50);
+          color: var(--primary-color);
+        }
+        
+        &.node-inactive {
+          opacity: 0.6;
+          
+          .node-label {
+            text-decoration: line-through;
+          }
+        }
+      }
+      
+      .node-icon {
+        margin-right: 0.5rem;
+        color: var(--text-color-secondary);
+      }
+      
+      .node-badges {
+        margin-left: auto;
+        display: flex;
+        gap: 0.25rem;
+        
+        .badge {
+          padding: 0.125rem 0.5rem;
+          border-radius: 1rem;
+          font-size: 0.75rem;
+          font-weight: 600;
+          
+          &.badge-inactive {
+            background-color: var(--red-100);
+            color: var(--red-800);
+          }
+          
+          &.badge-parent {
+            background-color: var(--blue-100);
+            color: var(--blue-800);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Loading states
+.loading-overlay {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+}
+
+// Error states
+.field-error {
+  margin-top: 0.25rem;
+}
+
+// Form validation styling
+.ng-invalid.ng-touched {
+  &:not(.p-select):not(.p-inputnumber) {
+    border-color: var(--red-500) !important;
+    box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2);
+  }
+}
+
+// Custom price display in table
+.price-display {
+  font-weight: 600;
+  color: var(--green-600);
+  
+  &.price-zero {
+    color: var(--text-color-secondary);
+    font-style: italic;
+  }
+}

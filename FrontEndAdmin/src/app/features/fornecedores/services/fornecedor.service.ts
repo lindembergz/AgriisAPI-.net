@@ -1,8 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable, throwError, forkJoin } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { Fornecedor, FornecedorForm } from '../../../shared/models/fornecedor.model';
+import { UfDto, MunicipioDto } from '../../../shared/models/reference.model';
+import { UfService } from '../../referencias/ufs/services/uf.service';
+import { MunicipioService } from '../../referencias/municipios/services/municipio.service';
 import { environment } from '../../../../environments/environment';
 
 /**
@@ -24,6 +27,7 @@ export interface FornecedorQueryParams {
   search?: string;
   tipoCliente?: string;
   uf?: string;
+  municipio?: string;
   ativo?: boolean;
 }
 
@@ -36,6 +40,8 @@ export interface FornecedorQueryParams {
 })
 export class FornecedorService {
   private http = inject(HttpClient);
+  private ufService = inject(UfService);
+  private municipioService = inject(MunicipioService);
   private readonly apiUrl = `${environment.apiUrl}/fornecedores`;
 
   /**
@@ -61,6 +67,9 @@ export class FornecedorService {
          if (params.uf) {
            httpParams = httpParams.set('uf', params.uf);
          }
+         if (params.municipio) {
+           httpParams = httpParams.set('municipio', params.municipio);
+         }
          if (params.ativo !== undefined) {
            httpParams = httpParams.set('ativo', params.ativo.toString());
          }
@@ -68,39 +77,47 @@ export class FornecedorService {
    
        return this.http.get<FornecedorListResponse>(this.apiUrl, { params: httpParams })
          .pipe(
+           switchMap(response => this.enrichListWithGeographicData(response)),
            catchError(error => this.handleError('list fornecedores', error))
          );
      }
 
 
   /**
-   * Get fornecedor by ID
+   * Get fornecedor by ID with complete geographic information
    */
   getById(id: number): Observable<Fornecedor> {
     return this.http.get<Fornecedor>(`${this.apiUrl}/${id}`)
       .pipe(
+        switchMap(fornecedor => this.enrichWithGeographicData(fornecedor)),
         catchError(error => this.handleError(`get fornecedor id=${id}`, error))
       );
   }
 
   /**
-   * Create new fornecedor with complete structure
+   * Create new fornecedor with complete structure and geographic validation
    */
   create(fornecedor: FornecedorForm): Observable<Fornecedor> {
-    return this.http.post<Fornecedor>(`${this.apiUrl}/completo`, fornecedor)
-      .pipe(
-        catchError(error => this.handleError('create fornecedor', error))
-      );
+    return this.validateFornecedorGeographicData(fornecedor).pipe(
+      switchMap(validatedFornecedor => 
+        this.http.post<Fornecedor>(`${this.apiUrl}/completo`, validatedFornecedor)
+      ),
+      switchMap(createdFornecedor => this.enrichWithGeographicData(createdFornecedor)),
+      catchError(error => this.handleError('create fornecedor', error))
+    );
   }
 
   /**
-   * Update existing fornecedor
+   * Update existing fornecedor with geographic validation
    */
   update(id: number, fornecedor: FornecedorForm): Observable<Fornecedor> {
-    return this.http.put<Fornecedor>(`${this.apiUrl}/${id}`, fornecedor)
-      .pipe(
-        catchError(error => this.handleError(`update fornecedor id=${id}`, error))
-      );
+    return this.validateFornecedorGeographicData(fornecedor).pipe(
+      switchMap(validatedFornecedor => 
+        this.http.put<Fornecedor>(`${this.apiUrl}/${id}`, validatedFornecedor)
+      ),
+      switchMap(updatedFornecedor => this.enrichWithGeographicData(updatedFornecedor)),
+      catchError(error => this.handleError(`update fornecedor id=${id}`, error))
+    );
   }
 
   /**
@@ -149,6 +166,204 @@ export class FornecedorService {
       .pipe(
         catchError(error => this.handleError(`validate document=${cpfCnpj}`, error))
       );
+  }
+
+  /**
+   * Validate UF-Município relationship
+   */
+  validateGeographicRelationship(ufId: number, municipioId: number): Observable<boolean> {
+    return this.municipioService.obterPorId(municipioId).pipe(
+      map(municipio => municipio.ufId === ufId),
+      catchError(error => {
+        console.error('Error validating geographic relationship:', error);
+        return throwError(() => new Error('Erro ao validar relacionamento geográfico'));
+      })
+    );
+  }
+
+  /**
+   * Get UFs for dropdown
+   */
+  getUfsForDropdown(): Observable<UfDto[]> {
+    return this.ufService.obterAtivos().pipe(
+      catchError(error => this.handleError('get UFs for dropdown', error))
+    );
+  }
+
+  /**
+   * Get Municípios by UF for dropdown
+   */
+  getMunicipiosByUf(ufId: number): Observable<MunicipioDto[]> {
+    return this.municipioService.obterAtivosPorUf(ufId).pipe(
+      catchError(error => this.handleError(`get municípios by UF id=${ufId}`, error))
+    );
+  }
+
+  /**
+   * Enrich single fornecedor with geographic data
+   */
+  private enrichWithGeographicData(fornecedor: Fornecedor): Observable<Fornecedor> {
+    if (!fornecedor.endereco) {
+      return new Observable(observer => {
+        observer.next(fornecedor);
+        observer.complete();
+      });
+    }
+
+    const endereco = fornecedor.endereco as any;
+    const ufId = endereco.ufId;
+    const municipioId = endereco.municipioId;
+
+    if (!ufId || !municipioId) {
+      return new Observable(observer => {
+        observer.next(fornecedor);
+        observer.complete();
+      });
+    }
+
+    return (forkJoin({
+      uf: this.ufService.obterPorId(ufId) as Observable<any>,
+      municipio: this.municipioService.obterPorId(municipioId) as Observable<any>
+    }) as Observable<any>).pipe(
+      map(({ uf, municipio }) => {
+        const enrichedFornecedor = { ...fornecedor };
+        if (enrichedFornecedor.endereco) {
+          enrichedFornecedor.endereco = {
+            ...enrichedFornecedor.endereco,
+            ufNome: uf.nome,
+            ufCodigo: uf.codigo,
+            municipioNome: municipio.nome,
+            municipioCodigoIbge: municipio.codigoIbge
+          };
+        }
+        return enrichedFornecedor;
+      }),
+      catchError(error => {
+        console.warn('Error enriching fornecedor with geographic data:', error);
+        // Return original fornecedor if geographic data loading fails
+        return new Observable(observer => {
+          observer.next(fornecedor);
+          observer.complete();
+        });
+      })
+    ) as Observable<Fornecedor>;
+  }
+
+  /**
+   * Enrich list response with geographic data
+   */
+  private enrichListWithGeographicData(response: FornecedorListResponse): Observable<FornecedorListResponse> {
+    if (!response.items || response.items.length === 0) {
+      return new Observable(observer => {
+        observer.next(response);
+        observer.complete();
+      });
+    }
+
+    // Get unique UF and Município IDs from all fornecedores
+    const ufIds = new Set<number>();
+    const municipioIds = new Set<number>();
+
+    response.items.forEach(fornecedor => {
+      if (fornecedor.endereco) {
+        const endereco = fornecedor.endereco as any;
+        if (endereco.ufId) ufIds.add(endereco.ufId);
+        if (endereco.municipioId) municipioIds.add(endereco.municipioId);
+      }
+    });
+
+    if (ufIds.size === 0 && municipioIds.size === 0) {
+      return new Observable(observer => {
+        observer.next(response);
+        observer.complete();
+      });
+    }
+
+    // Load all UFs and Municípios in parallel
+    const ufRequests = Array.from(ufIds).map(id => this.ufService.obterPorId(id));
+    const municipioRequests = Array.from(municipioIds).map(id => this.municipioService.obterPorId(id));
+
+    return (forkJoin({
+      ufs: ufRequests.length > 0 ? forkJoin(ufRequests) as Observable<any[]> : new Observable(observer => { observer.next([]); observer.complete(); }),
+      municipios: municipioRequests.length > 0 ? forkJoin(municipioRequests) as Observable<any[]> : new Observable(observer => { observer.next([]); observer.complete(); })
+    }) as Observable<any>).pipe(
+      map(({ ufs, municipios }) => {
+        // Create lookup maps
+        const ufMap = new Map((ufs as any[]).map((uf: any) => [uf.id, uf]));
+        const municipioMap = new Map((municipios as any[]).map((municipio: any) => [municipio.id, municipio]));
+
+        // Enrich each fornecedor
+        const enrichedItems = response.items.map(fornecedor => {
+          if (!fornecedor.endereco) return fornecedor;
+
+          const endereco = fornecedor.endereco as any;
+          const uf = endereco.ufId ? ufMap.get(endereco.ufId) as any : null;
+          const municipio = endereco.municipioId ? municipioMap.get(endereco.municipioId) as any : null;
+
+          return {
+            ...fornecedor,
+            endereco: {
+              ...fornecedor.endereco,
+              ufNome: uf?.nome || endereco.uf || '',
+              ufCodigo: uf?.codigo || endereco.uf || '',
+              municipioNome: municipio?.nome || endereco.cidade || '',
+              municipioCodigoIbge: municipio?.codigoIbge || ''
+            }
+          };
+        });
+
+        return {
+          ...response,
+          items: enrichedItems
+        };
+      }),
+      catchError(error => {
+        console.warn('Error enriching fornecedor list with geographic data:', error);
+        // Return original response if geographic data loading fails
+        return new Observable(observer => {
+          observer.next(response);
+          observer.complete();
+        });
+      })
+    ) as Observable<FornecedorListResponse>;
+  }
+
+  /**
+   * Validate fornecedor geographic data before save
+   */
+  private validateFornecedorGeographicData(fornecedor: FornecedorForm): Observable<FornecedorForm> {
+    if (!fornecedor.endereco) {
+      return new Observable(observer => {
+        observer.next(fornecedor);
+        observer.complete();
+      });
+    }
+
+    const endereco = fornecedor.endereco as any;
+    const ufId = endereco.ufId;
+    const municipioId = endereco.municipioId;
+
+    // If no geographic IDs provided, return as is
+    if (!ufId || !municipioId) {
+      return new Observable(observer => {
+        observer.next(fornecedor);
+        observer.complete();
+      });
+    }
+
+    // Validate that município belongs to the selected UF
+    return this.validateGeographicRelationship(ufId, municipioId).pipe(
+      map(isValid => {
+        if (!isValid) {
+          throw new Error('O município selecionado não pertence à UF selecionada');
+        }
+        return fornecedor;
+      }),
+      catchError(error => {
+        console.error('Geographic validation failed:', error);
+        return throwError(() => new Error('Erro na validação geográfica: ' + error.message));
+      })
+    );
   }
 
   /**

@@ -1,0 +1,435 @@
+.culturas-list-container {
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: calc(100vh - 200px);
+
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    .title-section {
+      h2 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+        font-size: 1.8rem;
+        font-weight: 600;
+      }
+
+      .subtitle {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.95rem;
+      }
+    }
+
+    .actions-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+
+      .status-filter {
+        min-width: 180px;
+      }
+
+      .new-cultura-btn {
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: #6c757d;
+
+    p {
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+  }
+
+  .table-container {
+    .cultura-nome {
+      font-weight: 500;
+      color: #2c3e50;
+    }
+
+    .cultura-descricao {
+      color: #6c757d;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      display: block;
+      max-width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.25rem;
+      justify-content: center;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+
+      .empty-content {
+        .empty-icon {
+          font-size: 3rem;
+          color: #dee2e6;
+          margin-bottom: 1rem;
+        }
+
+        h3 {
+          color: #6c757d;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+        }
+
+        p {
+          color: #adb5bd;
+          margin-bottom: 1.5rem;
+          line-height: 1.5;
+        }
+      }
+    }
+  }
+}
+
+// Enhanced Responsive Design
+@media (max-width: 1024px) {
+  .culturas-list-container {
+    .table-container {
+      :host ::ng-deep {
+        .p-datatable {
+          .hide-tablet {
+            display: none !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .culturas-list-container {
+    padding: 1rem;
+
+    .header-section {
+      flex-direction: column;
+      align-items: stretch;
+
+      .title-section {
+        text-align: center;
+        margin-bottom: 1rem;
+
+        h2 {
+          font-size: 1.5rem;
+        }
+      }
+
+      .actions-section {
+        justify-content: center;
+        
+        .status-filter {
+          flex: 1;
+          min-width: auto;
+        }
+
+        .new-cultura-btn {
+          flex: 1;
+        }
+      }
+    }
+
+    .table-container {
+      overflow-x: auto;
+
+      .cultura-descricao {
+        max-width: 150px;
+      }
+
+      :host ::ng-deep {
+        .p-datatable {
+          .hide-mobile {
+            display: none !important;
+          }
+
+          .p-datatable-tbody > tr > td {
+            position: relative;
+            padding-left: 35%;
+            text-align: left;
+            border: none;
+            border-bottom: 1px solid #dee2e6;
+
+            .mobile-label {
+              position: absolute;
+              left: 6px;
+              width: 30%;
+              padding-right: 10px;
+              white-space: nowrap;
+              font-weight: 600;
+              color: #495057;
+            }
+          }
+
+          .p-datatable-thead {
+            display: none;
+          }
+
+          .actions-column {
+            padding-left: 6px !important;
+            text-align: center;
+
+            .mobile-label {
+              display: none;
+            }
+          }
+        }
+      }
+
+      .mobile-only {
+        display: block;
+      }
+
+      .mobile-description {
+        margin-top: 0.25rem;
+        color: #6c757d;
+        font-style: italic;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .culturas-list-container {
+    padding: 0.75rem;
+
+    .header-section {
+      .actions-section {
+        flex-direction: column;
+        
+        .status-filter,
+        .new-cultura-btn {
+          width: 100%;
+        }
+      }
+    }
+
+    .table-container {
+      .action-buttons {
+        flex-direction: column;
+        gap: 0.125rem;
+      }
+
+      :host ::ng-deep {
+        .p-datatable {
+          .p-datatable-tbody > tr > td {
+            padding: 0.75rem 0.5rem 0.75rem 35%;
+            font-size: 0.9rem;
+
+            .mobile-label {
+              font-size: 0.8rem;
+            }
+          }
+
+          .actions-column {
+            padding: 0.75rem 0.5rem !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Additional mobile-only styles
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block;
+  }
+}
+
+// Enhanced UX Styles
+.row-highlight {
+  background: rgba(0, 123, 255, 0.1) !important;
+  animation: highlightFade 2s ease-out;
+}
+
+@keyframes highlightFade {
+  0% { background: rgba(0, 123, 255, 0.3) !important; }
+  100% { background: rgba(0, 123, 255, 0.1) !important; }
+}
+
+// Loading states
+.action-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+// Enhanced field validation
+.field-error {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.field-success {
+  border-color: #28a745 !important;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}
+
+// PrimeNG Table Customizations
+:host ::ng-deep {
+  .p-datatable {
+    .p-datatable-header {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 1rem;
+    }
+
+    .p-datatable-thead > tr > th {
+      background: #f8f9fa;
+      color: #495057;
+      font-weight: 600;
+      border-color: #dee2e6;
+      padding: 0.75rem;
+      position: relative;
+
+      .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+      }
+
+      &:hover {
+        background: #e9ecef;
+        cursor: pointer;
+      }
+
+      &.p-sortable-column:hover {
+        background: #e9ecef;
+      }
+    }
+
+    .p-datatable-tbody > tr > td {
+      padding: 0.75rem;
+      border-color: #dee2e6;
+      transition: all 0.2s ease;
+    }
+
+    .p-datatable-tbody > tr:hover {
+      background: #f8f9fa;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .p-datatable-loading-overlay {
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .p-datatable-scrollable .p-datatable-thead > tr > th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+  }
+
+  .p-paginator {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    padding: 0.75rem;
+
+    .p-paginator-pages .p-paginator-page.p-highlight {
+      background: #007bff;
+      border-color: #007bff;
+    }
+  }
+
+  .p-select {
+    .p-select-dropdown {
+      background: #ffffff;
+    }
+  }
+
+  .p-button {
+    &.p-button-primary {
+      background: #007bff;
+      border-color: #007bff;
+
+      &:hover {
+        background: #0056b3;
+        border-color: #0056b3;
+      }
+    }
+
+    &.p-button-info {
+      color: #17a2b8;
+
+      &:hover {
+        background: #17a2b8;
+        color: #ffffff;
+      }
+    }
+
+    &.p-button-danger {
+      color: #dc3545;
+
+      &:hover {
+        background: #dc3545;
+        color: #ffffff;
+      }
+    }
+  }
+
+  .p-tag {
+    &.p-tag-success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    &.p-tag-danger {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  }
+
+  .p-toast {
+    .p-toast-message {
+      margin: 0 0 1rem 0;
+    }
+  }
+
+  .p-confirm-dialog {
+    .p-dialog-header {
+      background: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .p-dialog-footer {
+      background: #f8f9fa;
+      border-top: 1px solid #dee2e6;
+      padding: 1rem;
+
+      .p-button {
+        margin: 0 0.25rem;
+      }
+    }
+  }
+}

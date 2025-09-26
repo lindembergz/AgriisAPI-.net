@@ -2,6 +2,7 @@ using Agriis.Compartilhado.Dominio.Entidades;
 using Agriis.Compartilhado.Dominio.Enums;
 using Agriis.Produtos.Dominio.Enums;
 using Agriis.Produtos.Dominio.ObjetosValor;
+using Agriis.Referencias.Dominio.Entidades;
 using System.Text.Json;
 
 namespace Agriis.Produtos.Dominio.Entidades;
@@ -42,9 +43,9 @@ public class Produto : EntidadeRaizAgregada
     public StatusProduto Status { get; private set; }
     
     /// <summary>
-    /// Unidade de medida
+    /// ID da unidade de medida
     /// </summary>
-    public TipoUnidade Unidade { get; private set; }
+    public int UnidadeMedidaId { get; private set; }
     
     /// <summary>
     /// Dimensões físicas do produto
@@ -77,6 +78,16 @@ public class Produto : EntidadeRaizAgregada
     public int FornecedorId { get; private set; }
     
     /// <summary>
+    /// ID da embalagem do produto
+    /// </summary>
+    public int? EmbalagemId { get; private set; }
+    
+    /// <summary>
+    /// ID da atividade agropecuária relacionada ao produto
+    /// </summary>
+    public int? AtividadeAgropecuariaId { get; private set; }
+    
+    /// <summary>
     /// ID do produto pai (para produtos fabricantes vs revendedores)
     /// </summary>
     public int? ProdutoPaiId { get; private set; }
@@ -88,6 +99,9 @@ public class Produto : EntidadeRaizAgregada
 
     // Navigation Properties
     public virtual Categoria Categoria { get; private set; } = null!;
+    public virtual UnidadeMedida UnidadeMedida { get; private set; } = null!;
+    public virtual Embalagem? Embalagem { get; private set; }
+    public virtual AtividadeAgropecuaria? AtividadeAgropecuaria { get; private set; }
     public virtual Produto? ProdutoPai { get; private set; }
     public virtual ICollection<Produto> ProdutosFilhos { get; private set; } = new List<Produto>();
     public virtual ICollection<ProdutoCultura> ProdutosCulturas { get; private set; } = new List<ProdutoCultura>();
@@ -98,7 +112,7 @@ public class Produto : EntidadeRaizAgregada
         string nome,
         string codigo,
         TipoProduto tipo,
-        TipoUnidade unidade,
+        int unidadeMedidaId,
         DimensoesProduto dimensoes,
         int categoriaId,
         int fornecedorId,
@@ -107,15 +121,19 @@ public class Produto : EntidadeRaizAgregada
         TipoCalculoPeso tipoCalculoPeso = TipoCalculoPeso.PesoNominal,
         bool produtoRestrito = false,
         string? observacoesRestricao = null,
-        int? produtoPaiId = null)
+        int? produtoPaiId = null,
+        int? embalagemId = null,
+        int? atividadeAgropecuariaId = null)
     {
         Nome = nome ?? throw new ArgumentNullException(nameof(nome));
         Codigo = codigo ?? throw new ArgumentNullException(nameof(codigo));
         Tipo = tipo;
-        Unidade = unidade;
+        UnidadeMedidaId = unidadeMedidaId;
         Dimensoes = dimensoes ?? throw new ArgumentNullException(nameof(dimensoes));
         CategoriaId = categoriaId;
         FornecedorId = fornecedorId;
+        EmbalagemId = embalagemId;
+        AtividadeAgropecuariaId = atividadeAgropecuariaId;
         Descricao = descricao;
         Marca = marca;
         TipoCalculoPeso = tipoCalculoPeso;
@@ -181,6 +199,33 @@ public class Produto : EntidadeRaizAgregada
     public void AtualizarCategoria(int categoriaId)
     {
         CategoriaId = categoriaId;
+        AtualizarDataModificacao();
+    }
+
+    /// <summary>
+    /// Atualiza a unidade de medida do produto
+    /// </summary>
+    public void AtualizarUnidadeMedida(int unidadeMedidaId)
+    {
+        UnidadeMedidaId = unidadeMedidaId;
+        AtualizarDataModificacao();
+    }
+
+    /// <summary>
+    /// Atualiza a embalagem do produto
+    /// </summary>
+    public void AtualizarEmbalagem(int? embalagemId)
+    {
+        EmbalagemId = embalagemId;
+        AtualizarDataModificacao();
+    }
+
+    /// <summary>
+    /// Atualiza a atividade agropecuária do produto
+    /// </summary>
+    public void AtualizarAtividadeAgropecuaria(int? atividadeAgropecuariaId)
+    {
+        AtividadeAgropecuariaId = atividadeAgropecuariaId;
         AtualizarDataModificacao();
     }
 
@@ -279,7 +324,11 @@ public class Produto : EntidadeRaizAgregada
         // else:
         //     peso_produto = produto.peso_embalagem
         
-        return Dimensoes.CalcularPesoProduto(Categoria?.Nome ?? string.Empty, Unidade);
+        // Para manter compatibilidade, vamos usar o símbolo da unidade de medida
+        var unidadeSimbolo = UnidadeMedida?.Simbolo ?? string.Empty;
+        var tipoUnidade = MapearSimboloParaTipoUnidade(unidadeSimbolo);
+        
+        return Dimensoes.CalcularPesoProduto(Categoria?.Nome ?? string.Empty, tipoUnidade);
     }
 
     /// <summary>
@@ -369,5 +418,25 @@ public class Produto : EntidadeRaizAgregada
         // Produtos fabricantes não podem ter produto pai
         if (Tipo == TipoProduto.Fabricante && ProdutoPaiId.HasValue)
             throw new InvalidOperationException("Produtos fabricantes não podem ter produto pai");
+    }
+
+    /// <summary>
+    /// Mapeia o símbolo da unidade de medida para o tipo de unidade (compatibilidade com sistema Python)
+    /// </summary>
+    private TipoUnidade MapearSimboloParaTipoUnidade(string simbolo)
+    {
+        return simbolo?.ToUpper() switch
+        {
+            "SEMENTES" => TipoUnidade.Sementes,
+            "KG" => TipoUnidade.Quilo,
+            "T" => TipoUnidade.Tonelada,
+            "L" => TipoUnidade.Litro,
+            "HA" => TipoUnidade.Hectare,
+            "DOSE" => TipoUnidade.Dose,
+            "FRASCO" => TipoUnidade.Frasco,
+            "OVOS" => TipoUnidade.Ovos,
+            "PARASITOIDE" => TipoUnidade.Parasitoide,
+            _ => TipoUnidade.Quilo
+        };
     }
 }

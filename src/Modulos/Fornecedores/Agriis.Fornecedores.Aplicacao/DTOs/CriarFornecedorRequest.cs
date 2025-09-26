@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Agriis.Fornecedores.Aplicacao.Validadores;
 
 namespace Agriis.Fornecedores.Aplicacao.DTOs;
 
@@ -28,10 +29,43 @@ public class CriarFornecedorRequest
     public string? InscricaoEstadual { get; set; }
     
     /// <summary>
-    /// Endereço completo do fornecedor
+    /// Logradouro do fornecedor
     /// </summary>
-    [StringLength(500, ErrorMessage = "Endereço deve ter no máximo 500 caracteres")]
-    public string? Endereco { get; set; }
+    [StringLength(500, ErrorMessage = "Logradouro deve ter no máximo 500 caracteres")]
+    public string? Logradouro { get; set; }
+    
+    /// <summary>
+    /// ID da UF do fornecedor
+    /// </summary>
+    public int? UfId { get; set; }
+    
+    /// <summary>
+    /// ID do município do fornecedor
+    /// </summary>
+    [ValidarMunicipioUf(nameof(UfId))]
+    public int? MunicipioId { get; set; }
+    
+    /// <summary>
+    /// CEP do fornecedor
+    /// </summary>
+    [StringLength(10, ErrorMessage = "CEP deve ter no máximo 10 caracteres")]
+    public string? Cep { get; set; }
+    
+    /// <summary>
+    /// Complemento do endereço
+    /// </summary>
+    [StringLength(200, ErrorMessage = "Complemento deve ter no máximo 200 caracteres")]
+    public string? Complemento { get; set; }
+    
+    /// <summary>
+    /// Latitude da localização
+    /// </summary>
+    public decimal? Latitude { get; set; }
+    
+    /// <summary>
+    /// Longitude da localização
+    /// </summary>
+    public decimal? Longitude { get; set; }
     
     /// <summary>
     /// Telefone de contato do fornecedor

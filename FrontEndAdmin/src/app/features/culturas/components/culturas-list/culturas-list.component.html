@@ -1,0 +1,190 @@
+<div class="culturas-list-container">
+  <!-- Header with title and actions -->
+  <div class="header-section">
+    <div class="title-section">
+      <h2>Culturas</h2>
+      <p class="subtitle">Gerencie os tipos de cultivo disponíveis na plataforma</p>
+    </div>
+    
+    <div class="actions-section">
+      <!-- Status Filter -->
+      <p-select
+        [options]="statusFilterOptions"
+        [ngModel]="selectedStatusFilter()"
+        (onChange)="onStatusFilterChange($event)"
+        placeholder="Filtrar por status"
+        optionLabel="label"
+        optionValue="value"
+        class="status-filter">
+      </p-select>
+      
+      <!-- New Cultura Button -->
+      <p-button
+        label="Nova Cultura"
+        icon="pi pi-plus"
+        (onClick)="novaCultura()"
+        class="p-button-primary new-cultura-btn">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading()" class="loading-container">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Carregando culturas...</p>
+  </div>
+
+  <!-- Culturas Table -->
+  <div *ngIf="!loading()" class="table-container">
+    <p-table
+      [value]="culturas()"
+      [paginator]="true"
+      [rows]="pageSize()"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [sortField]="'nome'"
+      [sortOrder]="1"
+      [globalFilterFields]="['nome', 'descricao']"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-gridlines p-datatable-striped"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} culturas"
+      [loading]="tableLoading()"
+      loadingIcon="pi pi-spinner"
+      [sortMode]="'multiple'"
+      [multiSortMeta]="multiSortMeta()"
+      (onSort)="onSort($event)"
+      (onPage)="onPageChange($event)"
+      [lazy]="false"
+      [scrollable]="true"
+      scrollHeight="60vh"
+      [resizableColumns]="true"
+      columnResizeMode="expand">
+      
+      <!-- Table Header -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id" style="width: 80px" pResizableColumn>
+            <div class="header-content">
+              ID <p-sortIcon field="id"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="nome" style="min-width: 200px" pResizableColumn>
+            <div class="header-content">
+              Nome <p-sortIcon field="nome"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="descricao" style="min-width: 250px" pResizableColumn class="hide-mobile">
+            <div class="header-content">
+              Descrição <p-sortIcon field="descricao"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="ativo" style="width: 120px" pResizableColumn>
+            <div class="header-content">
+              Status <p-sortIcon field="ativo"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="dataCriacao" style="width: 150px" pResizableColumn class="hide-tablet">
+            <div class="header-content">
+              Data Criação <p-sortIcon field="dataCriacao"></p-sortIcon>
+            </div>
+          </th>
+          <th style="width: 150px" class="actions-column">
+            <div class="header-content">
+              Ações
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+
+      <!-- Table Body -->
+      <ng-template pTemplate="body" let-cultura let-rowIndex="rowIndex">
+        <tr [class.row-highlight]="isRowHighlighted(rowIndex)">
+          <td>
+            <span class="mobile-label">ID:</span>
+            {{ cultura.id }}
+          </td>
+          <td>
+            <span class="mobile-label">Nome:</span>
+            <span class="cultura-nome">{{ cultura.nome }}</span>
+            <!-- Mobile-only description -->
+            <div class="mobile-only mobile-description" *ngIf="cultura.descricao">
+              <small>{{ cultura.descricao }}</small>
+            </div>
+          </td>
+          <td class="hide-mobile">
+            <span class="cultura-descricao" [title]="cultura.descricao">
+              {{ cultura.descricao || '-' }}
+            </span>
+          </td>
+          <td>
+            <span class="mobile-label">Status:</span>
+            <p-tag
+              [value]="getStatusLabel(cultura.ativo)"
+              [severity]="getStatusSeverity(cultura.ativo)">
+            </p-tag>
+          </td>
+          <td class="hide-tablet">
+            <span class="mobile-label">Criado em:</span>
+            {{ formatarData(cultura.dataCriacao) }}
+          </td>
+          <td class="actions-column">
+            <div class="action-buttons">
+              <p-button
+                icon="pi pi-pencil"
+                (onClick)="editarCultura(cultura)"
+                class="p-button-rounded p-button-text p-button-info"
+                pTooltip="Editar"
+                tooltipPosition="top"
+                [loading]="isActionLoading('edit', cultura.id)"
+                [disabled]="hasAnyActionLoading()">
+              </p-button>
+              <p-button
+                icon="pi pi-trash"
+                (onClick)="excluirCultura(cultura)"
+                class="p-button-rounded p-button-text p-button-danger"
+                pTooltip="Excluir"
+                tooltipPosition="top"
+                [loading]="isActionLoading('delete', cultura.id)"
+                [disabled]="hasAnyActionLoading()">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Empty State -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="empty-state">
+            <div class="empty-content">
+              <i class="pi pi-info-circle empty-icon"></i>
+              <h3>Nenhuma cultura encontrada</h3>
+              <p>
+                @if (selectedStatusFilter() === 'todas') {
+                  Não há culturas cadastradas no sistema.
+                } @else if (selectedStatusFilter() === 'ativas') {
+                  Não há culturas ativas no momento.
+                } @else {
+                  Não há culturas inativas no momento.
+                }
+              </p>
+              <p-button
+                label="Cadastrar Nova Cultura"
+                icon="pi pi-plus"
+                (onClick)="novaCultura()"
+                class="p-button-primary">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Toast Messages -->
+  <p-toast position="top-right"></p-toast>
+  
+  <!-- Confirmation Dialog -->
+  <p-confirmDialog></p-confirmDialog>
+</div>

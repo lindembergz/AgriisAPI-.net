@@ -1,0 +1,257 @@
+// UFs Component Styles
+
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+      font-weight: 600;
+      color: var(--text-color);
+      
+      &.required::after {
+        content: ' *';
+        color: var(--red-500);
+      }
+    }
+
+    .field-help {
+      color: var(--text-color-secondary);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    .p-error {
+      color: var(--red-500);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    // Country selector styles
+    .selected-country,
+    .country-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .country-code {
+        background: var(--primary-100);
+        color: var(--primary-700);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        min-width: 2.5rem;
+        text-align: center;
+      }
+
+      .country-name {
+        flex: 1;
+      }
+    }
+
+    .country-option:hover {
+      .country-code {
+        background: var(--primary-200);
+        color: var(--primary-800);
+      }
+    }
+  }
+}
+
+// Table custom columns styles
+.pais-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .pais-codigo {
+    background: var(--blue-100);
+    color: var(--blue-700);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 2.5rem;
+    text-align: center;
+  }
+
+  .pais-nome {
+    color: var(--text-color);
+    font-weight: 500;
+  }
+}
+
+.no-pais {
+  color: var(--text-color-secondary);
+  font-style: italic;
+}
+
+.municipios-count-tag {
+  min-width: 3rem;
+  text-align: center;
+  
+  &.p-tag-secondary {
+    background: var(--gray-100);
+    color: var(--gray-600);
+  }
+  
+  &.p-tag-info {
+    background: var(--blue-100);
+    color: var(--blue-700);
+  }
+  
+  &.p-tag-success {
+    background: var(--green-100);
+    color: var(--green-700);
+  }
+  
+  &.p-tag-warning {
+    background: var(--orange-100);
+    color: var(--orange-700);
+  }
+  
+  &.p-tag-danger {
+    background: var(--red-100);
+    color: var(--red-700);
+  }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .form-fields {
+    gap: 1rem;
+    
+    .field {
+      .selected-country,
+      .country-option {
+        .country-name {
+          font-size: 0.875rem;
+        }
+      }
+    }
+  }
+
+  .pais-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+
+    .pais-nome {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .municipios-count-tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+// Dark theme adjustments
+:host-context(.dark-theme) {
+  .selected-country,
+  .country-option {
+    .country-code {
+      background: var(--primary-800);
+      color: var(--primary-100);
+    }
+  }
+
+  .country-option:hover {
+    .country-code {
+      background: var(--primary-700);
+      color: var(--primary-50);
+    }
+  }
+
+  .pais-info {
+    .pais-codigo {
+      background: var(--blue-800);
+      color: var(--blue-100);
+    }
+  }
+
+  .municipios-count-tag {
+    &.p-tag-secondary {
+      background: var(--gray-800);
+      color: var(--gray-200);
+    }
+    
+    &.p-tag-info {
+      background: var(--blue-800);
+      color: var(--blue-200);
+    }
+    
+    &.p-tag-success {
+      background: var(--green-800);
+      color: var(--green-200);
+    }
+    
+    &.p-tag-warning {
+      background: var(--orange-800);
+      color: var(--orange-200);
+    }
+    
+    &.p-tag-danger {
+      background: var(--red-800);
+      color: var(--red-200);
+    }
+  }
+}
+
+// Loading states
+.loading-paises {
+  .p-select {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+// Validation states
+.ng-invalid.ng-touched {
+  border-color: var(--red-500) !important;
+  box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2) !important;
+}
+
+// Form field animations
+.field {
+  transition: all 0.2s ease-in-out;
+  
+  &:focus-within {
+    transform: translateY(-1px);
+  }
+}
+
+// Accessibility improvements
+.country-code,
+.pais-codigo {
+  &:focus {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+  }
+}
+
+// Print styles
+@media print {
+  .municipios-count-tag {
+    background: transparent !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--surface-border);
+  }
+  
+  .pais-info {
+    .pais-codigo {
+      background: transparent !important;
+      color: var(--text-color) !important;
+      border: 1px solid var(--surface-border);
+    }
+  }
+}

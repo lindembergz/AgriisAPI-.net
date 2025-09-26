@@ -1,0 +1,99 @@
+<div class="ufs-container">
+  <!-- Form fields slot -->
+  <div slot="form-fields" class="form-fields">
+    <!-- Código field -->
+    <div class="field">
+      <label for="codigo" class="required">Código</label>
+      <input
+        pInputText
+        id="codigo"
+        formControlName="codigo"
+        placeholder="Ex: SP, RJ, MG"
+        maxlength="2"
+        [class.ng-invalid]="shouldShowError('codigo')"
+        [disabled]="isEditMode()"
+        class="w-full" />
+      <small 
+        *ngIf="shouldShowError('codigo')" 
+        class="p-error">
+        {{ getErrorMessage('codigo') }}
+      </small>
+      <small class="field-help">
+        Código da UF com 2 caracteres
+      </small>
+    </div>
+
+    <!-- Nome field -->
+    <div class="field">
+      <label for="nome" class="required">Nome</label>
+      <input
+        pInputText
+        id="nome"
+        formControlName="nome"
+        placeholder="Ex: São Paulo, Rio de Janeiro, Minas Gerais"
+        maxlength="100"
+        [class.ng-invalid]="shouldShowError('nome')"
+        class="w-full" />
+      <small 
+        *ngIf="shouldShowError('nome')" 
+        class="p-error">
+        {{ getErrorMessage('nome') }}
+      </small>
+    </div>
+
+    <!-- País field -->
+    <div class="field">
+      <label for="paisId" class="required">País</label>
+      <p-select
+        formControlName="paisId"
+        [options]="paisesOptions()"
+        optionLabel="nome"
+        optionValue="id"
+        placeholder="Selecione um país"
+        [class.ng-invalid]="shouldShowError('paisId')"
+        [disabled]="isEditMode()"
+        [loading]="loadingPaises()"
+        class="w-full">
+        <ng-template pTemplate="selectedItem" let-selectedOption>
+          <div class="selected-country" *ngIf="selectedOption">
+            <span class="country-code">{{ selectedOption.codigo }}</span>
+            <span class="country-name">{{ selectedOption.nome }}</span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="item" let-pais>
+          <div class="country-option">
+            <span class="country-code">{{ pais.codigo }}</span>
+            <span class="country-name">{{ pais.nome }}</span>
+          </div>
+        </ng-template>
+      </p-select>
+      <small 
+        *ngIf="shouldShowError('paisId')" 
+        class="p-error">
+        {{ getErrorMessage('paisId') }}
+      </small>
+      <small class="field-help">
+        País ao qual esta UF pertence
+      </small>
+    </div>
+  </div>
+
+  <!-- Custom País column -->
+  <ng-container slot="custom-pais">
+    <div class="pais-info">
+      <span class="pais-codigo">BR</span>
+      <span class="pais-nome">Brasil</span>
+    </div>
+  </ng-container>
+
+  <!-- Custom Municípios count column -->
+  <ng-container slot="custom-municipiosCount">
+    <p-tag 
+      value="0" 
+      severity="secondary"
+      class="municipios-count-tag"
+      pTooltip="Nenhum município cadastrado"
+      tooltipPosition="top">
+    </p-tag>
+  </ng-container>
+</div>

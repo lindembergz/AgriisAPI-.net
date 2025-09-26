@@ -37,9 +37,19 @@ public class CriarProdutoDtoValidator : AbstractValidator<CriarProdutoDto>
             .IsInEnum()
             .WithMessage("Tipo de produto inválido");
 
-        RuleFor(x => x.Unidade)
-            .IsInEnum()
-            .WithMessage("Unidade inválida");
+        RuleFor(x => x.UnidadeMedidaId)
+            .GreaterThan(0)
+            .WithMessage("Unidade de medida é obrigatória");
+
+        RuleFor(x => x.EmbalagemId)
+            .GreaterThan(0)
+            .WithMessage("Embalagem deve ser válida")
+            .When(x => x.EmbalagemId.HasValue);
+
+        RuleFor(x => x.AtividadeAgropecuariaId)
+            .GreaterThan(0)
+            .WithMessage("Atividade agropecuária deve ser válida")
+            .When(x => x.AtividadeAgropecuariaId.HasValue);
 
         RuleFor(x => x.TipoCalculoPeso)
             .IsInEnum()

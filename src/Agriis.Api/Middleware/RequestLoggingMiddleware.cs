@@ -139,7 +139,7 @@ public class RequestLoggingMiddleware
             Method = request.Method,
             Path = request.Path.Value,
             QueryString = request.QueryString.Value,
-            Headers = GetSafeHeaders(request.Headers.Select(h => new KeyValuePair<string, IEnumerable<string>>(h.Key, h.Value.AsEnumerable()))),
+            Headers = GetSafeHeaders(request.Headers.Select(h => new KeyValuePair<string, IEnumerable<string>>(h.Key, h.Value.Where(v => v != null).AsEnumerable()))),
             UserAgent = request.Headers.UserAgent.ToString(),
             RemoteIpAddress = context.Connection.RemoteIpAddress?.ToString(),
             UserId = context.User?.FindFirst("user_id")?.Value,
@@ -198,7 +198,7 @@ public class RequestLoggingMiddleware
             ContentType = response.ContentType,
             ContentLength = response.ContentLength,
             ElapsedMilliseconds = elapsedMilliseconds,
-            Headers = GetSafeHeaders(response.Headers.Select(h => new KeyValuePair<string, IEnumerable<string>>(h.Key, h.Value.AsEnumerable())))
+            Headers = GetSafeHeaders(response.Headers.Select(h => new KeyValuePair<string, IEnumerable<string>>(h.Key, h.Value.Where(v => v != null).AsEnumerable())))
         };
 
         var logLevel = GetLogLevelForStatusCode(response.StatusCode);

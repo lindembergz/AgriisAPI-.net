@@ -13,6 +13,12 @@ export interface Endereco extends BaseEntity {
   cep: string;
   latitude?: number;
   longitude?: number;
+  ufId?: number;
+  municipioId?: number;
+  ufNome?: string;
+  ufCodigo?: string;
+  municipioNome?: string;
+  municipioCodigoIbge?: string;
 }
 
 /**
@@ -28,4 +34,10 @@ export interface EnderecoForm extends BaseForm {
   cep: string;
   latitude?: number;
   longitude?: number;
+  ufId?: number;
+  municipioId?: number;
+  ufNome?: string;
+  ufCodigo?: string;
+  municipioNome?: string;
+  municipioCodigoIbge?: string;
 }

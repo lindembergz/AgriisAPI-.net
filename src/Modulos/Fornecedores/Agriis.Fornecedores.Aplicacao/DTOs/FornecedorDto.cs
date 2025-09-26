@@ -33,9 +33,54 @@ public class FornecedorDto
     public string? InscricaoEstadual { get; set; }
     
     /// <summary>
-    /// Endereço completo do fornecedor
+    /// Logradouro do fornecedor
     /// </summary>
-    public string? Endereco { get; set; }
+    public string? Logradouro { get; set; }
+    
+    /// <summary>
+    /// ID da UF do fornecedor
+    /// </summary>
+    public int? UfId { get; set; }
+    
+    /// <summary>
+    /// Nome da UF do fornecedor
+    /// </summary>
+    public string? UfNome { get; set; }
+    
+    /// <summary>
+    /// Código da UF do fornecedor
+    /// </summary>
+    public string? UfCodigo { get; set; }
+    
+    /// <summary>
+    /// ID do município do fornecedor
+    /// </summary>
+    public int? MunicipioId { get; set; }
+    
+    /// <summary>
+    /// Nome do município do fornecedor
+    /// </summary>
+    public string? MunicipioNome { get; set; }
+    
+    /// <summary>
+    /// CEP do fornecedor
+    /// </summary>
+    public string? Cep { get; set; }
+    
+    /// <summary>
+    /// Complemento do endereço
+    /// </summary>
+    public string? Complemento { get; set; }
+    
+    /// <summary>
+    /// Latitude da localização
+    /// </summary>
+    public decimal? Latitude { get; set; }
+    
+    /// <summary>
+    /// Longitude da localização
+    /// </summary>
+    public decimal? Longitude { get; set; }
     
     /// <summary>
     /// Telefone de contato do fornecedor

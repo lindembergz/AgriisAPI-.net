@@ -9,6 +9,7 @@ using Agriis.Fornecedores.Dominio.Servicos;
 using Agriis.Compartilhado.Aplicacao.Resultados;
 using Agriis.Usuarios.Aplicacao.Interfaces;
 using Agriis.Usuarios.Aplicacao.DTOs;
+using Agriis.Referencias.Aplicacao.Interfaces;
 
 namespace Agriis.Fornecedores.Aplicacao.Servicos;
 
@@ -22,19 +23,22 @@ public class FornecedorService : IFornecedorService
     private readonly IMapper _mapper;
     private readonly IUsuarioService _usuarioService;
     private readonly IUsuarioFornecedorRepository _usuarioFornecedorRepository;
+    private readonly IMunicipioService _municipioService;
 
     public FornecedorService(
         IFornecedorRepository fornecedorRepository,
         FornecedorDomainService domainService,
         IMapper mapper,
         IUsuarioService usuarioService,
-        IUsuarioFornecedorRepository usuarioFornecedorRepository)
+        IUsuarioFornecedorRepository usuarioFornecedorRepository,
+        IMunicipioService municipioService)
     {
         _fornecedorRepository = fornecedorRepository ?? throw new ArgumentNullException(nameof(fornecedorRepository));
         _domainService = domainService ?? throw new ArgumentNullException(nameof(domainService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _usuarioService = usuarioService ?? throw new ArgumentNullException(nameof(usuarioService));
         _usuarioFornecedorRepository = usuarioFornecedorRepository ?? throw new ArgumentNullException(nameof(usuarioFornecedorRepository));
+        _municipioService = municipioService ?? throw new ArgumentNullException(nameof(municipioService));
     }
 
     public async Task<PagedResult<FornecedorDto>> ObterPaginadoAsync(FiltrosFornecedorDto filtros)
@@ -109,21 +113,24 @@ public class FornecedorService : IFornecedorService
         if (!cnpjDisponivel)
             throw new InvalidOperationException("CNPJ já está em uso por outro fornecedor");
 
+        // Validar relacionamento UF-Município
+        await ValidarRelacionamentoUfMunicipioAsync(request.UfId, request.MunicipioId, cancellationToken);
+
         // Criar fornecedor
         var fornecedor = new Fornecedor(
             request.Nome,
             cnpj,
             request.InscricaoEstadual,
-            request.Endereco,
-            null, // municipio
-            null, // uf
-            null, // cep
-            null, // complemento
-            null, // latitude
-            null, // longitude
+            request.Logradouro,
+            request.UfId,
+            request.MunicipioId,
+            request.Cep,
+            request.Complemento,
+            request.Latitude,
+            request.Longitude,
             request.Telefone,
             request.Email,
-            (Moeda)request.MoedaPadrao);
+            (MoedaFinanceira)request.MoedaPadrao);
 
         if (request.PedidoMinimo.HasValue)
             fornecedor.DefinirPedidoMinimo(request.PedidoMinimo.Value);
@@ -156,8 +163,8 @@ public class FornecedorService : IFornecedorService
                 cnpj,
                 request.InscricaoEstadual,
                 request.Endereco?.Logradouro,
-                request.Endereco?.Cidade,
-                request.Endereco?.Uf,
+                null, // UfId - será resolvido posteriormente
+                null, // MunicipioId - será resolvido posteriormente
                 request.Endereco?.Cep,
                 request.Endereco?.Complemento,
                 request.Endereco?.Latitude,
@@ -214,15 +221,23 @@ public class FornecedorService : IFornecedorService
         if (fornecedor == null)
             throw new InvalidOperationException("Fornecedor não encontrado");
 
+        // Validar relacionamentos (implementar se necessário)
+
         // Atualizar dados
         fornecedor.AtualizarDados(
             request.Nome,
             request.InscricaoEstadual,
-            request.Endereco,
+            request.Logradouro,
+            null, // UfId - será resolvido posteriormente
+            null, // MunicipioId - será resolvido posteriormente
+            request.Cep,
+            request.Complemento,
+            request.Latitude,
+            request.Longitude,
             request.Telefone,
             request.Email);
 
-        fornecedor.AlterarMoedaPadrao((Moeda)request.MoedaPadrao);
+        fornecedor.AlterarMoedaPadrao((MoedaFinanceira)request.MoedaPadrao);
         fornecedor.DefinirPedidoMinimo(request.PedidoMinimo);
         fornecedor.DefinirTokenLincros(request.TokenLincros);
 
@@ -259,8 +274,8 @@ public class FornecedorService : IFornecedorService
                 request.Nome,
                 request.InscricaoEstadual,
                 request.Endereco?.Logradouro,
-                request.Endereco?.Cidade,
-                request.Endereco?.Uf,
+                null, // UfId - será resolvido posteriormente
+                null, // MunicipioId - será resolvido posteriormente
                 request.Endereco?.Cep,
                 request.Endereco?.Complemento,
                 request.Endereco?.Latitude,
@@ -345,5 +360,21 @@ public class FornecedorService : IFornecedorService
         {
             return false; // CNPJ inválido
         }
+    }
+
+    /// <summary>
+    /// Valida se o município pertence à UF informada
+    /// </summary>
+    private async Task ValidarRelacionamentoUfMunicipioAsync(int? ufId, int? municipioId, CancellationToken cancellationToken)
+    {
+        if (!ufId.HasValue || !municipioId.HasValue)
+            return; // Se não há UF ou município, não há o que validar
+
+        var municipio = await _municipioService.ObterPorIdAsync(municipioId.Value, cancellationToken);
+        if (municipio == null)
+            throw new InvalidOperationException("Município não encontrado");
+
+        if (municipio.UfId != ufId.Value)
+            throw new InvalidOperationException("O município selecionado não pertence à UF informada");
     }
 }

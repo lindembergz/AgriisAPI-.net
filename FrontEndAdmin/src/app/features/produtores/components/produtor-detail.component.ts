@@ -544,7 +544,7 @@ export class ProdutorDetailComponent implements OnInit, OnDestroy {
   /**
    * Handle propriedade changes
    */
-  onPropriedadesChange(): void {
+  onPropriedadesChange(event?: any): void {
     // Mark form as dirty to enable save button and trigger validation
     this.propriedadesFormArray.markAsDirty();
     this.propriedadesFormArray.markAsTouched();

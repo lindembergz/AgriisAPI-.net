@@ -24,6 +24,9 @@ import { ValidationService } from '../../../shared/services/validation.service';
 import { Fornecedor, FornecedorForm } from '../../../shared/models/fornecedor.model';
 import { FornecedorFormControls, FornecedorDadosGeraisFormControls, EnderecoFormControls, PontoDistribuicaoFormControls, UsuarioFormControls } from '../../../shared/models/forms.model';
 import { TipoCliente } from '../../../shared/models/produtor.model';
+import { GeographicData, UfDto, MunicipioDto } from '../../../shared/models/reference.model';
+import { UfService } from '../../../features/referencias/ufs/services/uf.service';
+import { MunicipioService } from '../../../features/referencias/municipios/services/municipio.service';
 
 // Validators
 import { conditionalCpfCnpjValidator, getCpfCnpjMask } from '../../../shared/utils/document-validators.util';
@@ -31,6 +34,7 @@ import { phoneValidator, emailValidator, nameValidator, passwordValidator, cepVa
 
 // Shared components
 import { CoordenadasMapComponent } from '../../../shared/components/coordenadas-map.component';
+import { GeographicSelectorComponent } from '../../../shared/components/geographic-selector/geographic-selector.component';
 // UsuarioMasterFormComponent removido - usando formulário inline
 
 // Feature components
@@ -57,6 +61,7 @@ import { PontoDistribuicaoFormComponent } from './ponto-distribuicao-form.compon
     ConfirmDialogModule,
     // Shared components
     CoordenadasMapComponent,
+    GeographicSelectorComponent,
     // Feature components
     PontoDistribuicaoFormComponent
   ],
@@ -71,6 +76,8 @@ export class FornecedorDetailComponent implements OnInit {
   private fornecedorService = inject(FornecedorService);
   private notificationService = inject(NotificationService);
   private validationService = inject(ValidationService);
+  private ufService = inject(UfService);
+  private municipioService = inject(MunicipioService);
 
   // Signals for reactive state management
   loading = signal(false);
@@ -78,6 +85,10 @@ export class FornecedorDetailComponent implements OnInit {
   fornecedorId = signal<number | null>(null);
   isEditMode = computed(() => this.fornecedorId() !== null);
   activeTabIndex = signal(0);
+  
+  // Geographic data signals
+  selectedGeographicData = signal<GeographicData | null>(null);
+  geographicDataLoading = signal(false);
 
   // Form and validation
   fornecedorForm!: FormGroup<FornecedorFormControls>;
@@ -141,7 +152,10 @@ export class FornecedorDetailComponent implements OnInit {
           validators: [cepValidator()]
         }),
         latitude: this.fb.control<number | null>(null),
-        longitude: this.fb.control<number | null>(null)
+        longitude: this.fb.control<number | null>(null),
+        // New geographic reference fields
+        ufId: this.fb.control<number | null>(null, { validators: [Validators.required] }),
+        municipioId: this.fb.control<number | null>(null, { validators: [Validators.required] })
       }),
       pontosDistribuicao: this.fb.array<FormGroup<PontoDistribuicaoFormControls>>([]),
       usuarioMaster: this.fb.group<UsuarioFormControls>({
@@ -222,6 +236,14 @@ export class FornecedorDetailComponent implements OnInit {
     // Populate endereco
     if (fornecedor.endereco) {
       this.enderecoFormGroup.patchValue(fornecedor.endereco);
+      
+      // Load geographic data if UF and Municipio IDs are available
+      const ufId = (fornecedor.endereco as any).ufId;
+      const municipioId = (fornecedor.endereco as any).municipioId;
+      
+      if (ufId && municipioId) {
+        this.loadGeographicData(ufId, municipioId);
+      }
     }
     
     // Populate inscricao estadual
@@ -351,7 +373,10 @@ export class FornecedorDetailComponent implements OnInit {
         uf: formValue.endereco.uf || '',
         cep: formValue.endereco.cep?.replace(/\D/g, '') || '', // Remove formatting
         latitude: formValue.endereco.latitude || undefined,
-        longitude: formValue.endereco.longitude || undefined
+        longitude: formValue.endereco.longitude || undefined,
+        // Include geographic references
+        ufId: formValue.endereco.ufId || undefined,
+        municipioId: formValue.endereco.municipioId || undefined
       } : undefined,
       pontosDistribuicao: (formValue.pontosDistribuicao || [])
         .filter(ponto => ponto?.nome && ponto?.endereco?.logradouro) // Only include valid pontos
@@ -466,7 +491,9 @@ export class FornecedorDetailComponent implements OnInit {
         uf: this.fb.control('', { nonNullable: true, validators: [Validators.required] }),
         cep: this.fb.control('', { nonNullable: true, validators: [Validators.required, cepValidator()] }),
         latitude: this.fb.control<number | null>(null),
-        longitude: this.fb.control<number | null>(null)
+        longitude: this.fb.control<number | null>(null),
+        ufId: this.fb.control<number | null>(null),
+        municipioId: this.fb.control<number | null>(null)
       })
     });
   }
@@ -495,6 +522,106 @@ export class FornecedorDetailComponent implements OnInit {
       const control = this.usuarioMasterFormGroup.get(key);
       control?.updateValueAndValidity();
     });
+  }
+
+  /**
+   * Handle geographic selection change
+   */
+  onGeographicSelectionChange(geographicData: GeographicData): void {
+    console.log('🌍 Geographic data changed:', geographicData);
+    
+    this.selectedGeographicData.set(geographicData);
+    
+    // Update form with geographic references
+    if (geographicData.uf) {
+      this.enderecoFormGroup.patchValue({
+        ufId: geographicData.uf.id,
+        uf: geographicData.uf.codigo // Keep the old field for backward compatibility
+      });
+    } else {
+      this.enderecoFormGroup.patchValue({
+        ufId: null,
+        uf: ''
+      });
+    }
+    
+    if (geographicData.municipio) {
+      this.enderecoFormGroup.patchValue({
+        municipioId: geographicData.municipio.id,
+        cidade: geographicData.municipio.nome // Update cidade field with municipio name
+      });
+    } else {
+      this.enderecoFormGroup.patchValue({
+        municipioId: null,
+        cidade: ''
+      });
+    }
+    
+    // Mark form as dirty to enable save button
+    this.enderecoFormGroup.markAsDirty();
+    this.enderecoFormGroup.markAsTouched();
+    
+    console.log('📍 Form updated with geographic data:', {
+      ufId: this.enderecoFormGroup.get('ufId')?.value,
+      municipioId: this.enderecoFormGroup.get('municipioId')?.value,
+      uf: this.enderecoFormGroup.get('uf')?.value,
+      cidade: this.enderecoFormGroup.get('cidade')?.value
+    });
+  }
+
+  /**
+   * Validate geographic selection
+   */
+  validateGeographicSelection(): boolean {
+    const ufId = this.enderecoFormGroup.get('ufId')?.value;
+    const municipioId = this.enderecoFormGroup.get('municipioId')?.value;
+    
+    if (!ufId || !municipioId) {
+      this.notificationService.showValidationWarning('Por favor, selecione UF e Município');
+      return false;
+    }
+    
+    // Validate that municipio belongs to selected UF
+    const selectedGeographic = this.selectedGeographicData();
+    if (selectedGeographic?.municipio && selectedGeographic?.uf) {
+      if (selectedGeographic.municipio.ufId !== selectedGeographic.uf.id) {
+        this.notificationService.showValidationWarning('O município selecionado não pertence à UF selecionada');
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  /**
+   * Load geographic data for existing fornecedor
+   */
+  private async loadGeographicData(ufId: number, municipioId: number): Promise<void> {
+    try {
+      this.geographicDataLoading.set(true);
+      
+      // Load UF data
+      const uf = await this.ufService.obterPorId(ufId).toPromise();
+      
+      // Load Municipio data
+      const municipio = await this.municipioService.obterPorId(municipioId).toPromise();
+      
+      if (uf && municipio) {
+        const geographicData: GeographicData = {
+          pais: uf.pais, // If available from UF
+          uf: uf,
+          municipio: municipio
+        };
+        
+        this.selectedGeographicData.set(geographicData);
+        console.log('🌍 Loaded geographic data for existing fornecedor:', geographicData);
+      }
+    } catch (error) {
+      console.error('Error loading geographic data:', error);
+      this.notificationService.showCustomError('Erro ao carregar dados geográficos');
+    } finally {
+      this.geographicDataLoading.set(false);
+    }
   }
 
   /**
@@ -539,6 +666,13 @@ export class FornecedorDetailComponent implements OnInit {
     if (this.enderecoFormGroup.invalid) {
       isValid = false;
       validationErrors.push('Endereço contém erros');
+    }
+    
+    // Validate geographic selection if endereco is provided
+    const hasEndereco = this.enderecoFormGroup.get('logradouro')?.value;
+    if (hasEndereco && !this.validateGeographicSelection()) {
+      isValid = false;
+      validationErrors.push('Seleção geográfica inválida');
     }
 
     // Validate pontos distribuicao (optional but if present must be valid)

@@ -20,6 +20,7 @@ builder.Services.AddUsuariosModule();
 
 // Outros módulos - Reabilitar gradualmente conforme necessário
  builder.Services.AddEnderecosModule();
+ builder.Services.AddReferenciasModule();
  builder.Services.AddCulturasModule();
  builder.Services.AddProdutoresModule();
  builder.Services.AddPropriedadesModule();

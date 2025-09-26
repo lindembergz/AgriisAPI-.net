@@ -27,8 +27,8 @@ public class TransporteAgendamentoServiceTests
     public void CriarAgendamentoTransporte_ComDadosValidos_DeveCriarTransporte()
     {
         // Arrange
-        var dimensoes = new DimensoesProduto(10, 10, 10, 1.0m, 500);
-        var produto = new Produto("Produto", "TESTE", TipoProduto.Fabricante, TipoUnidade.Quilo, dimensoes, 1, 1);
+        var dimensoes = new DimensoesProduto(10, 10, 10, 1.0m, 1.0m, 1, "Saco", faixaDensidadeInicial: 500);
+        var produto = new Produto("Produto", "TESTE", TipoProduto.Fabricante, 1, dimensoes, 1, 1);
         var pedidoItem = new PedidoItem(1, 1, 100m, 10.0m);
         
         // Simular que o produto está associado ao item

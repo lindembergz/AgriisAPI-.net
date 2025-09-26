@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GoogleMapsModule } from '@angular/google-maps';
 
@@ -183,7 +183,7 @@ export interface Coordenadas {
     }
   `]
 })
-export class SimpleMapComponent {
+export class SimpleMapComponent implements OnInit {
   /**
    * Initial coordinates to display on the map
    */

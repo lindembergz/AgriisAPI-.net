@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\..\Agriis.Compartilhado\Agriis.Compartilhado.Infraestrutura\Agriis.Compartilhado.Infraestrutura.csproj" />
     <ProjectReference Include="..\Agriis.Fornecedores.Dominio\Agriis.Fornecedores.Dominio.csproj" />
     <ProjectReference Include="..\..\Usuarios\Agriis.Usuarios.Dominio\Agriis.Usuarios.Dominio.csproj" />
+    <ProjectReference Include="..\..\Referencias\Agriis.Referencias.Dominio\Agriis.Referencias.Dominio.csproj" />
   </ItemGroup>
 
   <ItemGroup>

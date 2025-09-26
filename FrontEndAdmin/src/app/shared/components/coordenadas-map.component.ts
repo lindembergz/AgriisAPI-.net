@@ -32,7 +32,7 @@ export interface Coordenadas {
   templateUrl: './coordenadas-map.component.html',
   styleUrls: ['./coordenadas-map.component.scss']
 })
-export class CoordenadasMapComponent extends BaseComponent implements OnInit {
+export class CoordenadasMapComponent extends BaseComponent implements OnInit, OnDestroy {
   private performanceService = inject(PerformanceService);
   private googleMapsManager = new GoogleMapsManager();
   /**

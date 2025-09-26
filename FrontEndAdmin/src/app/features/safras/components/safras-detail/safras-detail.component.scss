@@ -1,0 +1,333 @@
+.safras-detail-container {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+
+    p {
+      margin-top: 1rem;
+      color: var(--text-color-secondary);
+    }
+  }
+
+  .content {
+    .page-header {
+      margin-bottom: 2rem;
+
+      h1 {
+        margin: 0 0 0.5rem 0;
+        color: var(--text-color);
+        font-size: 2rem;
+        font-weight: 600;
+      }
+
+      .page-subtitle {
+        margin: 0;
+        color: var(--text-color-secondary);
+        font-size: 1rem;
+      }
+    }
+
+    .safra-form {
+      .form-field {
+        margin-bottom: 1.5rem;
+
+        .field-label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: 600;
+          color: var(--text-color);
+
+          &.required::after {
+            content: ' *';
+            color: var(--red-500);
+          }
+        }
+
+        .field-help {
+          display: block;
+          margin-top: 0.25rem;
+          color: var(--text-color-secondary);
+          font-size: 0.875rem;
+        }
+
+        .error-message {
+          display: block;
+          margin-top: 0.25rem;
+          color: var(--red-500);
+          font-size: 0.875rem;
+          font-weight: 500;
+        }
+
+        // Calendar specific styles
+        :host ::ng-deep {
+          .p-calendar {
+            width: 100%;
+
+            .p-inputtext {
+              width: 100%;
+            }
+
+            &.ng-invalid .p-inputtext {
+              border-color: var(--red-500);
+            }
+
+            &.ng-valid .p-inputtext {
+              border-color: var(--green-500);
+            }
+          }
+        }
+
+        // Enhanced input validation styles
+        input.field-error,
+        textarea.field-error {
+          border-color: var(--red-500) !important;
+          box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+          animation: fieldErrorShake 0.3s ease-in-out;
+        }
+
+        input.field-success,
+        textarea.field-success {
+          border-color: var(--green-500) !important;
+          box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        }
+
+        // Legacy support for ng-invalid/ng-valid
+        input.ng-invalid.ng-touched,
+        textarea.ng-invalid.ng-touched {
+          border-color: var(--red-500);
+        }
+
+        input.ng-valid.ng-touched,
+        textarea.ng-valid.ng-touched {
+          border-color: var(--green-500);
+        }
+
+        // Character counter for text fields
+        .character-counter {
+          display: block;
+          margin-top: 0.25rem;
+          color: var(--text-color-secondary);
+          font-size: 0.75rem;
+          text-align: right;
+
+          &.warning {
+            color: var(--orange-500);
+          }
+
+          &.danger {
+            color: var(--red-500);
+          }
+        }
+      }
+
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--surface-border);
+
+        button {
+          min-width: 120px;
+        }
+      }
+    }
+  }
+}
+
+// Enhanced date validation specific styles
+:host ::ng-deep {
+  .p-calendar.field-error .p-inputtext {
+    border-color: var(--red-500) !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    animation: fieldErrorShake 0.3s ease-in-out;
+  }
+
+  .p-calendar.field-success .p-inputtext {
+    border-color: var(--green-500) !important;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+  }
+
+  // Legacy support
+  .p-calendar.ng-invalid .p-inputtext {
+    border-color: var(--red-500);
+    box-shadow: 0 0 0 0.2rem rgba(var(--red-500-rgb), 0.2);
+  }
+
+  .p-calendar.ng-valid .p-inputtext {
+    border-color: var(--green-500);
+  }
+
+  // Calendar overlay adjustments
+  .p-datepicker {
+    .p-datepicker-header {
+      background: var(--surface-card);
+      border-bottom: 1px solid var(--surface-border);
+    }
+
+    .p-datepicker-calendar {
+      .p-datepicker-today {
+        background: var(--primary-50);
+        color: var(--primary-700);
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .safras-detail-container {
+    padding: 1rem;
+
+    .content {
+      .page-header {
+        h1 {
+          font-size: 1.5rem;
+        }
+      }
+
+      .safra-form {
+        .form-field {
+          margin-bottom: 1.25rem;
+
+          .field-label {
+            font-size: 0.9rem;
+          }
+
+          .field-help,
+          .error-message {
+            font-size: 0.8rem;
+          }
+        }
+
+        .form-actions {
+          flex-direction: column-reverse;
+          gap: 0.75rem;
+
+          button {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Tablet adjustments
+@media (max-width: 1024px) and (min-width: 769px) {
+  .safras-detail-container {
+    padding: 1.25rem;
+    max-width: 700px;
+  }
+}
+
+// Dark theme adjustments
+@media (prefers-color-scheme: dark) {
+  .safras-detail-container {
+    .content {
+      .page-header {
+        h1 {
+          color: var(--text-color);
+        }
+
+        .page-subtitle {
+          color: var(--text-color-secondary);
+        }
+      }
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .safras-detail-container {
+    .content {
+      .safra-form {
+        .form-field {
+          .field-label.required::after {
+            color: #ff0000;
+          }
+
+          .error-message {
+            color: #ff0000;
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .safras-detail-container {
+    .content {
+      .safra-form {
+        .form-actions {
+          display: none;
+        }
+
+        .form-field {
+          .field-help {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Focus management for accessibility
+.safra-form {
+  .form-field {
+    input:focus,
+    textarea:focus {
+      outline: 2px solid var(--primary-500);
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Animation for form validation feedback
+.form-field {
+  .error-message {
+    animation: slideInError 0.3s ease-out;
+  }
+}
+
+@keyframes slideInError {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fieldErrorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+// Success feedback animation
+.field-success {
+  animation: fieldSuccessPulse 0.5s ease-out;
+}
+
+@keyframes fieldSuccessPulse {
+  0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}

@@ -16,8 +16,11 @@ public class FornecedorMappingProfile : Profile
         CreateMap<Fornecedor, FornecedorDto>()
             .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.Cnpj.Valor))
             .ForMember(dest => dest.CnpjFormatado, opt => opt.MapFrom(src => src.Cnpj.ValorFormatado))
-            .ForMember(dest => dest.MoedaPadrao, opt => opt.MapFrom(src => (int)src.MoedaPadrao))
-            .ForMember(dest => dest.MoedaPadraoNome, opt => opt.MapFrom(src => ObterNomeMoeda(src.MoedaPadrao)))
+            .ForMember(dest => dest.MoedaPadrao, opt => opt.MapFrom(src => (int)src.Moeda))
+            .ForMember(dest => dest.MoedaPadraoNome, opt => opt.MapFrom(src => ObterNomeMoeda(src.Moeda)))
+            .ForMember(dest => dest.UfNome, opt => opt.MapFrom(src => src.Uf != null ? src.Uf.Nome : null))
+            .ForMember(dest => dest.UfCodigo, opt => opt.MapFrom(src => src.Uf != null ? src.Uf.Codigo : null))
+            .ForMember(dest => dest.MunicipioNome, opt => opt.MapFrom(src => src.Municipio != null ? src.Municipio.Nome : null))
             .ForMember(dest => dest.Usuarios, opt => opt.MapFrom(src => src.UsuariosFornecedores));
 
         // Mapeamento UsuarioFornecedor -> UsuarioFornecedorDto
@@ -35,12 +38,13 @@ public class FornecedorMappingProfile : Profile
             .ForMember(dest => dest.MunicipiosLista, opt => opt.MapFrom(src => ExtrairMunicipiosLista(src)));
     }
 
-    private static string ObterNomeMoeda(Moeda moeda)
+    private static string ObterNomeMoeda(MoedaFinanceira moeda)
     {
         return moeda switch
         {
-            Moeda.Real => "Real",
-            Moeda.Dolar => "Dólar",
+            MoedaFinanceira.Real => "Real",
+            MoedaFinanceira.Dolar => "Dólar",
+            MoedaFinanceira.Euro => "Euro",
             _ => "Desconhecido"
         };
     }

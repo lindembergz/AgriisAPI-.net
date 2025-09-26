@@ -15,6 +15,10 @@ public class ProdutoMappingProfile : Profile
         // Produto -> ProdutoDto
         CreateMap<Produto, ProdutoDto>()
             .ForMember(dest => dest.CategoriaNome, opt => opt.MapFrom(src => src.Categoria != null ? src.Categoria.Nome : null))
+            .ForMember(dest => dest.UnidadeMedidaNome, opt => opt.MapFrom(src => src.UnidadeMedida != null ? src.UnidadeMedida.Nome : null))
+            .ForMember(dest => dest.UnidadeMedidaSimbolo, opt => opt.MapFrom(src => src.UnidadeMedida != null ? src.UnidadeMedida.Simbolo : null))
+            .ForMember(dest => dest.EmbalagemNome, opt => opt.MapFrom(src => src.Embalagem != null ? src.Embalagem.Nome : null))
+            .ForMember(dest => dest.AtividadeAgropecuariaNome, opt => opt.MapFrom(src => src.AtividadeAgropecuaria != null ? src.AtividadeAgropecuaria.Descricao : null))
             .ForMember(dest => dest.ProdutoPaiNome, opt => opt.MapFrom(src => src.ProdutoPai != null ? src.ProdutoPai.Nome : null))
             .ForMember(dest => dest.CulturasIds, opt => opt.MapFrom(src => src.ProdutosCulturas.Where(pc => pc.Ativo).Select(pc => pc.CulturaId)))
             .ForMember(dest => dest.CulturasNomes, opt => opt.Ignore()) // Será preenchido no serviço
@@ -31,7 +35,7 @@ public class ProdutoMappingProfile : Profile
                 src.Nome,
                 src.Codigo,
                 src.Tipo,
-                src.Unidade,
+                src.UnidadeMedidaId,
                 new DimensoesProduto(
                     src.Dimensoes.Altura,
                     src.Dimensoes.Largura,
@@ -50,14 +54,16 @@ public class ProdutoMappingProfile : Profile
                 src.TipoCalculoPeso,
                 src.ProdutoRestrito,
                 src.ObservacoesRestricao,
-                src.ProdutoPaiId))
+                src.ProdutoPaiId,
+                src.EmbalagemId,
+                src.AtividadeAgropecuariaId))
             .ForAllMembers(opt => opt.Ignore());
 
         // DimensoesProduto -> DimensoesProdutoDto
         CreateMap<DimensoesProduto, DimensoesProdutoDto>()
             .ForMember(dest => dest.Volume, opt => opt.MapFrom(src => src.CalcularVolume()))
             .ForMember(dest => dest.PesoCubado, opt => opt.MapFrom(src => src.CalcularPesoCubado()))
-            .ForMember(dest => dest.PesoParaFrete, opt => opt.Ignore()); // Será calculado no serviço com contexto
+            .ForMember(dest => dest.PesoParaFrete, opt => opt.MapFrom(src => src.PesoEmbalagem)); // Peso padrão para frete
 
         // CriarDimensoesProdutoDto -> DimensoesProduto
         CreateMap<CriarDimensoesProdutoDto, DimensoesProduto>()

@@ -29,14 +29,17 @@ public class FreteCalculoServiceTests
             largura: 10, // cm
             comprimento: 10, // cm
             pesoNominal: 1.0m, // kg
-            densidade: 500 // kg/m³
+            pesoEmbalagem: 1.0m, // kg
+            quantidadeMinima: 1, // quantidade
+            embalagem: "Saco",
+            faixaDensidadeInicial: 500 // kg/m³
         );
 
         var produto = new Produto(
             nome: "Produto Teste",
             codigo: "TESTE001",
             tipo: TipoProduto.Fabricante,
-            unidade: TipoUnidade.Quilo,
+            unidadeMedidaId: 1,
             dimensoes: dimensoes,
             categoriaId: 1,
             fornecedorId: 1,
@@ -69,14 +72,17 @@ public class FreteCalculoServiceTests
             largura: 50, // cm
             comprimento: 50, // cm
             pesoNominal: 1.0m, // kg
-            densidade: 200 // kg/m³
+            pesoEmbalagem: 1.0m, // kg
+            quantidadeMinima: 1, // quantidade
+            embalagem: "Saco",
+            faixaDensidadeInicial: 200 // kg/m³
         );
 
         var produto = new Produto(
             nome: "Produto Teste",
             codigo: "TESTE001",
             tipo: TipoProduto.Fabricante,
-            unidade: TipoUnidade.Quilo,
+            unidadeMedidaId: 1,
             dimensoes: dimensoes,
             categoriaId: 1,
             fornecedorId: 1,
@@ -101,11 +107,11 @@ public class FreteCalculoServiceTests
     public void CalcularFreteConsolidado_ComMultiplosProdutos_DeveConsolidarCorretamente()
     {
         // Arrange
-        var dimensoes1 = new DimensoesProduto(10, 10, 10, 1.0m, 500);
-        var produto1 = new Produto("Produto 1", "TESTE001", TipoProduto.Fabricante, TipoUnidade.Quilo, dimensoes1, 1, 1);
+        var dimensoes1 = new DimensoesProduto(10, 10, 10, 1.0m, 1.0m, 1, "Saco", faixaDensidadeInicial: 500);
+        var produto1 = new Produto("Produto 1", "TESTE001", TipoProduto.Fabricante, 1, dimensoes1, 1, 1);
 
-        var dimensoes2 = new DimensoesProduto(20, 20, 20, 2.0m, 300);
-        var produto2 = new Produto("Produto 2", "TESTE002", TipoProduto.Fabricante, TipoUnidade.Quilo, dimensoes2, 1, 1);
+        var dimensoes2 = new DimensoesProduto(20, 20, 20, 2.0m, 2.0m, 1, "Saco", faixaDensidadeInicial: 300);
+        var produto2 = new Produto("Produto 2", "TESTE002", TipoProduto.Fabricante, 1, dimensoes2, 1, 1);
 
         var itens = new List<(Produto produto, decimal quantidade)>
         {
@@ -189,8 +195,8 @@ public class FreteCalculoServiceTests
     public void CalcularFrete_ComParametrosInvalidos_DeveLancarExcecao()
     {
         // Arrange
-        var dimensoes = new DimensoesProduto(10, 10, 10, 1.0m);
-        var produto = new Produto("Produto", "TESTE", TipoProduto.Fabricante, TipoUnidade.Quilo, dimensoes, 1, 1);
+        var dimensoes = new DimensoesProduto(10, 10, 10, 1.0m, 1.0m, 1, "Saco");
+        var produto = new Produto("Produto", "TESTE", TipoProduto.Fabricante, 1, dimensoes, 1, 1);
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => _service.CalcularFrete(null!, 10m, 100m));

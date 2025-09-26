@@ -15,7 +15,13 @@ public class ProdutoDto
     public string? Marca { get; set; }
     public TipoProduto Tipo { get; set; }
     public StatusProduto Status { get; set; }
-    public TipoUnidade Unidade { get; set; }
+    public int UnidadeMedidaId { get; set; }
+    public string? UnidadeMedidaNome { get; set; }
+    public string? UnidadeMedidaSimbolo { get; set; }
+    public int? EmbalagemId { get; set; }
+    public string? EmbalagemNome { get; set; }
+    public int? AtividadeAgropecuariaId { get; set; }
+    public string? AtividadeAgropecuariaNome { get; set; }
     public TipoCalculoPeso TipoCalculoPeso { get; set; }
     public bool ProdutoRestrito { get; set; }
     public string? ObservacoesRestricao { get; set; }
@@ -42,7 +48,9 @@ public class CriarProdutoDto
     public string Codigo { get; set; } = string.Empty;
     public string? Marca { get; set; }
     public TipoProduto Tipo { get; set; }
-    public TipoUnidade Unidade { get; set; }
+    public int UnidadeMedidaId { get; set; }
+    public int? EmbalagemId { get; set; }
+    public int? AtividadeAgropecuariaId { get; set; }
     public TipoCalculoPeso TipoCalculoPeso { get; set; } = TipoCalculoPeso.PesoNominal;
     public bool ProdutoRestrito { get; set; }
     public string? ObservacoesRestricao { get; set; }
@@ -62,7 +70,9 @@ public class AtualizarProdutoDto
     public string? Descricao { get; set; }
     public string Codigo { get; set; } = string.Empty;
     public string? Marca { get; set; }
-    public TipoUnidade Unidade { get; set; }
+    public int UnidadeMedidaId { get; set; }
+    public int? EmbalagemId { get; set; }
+    public int? AtividadeAgropecuariaId { get; set; }
     public TipoCalculoPeso TipoCalculoPeso { get; set; }
     public bool ProdutoRestrito { get; set; }
     public string? ObservacoesRestricao { get; set; }

@@ -1,0 +1,225 @@
+.culturas-detail-container {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+
+    p {
+      margin-top: 1rem;
+      color: var(--text-color-secondary);
+    }
+  }
+
+  .content {
+    .page-header {
+      margin-bottom: 2rem;
+
+      h1 {
+        margin: 0 0 0.5rem 0;
+        color: var(--text-color);
+        font-size: 2rem;
+        font-weight: 600;
+      }
+
+      .page-subtitle {
+        margin: 0;
+        color: var(--text-color-secondary);
+        font-size: 1rem;
+      }
+    }
+
+    .cultura-form {
+      .form-field {
+        margin-bottom: 1.5rem;
+
+        .field-label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: 600;
+          color: var(--text-color);
+
+          &.required::after {
+            content: ' *';
+            color: var(--red-500);
+          }
+        }
+
+        .field-help {
+          display: block;
+          margin-top: 0.25rem;
+          color: var(--text-color-secondary);
+          font-size: 0.875rem;
+        }
+
+        .error-message {
+          display: block;
+          margin-top: 0.25rem;
+          color: var(--red-500);
+          font-size: 0.875rem;
+        }
+
+        .checkbox-field {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          .checkbox-label {
+            font-weight: 600;
+            color: var(--text-color);
+            cursor: pointer;
+          }
+        }
+
+        // Enhanced input validation styles
+        input.field-error,
+        textarea.field-error {
+          border-color: var(--red-500) !important;
+          box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+          animation: fieldErrorShake 0.3s ease-in-out;
+        }
+
+        input.field-success,
+        textarea.field-success {
+          border-color: var(--green-500) !important;
+          box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        }
+
+        // Legacy support for ng-invalid/ng-valid
+        input.ng-invalid.ng-touched,
+        textarea.ng-invalid.ng-touched {
+          border-color: var(--red-500);
+        }
+
+        input.ng-valid.ng-touched,
+        textarea.ng-valid.ng-touched {
+          border-color: var(--green-500);
+        }
+      }
+
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--surface-border);
+
+        button {
+          min-width: 120px;
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .culturas-detail-container {
+    padding: 1rem;
+
+    .content {
+      .page-header {
+        h1 {
+          font-size: 1.5rem;
+        }
+      }
+
+      .cultura-form {
+        .form-actions {
+          flex-direction: column-reverse;
+          gap: 0.75rem;
+
+          button {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Dark theme adjustments
+@media (prefers-color-scheme: dark) {
+  .culturas-detail-container {
+    .content {
+      .page-header {
+        h1 {
+          color: var(--text-color);
+        }
+
+        .page-subtitle {
+          color: var(--text-color-secondary);
+        }
+      }
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .culturas-detail-container {
+    .content {
+      .cultura-form {
+        .form-field {
+          .field-label.required::after {
+            color: #ff0000;
+          }
+
+          .error-message {
+            color: #ff0000;
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .culturas-detail-container {
+    .content {
+      .cultura-form {
+        .form-actions {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+// Enhanced animations for form validation feedback
+@keyframes fieldErrorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+// Success feedback animation
+.field-success {
+  animation: fieldSuccessPulse 0.5s ease-out;
+}
+
+@keyframes fieldSuccessPulse {
+  0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+// Focus management for accessibility
+.cultura-form {
+  .form-field {
+    input:focus,
+    textarea:focus {
+      outline: 2px solid var(--primary-500);
+      outline-offset: 2px;
+    }
+  }
+}

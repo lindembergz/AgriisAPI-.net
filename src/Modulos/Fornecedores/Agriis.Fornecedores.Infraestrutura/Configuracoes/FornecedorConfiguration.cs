@@ -32,17 +32,15 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
             .HasColumnName("InscricaoEstadual")
             .HasMaxLength(50);
 
-        builder.Property(f => f.Endereco)
-            .HasColumnName("Endereco")
+        builder.Property(f => f.Logradouro)
+            .HasColumnName("Logradouro")
             .HasMaxLength(500);
 
-        builder.Property(f => f.Municipio)
-            .HasColumnName("Municipio")
-            .HasMaxLength(100);
+        builder.Property(f => f.UfId)
+            .HasColumnName("UfId");
 
-        builder.Property(f => f.Uf)
-            .HasColumnName("Uf")
-            .HasMaxLength(2);
+        builder.Property(f => f.MunicipioId)
+            .HasColumnName("MunicipioId");
 
         builder.Property(f => f.Cep)
             .HasColumnName("Cep")
@@ -72,7 +70,7 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
             .HasColumnName("LogoUrl")
             .HasMaxLength(500);
 
-        builder.Property(f => f.MoedaPadrao)
+        builder.Property(f => f.Moeda)
             .HasColumnName("MoedaPadrao")
             .HasConversion<int>()
             .IsRequired();
@@ -116,6 +114,20 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
             .HasForeignKey(uf => uf.FornecedorId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Relacionamento com UF (tabela estados)
+        builder.HasOne(f => f.Uf)
+            .WithMany()
+            .HasForeignKey(f => f.UfId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("FK_Fornecedor_Estados_UfId");
+
+        // Relacionamento com Municipio (tabela municipios_referencia)
+        builder.HasOne(f => f.Municipio)
+            .WithMany()
+            .HasForeignKey(f => f.MunicipioId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("FK_Fornecedor_MunicipiosReferencia_MunicipioId");
+
         // Índices
         builder.HasIndex("Cnpj")
             .HasDatabaseName("IX_Fornecedor_Cnpj")
@@ -127,7 +139,7 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
         builder.HasIndex(f => f.Ativo)
             .HasDatabaseName("IX_Fornecedor_Ativo");
 
-        builder.HasIndex(f => f.MoedaPadrao)
+        builder.HasIndex(f => f.Moeda)
             .HasDatabaseName("IX_Fornecedor_MoedaPadrao");
 
         builder.HasIndex(f => f.DataCriacao)
@@ -136,6 +148,12 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
         builder.HasIndex(f => f.Email)
             .HasDatabaseName("IX_Fornecedor_Email")
             .HasFilter("\"Email\" IS NOT NULL");
+
+        builder.HasIndex(f => f.UfId)
+            .HasDatabaseName("IX_Fornecedor_UfId");
+
+        builder.HasIndex(f => f.MunicipioId)
+            .HasDatabaseName("IX_Fornecedor_MunicipioId");
 
         // Configurações adicionais
         builder.Navigation(f => f.UsuariosFornecedores)

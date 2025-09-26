@@ -1,0 +1,97 @@
+<div class="culturas-detail-container">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading()" class="loading-container">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Carregando cultura...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading()" class="content">
+    <!-- Header -->
+    <div class="page-header">
+      <h1>{{ pageTitle }}</h1>
+      <p class="page-subtitle">
+        {{ isEditMode() ? 'Edite as informações da cultura' : 'Preencha as informações para criar uma nova cultura' }}
+      </p>
+    </div>
+
+    <!-- Form Card -->
+    <p-card>
+      <form [formGroup]="culturaForm" (ngSubmit)="onSave()" class="cultura-form">
+        <!-- Nome Field -->
+        <div class="form-field">
+          <label for="nome" class="field-label required">Nome</label>
+          <input
+            id="nome"
+            type="text"
+            pInputText
+            formControlName="nome"
+            placeholder="Digite o nome da cultura"
+            [class.field-error]="hasFieldError('nome')"
+            [class.field-success]="isFieldValid('nome')"
+            class="w-full"
+          />
+          <small 
+            *ngIf="hasFieldError('nome')" 
+            class="error-message"
+          >
+            {{ getFieldErrorMessage('nome') }}
+          </small>
+        </div>
+
+        <!-- Descrição Field -->
+        <div class="form-field">
+          <label for="descricao" class="field-label">Descrição</label>
+          <textarea
+            id="descricao"
+            pTextarea
+            formControlName="descricao"
+            placeholder="Digite uma descrição para a cultura (opcional)"
+            rows="3"
+            [class.field-success]="isFieldValid('descricao')"
+            class="w-full"
+          ></textarea>
+          <small class="field-help">Campo opcional</small>
+        </div>
+
+        <!-- Status Ativo Field (only in edit mode) -->
+        <div *ngIf="isEditMode()" class="form-field">
+          <div class="checkbox-field">
+            <p-checkbox
+              id="ativo"
+              formControlName="ativo"
+              binary="true"
+            ></p-checkbox>
+            <label for="ativo" class="checkbox-label">Cultura ativa</label>
+          </div>
+          <small class="field-help">
+            Culturas inativas não aparecerão nas listagens de seleção
+          </small>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            type="button"
+            pButton
+            label="Cancelar"
+            icon="pi pi-times"
+            class="p-button-outlined p-button-danger"
+            (click)="onCancel()"
+            [disabled]="saving()"
+          ></button>
+          
+          <button
+            type="submit"
+            pButton
+            [label]="saveButtonText"
+            icon="pi pi-check"
+            class="p-button-primary"
+            [loading]="saving()"
+            [disabled]="culturaForm.invalid || saving()"
+          ></button>
+        </div>
+      </form>
+    </p-card>
+  </div>
+</div>

@@ -7,13 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="MediatR" Version="12.4.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Agriis.Compartilhado\Agriis.Compartilhado.Aplicacao\Agriis.Compartilhado.Aplicacao.csproj" />
+    <ProjectReference Include="..\..\Referencias\Agriis.Referencias.Aplicacao\Agriis.Referencias.Aplicacao.csproj" />
     <ProjectReference Include="..\Agriis.Produtos.Dominio\Agriis.Produtos.Dominio.csproj" />
   </ItemGroup>
 

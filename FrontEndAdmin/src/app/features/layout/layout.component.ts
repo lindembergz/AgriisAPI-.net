@@ -53,15 +53,15 @@ export class LayoutComponent implements OnInit {
     {
       label: 'Tabelas de sistema',
       items: [
-        { label: 'Ano Safra', routerLink: [] },
-        { label: 'Culturas', routerLink: [] },
+        { label: 'Ano Safra', routerLink: ['/safras'] },
+        { label: 'Culturas', routerLink: ['/culturas'] },
       ],
     },
     {
       label: 'Produtos',
       items: [
         { label: 'Categorias', routerLink: [] },
-        { label: 'Produtos', routerLink: [] },
+        { label: 'Produtos', routerLink: ['/produtos'] },
       ],
     },
     {
@@ -82,19 +82,34 @@ export class LayoutComponent implements OnInit {
 
   private updateMenuState() {
     const currentUrl = this.router.url;
-    this.mainMenuItems.forEach(item => this.setExpandedState(item, currentUrl));
+    this.mainMenuItems.forEach(item => this.setMenuItemState(item, currentUrl));
   }
 
-  private setExpandedState(item: MenuItem, currentUrl: string) {
-    if (item.routerLink && currentUrl.startsWith(item.routerLink[0])) {
-      item.expanded = true;
-    } else if (item.items) {
+  private setMenuItemState(item: MenuItem, currentUrl: string) {
+    // Reset states
+    item.expanded = false;
+    item.styleClass = '';
+    
+    if (item.routerLink && item.routerLink.length > 0) {
+      const routePath = item.routerLink[0];
+      if (currentUrl === routePath || (routePath !== '/home' && currentUrl.startsWith(routePath))) {
+        item.styleClass = 'active-menu-item';
+      }
+    }
+    
+    if (item.items) {
+      let hasActiveChild = false;
       item.items.forEach(subItem => {
-        this.setExpandedState(subItem, currentUrl);
-        if (subItem.expanded) {
-          item.expanded = true; // Expand parent if any child is expanded
+        this.setMenuItemState(subItem, currentUrl);
+        if (subItem.styleClass?.includes('active-menu-item')) {
+          hasActiveChild = true;
         }
       });
+      
+      if (hasActiveChild) {
+        item.expanded = true;
+        item.styleClass = 'active-parent-menu-item';
+      }
     }
   }
 }

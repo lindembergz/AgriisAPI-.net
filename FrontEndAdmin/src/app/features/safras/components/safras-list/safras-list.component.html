@@ -1,0 +1,149 @@
+<div class="safras-list-container">
+  <div class="header-section">
+    <h2>Gerenciar Safras</h2>
+    <div class="header-actions">
+      <p-select [options]="anosFiltro()" [ngModel]="anoSelecionado()" (ngModelChange)="onFiltroAnoChange($event)"
+        optionLabel="label" optionValue="value" placeholder="Filtrar por ano" class="filter-dropdown">
+      </p-select>
+
+      <p-button label="Nova Safra" icon="pi pi-plus" (onClick)="novaSafra()" class="p-button-primary">
+      </p-button>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <p-table [value]="safras()" [loading]="tableLoading()" [paginator]="true" [rows]="pageSize()" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} safras"
+      [rowsPerPageOptions]="[5, 10, 25, 50]" responsiveLayout="scroll" styleClass="p-datatable-striped p-datatable-gridlines"
+      [sortMode]="'multiple'" [multiSortMeta]="multiSortMeta()" (onSort)="onSort($event)" (onPage)="onPageChange($event)"
+      [scrollable]="true" scrollHeight="60vh" [resizableColumns]="true" columnResizeMode="expand">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id" style="width: 80px" pResizableColumn>
+            <div class="header-content">
+              ID <p-sortIcon field="id"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="anoColheita" style="width: 120px" pResizableColumn>
+            <div class="header-content">
+              Ano Colheita <p-sortIcon field="anoColheita"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="plantioInicial" style="width: 150px" pResizableColumn class="hide-tablet">
+            <div class="header-content">
+              Data Início <p-sortIcon field="plantioInicial"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="plantioFinal" style="width: 150px" pResizableColumn class="hide-tablet">
+            <div class="header-content">
+              Data Fim <p-sortIcon field="plantioFinal"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="plantioNome" style="min-width: 200px" pResizableColumn>
+            <div class="header-content">
+              Nome Plantio <p-sortIcon field="plantioNome"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="descricao" style="min-width: 200px" pResizableColumn class="hide-mobile">
+            <div class="header-content">
+              Descrição <p-sortIcon field="descricao"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="safraFormatada" style="width: 180px" pResizableColumn class="hide-mobile">
+            <div class="header-content">
+              Safra Formatada <p-sortIcon field="safraFormatada"></p-sortIcon>
+            </div>
+          </th>
+          <th style="width: 100px">Status</th>
+          <th style="width: 120px" class="actions-column">Ações</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-safra let-rowIndex="rowIndex">
+        <tr [class.safra-atual-row]="isSafraAtual(safra)" [class.row-highlight]="isRowHighlighted(rowIndex)">
+          <td>
+            <span class="mobile-label">ID:</span>
+            {{ safra.id }}
+          </td>
+          <td>
+            <span class="mobile-label">Ano:</span>
+            {{ safra.anoColheita }}
+          </td>
+          <td class="hide-tablet">
+            <span class="mobile-label">Início:</span>
+            {{ formatarData(safra.plantioInicial) }}
+          </td>
+          <td class="hide-tablet">
+            <span class="mobile-label">Fim:</span>
+            {{ formatarData(safra.plantioFinal) }}
+          </td>
+          <td>
+            <span class="mobile-label">Nome:</span>
+            {{ safra.plantioNome }}
+            <!-- Mobile-only info -->
+            <div class="mobile-only mobile-info">
+              <small>{{ formatarData(safra.plantioInicial) }} - {{ formatarData(safra.plantioFinal) }}</small>
+            </div>
+            <div class="mobile-only mobile-info" *ngIf="safra.descricao">
+              <small>{{ safra.descricao }}</small>
+            </div>
+          </td>
+          <td class="hide-mobile">
+            <span [title]="safra.descricao">{{ safra.descricao }}</span>
+          </td>
+          <td class="hide-mobile">
+            <span class="safra-formatada">{{ safra.safraFormatada }}</span>
+          </td>
+          <td>
+            <span class="mobile-label">Status:</span>
+            <span [class]="getStatusClass(safra)" class="status-badge">
+              {{ getStatusSafra(safra) }}
+            </span>
+          </td>
+          <td class="actions-column">
+            <div class="action-buttons">
+              <p-button icon="pi pi-pencil" (onClick)="editarSafra(safra)"
+                class="p-button-rounded p-button-text p-button-info" pTooltip="Editar" tooltipPosition="top"
+                [loading]="isActionLoading('edit', safra.id)" [disabled]="hasAnyActionLoading()">
+              </p-button>
+
+              <p-button icon="pi pi-trash" (onClick)="excluirSafra(safra)"
+                class="p-button-rounded p-button-text p-button-danger" pTooltip="Excluir" tooltipPosition="top"
+                [loading]="isActionLoading('delete', safra.id)" [disabled]="hasAnyActionLoading()">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9" class="text-center">
+            <div class="empty-state">
+              <i class="pi pi-calendar" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
+              <p>Nenhuma safra encontrada</p>
+              <p-button label="Criar primeira safra" icon="pi pi-plus" (onClick)="novaSafra()"
+                class="p-button-outlined">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="9" class="text-center">
+            <div class="loading-state">
+              <p-progressSpinner styleClass="w-4rem h-4rem"></p-progressSpinner>
+              <p>Carregando safras...</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
