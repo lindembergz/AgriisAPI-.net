@@ -1,5 +1,6 @@
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { TipoCliente, TipoCultura } from './index';
+import { TipoCliente } from './produtor.model';
+import { TipoCultura } from './index';
 
 /**
  * Reactive form interfaces for type safety

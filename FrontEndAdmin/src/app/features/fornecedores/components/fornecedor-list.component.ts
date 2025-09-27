@@ -374,24 +374,28 @@ export class FornecedorListComponent implements OnInit {
        this.isLoading.set(true);
        
        const params: FornecedorQueryParams = {
-         page: Math.floor(event.first / event.rows) + 1,
-         pageSize: event.rows
+         pagina: Math.floor(event.first / event.rows) + 1,
+         tamanhoPagina: event.rows
        };
    
-       // Add filters
-    // Add filters
-    if (this.searchTerm) {
-      params.search = this.searchTerm;
-    }
-    if (this.selectedTipoCliente) {
-      params.tipoCliente = this.selectedTipoCliente;
-    }
-    if (this.selectedUf) {
-      params.uf = this.selectedUf;
-    }
-    if (this.selectedMunicipio) {
-      params.municipio = this.selectedMunicipio;
-    }
+       // Add search filter (combine all filters into single filtro parameter)
+       const filtros: string[] = [];
+       if (this.searchTerm) {
+         filtros.push(this.searchTerm);
+       }
+       if (this.selectedTipoCliente) {
+         filtros.push(`tipo:${this.selectedTipoCliente}`);
+       }
+       if (this.selectedUf) {
+         filtros.push(`uf:${this.selectedUf}`);
+       }
+       if (this.selectedMunicipio) {
+         filtros.push(`municipio:${this.selectedMunicipio}`);
+       }
+       
+       if (filtros.length > 0) {
+         params.filtro = filtros.join(' ');
+       }
    
    this.fornecedorService.list(params).subscribe({
       next: (response) => {

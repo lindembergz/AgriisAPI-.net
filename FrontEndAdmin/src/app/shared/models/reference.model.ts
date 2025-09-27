@@ -185,6 +185,46 @@ export interface CascadingDropdownOption {
 }
 
 /**
+ * Categoria interfaces
+ */
+export enum CategoriaProduto {
+  Sementes = 1,
+  Fertilizantes = 2,
+  Defensivos = 3,
+  Inoculantes = 4,
+  Adjuvantes = 5,
+  Micronutrientes = 6,
+  Outros = 99
+}
+
+export interface CategoriaDto extends BaseReferenceEntity {
+  descricao?: string;
+  tipo: CategoriaProduto;
+  categoriaPaiId?: number;
+  categoriaPaiNome?: string;
+  ordem: number;
+  subCategorias: CategoriaDto[];
+  quantidadeProdutos: number;
+}
+
+export interface CriarCategoriaDto {
+  nome: string;
+  descricao?: string;
+  tipo: CategoriaProduto;
+  categoriaPaiId?: number;
+  ordem?: number;
+}
+
+export interface AtualizarCategoriaDto {
+  nome: string;
+  descricao?: string;
+  tipo: CategoriaProduto;
+  categoriaPaiId?: number;
+  ordem: number;
+  ativo: boolean;
+}
+
+/**
  * Reference entity type union
  */
 export type ReferenceEntityDto = 
@@ -194,7 +234,8 @@ export type ReferenceEntityDto =
   | MunicipioDto 
   | AtividadeAgropecuariaDto 
   | UnidadeMedidaDto 
-  | EmbalagemDto;
+  | EmbalagemDto
+  | CategoriaDto;
 
 /**
  * Reference entity create DTO union
@@ -206,7 +247,8 @@ export type ReferenceCreateDto =
   | CriarMunicipioDto 
   | CriarAtividadeAgropecuariaDto 
   | CriarUnidadeMedidaDto 
-  | CriarEmbalagemDto;
+  | CriarEmbalagemDto
+  | CriarCategoriaDto;
 
 /**
  * Reference entity update DTO union
@@ -218,4 +260,5 @@ export type ReferenceUpdateDto =
   | AtualizarMunicipioDto 
   | AtualizarAtividadeAgropecuariaDto 
   | AtualizarUnidadeMedidaDto 
-  | AtualizarEmbalagemDto;
+  | AtualizarEmbalagemDto
+  | AtualizarCategoriaDto;

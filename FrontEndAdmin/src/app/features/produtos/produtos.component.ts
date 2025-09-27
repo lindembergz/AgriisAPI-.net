@@ -18,8 +18,11 @@ import { FieldErrorComponent } from '../../shared/components/field-error.compone
 import { HierarchicalSelectorComponent, HierarchicalItem } from '../../shared/components/hierarchical-selector/hierarchical-selector.component';
 import { ReferenceCrudBaseComponent } from '../../shared/components/reference-crud-base/reference-crud-base.component';
 import { ProdutoService, DropdownOption, ProdutoDisplayDto } from './services/produto.service';
-import { ProdutoDto, CriarProdutoDto, AtualizarProdutoDto, CategoriaDto } from '../../shared/models/produto.model';
+import { ProdutoDto, CriarProdutoDto, AtualizarProdutoDto, TipoProduto, TipoCalculoPeso } from '../../shared/models/produto.model';
+import { CategoriaDto } from '../../shared/models/reference.model';
 import { ValidationService } from '../../shared/services/validation.service';
+import { ApiValidationService } from '../../shared/services/api-validation.service';
+import { produtoCodigoUniqueValidator, produtoNomeUniqueValidator, produtoReferencesValidator } from '../../shared/validators/async-validators';
 
 interface TableColumn {
   field: string;
@@ -423,18 +426,25 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
   
   protected service = inject(ProdutoService) as any;
   protected validationService = inject(ValidationService);
+  private apiValidationService = inject(ApiValidationService);
 
   // Reference data signals
   unidadesMedida = signal<DropdownOption[]>([]);
   embalagensDisponiveis = signal<DropdownOption[]>([]);
   categoriasHierarchicas = signal<HierarchicalItem[]>([]);
   atividadesAgropecuarias = signal<DropdownOption[]>([]);
+  fornecedores = signal<DropdownOption[]>([]);
+  culturas = signal<DropdownOption[]>([]);
+  produtosPais = signal<DropdownOption[]>([]);
 
   // Loading states
   loadingUnidades = signal<boolean>(false);
   loadingEmbalagens = signal<boolean>(false);
   loadingCategorias = signal<boolean>(false);
   loadingAtividades = signal<boolean>(false);
+  loadingFornecedores = signal<boolean>(false);
+  loadingCulturas = signal<boolean>(false);
+  loadingProdutosPais = signal<boolean>(false);
 
   // Error states
   errorCategorias = signal<string | null>(null);
@@ -459,6 +469,24 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
   // Search debounce timer
   private searchTimer: any;
 
+  // Enum options for dropdowns
+  tiposProduto = [
+    { label: 'Semente', value: TipoProduto.Semente },
+    { label: 'Defensivo', value: TipoProduto.Defensivo },
+    { label: 'Fertilizante', value: TipoProduto.Fertilizante },
+    { label: 'Inoculante', value: TipoProduto.Inoculante },
+    { label: 'Adjuvante', value: TipoProduto.Adjuvante },
+    { label: 'Equipamento', value: TipoProduto.Equipamento },
+    { label: 'Serviço', value: TipoProduto.Servico },
+    { label: 'Outro', value: TipoProduto.Outro }
+  ];
+
+  tiposCalculoPeso = [
+    { label: 'Peso Nominal', value: TipoCalculoPeso.PesoNominal },
+    { label: 'Peso Cubado', value: TipoCalculoPeso.PesoCubado },
+    { label: 'Maior Peso', value: TipoCalculoPeso.MaiorPeso }
+  ];
+
   protected entityDisplayName = () => 'Produto';
   protected entityDescription = () => 'Gerencie o catálogo de produtos agrícolas';
   protected defaultSortField = () => 'nome';
@@ -479,29 +507,67 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
   }
 
   protected createFormGroup(): FormGroup {
-    return this.fb.group({
-      codigo: ['', [Validators.required, Validators.maxLength(20)]],
-      nome: ['', [Validators.required, Validators.maxLength(200)]],
+    const form = this.fb.group({
+      codigo: ['', 
+        [Validators.required, Validators.maxLength(20)],
+        [produtoCodigoUniqueValidator(this.apiValidationService, this.isEditMode() ? this.selectedItem()?.id : undefined)]
+      ],
+      nome: ['', 
+        [Validators.required, Validators.maxLength(200)],
+        [produtoNomeUniqueValidator(this.apiValidationService, this.isEditMode() ? this.selectedItem()?.id : undefined)]
+      ],
       descricao: ['', [Validators.maxLength(1000)]],
-      preco: [null, [Validators.min(0)]],
+      marca: ['', [Validators.maxLength(100)]],
+      tipo: [0, [Validators.required]], // TipoProduto.Semente como padrão
       categoriaId: [null, [Validators.required]],
       unidadeMedidaId: [null, [Validators.required]],
       embalagemId: [null],
       atividadeAgropecuariaId: [null],
+      tipoCalculoPeso: [0, [Validators.required]], // TipoCalculoPeso.PesoNominal como padrão
+      produtoRestrito: [false],
+      observacoesRestricao: [''],
+      fornecedorId: [null, [Validators.required]],
+      produtoPaiId: [null],
+      culturasIds: [[]],
+      // Dimensões obrigatórias
+      dimensoes: this.fb.group({
+        altura: [0, [Validators.required, Validators.min(0)]],
+        largura: [0, [Validators.required, Validators.min(0)]],
+        comprimento: [0, [Validators.required, Validators.min(0)]],
+        pesoNominal: [0, [Validators.required, Validators.min(0)]],
+        pesoEmbalagem: [0, [Validators.required, Validators.min(0)]],
+        pms: [null],
+        quantidadeMinima: [1, [Validators.required, Validators.min(1)]],
+        embalagem: ['', [Validators.required, Validators.maxLength(100)]],
+        faixaDensidadeInicial: [null],
+        faixaDensidadeFinal: [null]
+      }),
       ativo: [true]
+    }, {
+      asyncValidators: [produtoReferencesValidator(this.apiValidationService)]
     });
+
+    return form;
   }
 
   protected mapToCreateDto(formValue: any): CriarProdutoDto {
     return {
-      codigo: formValue.codigo,
       nome: formValue.nome,
       descricao: formValue.descricao || undefined,
-      preco: formValue.preco || undefined,
-      categoriaId: formValue.categoriaId,
+      codigo: formValue.codigo,
+      marca: formValue.marca || undefined,
+      tipo: formValue.tipo,
       unidadeMedidaId: formValue.unidadeMedidaId,
       embalagemId: formValue.embalagemId || undefined,
-      atividadeAgropecuariaId: formValue.atividadeAgropecuariaId || undefined
+      atividadeAgropecuariaId: formValue.atividadeAgropecuariaId || undefined,
+      tipoCalculoPeso: formValue.tipoCalculoPeso,
+      produtoRestrito: formValue.produtoRestrito,
+      observacoesRestricao: formValue.observacoesRestricao || undefined,
+      categoriaId: formValue.categoriaId,
+      fornecedorId: formValue.fornecedorId,
+      produtoPaiId: formValue.produtoPaiId || undefined,
+      dimensoes: formValue.dimensoes,
+      culturasIds: formValue.culturasIds || []
     };
   }
 
@@ -509,12 +575,17 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
     return {
       nome: formValue.nome,
       descricao: formValue.descricao || undefined,
-      preco: formValue.preco || undefined,
-      categoriaId: formValue.categoriaId,
+      codigo: formValue.codigo,
+      marca: formValue.marca || undefined,
       unidadeMedidaId: formValue.unidadeMedidaId,
       embalagemId: formValue.embalagemId || undefined,
       atividadeAgropecuariaId: formValue.atividadeAgropecuariaId || undefined,
-      ativo: formValue.ativo
+      tipoCalculoPeso: formValue.tipoCalculoPeso,
+      produtoRestrito: formValue.produtoRestrito,
+      observacoesRestricao: formValue.observacoesRestricao || undefined,
+      categoriaId: formValue.categoriaId,
+      dimensoes: formValue.dimensoes,
+      culturasIds: formValue.culturasIds || []
     };
   }
 
@@ -525,7 +596,7 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
       codigo: item.codigo,
       nome: item.nome,
       descricao: item.descricao,
-      preco: item.preco,
+      // preco: item.preco, // Removed as preco is not part of the form
       categoriaId: item.categoriaId,
       unidadeMedidaId: item.unidadeMedidaId,
       embalagemId: item.embalagemId,
@@ -538,7 +609,7 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
       this.selectedCategoria.set({
         id: item.categoria.id,
         nome: item.categoria.nome,
-        parentId: item.categoria.parentId
+        parentId: item.categoria.categoriaPaiId
       });
     }
 
@@ -555,6 +626,9 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
     this.carregarUnidadesMedida();
     this.carregarCategorias();
     this.carregarAtividadesAgropecuarias();
+    this.carregarFornecedores();
+    this.carregarCulturas();
+    this.carregarProdutosPais();
   }
 
   /**
@@ -588,7 +662,7 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
         const hierarchicalItems: HierarchicalItem[] = categorias.map(cat => ({
           id: cat.id,
           nome: cat.nome,
-          parentId: cat.parentId,
+          parentId: cat.categoriaPaiId,
           ativo: cat.ativo
         }));
         
@@ -635,6 +709,60 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
       error: (error) => {
         console.error('Erro ao carregar embalagens:', error);
         this.loadingEmbalagens.set(false);
+      }
+    });
+  }
+
+  /**
+   * Load fornecedores
+   */
+  private carregarFornecedores(): void {
+    this.loadingFornecedores.set(true);
+    
+    this.service.obterFornecedores().subscribe({
+      next: (fornecedores) => {
+        this.fornecedores.set(fornecedores);
+        this.loadingFornecedores.set(false);
+      },
+      error: (error) => {
+        console.error('Erro ao carregar fornecedores:', error);
+        this.loadingFornecedores.set(false);
+      }
+    });
+  }
+
+  /**
+   * Load culturas
+   */
+  private carregarCulturas(): void {
+    this.loadingCulturas.set(true);
+    
+    this.service.obterCulturas().subscribe({
+      next: (culturas) => {
+        this.culturas.set(culturas);
+        this.loadingCulturas.set(false);
+      },
+      error: (error) => {
+        console.error('Erro ao carregar culturas:', error);
+        this.loadingCulturas.set(false);
+      }
+    });
+  }
+
+  /**
+   * Load produtos pais
+   */
+  private carregarProdutosPais(): void {
+    this.loadingProdutosPais.set(true);
+    
+    this.service.obterProdutosPais().subscribe({
+      next: (produtos) => {
+        this.produtosPais.set(produtos);
+        this.loadingProdutosPais.set(false);
+      },
+      error: (error) => {
+        console.error('Erro ao carregar produtos pais:', error);
+        this.loadingProdutosPais.set(false);
       }
     });
   }

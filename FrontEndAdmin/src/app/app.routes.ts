@@ -75,6 +75,10 @@ export const routes: Routes = [
             loadChildren: () => import('./features/referencias/embalagens/embalagens.routes').then(m => m.EMBALAGENS_ROUTES),
           },
           {
+            path: 'categorias',
+            loadChildren: () => import('./features/referencias/categorias/categorias.routes').then(m => m.CATEGORIAS_ROUTES),
+          },
+          {
             path: '',
             redirectTo: 'unidades-medida',
             pathMatch: 'full'

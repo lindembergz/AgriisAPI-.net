@@ -2,33 +2,26 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError, forkJoin } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { Fornecedor, FornecedorForm } from '../../../shared/models/fornecedor.model';
+import { 
+  Fornecedor, 
+  FornecedorForm, 
+  CriarFornecedorDto, 
+  AtualizarFornecedorDto, 
+  FiltrosFornecedorDto, 
+  FornecedorListResponse 
+} from '../../../shared/models/fornecedor.model';
 import { UfDto, MunicipioDto } from '../../../shared/models/reference.model';
 import { UfService } from '../../referencias/ufs/services/uf.service';
 import { MunicipioService } from '../../referencias/municipios/services/municipio.service';
 import { environment } from '../../../../environments/environment';
 
 /**
- * API response interface for paginated results
- */
-export interface FornecedorListResponse {
-  items: Fornecedor[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
-/**
- * Query parameters for fornecedor list
+ * Query parameters for fornecedor list - matching API
  */
 export interface FornecedorQueryParams {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  tipoCliente?: string;
-  uf?: string;
-  municipio?: string;
-  ativo?: boolean;
+  filtro?: string;
+  pagina?: number;
+  tamanhoPagina?: number;
 }
 
 /**
@@ -45,79 +38,85 @@ export class FornecedorService {
   private readonly apiUrl = `${environment.apiUrl}/fornecedores`;
 
   /**
-   * Get paginated list of fornecedores
+   * Get paginated list of fornecedores - matching API structure
    */
+  list(params?: FornecedorQueryParams): Observable<FornecedorListResponse> {
+    const filtros: FiltrosFornecedorDto = {
+      filtro: params?.filtro,
+      pagina: params?.pagina || 1,
+      tamanhoPagina: params?.tamanhoPagina || 20
+    };
 
-     list(params?: FornecedorQueryParams): Observable<FornecedorListResponse> {
-       let httpParams = new HttpParams();
-       
-       if (params) {
-         if (params.page !== undefined) {
-           httpParams = httpParams.set('page', params.page.toString());
-         }
-         if (params.pageSize !== undefined) {
-           httpParams = httpParams.set('pageSize', params.pageSize.toString());
-         }
-         if (params.search) {
-           httpParams = httpParams.set('search', params.search);
-         }
-         if (params.tipoCliente) {
-           httpParams = httpParams.set('tipoCliente', params.tipoCliente);
-         }
-         if (params.uf) {
-           httpParams = httpParams.set('uf', params.uf);
-         }
-         if (params.municipio) {
-           httpParams = httpParams.set('municipio', params.municipio);
-         }
-         if (params.ativo !== undefined) {
-           httpParams = httpParams.set('ativo', params.ativo.toString());
-         }
-       }
-   
-       return this.http.get<FornecedorListResponse>(this.apiUrl, { params: httpParams })
-         .pipe(
-           switchMap(response => this.enrichListWithGeographicData(response)),
-           catchError(error => this.handleError('list fornecedores', error))
-         );
-     }
+    let httpParams = new HttpParams();
+    if (filtros.filtro) httpParams = httpParams.set('Filtro', filtros.filtro);
+    httpParams = httpParams.set('Pagina', filtros.pagina.toString());
+    httpParams = httpParams.set('TamanhoPagina', filtros.tamanhoPagina.toString());
+
+    return this.http.get<FornecedorListResponse>(this.apiUrl, { params: httpParams })
+      .pipe(
+        catchError(error => this.handleError('list fornecedores', error))
+      );
+  }
 
 
   /**
-   * Get fornecedor by ID with complete geographic information
+   * Get fornecedor by ID - matching API structure
    */
   getById(id: number): Observable<Fornecedor> {
     return this.http.get<Fornecedor>(`${this.apiUrl}/${id}`)
       .pipe(
-        switchMap(fornecedor => this.enrichWithGeographicData(fornecedor)),
         catchError(error => this.handleError(`get fornecedor id=${id}`, error))
       );
   }
 
   /**
-   * Create new fornecedor with complete structure and geographic validation
+   * Create new fornecedor - matching NEW API structure
    */
   create(fornecedor: FornecedorForm): Observable<Fornecedor> {
-    return this.validateFornecedorGeographicData(fornecedor).pipe(
-      switchMap(validatedFornecedor => 
-        this.http.post<Fornecedor>(`${this.apiUrl}/completo`, validatedFornecedor)
-      ),
-      switchMap(createdFornecedor => this.enrichWithGeographicData(createdFornecedor)),
-      catchError(error => this.handleError('create fornecedor', error))
-    );
+    const dto: CriarFornecedorDto = {
+      codigo: fornecedor.codigo,
+      nome: fornecedor.nome,
+      cpfCnpj: fornecedor.cpfCnpj,
+      tipoCliente: fornecedor.tipoCliente,
+      telefone: fornecedor.telefone,
+      email: fornecedor.email,
+      inscricaoEstadual: fornecedor.inscricaoEstadual,
+      endereco: fornecedor.endereco,
+      pontosDistribuicao: fornecedor.pontosDistribuicao || [],
+      usuarioMaster: fornecedor.usuarioMaster!
+    };
+
+    return this.http.post<Fornecedor>(`${this.apiUrl}/completo`, dto)
+      .pipe(
+        catchError(error => this.handleError('create fornecedor', error))
+      );
   }
 
   /**
-   * Update existing fornecedor with geographic validation
+   * Update existing fornecedor - matching NEW API structure
    */
   update(id: number, fornecedor: FornecedorForm): Observable<Fornecedor> {
-    return this.validateFornecedorGeographicData(fornecedor).pipe(
-      switchMap(validatedFornecedor => 
-        this.http.put<Fornecedor>(`${this.apiUrl}/${id}`, validatedFornecedor)
-      ),
-      switchMap(updatedFornecedor => this.enrichWithGeographicData(updatedFornecedor)),
-      catchError(error => this.handleError(`update fornecedor id=${id}`, error))
-    );
+    const dto: AtualizarFornecedorDto = {
+      nome: fornecedor.nome,
+      inscricaoEstadual: fornecedor.inscricaoEstadual,
+      logradouro: fornecedor.endereco?.logradouro,
+      ufId: undefined, // Will be derived from endereco
+      municipioId: undefined, // Will be derived from endereco
+      cep: fornecedor.endereco?.cep,
+      complemento: fornecedor.endereco?.complemento,
+      latitude: fornecedor.endereco?.latitude,
+      longitude: fornecedor.endereco?.longitude,
+      telefone: fornecedor.telefone,
+      email: fornecedor.email,
+      moedaPadrao: 0, // Default value
+      pedidoMinimo: undefined,
+      tokenLincros: undefined
+    };
+
+    return this.http.put<Fornecedor>(`${this.apiUrl}/${id}`, dto)
+      .pipe(
+        catchError(error => this.handleError(`update fornecedor id=${id}`, error))
+      );
   }
 
   /**
@@ -157,14 +156,27 @@ export class FornecedorService {
   }
 
   /**
-   * Validate CPF/CNPJ
+   * Validate CNPJ availability - using API endpoint
    */
-  validateDocument(cpfCnpj: string): Observable<{ valid: boolean; message?: string }> {
-    const params = new HttpParams().set('document', cpfCnpj);
+  validateCnpjDisponivel(cnpj: string, fornecedorIdExcluir?: number): Observable<{ disponivel: boolean }> {
+    let params = new HttpParams().set('cnpj', cnpj);
+    if (fornecedorIdExcluir) {
+      params = params.set('fornecedorIdExcluir', fornecedorIdExcluir.toString());
+    }
     
-    return this.http.get<{ valid: boolean; message?: string }>(`${this.apiUrl}/validate-document`, { params })
+    return this.http.get<{ disponivel: boolean }>(`${this.apiUrl}/cnpj/${cnpj}/disponivel`, { params })
       .pipe(
-        catchError(error => this.handleError(`validate document=${cpfCnpj}`, error))
+        catchError(error => this.handleError(`validate CNPJ=${cnpj}`, error))
+      );
+  }
+
+  /**
+   * Get fornecedor by CNPJ - using API endpoint
+   */
+  getByCnpj(cnpj: string): Observable<Fornecedor> {
+    return this.http.get<Fornecedor>(`${this.apiUrl}/cnpj/${cnpj}`)
+      .pipe(
+        catchError(error => this.handleError(`get fornecedor by CNPJ=${cnpj}`, error))
       );
   }
 
