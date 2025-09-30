@@ -11,7 +11,7 @@ namespace Agriis.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class TransportesController : ControllerBase
 {
     private readonly ITransporteService _transporteService;

@@ -64,7 +64,7 @@ public class UsuarioLogadoDto
     public string? LogoUrl { get; set; }
     
     /// <summary>
-    /// Data do último login
+    /// Data do último login (UTC com timezone)
     /// </summary>
-    public DateTime? UltimoLogin { get; set; }
+    public DateTimeOffset? UltimoLogin { get; set; }
 }

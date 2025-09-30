@@ -1,10 +1,9 @@
 import { Routes } from '@angular/router';
-import { MoedasComponent } from './moedas.component';
 
 export const MOEDAS_ROUTES: Routes = [
   {
     path: '',
-    component: MoedasComponent,
+    loadComponent: () => import('./moedas.component').then(m => m.MoedasComponent),
     data: {
       title: 'Moedas',
       breadcrumb: 'Moedas'

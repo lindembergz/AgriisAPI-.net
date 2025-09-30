@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { ReferenceCrudService } from '../../../../shared/services/reference-crud.service';
 import { MunicipioDto, CriarMunicipioDto, AtualizarMunicipioDto, UfDto } from '../../../../shared/models/reference.model';
 
@@ -14,14 +14,16 @@ import { MunicipioDto, CriarMunicipioDto, AtualizarMunicipioDto, UfDto } from '.
 export class MunicipioService extends ReferenceCrudService<MunicipioDto, CriarMunicipioDto, AtualizarMunicipioDto> {
   
   protected readonly entityName = 'Município';
-  protected readonly apiEndpoint = 'api/referencias/municipios';
+  protected readonly apiEndpoint = 'referencias/municipios';
 
   /**
    * Get Municípios by UF ID
    */
   obterPorUf(ufId: number): Observable<MunicipioDto[]> {
-    return this.http.get<MunicipioDto[]>(`${this.baseUrl}/uf/${ufId}`).pipe(
-      catchError(error => this.handleError(`obter municípios por UF id=${ufId}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<MunicipioDto[]>(`${this.baseUrl}/uf/${ufId}`),
+      `obter municípios por UF id=${ufId}`,
+      'Município'
     );
   }
 
@@ -29,8 +31,10 @@ export class MunicipioService extends ReferenceCrudService<MunicipioDto, CriarMu
    * Get Municípios with UF information included
    */
   obterComUf(): Observable<MunicipioDto[]> {
-    return this.http.get<MunicipioDto[]>(`${this.baseUrl}?include=uf`).pipe(
-      catchError(error => this.handleError('obter municípios com UF', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<MunicipioDto[]>(`${this.baseUrl}?include=uf`),
+      'obter municípios com UF',
+      'Município'
     );
   }
 
@@ -38,9 +42,12 @@ export class MunicipioService extends ReferenceCrudService<MunicipioDto, CriarMu
    * Get active Municípios by UF ID for dropdowns
    */
   obterAtivosPorUf(ufId: number): Observable<MunicipioDto[]> {
-    return this.obterPorUf(ufId).pipe(
-      map(municipios => municipios.filter(m => m.ativo)),
-      catchError(error => this.handleError(`obter municípios ativos por UF id=${ufId}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.obterPorUf(ufId).pipe(
+        map(municipios => municipios.filter(m => m.ativo))
+      ),
+      `obter municípios ativos por UF id=${ufId}`,
+      'Município'
     );
   }
 
@@ -54,33 +61,40 @@ export class MunicipioService extends ReferenceCrudService<MunicipioDto, CriarMu
       params = params.set('ufId', ufId.toString());
     }
 
-    return this.http.get<MunicipioDto[]>(`${this.baseUrl}/buscar`, { params }).pipe(
-      catchError(error => this.handleError(`buscar municípios por nome=${nome}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<MunicipioDto[]>(`${this.baseUrl}/buscar`, { params }),
+      `buscar municípios por nome=${nome}`,
+      'Município'
     );
   }
 
   /**
    * Get active Municípios by UF ID for dropdowns (optimized)
    */
-  obterDropdownPorUf(ufId: number): Observable<{ id: number; nome: string; codigoIbge: string }[]> {
-    return this.http.get<{ id: number; nome: string; codigoIbge: string }[]>(`${this.baseUrl}/uf/${ufId}/dropdown`).pipe(
-      catchError(error => this.handleError(`obter dropdown municípios por UF id=${ufId}`, error))
+  obterDropdownPorUf(ufId: number): Observable<{ id: number; nome: string; codigoIbge: number }[]> {
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{ id: number; nome: string; codigoIbge: number }[]>(`${this.baseUrl}/uf/${ufId}/dropdown`),
+      `obter dropdown municípios por UF id=${ufId}`,
+      'Município'
     );
   }
 
   /**
    * Validate IBGE code uniqueness
    */
-  validarCodigoIbgeUnico(codigoIbge: string, municipioId?: number): Observable<boolean> {
+  validarCodigoIbgeUnico(codigoIbge: number, municipioId?: number): Observable<boolean> {
     let params = new HttpParams();
     
     if (municipioId) {
       params = params.set('idExcluir', municipioId.toString());
     }
 
-    return this.http.get<{ existe: boolean }>(`${this.baseUrl}/existe-codigo-ibge/${codigoIbge}`, { params }).pipe(
-      map(response => !response.existe), // Return true if unique (not exists)
-      catchError(error => this.handleError('validar código IBGE único', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{ existe: boolean }>(`${this.baseUrl}/existe-codigo-ibge/${codigoIbge}`, { params }).pipe(
+        map(response => !response.existe) // Return true if unique (not exists)
+      ),
+      'validar código IBGE único',
+      'Município'
     );
   }
 
@@ -94,9 +108,12 @@ export class MunicipioService extends ReferenceCrudService<MunicipioDto, CriarMu
       params = params.set('idExcluir', municipioId.toString());
     }
 
-    return this.http.get<{ existe: boolean }>(`${this.baseUrl}/existe-nome/${nome}/uf/${ufId}`, { params }).pipe(
-      map(response => !response.existe), // Return true if unique (not exists)
-      catchError(error => this.handleError('validar nome município único', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{ existe: boolean }>(`${this.baseUrl}/existe-nome/${nome}/uf/${ufId}`, { params }).pipe(
+        map(response => !response.existe) // Return true if unique (not exists)
+      ),
+      'validar nome município único',
+      'Município'
     );
   }
 
@@ -121,13 +138,15 @@ export class MunicipioService extends ReferenceCrudService<MunicipioDto, CriarMu
       params = params.set('search', search);
     }
 
-    return this.http.get<{
-      items: MunicipioDto[];
-      totalItems: number;
-      totalPages: number;
-      currentPage: number;
-    }>(`${this.baseUrl}/paginado`, { params }).pipe(
-      catchError(error => this.handleError('obter municípios paginados', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{
+        items: MunicipioDto[];
+        totalItems: number;
+        totalPages: number;
+        currentPage: number;
+      }>(`${this.baseUrl}/paginado`, { params }),
+      'obter municípios paginados',
+      'Município'
     );
   }
 }

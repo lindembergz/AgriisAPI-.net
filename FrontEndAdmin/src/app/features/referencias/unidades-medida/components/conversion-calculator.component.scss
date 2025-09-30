@@ -1,0 +1,116 @@
+@import '../../../../shared/styles/visual-consistency.scss';
+
+.conversion-form {
+  @extend .standard-form-container;
+  
+  .p-grid {
+    margin: 0;
+    
+    .p-col-12 {
+      padding: var(--spacing-sm);
+      
+      label {
+        @extend .field-label;
+        display: block;
+        margin-bottom: var(--spacing-sm);
+      }
+    }
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+
+    strong {
+      color: var(--primary-color);
+      min-width: 3rem;
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+}
+
+.conversion-result {
+  .result-display {
+    text-align: center;
+    padding: var(--spacing-xl);
+    background: var(--surface-100);
+    border-radius: var(--radius-lg);
+    border-left: 4px solid var(--primary-color);
+
+    h4 {
+      margin: 0 0 var(--spacing-lg) 0;
+      color: var(--text-color);
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .result-text {
+      font-size: var(--font-size-xl);
+      margin: 0 0 var(--spacing-sm) 0;
+      color: var(--text-color);
+
+      strong {
+        color: var(--primary-color);
+        font-weight: var(--font-weight-semibold);
+      }
+    }
+
+    .conversion-details {
+      color: var(--text-color-secondary);
+      font-style: italic;
+      font-size: var(--font-size-sm);
+    }
+  }
+}
+
+// Dialog customizations
+:host {
+  @extend .standard-dialog-form;
+  @extend .standard-buttons;
+  @extend .standard-notifications;
+}
+
+::ng-deep {
+  .conversion-dialog {
+    .p-dialog-header {
+      background: var(--primary-50);
+      color: var(--primary-color);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .p-dialog-content {
+      padding: var(--spacing-xl);
+    }
+
+    .p-dialog-footer {
+      @extend .dialog-form-footer;
+      background: var(--surface-50);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .conversion-form {
+    .p-grid .p-col-12 {
+      padding: var(--spacing-xs);
+    }
+  }
+
+  .conversion-result {
+    .result-display {
+      padding: var(--spacing-lg);
+
+      .result-text {
+        font-size: var(--font-size-lg);
+        word-break: break-word;
+      }
+    }
+  }
+}
+
+// Animation for conversion result
+.conversion-result {
+  animation: fadeIn 0.3s ease-out;
+}

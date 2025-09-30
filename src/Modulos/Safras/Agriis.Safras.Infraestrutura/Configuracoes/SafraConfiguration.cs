@@ -45,10 +45,12 @@ public class SafraConfiguration : IEntityTypeConfiguration<Safra>
 
         builder.Property(s => s.DataCriacao)
             .HasColumnName("DataCriacao")
+            .HasColumnType("timestamptz")
             .IsRequired();
 
         builder.Property(s => s.DataAtualizacao)
-            .HasColumnName("DataAtualizacao");
+            .HasColumnName("DataAtualizacao")
+            .HasColumnType("timestamptz");
 
         // Índices
         builder.HasIndex(s => s.PlantioInicial)

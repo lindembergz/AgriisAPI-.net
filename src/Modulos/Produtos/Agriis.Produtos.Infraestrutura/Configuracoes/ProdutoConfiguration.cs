@@ -137,9 +137,11 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
 
         // Propriedades de auditoria
         builder.Property(p => p.DataCriacao)
+            .HasColumnType("timestamptz")
             .IsRequired();
 
-        builder.Property(p => p.DataAtualizacao);
+        builder.Property(p => p.DataAtualizacao)
+            .HasColumnType("timestamptz");
 
         // Relacionamentos
         builder.HasOne(p => p.Categoria)

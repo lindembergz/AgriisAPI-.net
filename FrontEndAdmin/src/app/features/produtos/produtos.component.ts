@@ -1,8 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { MultiSelectModule } from 'primeng/multiselect';
+
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -23,16 +25,7 @@ import { CategoriaDto } from '../../shared/models/reference.model';
 import { ValidationService } from '../../shared/services/validation.service';
 import { ApiValidationService } from '../../shared/services/api-validation.service';
 import { produtoCodigoUniqueValidator, produtoNomeUniqueValidator, produtoReferencesValidator } from '../../shared/validators/async-validators';
-
-interface TableColumn {
-  field: string;
-  header: string;
-  sortable?: boolean;
-  width?: string;
-  type?: 'text' | 'boolean' | 'date' | 'custom';
-  hideOnMobile?: boolean;
-  hideOnTablet?: boolean;
-}
+import { TableColumn } from '../../shared/interfaces/component-template.interface';
 
 /**
  * Produtos CRUD component with reference dropdowns
@@ -46,10 +39,12 @@ interface TableColumn {
     FormsModule,
     InputTextModule,
     InputNumberModule,
+
     SelectModule,
     TextareaModule,
     CheckboxModule,
     ButtonModule,
+  MultiSelectModule,
     FieldErrorComponent,
     HierarchicalSelectorComponent,
     TableModule,
@@ -63,364 +58,9 @@ interface TableColumn {
     DialogModule,
     CheckboxModule
   ],
-  template: `
-    <div class="produtos-container">
-      <!-- Filters Section -->
-      <div class="filters-section" *ngIf="!loading()">
-        <div class="filters-header">
-          <h3>Filtros</h3>
-          <p-button
-            label="Limpar Filtros"
-            icon="pi pi-times"
-            (onClick)="limparFiltros()"
-            class="p-button-text p-button-sm"
-            [disabled]="!temFiltrosAtivos()">
-          </p-button>
-        </div>
-        
-        <div class="filters-grid">
-          <!-- Categoria Filter -->
-          <div class="filter-field">
-            <label for="filtroCategoria">Categoria</label>
-            <p-select
-              id="filtroCategoria"
-              [(ngModel)]="filtroCategoria"
-              [options]="categoriasParaFiltro()"
-              optionLabel="nome"
-              optionValue="id"
-              placeholder="Todas as categorias"
-              (onChange)="aplicarFiltros()"
-              [showClear]="true"
-              [filter]="true"
-              filterBy="nome">
-            </p-select>
-          </div>
-
-          <!-- Unidade de Medida Filter -->
-          <div class="filter-field">
-            <label for="filtroUnidade">Unidade de Medida</label>
-            <p-select
-              id="filtroUnidade"
-              [(ngModel)]="filtroUnidadeMedida"
-              [options]="unidadesParaFiltro()"
-              optionLabel="nome"
-              optionValue="id"
-              placeholder="Todas as unidades"
-              (onChange)="aplicarFiltros()"
-              [showClear]="true"
-              [filter]="true"
-              filterBy="nome">
-            </p-select>
-          </div>
-
-          <!-- Atividade Agropecuária Filter -->
-          <div class="filter-field">
-            <label for="filtroAtividade">Atividade Agropecuária</label>
-            <p-select
-              id="filtroAtividade"
-              [(ngModel)]="filtroAtividadeAgropecuaria"
-              [options]="atividadesParaFiltro()"
-              optionLabel="nome"
-              optionValue="id"
-              placeholder="Todas as atividades"
-              (onChange)="aplicarFiltros()"
-              [showClear]="true"
-              [filter]="true"
-              filterBy="nome">
-            </p-select>
-          </div>
-
-          <!-- Search Field -->
-          <div class="filter-field">
-            <label for="filtroTexto">Buscar</label>
-            <span class="p-input-icon-left">
-              <i class="pi pi-search"></i>
-              <input
-                id="filtroTexto"
-                type="text"
-                pInputText
-                [(ngModel)]="filtroTexto"
-                (input)="onBuscaChange($event)"
-                placeholder="Buscar por código, nome..."
-                class="search-input">
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Items Table -->
-      <div *ngIf="!loading()" class="table-container">
-        <p-table
-          [value]="items()"
-          [paginator]="true"
-          [rows]="pageSize()"
-          [totalRecords]="items().length"
-          [loading]="tableLoading()"
-          [sortMode]="'multiple'"
-          [multiSortMeta]="multiSortMeta()"
-          (onSort)="onSort($event)"
-          responsiveLayout="scroll"
-          class="p-datatable-sm">
-          
-          <ng-template pTemplate="header">
-            <tr>
-              <th *ngFor="let col of displayColumns()" 
-                  [pSortableColumn]="col.sortable ? col.field : null"
-                  [style.width]="col.width"
-                  [class.hide-on-mobile]="col.hideOnMobile"
-                  [class.hide-on-tablet]="col.hideOnTablet">
-                {{ col.header }}
-                <p-sortIcon *ngIf="col.sortable" [field]="col.field"></p-sortIcon>
-              </th>
-              <th style="width: 120px">Ações</th>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
-            <tr [class.highlighted-row]="highlightedRowIndex() === rowIndex">
-              <td *ngFor="let col of displayColumns()" 
-                  [class.hide-on-mobile]="col.hideOnMobile"
-                  [class.hide-on-tablet]="col.hideOnTablet">
-                <ng-container [ngSwitch]="col.type">
-                  <span *ngSwitchCase="'boolean'">
-                    <p-tag 
-                      [value]="item[col.field] ? 'Ativo' : 'Inativo'"
-                      [severity]="item[col.field] ? 'success' : 'danger'">
-                    </p-tag>
-                  </span>
-                  <span *ngSwitchCase="'custom'" [ngSwitch]="col.field">
-                    <span *ngSwitchCase="'preco'" [class]="getPrecoClass(item.preco)">
-                      {{ formatarPreco(item.preco) }}
-                    </span>
-                  </span>
-                  <span *ngSwitchDefault>{{ item[col.field] }}</span>
-                </ng-container>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <p-button
-                    icon="pi pi-pencil"
-                    [pTooltip]="'Editar ' + entityDisplayName().toLowerCase()"
-                    tooltipPosition="top"
-                    (onClick)="editarItem(item)"
-                    [loading]="isActionLoading('edit', item.id)"
-                    class="p-button-rounded p-button-text p-button-sm">
-                  </p-button>
-                  <p-button
-                    icon="pi pi-trash"
-                    [pTooltip]="'Excluir ' + entityDisplayName().toLowerCase()"
-                    tooltipPosition="top"
-                    (onClick)="confirmarExclusao(item)"
-                    [loading]="isActionLoading('delete', item.id)"
-                    class="p-button-rounded p-button-text p-button-sm p-button-danger">
-                  </p-button>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td [attr.colspan]="displayColumns().length + 1" class="text-center">
-                <div class="empty-state">
-                  <i class="pi pi-info-circle" style="font-size: 2rem; color: var(--text-color-secondary);"></i>
-                  <p>Nenhum {{ entityDisplayName().toLowerCase() }} encontrado.</p>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </div>
-
-        <!-- Form fields slot -->
-        <div slot="form-fields" class="form-fields">
-        <!-- Código -->
-        <div class="field">
-          <label for="codigo" class="required">Código</label>
-          <input
-            id="codigo"
-            type="text"
-            pInputText
-            formControlName="codigo"
-            placeholder="Digite o código do produto"
-            [class.ng-invalid]="shouldShowError('codigo')"
-            [disabled]="isEditMode()"
-            maxlength="20">
-          <app-field-error 
-            *ngIf="shouldShowError('codigo')"
-            [message]="getErrorMessage('codigo')">
-          </app-field-error>
-        </div>
-
-        <!-- Nome -->
-        <div class="field">
-          <label for="nome" class="required">Nome</label>
-          <input
-            id="nome"
-            type="text"
-            pInputText
-            formControlName="nome"
-            placeholder="Digite o nome do produto"
-            [class.ng-invalid]="shouldShowError('nome')"
-            maxlength="200">
-          <app-field-error 
-            *ngIf="shouldShowError('nome')"
-            [message]="getErrorMessage('nome')">
-          </app-field-error>
-        </div>
-
-        <!-- Descrição -->
-        <div class="field">
-          <label for="descricao">Descrição</label>
-          <textarea
-            id="descricao"
-            pTextarea
-            formControlName="descricao"
-            placeholder="Digite uma descrição para o produto"
-            [class.ng-invalid]="shouldShowError('descricao')"
-            rows="3"
-            maxlength="1000">
-          </textarea>
-          <app-field-error 
-            *ngIf="shouldShowError('descricao')"
-            [message]="getErrorMessage('descricao')">
-          </app-field-error>
-        </div>
-
-        <!-- Preço -->
-        <div class="field">
-          <label for="preco">Preço</label>
-          <p-inputNumber
-            id="preco"
-            formControlName="preco"
-            mode="currency"
-            currency="BRL"
-            locale="pt-BR"
-            placeholder="0,00"
-            [class.ng-invalid]="shouldShowError('preco')"
-            [min]="0"
-            [maxFractionDigits]="2">
-          </p-inputNumber>
-          <app-field-error 
-            *ngIf="shouldShowError('preco')"
-            [message]="getErrorMessage('preco')">
-          </app-field-error>
-        </div>
-
-        <!-- Categoria (Hierarchical Selector) -->
-        <div class="field">
-          <label for="categoria" class="required">Categoria</label>
-          <app-hierarchical-selector
-            [items]="categoriasHierarchicas()"
-            [selectionMode]="'single'"
-            [loading]="loadingCategorias()"
-            [error]="errorCategorias()"
-            [showHeader]="true"
-            [showSearch]="true"
-            [scrollHeight]="'300px'"
-            (selectionChange)="onCategoriaChange($event)"
-            class="categoria-selector">
-          </app-hierarchical-selector>
-          <app-field-error 
-            *ngIf="shouldShowError('categoriaId')"
-            [message]="getErrorMessage('categoriaId')">
-          </app-field-error>
-        </div>
-
-        <!-- Unidade de Medida -->
-        <div class="field">
-          <label for="unidadeMedida" class="required">Unidade de Medida</label>
-          <p-select
-            id="unidadeMedida"
-            formControlName="unidadeMedidaId"
-            [options]="unidadesMedida()"
-            optionLabel="nome"
-            optionValue="id"
-            placeholder="Selecione a unidade de medida"
-            [class.ng-invalid]="shouldShowError('unidadeMedidaId')"
-            [loading]="loadingUnidades()"
-            (onChange)="onUnidadeMedidaChange($event)"
-            [filter]="true"
-            filterBy="nome"
-            [showClear]="false">
-            <ng-template pTemplate="selectedItem" let-option>
-              <div *ngIf="option">
-                <strong>{{ option.codigo }}</strong> - {{ option.nome }}
-              </div>
-            </ng-template>
-            <ng-template pTemplate="item" let-option>
-              <div>
-                <strong>{{ option.codigo }}</strong> - {{ option.nome }}
-              </div>
-            </ng-template>
-          </p-select>
-          <app-field-error 
-            *ngIf="shouldShowError('unidadeMedidaId')"
-            [message]="getErrorMessage('unidadeMedidaId')">
-          </app-field-error>
-        </div>
-
-        <!-- Embalagem (filtered by UnidadeMedida) -->
-        <div class="field">
-          <label for="embalagem">Embalagem</label>
-          <p-select
-            id="embalagem"
-            formControlName="embalagemId"
-            [options]="embalagensDisponiveis()"
-            optionLabel="nome"
-            optionValue="id"
-            placeholder="Selecione a embalagem"
-            [class.ng-invalid]="shouldShowError('embalagemId')"
-            [loading]="loadingEmbalagens()"
-            [disabled]="!form.get('unidadeMedidaId')?.value"
-            [filter]="true"
-            filterBy="nome"
-            [showClear]="true">
-          </p-select>
-          <small class="field-help" *ngIf="!form.get('unidadeMedidaId')?.value">
-            Selecione uma unidade de medida primeiro
-          </small>
-          <app-field-error 
-            *ngIf="shouldShowError('embalagemId')"
-            [message]="getErrorMessage('embalagemId')">
-          </app-field-error>
-        </div>
-
-        <!-- Atividade Agropecuária -->
-        <div class="field">
-          <label for="atividadeAgropecuaria">Atividade Agropecuária</label>
-          <p-select
-            id="atividadeAgropecuaria"
-            formControlName="atividadeAgropecuariaId"
-            [options]="atividadesAgropecuarias()"
-            optionLabel="nome"
-            optionValue="id"
-            placeholder="Selecione a atividade agropecuária"
-            [class.ng-invalid]="shouldShowError('atividadeAgropecuariaId')"
-            [loading]="loadingAtividades()"
-            [filter]="true"
-            filterBy="nome"
-            [showClear]="true">
-            <ng-template pTemplate="selectedItem" let-option>
-              <div *ngIf="option">
-                <strong>{{ option.codigo }}</strong> - {{ option.nome }}
-              </div>
-            </ng-template>
-            <ng-template pTemplate="item" let-option>
-              <div>
-                <strong>{{ option.codigo }}</strong> - {{ option.nome }}
-              </div>
-            </ng-template>
-          </p-select>
-          <app-field-error 
-            *ngIf="shouldShowError('atividadeAgropecuariaId')"
-            [message]="getErrorMessage('atividadeAgropecuariaId')">
-          </app-field-error>
-        </div>
-      </div>
-    </div>
-  `,
-  styleUrls: ['./produtos.component.scss']
+  templateUrl: './produtos.component.html',
+  styleUrls: ['./produtos.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplayDto, CriarProdutoDto, AtualizarProdutoDto> implements OnInit {
   
@@ -487,34 +127,52 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
     { label: 'Maior Peso', value: TipoCalculoPeso.MaiorPeso }
   ];
 
-  protected entityDisplayName = () => 'Produto';
-  protected entityDescription = () => 'Gerencie o catálogo de produtos agrícolas';
-  protected defaultSortField = () => 'nome';
-  protected searchFields = () => ['codigo', 'nome', 'categoriaNome', 'unidadeMedidaNome', 'atividadeAgropecuariaNome'];
+  protected readonly entityDisplayName = () => 'Produto';
+  protected readonly entityDescription = () => 'Gerencie o catálogo de produtos agrícolas';
+  protected readonly defaultSortField = () => 'nome';
+  protected readonly searchFields = () => ['codigo', 'nome', 'categoriaNome', 'unidadeMedidaNome', 'atividadeAgropecuariaNome'];
 
-  protected displayColumns = (): TableColumn[] => [
-    { field: 'codigo', header: 'Código', sortable: true, width: '120px' },
-    { field: 'nome', header: 'Nome', sortable: true },
-    { field: 'categoriaNome', header: 'Categoria', sortable: true, hideOnMobile: true },
-    { field: 'unidadeMedidaSimbolo', header: 'Unidade', sortable: true, width: '100px', hideOnMobile: true },
-    { field: 'preco', header: 'Preço', sortable: true, width: '120px', type: 'custom', hideOnTablet: true },
-    { field: 'ativo', header: 'Status', sortable: true, width: '100px', type: 'boolean' }
-  ];
+  protected readonly displayColumns = computed<TableColumn[]>(() => [
+    { field: 'codigo', header: 'Código', sortable: true, width: '120px', type: 'text' },
+    { field: 'nome', header: 'Nome', sortable: true, type: 'text' },
+    { field: 'categoriaNome', header: 'Categoria', sortable: true, hideOnMobile: true, type: 'text' },
+    { field: 'unidadeMedidaSimbolo', header: 'Unidade', sortable: true, width: '100px', hideOnMobile: true, type: 'text' },
+    //{ field: 'preco', header: 'Preço', sortable: true, width: '120px', type: 'custom', hideOnTablet: true },
+    //{ field: 'ativo', header: 'Status', sortable: true, width: '100px', type: 'boolean' }
+  ]);
 
   ngOnInit(): void {
     super.ngOnInit();
     this.carregarDadosReferencia();
   }
 
+  /**
+   * Ensure dialog opens when creating a new product
+   */
+  override novoItem(): void {
+    super.novoItem();
+    this.showForm.set(true);
+  }
+
+  /**
+   * Ensure dialog opens when editing a product
+   */
+  override editarItem(item: ProdutoDisplayDto): void {
+    super.editarItem(item);
+    this.showForm.set(true);
+  }
+
+  // (no-op) `showForm` signal is inherited from ReferenceCrudBaseComponent
+
   protected createFormGroup(): FormGroup {
     const form = this.fb.group({
       codigo: ['', 
         [Validators.required, Validators.maxLength(20)],
-        [produtoCodigoUniqueValidator(this.apiValidationService, this.isEditMode() ? this.selectedItem()?.id : undefined)]
+        //[produtoCodigoUniqueValidator(this.apiValidationService, this.isEditMode() ? this.selectedItem()?.id : undefined)]
       ],
       nome: ['', 
         [Validators.required, Validators.maxLength(200)],
-        [produtoNomeUniqueValidator(this.apiValidationService, this.isEditMode() ? this.selectedItem()?.id : undefined)]
+        //[produtoNomeUniqueValidator(this.apiValidationService, this.isEditMode() ? this.selectedItem()?.id : undefined)]
       ],
       descricao: ['', [Validators.maxLength(1000)]],
       marca: ['', [Validators.maxLength(100)]],
@@ -529,6 +187,7 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
       fornecedorId: [null, [Validators.required]],
       produtoPaiId: [null],
       culturasIds: [[]],
+      codigoCda: [''],
       // Dimensões obrigatórias
       dimensoes: this.fb.group({
         altura: [0, [Validators.required, Validators.min(0)]],
@@ -592,17 +251,8 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
 
 
   protected populateForm(item: ProdutoDisplayDto): void {
-    this.form.patchValue({
-      codigo: item.codigo,
-      nome: item.nome,
-      descricao: item.descricao,
-      // preco: item.preco, // Removed as preco is not part of the form
-      categoriaId: item.categoriaId,
-      unidadeMedidaId: item.unidadeMedidaId,
-      embalagemId: item.embalagemId,
-      atividadeAgropecuariaId: item.atividadeAgropecuariaId,
-      ativo: item.ativo
-    });
+    // Use patchValue to set all matching form controls, including nested 'dimensoes'
+    this.form.patchValue(item);
 
     // Set selected categoria for hierarchical selector
     if (item.categoria) {
@@ -968,14 +618,7 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
   /**
    * Check if any filters are active
    */
-  temFiltrosAtivos(): boolean {
-    return !!(
-      this.filtroCategoria ||
-      this.filtroUnidadeMedida ||
-      this.filtroAtividadeAgropecuaria ||
-      this.filtroTexto.trim()
-    );
-  }
+  readonly temFiltrosAtivos = computed(() => !!(this.filtroCategoria || this.filtroUnidadeMedida || this.filtroAtividadeAgropecuaria || this.filtroTexto.trim()));
 
   /**
    * Format price for display

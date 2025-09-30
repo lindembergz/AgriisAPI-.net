@@ -18,9 +18,9 @@ public class RefreshToken : EntidadeBase
     public int UsuarioId { get; private set; }
     
     /// <summary>
-    /// Data de expiração do refresh token
+    /// Data de expiração do refresh token (UTC com timezone)
     /// </summary>
-    public DateTime DataExpiracao { get; private set; }
+    public DateTimeOffset DataExpiracao { get; private set; }
     
     /// <summary>
     /// Indica se o token foi revogado
@@ -28,9 +28,9 @@ public class RefreshToken : EntidadeBase
     public bool Revogado { get; private set; }
     
     /// <summary>
-    /// Data de revogação do token
+    /// Data de revogação do token (UTC com timezone)
     /// </summary>
-    public DateTime? DataRevogacao { get; private set; }
+    public DateTimeOffset? DataRevogacao { get; private set; }
     
     /// <summary>
     /// Endereço IP que criou o token
@@ -58,7 +58,7 @@ public class RefreshToken : EntidadeBase
     /// <param name="dataExpiracao">Data de expiração</param>
     /// <param name="enderecoIp">Endereço IP</param>
     /// <param name="userAgent">User Agent</param>
-    public RefreshToken(string token, int usuarioId, DateTime dataExpiracao, string? enderecoIp = null, string? userAgent = null)
+    public RefreshToken(string token, int usuarioId, DateTimeOffset dataExpiracao, string? enderecoIp = null, string? userAgent = null)
     {
         if (string.IsNullOrWhiteSpace(token))
             throw new ArgumentException("Token é obrigatório", nameof(token));
@@ -66,7 +66,7 @@ public class RefreshToken : EntidadeBase
         if (usuarioId <= 0)
             throw new ArgumentException("ID do usuário deve ser maior que zero", nameof(usuarioId));
             
-        if (dataExpiracao <= DateTime.UtcNow)
+        if (dataExpiracao <= DateTimeOffset.UtcNow)
             throw new ArgumentException("Data de expiração deve ser futura", nameof(dataExpiracao));
             
         Token = token;
@@ -83,7 +83,7 @@ public class RefreshToken : EntidadeBase
     /// <returns>True se o token está válido</returns>
     public bool EstaValido()
     {
-        return !Revogado && DataExpiracao > DateTime.UtcNow;
+        return !Revogado && DataExpiracao > DateTimeOffset.UtcNow;
     }
     
     /// <summary>
@@ -92,7 +92,7 @@ public class RefreshToken : EntidadeBase
     public void Revogar()
     {
         Revogado = true;
-        DataRevogacao = DateTime.UtcNow;
+        DataRevogacao = DateTimeOffset.UtcNow;
         AtualizarDataModificacao();
     }
     
@@ -102,6 +102,6 @@ public class RefreshToken : EntidadeBase
     /// <returns>True se o token expirou</returns>
     public bool Expirou()
     {
-        return DataExpiracao <= DateTime.UtcNow;
+        return DataExpiracao <= DateTimeOffset.UtcNow;
     }
 }

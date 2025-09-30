@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -12,6 +12,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CheckboxModule } from 'primeng/checkbox';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { ReferenceCrudBaseComponent } from '../../../shared/components/reference-crud-base/reference-crud-base.component';
 import { 
   AtividadeAgropecuariaDto, 
@@ -19,17 +20,15 @@ import {
   AtualizarAtividadeAgropecuariaDto,
   TipoAtividadeAgropecuaria 
 } from '../../../shared/models/reference.model';
+import { CustomFilter, CustomAction, EmptyStateConfig, LoadingStateConfig, TableColumn } from '../../../shared/interfaces/component-template.interface';
 import { AtividadeAgropecuariaService } from './services/atividade-agropecuaria.service';
+import { map } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { FieldErrorComponent } from '../../../shared/components/field-error/field-error.component';
+import { FilterSummaryComponent } from '../../../shared/components/filter-summary/filter-summary.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
-interface TableColumn {
-  field: string;
-  header: string;
-  sortable?: boolean;
-  width?: string;
-  type?: 'text' | 'boolean' | 'date' | 'custom';
-  hideOnMobile?: boolean;
-  hideOnTablet?: boolean;
-}
+
 
 /**
  * Component for managing Atividades Agropecuárias (Agricultural Activities) with CRUD operations
@@ -53,266 +52,13 @@ interface TableColumn {
     TagModule,
     TooltipModule,
     DialogModule,
-    CheckboxModule
+    CheckboxModule,
+    FieldErrorComponent,
+    FilterSummaryComponent,
+    LoadingSpinnerComponent
   ],
-  template: `
-    <div class="reference-crud-container">
-      <!-- Header with title and actions -->
-      <div class="header-section">
-        <div class="title-section">
-          <h2>{{ entityDisplayName() }}</h2>
-          <p class="subtitle">{{ entityDescription() }}</p>
-        </div>
-        
-        <div class="actions-section">
-          <!-- Custom toolbar for type filter -->
-          <div class="custom-toolbar">
-            <div class="filter-section">
-              <label for="tipoFilter">Filtrar por Tipo:</label>
-              <p-select
-                id="tipoFilter"
-                [options]="tipoOptions"
-                [(ngModel)]="selectedTipoFilter"
-                (onChange)="onTipoFilterChange()"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Todos os tipos"
-                [showClear]="true"
-                class="tipo-filter-dropdown">
-              </p-select>
-            </div>
-          </div>
-          
-          <!-- Status Filter -->
-          <p-select
-            [options]="statusFilterOptions"
-            [ngModel]="selectedStatusFilter()"
-            (onChange)="onStatusFilterChange($event)"
-            placeholder="Filtrar por status"
-            optionLabel="label"
-            optionValue="value"
-            class="status-filter">
-          </p-select>
-          
-          <!-- New Entity Button -->
-          <p-button
-            [label]="'Novo ' + entityDisplayName()"
-            icon="pi pi-plus"
-            (onClick)="novoItem()"
-            class="p-button-primary new-item-btn">
-          </p-button>
-        </div>
-      </div>
-
-      <!-- Loading Spinner -->
-      <div *ngIf="loading()" class="loading-container">
-        <p-progressSpinner></p-progressSpinner>
-        <p>Carregando {{ entityDisplayName().toLowerCase() }}...</p>
-      </div>
-
-      <!-- Items Table -->
-      <div *ngIf="!loading()" class="table-container">
-        <p-table
-          [value]="items()"
-          [paginator]="true"
-          [rows]="pageSize()"
-          [totalRecords]="items().length"
-          [loading]="tableLoading()"
-          [sortMode]="'multiple'"
-          [multiSortMeta]="multiSortMeta()"
-          (onSort)="onSort($event)"
-          responsiveLayout="scroll"
-          class="p-datatable-sm">
-          
-          <ng-template pTemplate="header">
-            <tr>
-              <th *ngFor="let col of displayColumns()" 
-                  [pSortableColumn]="col.sortable ? col.field : null"
-                  [style.width]="col.width"
-                  [class.hide-on-mobile]="col.hideOnMobile"
-                  [class.hide-on-tablet]="col.hideOnTablet">
-                {{ col.header }}
-                <p-sortIcon *ngIf="col.sortable" [field]="col.field"></p-sortIcon>
-              </th>
-              <th style="width: 120px">Ações</th>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
-            <tr [class.highlighted-row]="highlightedRowIndex() === rowIndex">
-              <td *ngFor="let col of displayColumns()" 
-                  [class.hide-on-mobile]="col.hideOnMobile"
-                  [class.hide-on-tablet]="col.hideOnTablet">
-                <ng-container [ngSwitch]="col.type">
-                  <span *ngSwitchCase="'boolean'">
-                    <p-tag 
-                      [value]="item[col.field] ? 'Ativo' : 'Inativo'"
-                      [severity]="item[col.field] ? 'success' : 'danger'">
-                    </p-tag>
-                  </span>
-                  <span *ngSwitchDefault>{{ item[col.field] }}</span>
-                </ng-container>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <p-button
-                    icon="pi pi-pencil"
-                    [pTooltip]="'Editar ' + entityDisplayName().toLowerCase()"
-                    tooltipPosition="top"
-                    (onClick)="editarItem(item)"
-                    [loading]="isActionLoading('edit', item.id)"
-                    class="p-button-rounded p-button-text p-button-sm">
-                  </p-button>
-                  <p-button
-                    icon="pi pi-trash"
-                    [pTooltip]="'Excluir ' + entityDisplayName().toLowerCase()"
-                    tooltipPosition="top"
-                    (onClick)="confirmarExclusao(item)"
-                    [loading]="isActionLoading('delete', item.id)"
-                    class="p-button-rounded p-button-text p-button-sm p-button-danger">
-                  </p-button>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td [attr.colspan]="displayColumns().length + 1" class="text-center">
-                <div class="empty-state">
-                  <i class="pi pi-info-circle" style="font-size: 2rem; color: var(--text-color-secondary);"></i>
-                  <p>Nenhum {{ entityDisplayName().toLowerCase() }} encontrado.</p>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </div>
-
-      <!-- Form Dialog -->
-      <p-dialog
-        [header]="selectedItem() ? 'Editar ' + entityDisplayName() : 'Novo ' + entityDisplayName()"
-[visible]="showForm()"
-        (onHide)="cancelarEdicao()"
-        [modal]="true"
-        [closable]="true"
-        [draggable]="false"
-        [resizable]="false"
-        styleClass="form-dialog"
-        [style]="{ width: '600px' }">
-        
-        <form [formGroup]="form" (ngSubmit)="salvarItem()">
-          <div class="form-fields">
-            <!-- Código field -->
-            <div class="field">
-              <label for="codigo" class="required">Código</label>
-              <input
-                pInputText
-                id="codigo"
-                formControlName="codigo"
-                placeholder="Ex: AGR001, PEC002"
-                maxlength="10"
-                [class.ng-invalid]="shouldShowError('codigo')"
-                [disabled]="isEditMode()"
-                class="w-full" />
-              <small 
-                *ngIf="shouldShowError('codigo')" 
-                class="p-error">
-                {{ getErrorMessage('codigo') }}
-              </small>
-              <small class="field-help">
-                Código único da atividade agropecuária (2-10 caracteres)
-              </small>
-            </div>
-
-            <!-- Descrição field -->
-            <div class="field">
-              <label for="descricao" class="required">Descrição</label>
-              <input
-                pInputText
-                id="descricao"
-                formControlName="descricao"
-                placeholder="Ex: Cultivo de Soja, Criação de Bovinos"
-                maxlength="200"
-                [class.ng-invalid]="shouldShowError('descricao')"
-                class="w-full" />
-              <small 
-                *ngIf="shouldShowError('descricao')" 
-                class="p-error">
-                {{ getErrorMessage('descricao') }}
-              </small>
-              <small class="field-help">
-                Descrição detalhada da atividade (5-200 caracteres)
-              </small>
-            </div>
-
-            <!-- Tipo field -->
-            <div class="field">
-              <label for="tipo" class="required">Tipo de Atividade</label>
-              <p-select
-                id="tipo"
-                formControlName="tipo"
-                [options]="tipoOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Selecione o tipo"
-                [class.ng-invalid]="shouldShowError('tipo')"
-                class="w-full">
-              </p-select>
-              <small 
-                *ngIf="shouldShowError('tipo')" 
-                class="p-error">
-                {{ getErrorMessage('tipo') }}
-              </small>
-              <small class="field-help">
-                Tipo da atividade: Agricultura, Pecuária ou Mista
-              </small>
-            </div>
-
-            <!-- Ativo field -->
-            <div class="field">
-              <div class="flex align-items-center">
-                <p-checkbox
-                  id="ativo"
-                  formControlName="ativo"
-                  [binary]="true">
-                </p-checkbox>
-                <label for="ativo" class="ml-2">Ativo</label>
-              </div>
-              <small class="field-help">
-                Indica se a atividade está ativa no sistema
-              </small>
-            </div>
-          </div>
-        </form>
-        
-        <ng-template pTemplate="footer">
-          <div class="flex justify-content-end gap-2">
-            <p-button
-              label="Cancelar"
-              icon="pi pi-times"
-              (onClick)="cancelarEdicao()"
-              class="p-button-text">
-            </p-button>
-            <p-button
-              [label]="selectedItem() ? 'Atualizar' : 'Criar'"
-              icon="pi pi-check"
-              (onClick)="salvarItem()"
-              [loading]="formLoading()"
-              [disabled]="form.invalid"
-              class="p-button-primary">
-            </p-button>
-          </div>
-        </ng-template>
-      </p-dialog>
-
-      <!-- Confirmation Dialog -->
-      <p-confirmDialog></p-confirmDialog>
-      
-      <!-- Toast Messages -->
-      <p-toast></p-toast>
-    </div>
-  `,
+  providers: [ConfirmationService, MessageService],
+  templateUrl: './atividades-agropecuarias.component.html',
   styleUrls: ['./atividades-agropecuarias.component.scss']
 })
 export class AtividadesAgropecuariasComponent extends ReferenceCrudBaseComponent<
@@ -323,19 +69,79 @@ export class AtividadesAgropecuariasComponent extends ReferenceCrudBaseComponent
   
   protected service = inject(AtividadeAgropecuariaService);
 
-  // Type filtering
-  selectedTipoFilter: TipoAtividadeAgropecuaria | null = null;
-  tipoOptions = this.service.getTipoOptions();
+  // Type filtering signals
+  selectedTipoFilter = signal<TipoAtividadeAgropecuaria | null>(null);
+  tipoOptions = signal(this.service.getTipoOptions());
   
-  // Grouped view
-  showGroupedView = false;
-  groupedActivities: { tipo: TipoAtividadeAgropecuaria; tipoDescricao: string; atividades: AtividadeAgropecuariaDto[] }[] = [];
+  // Grouped view signals
+  showGroupedView = signal<boolean>(false);
+  groupedActivities = signal<{ tipo: TipoAtividadeAgropecuaria; tipoDescricao: string; atividades: AtividadeAgropecuariaDto[] }[]>([]);
+  
+  // Current item for template access
+  currentItem: AtividadeAgropecuariaDto | null = null;
 
   // Entity configuration
   protected entityDisplayName = () => 'Atividade Agropecuária';
-  protected entityDescription = () => 'Gerenciar atividades agropecuárias do sistema';
+  protected entityDescription = () => 'Gerenciar atividades agropecuárias com agrupamento por tipo';
   protected defaultSortField = () => 'codigo';
   protected searchFields = () => ['codigo', 'descricao'];
+
+  protected getCustomFilters(): CustomFilter[] {
+    return [
+      {
+        key: 'tipo',
+        label: 'Tipo de Atividade',
+        placeholder: 'Selecione um tipo',
+        type: 'select',
+        visible: true,
+        options: [
+          { label: 'Todos os tipos', value: null },
+          ...this.tipoOptions().map(tipo => ({
+            label: tipo.label,
+            value: tipo.value
+          }))
+        ]
+      }
+    ];
+  }
+
+  protected getCustomActions(): CustomAction[] {
+    return [
+      {
+        key: 'toggle-view',
+        label: this.showGroupedView() ? 'Visualização Lista' : 'Visualização Agrupada',
+        icon: this.showGroupedView() ? 'pi pi-list' : 'pi pi-th-large',
+        tooltip: 'Alternar entre visualização agrupada e lista'
+      }
+    ];
+  }
+
+  protected getEmptyStateConfig(): EmptyStateConfig {
+    return {
+      icon: 'pi pi-briefcase',
+      title: 'Nenhuma atividade agropecuária encontrada',
+      description: this.hasActiveFilters() 
+        ? 'Não há atividades que atendam aos filtros aplicados.'
+        : 'Não há atividades agropecuárias cadastradas no sistema.',
+      primaryAction: {
+        label: 'Nova Atividade Agropecuária',
+        icon: 'pi pi-plus',
+        action: () => this.novoItem()
+      },
+      secondaryActions: this.hasActiveFilters() ? [{
+        label: 'Limpar Filtros',
+        icon: 'pi pi-filter-slash',
+        action: () => this.clearAllFilters()
+      }] : []
+    };
+  }
+
+  protected getLoadingStateConfig(): LoadingStateConfig {
+    return {
+      message: 'Carregando atividades agropecuárias...',
+      showProgress: false
+    };
+  }
 
   // Table columns configuration
   protected displayColumns = (): TableColumn[] => [
@@ -343,20 +149,23 @@ export class AtividadesAgropecuariasComponent extends ReferenceCrudBaseComponent
       field: 'codigo',
       header: 'Código',
       sortable: true,
-      width: '120px'
+      width: '120px',
+      type: 'text'
     },
     {
       field: 'descricao',
       header: 'Descrição',
       sortable: true,
-      width: '300px'
+      width: '300px',
+      type: 'text'
     },
     {
       field: 'tipoDescricao',
       header: 'Tipo',
       sortable: true,
-      width: '120px'
-    },
+      width: '120px',
+      type: 'text'
+    }/*,
     {
       field: 'ativo',
       header: 'Status',
@@ -373,12 +182,17 @@ export class AtividadesAgropecuariasComponent extends ReferenceCrudBaseComponent
       type: 'date',
       hideOnMobile: true,
       hideOnTablet: true
-    }
+    }*/
   ];
 
-  override ngOnInit(): void {
+  ngOnInit(): void {
     super.ngOnInit();
-    this.loadGroupedActivities();
+    this.carregarItens(); // Explicitly call to load items
+    this.setupCustomFilters();
+  }
+
+  protected setupCustomFilters(): void {
+    // Setup tipo filter behavior
   }
 
   /**
@@ -429,7 +243,7 @@ export class AtividadesAgropecuariasComponent extends ReferenceCrudBaseComponent
   /**
    * Populate form with entity data for editing
    */
-  protected populateForm(item: AtividadeAgropecuariaDto): void {
+protected populateForm(item: AtividadeAgropecuariaDto): void {
     this.form.patchValue({
       codigo: item.codigo,
       descricao: item.descricao,
@@ -441,49 +255,18 @@ export class AtividadesAgropecuariasComponent extends ReferenceCrudBaseComponent
   /**
    * Handle tipo filter change
    */
-  onTipoFilterChange(): void {
-    if (this.selectedTipoFilter !== null) {
-      this.service.obterPorTipo(this.selectedTipoFilter).subscribe({
-        next: (atividades) => {
-          this.items.set(atividades);
-          this.showGroupedView = false;
-        },
-        error: (error) => console.error('Erro ao filtrar atividades:', error)
-      });
-    } else {
-      this.carregarItens();
-      this.loadGroupedActivities();
-    }
+  onTipoFilterChange(event?: any): void {
+    const value = event?.value !== undefined ? event.value : this.selectedTipoFilter();
+    this.selectedTipoFilter.set(value);
+    this.applyItemFilters();
   }
 
   /**
    * Load activities grouped by type
    */
   private loadGroupedActivities(): void {
-    this.service.obterAgrupadasPorTipo().subscribe({
-      next: (grouped) => {
-        this.groupedActivities = [
-          {
-            tipo: TipoAtividadeAgropecuaria.Agricultura,
-            tipoDescricao: 'Agricultura',
-            atividades: grouped[TipoAtividadeAgropecuaria.Agricultura] || []
-          },
-          {
-            tipo: TipoAtividadeAgropecuaria.Pecuaria,
-            tipoDescricao: 'Pecuária',
-            atividades: grouped[TipoAtividadeAgropecuaria.Pecuaria] || []
-          },
-          {
-            tipo: TipoAtividadeAgropecuaria.Mista,
-            tipoDescricao: 'Mista',
-            atividades: grouped[TipoAtividadeAgropecuaria.Mista] || []
-          }
-        ].filter(group => group.atividades.length > 0);
-        
-        this.showGroupedView = this.selectedTipoFilter === null;
-      },
-      error: (error) => console.error('Erro ao carregar atividades agrupadas:', error)
-    });
+    this.updateGroupedActivities(this.items());
+    // Keep grouped view state as is, don't auto-change
   }
 
   /**
@@ -503,12 +286,40 @@ export class AtividadesAgropecuariasComponent extends ReferenceCrudBaseComponent
   }
 
   /**
+   * Get color for activity type
+   */
+  getTypeColor(tipo: TipoAtividadeAgropecuaria): string {
+    switch (tipo) {
+      case TipoAtividadeAgropecuaria.Agricultura:
+        return '#4CAF50';
+      case TipoAtividadeAgropecuaria.Pecuaria:
+        return '#FF9800';
+      case TipoAtividadeAgropecuaria.Mista:
+        return '#9C27B0';
+      default:
+        return '#757575';
+    }
+  }
+
+  /**
+   * Get tipo filter options
+   */
+  tipoFilterOptions = () => [
+    { label: 'Todos os tipos', value: null },
+    ...this.tipoOptions().map(tipo => ({
+      label: tipo.label,
+      value: tipo.value
+    }))
+  ];
+
+  /**
    * Toggle between grouped and list view
    */
   toggleView(): void {
-    this.showGroupedView = !this.showGroupedView;
-    if (this.showGroupedView) {
-      this.selectedTipoFilter = null;
+    const newGroupedView = !this.showGroupedView();
+    this.showGroupedView.set(newGroupedView);
+    
+    if (newGroupedView) {
       this.loadGroupedActivities();
     }
   }
@@ -516,10 +327,456 @@ export class AtividadesAgropecuariasComponent extends ReferenceCrudBaseComponent
   /**
    * Override carregarItens to refresh grouped view as well
    */
-  override carregarItens(): void {
-    super.carregarItens();
-    if (this.selectedTipoFilter === null) {
-      this.loadGroupedActivities();
+  public carregarItens(): void {
+    this.loading.set(true);
+    this.tableLoading.set(true);
+    
+    this.service.obterTodos().subscribe({
+      next: (items: AtividadeAgropecuariaDto[]) => {
+        this.items.set(items);
+        this.applyItemFilters();
+        this.loading.set(false);
+        this.tableLoading.set(false);
+        
+        // Refresh grouped view
+        this.updateGroupedActivities(items);
+      },
+      error: (error: any) => {
+        console.error('Erro ao carregar atividades agropecuárias:', error);
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao carregar atividades agropecuárias. Tente novamente.' });
+        this.loading.set(false);
+        this.tableLoading.set(false);
+      }
+    });
+  }
+
+  /**
+   * Update grouped activities based on current items
+   */
+  private updateGroupedActivities(items: AtividadeAgropecuariaDto[]): void {
+    const grupos = [
+      {
+        tipo: TipoAtividadeAgropecuaria.Agricultura,
+        tipoDescricao: 'Agricultura',
+        atividades: items.filter(item => item.tipo === TipoAtividadeAgropecuaria.Agricultura)
+      },
+      {
+        tipo: TipoAtividadeAgropecuaria.Pecuaria,
+        tipoDescricao: 'Pecuária',
+        atividades: items.filter(item => item.tipo === TipoAtividadeAgropecuaria.Pecuaria)
+      },
+      {
+        tipo: TipoAtividadeAgropecuaria.Mista,
+        tipoDescricao: 'Mista',
+        atividades: items.filter(item => item.tipo === TipoAtividadeAgropecuaria.Mista)
+      }
+    ].filter(group => group.atividades.length > 0);
+    
+    this.groupedActivities.set(grupos);
+  }
+
+  /**
+   * Override clearAllFilters to handle custom filters
+   */
+  public clearAllFilters(): void {
+    this.selectedTipoFilter.set(null);
+    this.searchTerm.set('');
+    this.selectedStatusFilter.set('todas');
+    this.applyItemFilters();
+  }
+
+  /**
+   * Override hasActiveFilters to include custom filters
+   */
+  public hasActiveFilters(): boolean {
+    return this.selectedTipoFilter() !== null || 
+           this.searchTerm() !== '' || 
+           this.selectedStatusFilter() !== 'todas';
+  }
+
+  // Additional methods needed by template
+
+  /**
+   * Get dialog title
+   */
+  dialogTitle(): string {
+    return this.selectedItem() ? `Editar ${this.entityDisplayName()}` : `Nova ${this.entityDisplayName()}`;
+  }
+
+  /**
+   * Check if is edit mode
+   */
+  isEditMode(): boolean {
+    return this.selectedItem() !== null;
+  }
+
+  /**
+   * Get dialog style
+   */
+  getDialogStyle(): any {
+    return { width: '500px' };
+  }
+
+  /**
+   * Get page report template
+   */
+  getPageReportTemplate(): string {
+    return 'Mostrando {first} a {last} de {totalRecords} atividades';
+  }
+
+  /**
+   * Check if mobile
+   */
+  isMobile(): boolean {
+    return window.innerWidth < 768;
+  }
+
+  /**
+   * Check if tablet
+   */
+  isTablet(): boolean {
+    return window.innerWidth >= 768 && window.innerWidth < 1024;
+  }
+
+  /**
+   * Check if row is highlighted
+   */
+  isRowHighlighted(rowIndex: number): boolean {
+    return this.highlightedRowIndex() === rowIndex;
+  }
+
+  /**
+   * Get status label
+   */
+  getStatusLabel(ativo: boolean): string {
+    return ativo ? 'Ativo' : 'Inativo';
+  }
+
+  /**
+   * Get status severity
+   */
+  getStatusSeverity(ativo: boolean): string {
+    return ativo ? 'success' : 'danger';
+  }
+
+  /**
+   * Format date
+   */
+  formatarData(data: string | Date): string {
+    if (!data) return '-';
+    const date = new Date(data);
+    return date.toLocaleDateString('pt-BR');
+  }
+
+  /**
+   * Get field value
+   */
+  getFieldValue(item: any, field: string): string {
+    const value = field.split('.').reduce((obj, key) => obj?.[key], item);
+    return value || '-';
+  }
+
+  /**
+   * Check if action is loading
+   */
+  isActionLoading(action: string, itemId: number): boolean {
+    return this.actionLoadingStates().get(`${action}-${itemId}`) !== undefined;
+  }
+
+  /**
+   * Check if any action is loading
+   */
+  hasAnyActionLoading(): boolean {
+    return this.actionLoadingStates().size > 0;
+  }
+
+  /**
+   * Get active filters summary
+   */
+  getActiveFiltersSummary(): any[] {
+    const filters = [];
+    
+    if (this.searchTerm()) {
+      filters.push({
+        key: 'search',
+        label: `Busca: "${this.searchTerm()}"`,
+        removable: true
+      });
     }
+    
+    if (this.selectedStatusFilter() !== 'todas') {
+      const statusLabel = this.statusFilterOptions.find(s => s.value === this.selectedStatusFilter())?.label;
+      filters.push({
+        key: 'status',
+        label: `Status: ${statusLabel}`,
+        removable: true
+      });
+    }
+    
+    const tipoFilter = this.selectedTipoFilter();
+    if (tipoFilter !== null) {
+      const tipoLabel = this.service.getTipoDescricao(tipoFilter);
+      filters.push({
+        key: 'tipo',
+        label: `Tipo: ${tipoLabel}`,
+        removable: true
+      });
+    }
+    
+    return filters;
+  }
+
+  /**
+   * Remove specific filter
+   */
+  removeFilter(filterKey: string): void {
+    switch (filterKey) {
+      case 'search':
+        this.clearSearch();
+        break;
+      case 'status':
+        this.selectedStatusFilter.set('todas');
+        break;
+      case 'tipo':
+        this.selectedTipoFilter.set(null);
+        this.onTipoFilterChange();
+        break;
+    }
+  }
+
+  /**
+   * Handle search change
+   */
+  onSearchChange(event: any): void {
+    this.searchTerm.set(event.target.value);
+    this.applyItemFilters();
+  }
+
+  /**
+   * Clear search
+   */
+  clearSearch(): void {
+    this.searchTerm.set('');
+  }
+
+  /**
+   * Handle status filter change
+   */
+  onStatusFilterChange(event: any): void {
+    this.selectedStatusFilter.set(event.value);
+    this.applyItemFilters();
+  }
+
+  // Additional signals needed by template (these should be in base component)
+  items = signal<AtividadeAgropecuariaDto[]>([]);
+  loading = signal<boolean>(false);
+  pageSize = signal<number>(10);
+  multiSortMeta = signal<any[]>([]);
+  actionLoadingStates = signal<Map<string, number>>(new Map());
+  highlightedRowIndex = signal<number>(-1);
+  currentLoadingMessage = signal<string>('Carregando atividades...');
+  tableLoading = signal<boolean>(false);
+  showForm = signal<boolean>(false);
+  formLoading = signal<boolean>(false);
+  selectedItem = signal<AtividadeAgropecuariaDto | null>(null);
+  searchTerm = signal<string>('');
+  selectedStatusFilter = signal<string>('todas');
+  
+  // Status filter options
+  statusFilterOptions = [
+    { label: 'Todas', value: 'todas' },
+    { label: 'Ativas', value: 'ativas' },
+    { label: 'Inativas', value: 'inativas' }
+  ];
+
+  // Filtered items signal
+  filteredItems = signal<AtividadeAgropecuariaDto[]>([]);
+
+  /**
+   * Apply filters to items
+   */
+  private applyItemFilters(): void {
+    let items = this.items();
+    
+    // Apply search filter
+    const search = this.searchTerm().toLowerCase();
+    if (search) {
+      items = items.filter(item => 
+        item.codigo.toLowerCase().includes(search) ||
+        item.descricao.toLowerCase().includes(search)
+      );
+    }
+    
+    // Apply status filter
+    const statusFilter = this.selectedStatusFilter();
+    if (statusFilter === 'ativas') {
+      items = items.filter(item => item.ativo);
+    } else if (statusFilter === 'inativas') {
+      items = items.filter(item => !item.ativo);
+    }
+    
+    // Apply tipo filter
+    const tipoFilter = this.selectedTipoFilter();
+    if (tipoFilter !== null) {
+      items = items.filter(item => item.tipo === tipoFilter);
+    }
+    
+    this.filteredItems.set(items);
+  }
+
+  /**
+   * Handle sort event
+   */
+  onSort(event: any): void {
+    this.multiSortMeta.set(event.multiSortMeta || []);
+  }
+
+  /**
+   * Handle page change event
+   */
+  onPageChange(event: any): void {
+    this.pageSize.set(event.rows);
+  }
+
+  /**
+   * Get visible columns
+   */
+  getVisibleColumns() {
+    return this.displayColumns();
+  }
+
+  /**
+   * Check if can save form
+   */
+  canSaveForm(): boolean {
+    return this.form.valid && !this.formLoading();
+  }
+
+  /**
+   * Cancel editing
+   */
+  cancelarEdicao(): void {
+    this.showForm.set(false);
+    this.selectedItem.set(null);
+    this.form.reset();
+  }
+
+  /**
+   * Save item
+   */
+  async salvarItem(): Promise<void> {
+    if (!this.canSaveForm()) return;
+
+    this.formLoading.set(true);
+    
+    try {
+      const formValue = this.form.value;
+      
+      if (this.isEditMode()) {
+        const updateDto = this.mapToUpdateDto(formValue);
+        await this.service.atualizar(this.selectedItem()!.id, updateDto).toPromise();
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Atividade atualizada com sucesso!' });
+      } else {
+        const createDto = this.mapToCreateDto(formValue);
+        await this.service.criar(createDto).toPromise();
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Atividade criada com sucesso!' });
+      }
+      
+      this.cancelarEdicao();
+      this.carregarItens();
+    } catch (error) {
+      console.error('Erro ao salvar atividade:', error);
+      this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao salvar atividade. Tente novamente.' });
+    } finally {
+      this.formLoading.set(false);
+    }
+  }
+
+  /**
+   * New item
+   */
+  novoItem(): void {
+    this.selectedItem.set(null);
+    this.form.reset({ ativo: true });
+    this.showForm.set(true);
+  }
+
+  /**
+   * Edit item
+   */
+  editarItem(item: AtividadeAgropecuariaDto): void {
+    this.selectedItem.set(item);
+    this.populateForm(item);
+    this.showForm.set(true);
+  }
+
+  /**
+   * Deactivate item
+   */
+  async desativarItem(item: AtividadeAgropecuariaDto): Promise<void> {
+    this.confirmationService.confirm({
+      message: `Tem certeza que deseja desativar a atividade "${item.descricao}"?`,
+      header: 'Confirmar Desativação',
+      icon: 'pi pi-exclamation-triangle',
+      accept: async () => {
+        try {
+          const actionKey = `deactivate-${item.id}`;
+          this.actionLoadingStates().set(actionKey, Date.now());
+          
+          const updateDto: AtualizarAtividadeAgropecuariaDto = {
+            descricao: item.descricao,
+            tipo: item.tipo,
+            ativo: false
+          };
+          
+          await this.service.atualizar(item.id, updateDto).toPromise();
+          this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Atividade desativada com sucesso!' });
+          this.carregarItens();
+        } catch (error) {
+          console.error('Erro ao desativar atividade:', error);
+          this.feedbackService.showError('Erro ao desativar atividade. Tente novamente.');
+        } finally {
+          const actionKey = `deactivate-${item.id}`;
+          const states = new Map(this.actionLoadingStates());
+          states.delete(actionKey);
+          this.actionLoadingStates.set(states);
+        }
+      }
+    });
+  }
+
+  /**
+   * Activate item
+   */
+  async ativarItem(item: AtividadeAgropecuariaDto): Promise<void> {
+    try {
+      const actionKey = `activate-${item.id}`;
+      this.actionLoadingStates().set(actionKey, Date.now());
+      
+      const updateDto: AtualizarAtividadeAgropecuariaDto = {
+        descricao: item.descricao,
+        tipo: item.tipo,
+        ativo: true
+      };
+      
+      await this.service.atualizar(item.id, updateDto).toPromise();
+      this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Atividade ativada com sucesso!' });
+      this.carregarItens();
+    } catch (error) {
+      console.error('Erro ao ativar atividade:', error);
+      this.feedbackService.showError('Erro ao ativar atividade. Tente novamente.');
+    } finally {
+      const actionKey = `activate-${item.id}`;
+      const states = new Map(this.actionLoadingStates());
+      states.delete(actionKey);
+      this.actionLoadingStates.set(states);
+    }
+  }
+
+  /**
+   * Delete item (not implemented yet)
+   */
+  async excluirItem(item: AtividadeAgropecuariaDto): Promise<void> {
+    this.messageService.add({ severity: 'warn', summary: 'Aviso', detail: 'Funcionalidade de exclusão não implementada ainda.' });
   }
 }

@@ -39,9 +39,9 @@ public class CatalogoConfiguration : IEntityTypeConfiguration<Catalogo>
             .IsRequired();
 
         builder.Property(c => c.DataInicio)
-            .HasColumnName("DataInicio")
-            .HasColumnType("timestamp without time zone")
-            .IsRequired();
+           .HasColumnName("DataInicio")
+           .HasColumnType("timestamp without time zone")
+           .IsRequired();
 
         builder.Property(c => c.DataFim)
             .HasColumnName("DataFim")
@@ -52,14 +52,9 @@ public class CatalogoConfiguration : IEntityTypeConfiguration<Catalogo>
             .IsRequired()
             .HasDefaultValue(true);
 
-        builder.Property(c => c.DataCriacao)
-            .HasColumnName("DataCriacao")
-            .HasColumnType("timestamp without time zone")
-            .IsRequired();
-
-        builder.Property(c => c.DataAtualizacao)
-            .HasColumnName("DataAtualizacao")
-            .HasColumnType("timestamp without time zone");
+        // DataCriacao and DataAtualizacao are configured by EntidadeBaseConfiguration
+        // which properly maps DateTimeOffset to "timestamp with time zone"
+        // Removing explicit column type overrides to prevent mapping conflicts
 
         // Relacionamentos
         builder.HasMany(c => c.Itens)

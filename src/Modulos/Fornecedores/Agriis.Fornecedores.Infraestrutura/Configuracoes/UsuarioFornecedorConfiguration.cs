@@ -42,17 +42,21 @@ public class UsuarioFornecedorConfiguration : IEntityTypeConfiguration<UsuarioFo
 
         builder.Property(uf => uf.DataInicio)
             .HasColumnName("DataInicio")
+            .HasColumnType("timestamptz")
             .IsRequired();
 
         builder.Property(uf => uf.DataFim)
-            .HasColumnName("DataFim");
+            .HasColumnName("DataFim")
+            .HasColumnType("timestamptz");
 
         builder.Property(uf => uf.DataCriacao)
             .HasColumnName("DataCriacao")
+            .HasColumnType("timestamptz")
             .IsRequired();
 
         builder.Property(uf => uf.DataAtualizacao)
-            .HasColumnName("DataAtualizacao");
+            .HasColumnName("DataAtualizacao")
+            .HasColumnType("timestamptz");
 
         // Relacionamentos
         builder.HasOne(uf => uf.Usuario)

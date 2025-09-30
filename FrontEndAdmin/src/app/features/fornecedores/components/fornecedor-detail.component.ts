@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -49,7 +49,8 @@ import { PontoDistribuicaoFormComponent } from './ponto-distribuicao-form.compon
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+  ReactiveFormsModule,
+  FormsModule,
     TabsModule,
     CardModule,
     ButtonModule,

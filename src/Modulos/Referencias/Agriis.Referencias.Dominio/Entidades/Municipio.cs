@@ -15,7 +15,7 @@ public class Municipio : EntidadeBase
     /// <summary>
     /// Código IBGE do município
     /// </summary>
-    public string CodigoIbge { get; private set; } = string.Empty;
+    public int CodigoIbge { get; private set; }
     
     /// <summary>
     /// ID da UF à qual o município pertence
@@ -43,7 +43,7 @@ public class Municipio : EntidadeBase
     /// <param name="nome">Nome do município</param>
     /// <param name="codigoIbge">Código IBGE do município</param>
     /// <param name="ufId">ID da UF</param>
-    public Municipio(string nome, string codigoIbge, int ufId)
+    public Municipio(string nome, int codigoIbge, int ufId)
     {
         ValidarNome(nome);
         ValidarCodigoIbge(codigoIbge);
@@ -78,7 +78,7 @@ public class Municipio : EntidadeBase
     /// </summary>
     /// <param name="nome">Novo nome</param>
     /// <param name="codigoIbge">Novo código IBGE</param>
-    public void AtualizarInformacoes(string nome, string codigoIbge)
+    public void AtualizarInformacoes(string nome, int codigoIbge)
     {
         ValidarNome(nome);
         ValidarCodigoIbge(codigoIbge);
@@ -97,13 +97,10 @@ public class Municipio : EntidadeBase
             throw new ArgumentException("Nome do município não pode ter mais de 100 caracteres", nameof(nome));
     }
     
-    private static void ValidarCodigoIbge(string codigoIbge)
+    private static void ValidarCodigoIbge(int codigoIbge)
     {
-        if (string.IsNullOrWhiteSpace(codigoIbge))
-            throw new ArgumentException("Código IBGE é obrigatório", nameof(codigoIbge));
-            
-        if (codigoIbge.Length > 10)
-            throw new ArgumentException("Código IBGE não pode ter mais de 10 caracteres", nameof(codigoIbge));
+        if (codigoIbge <= 0)
+            throw new ArgumentException("Código IBGE deve ser maior que zero", nameof(codigoIbge));
     }
     
     private static void ValidarUfId(int ufId)

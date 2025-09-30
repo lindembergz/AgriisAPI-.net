@@ -7,7 +7,7 @@ namespace Agriis.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class PontosDistribuicaoController : ControllerBase
 {
     private readonly PontoDistribuicaoService _pontoDistribuicaoService;

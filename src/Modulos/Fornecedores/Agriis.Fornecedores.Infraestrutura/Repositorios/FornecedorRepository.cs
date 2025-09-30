@@ -23,7 +23,7 @@ public class FornecedorRepository : RepositoryBase<Fornecedor, DbContext>, IForn
     string? filtro = null)
     {
         var query = Context.Set<Fornecedor>()
-            .Include(f => f.Uf)
+            .Include(f => f.Estado)
             .Include(f => f.Municipio)
             .Include(p => p.UsuariosFornecedores)
             .ThenInclude(up => up.Usuario)
@@ -62,7 +62,7 @@ public class FornecedorRepository : RepositoryBase<Fornecedor, DbContext>, IForn
         var cnpjObj = new Cnpj(cnpj);
 
         return await DbSet
-            .Include(f => f.Uf)
+            .Include(f => f.Estado)
             .Include(f => f.Municipio)
             .FirstOrDefaultAsync(f => f.Cnpj == cnpjObj, cancellationToken);
     }
@@ -70,7 +70,7 @@ public class FornecedorRepository : RepositoryBase<Fornecedor, DbContext>, IForn
     public async Task<IEnumerable<Fornecedor>> ObterAtivosAsync(CancellationToken cancellationToken = default)
     {
         return await DbSet
-            .Include(f => f.Uf)
+            .Include(f => f.Estado)
             .Include(f => f.Municipio)
             .Where(f => f.Ativo)
             .OrderBy(f => f.Nome)
@@ -148,7 +148,7 @@ public class FornecedorRepository : RepositoryBase<Fornecedor, DbContext>, IForn
         }
 
         return await query
-            .Include(f => f.Uf)
+            .Include(f => f.Estado)
             .Include(f => f.Municipio)
             .OrderBy(f => f.Nome)
             .ToListAsync(cancellationToken);
@@ -174,7 +174,7 @@ public class FornecedorRepository : RepositoryBase<Fornecedor, DbContext>, IForn
     public override async Task<Fornecedor?> ObterPorIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await DbSet
-            .Include(f => f.Uf)
+            .Include(f => f.Estado)
             .Include(f => f.Municipio)
             .Include(f => f.UsuariosFornecedores)
                 .ThenInclude(uf => uf.Usuario)
@@ -186,7 +186,7 @@ public class FornecedorRepository : RepositoryBase<Fornecedor, DbContext>, IForn
     public override async Task<IEnumerable<Fornecedor>> ObterTodosAsync(CancellationToken cancellationToken = default)
     {
         return await DbSet
-            .Include(f => f.Uf)
+            .Include(f => f.Estado)
             .Include(f => f.Municipio)
             .Include(f => f.UsuariosFornecedores)
                 .ThenInclude(uf => uf.Usuario)

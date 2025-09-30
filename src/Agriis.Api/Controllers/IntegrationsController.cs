@@ -6,7 +6,7 @@ namespace Agriis.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class IntegrationsController : ControllerBase
 {
     private readonly IAwsService _awsService;

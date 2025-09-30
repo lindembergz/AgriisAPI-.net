@@ -11,7 +11,7 @@ namespace Agriis.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/pedidos/{pedidoId}/propostas")]
-[Authorize]
+//[Authorize]
 public class PropostasController : ControllerBase
 {
     private readonly IPropostaService _propostaService;

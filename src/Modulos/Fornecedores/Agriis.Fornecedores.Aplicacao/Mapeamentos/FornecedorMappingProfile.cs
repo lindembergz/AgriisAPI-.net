@@ -18,8 +18,8 @@ public class FornecedorMappingProfile : Profile
             .ForMember(dest => dest.CnpjFormatado, opt => opt.MapFrom(src => src.Cnpj.ValorFormatado))
             .ForMember(dest => dest.MoedaPadrao, opt => opt.MapFrom(src => (int)src.Moeda))
             .ForMember(dest => dest.MoedaPadraoNome, opt => opt.MapFrom(src => ObterNomeMoeda(src.Moeda)))
-            .ForMember(dest => dest.UfNome, opt => opt.MapFrom(src => src.Uf != null ? src.Uf.Nome : null))
-            .ForMember(dest => dest.UfCodigo, opt => opt.MapFrom(src => src.Uf != null ? src.Uf.Codigo : null))
+            .ForMember(dest => dest.UfNome, opt => opt.MapFrom(src => src.Estado != null ? src.Estado.Nome : null))
+            .ForMember(dest => dest.UfCodigo, opt => opt.MapFrom(src => src.Estado != null ? src.Estado.Uf : null))
             .ForMember(dest => dest.MunicipioNome, opt => opt.MapFrom(src => src.Municipio != null ? src.Municipio.Nome : null))
             .ForMember(dest => dest.Usuarios, opt => opt.MapFrom(src => src.UsuariosFornecedores));
 

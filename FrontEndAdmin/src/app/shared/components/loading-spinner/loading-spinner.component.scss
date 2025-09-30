@@ -1,0 +1,341 @@
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  
+  &.loading-wrapper {
+    position: relative;
+  }
+  
+  &.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(2px);
+    z-index: 1000;
+  }
+  
+  &.loading-centered {
+    justify-content: center;
+    min-height: 200px;
+  }
+  
+  &.loading-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 9999;
+    min-height: 100vh;
+  }
+  
+  // Size variations
+  &.loading-small {
+    gap: 0.5rem;
+    min-height: 100px;
+  }
+  
+  &.loading-medium {
+    gap: 1rem;
+    min-height: 200px;
+  }
+  
+  &.loading-large {
+    gap: 1.5rem;
+    min-height: 300px;
+  }
+}
+
+// Spinner Container
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  
+  .loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
+    
+    .loading-message {
+      margin: 0;
+      color: var(--text-color);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    
+    .progress-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      
+      .progress-text {
+        font-size: 0.75rem;
+        color: var(--text-color-secondary);
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Progress Bar Container
+.bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 400px;
+  
+  .loading-content {
+    width: 100%;
+    text-align: center;
+    
+    .loading-message {
+      margin: 0;
+      color: var(--text-color);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+  }
+  
+  .progress-text {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    font-weight: 500;
+  }
+}
+
+// Dots Container
+.dots-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  
+  .loading-dots {
+    display: flex;
+    gap: 0.5rem;
+    
+    .dot {
+      border-radius: 50%;
+      background: var(--primary-color);
+      animation: dotPulse 1.4s ease-in-out infinite both;
+    }
+    
+    &.dots-small .dot {
+      width: 6px;
+      height: 6px;
+    }
+    
+    &.dots-medium .dot {
+      width: 8px;
+      height: 8px;
+    }
+    
+    &.dots-large .dot {
+      width: 12px;
+      height: 12px;
+    }
+  }
+  
+  .loading-message {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+  }
+}
+
+// Pulse Container
+.pulse-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  
+  .pulse-circle {
+    border-radius: 50%;
+    background: var(--primary-color);
+    animation: pulseScale 2s ease-in-out infinite;
+    
+    &.pulse-small {
+      width: 20px;
+      height: 20px;
+    }
+    
+    &.pulse-medium {
+      width: 30px;
+      height: 30px;
+    }
+    
+    &.pulse-large {
+      width: 40px;
+      height: 40px;
+    }
+  }
+  
+  .loading-message {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+  }
+}
+
+// Cancel Button
+.cancel-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: var(--surface-hover);
+    color: var(--text-color);
+    border-color: var(--primary-color);
+  }
+  
+  &:active {
+    transform: translateY(1px);
+  }
+  
+  i {
+    font-size: 0.75rem;
+  }
+}
+
+// Animations
+@keyframes dotPulse {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseScale {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+
+// Enhanced PrimeNG spinner styling
+:host ::ng-deep {
+  .p-progressspinner {
+    .p-progressspinner-circle {
+      stroke: var(--primary-color);
+      animation: spinnerRotate 1.5s linear infinite;
+    }
+  }
+  
+  .p-progressbar {
+    background: var(--surface-border);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    
+    .p-progressbar-value {
+      background: linear-gradient(90deg, var(--primary-color), var(--primary-600));
+      transition: width 0.3s ease;
+      border-radius: var(--border-radius);
+    }
+    
+    .p-progressbar-label {
+      color: var(--text-color);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+  }
+}
+
+@keyframes spinnerRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .loading-container {
+    &.loading-overlay {
+      background: rgba(0, 0, 0, 0.8);
+    }
+    
+    &.loading-fullscreen {
+      background: rgba(0, 0, 0, 0.9);
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .loading-container {
+    .loading-message {
+      font-weight: 600;
+    }
+    
+    .dots-container .loading-dots .dot {
+      border: 2px solid var(--text-color);
+    }
+    
+    .pulse-container .pulse-circle {
+      border: 2px solid var(--text-color);
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .loading-container {
+    .loading-dots .dot {
+      animation: none;
+    }
+    
+    .pulse-circle {
+      animation: none;
+    }
+  }
+  
+  :host ::ng-deep {
+    .p-progressspinner .p-progressspinner-circle {
+      animation: none;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .loading-container {
+    display: none !important;
+  }
+}

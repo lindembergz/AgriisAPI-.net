@@ -4,21 +4,24 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } 
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { CheckboxModule } from 'primeng/checkbox';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
-import { CheckboxModule } from 'primeng/checkbox';
+import { TooltipModule } from 'primeng/tooltip';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { EmbalagemDto, CriarEmbalagemDto, AtualizarEmbalagemDto, TipoUnidadeMedida } from '../../../shared/models/reference.model';
-import { EmbalagemService, UnidadeDropdownOption, TipoUnidadeOption } from './services/embalagem.service';
 
-/**
- * Component for managing Embalagens (Packaging) with CRUD operations
- * Includes UnidadeMedida relationship and type filtering functionality
- */
+import { ReferenceCrudBaseComponent } from '../../../shared/components/reference-crud-base/reference-crud-base.component';
+import { EmbalagemDto, CriarEmbalagemDto, AtualizarEmbalagemDto, TipoUnidadeMedida } from '../../../shared/models/reference.model';
+import { CustomFilter, CustomAction, EmptyStateConfig, LoadingStateConfig, TableColumn } from '../../../shared/interfaces/component-template.interface';
+import { EmbalagemService, UnidadeDropdownOption, TipoUnidadeOption } from './services/embalagem.service';
+import { map } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { FieldErrorComponent } from '../../../shared/components/field-error/field-error.component';
+
 @Component({
   selector: 'app-embalagens',
   standalone: true,
@@ -29,300 +32,148 @@ import { EmbalagemService, UnidadeDropdownOption, TipoUnidadeOption } from './se
     InputTextModule,
     SelectModule,
     ButtonModule,
-    CardModule,
+    CheckboxModule,
     TableModule,
     DialogModule,
     ToastModule,
     ConfirmDialogModule,
     TagModule,
-    CheckboxModule
+    TooltipModule,
+    ProgressSpinnerModule,
+    FieldErrorComponent
   ],
-  providers: [MessageService, ConfirmationService],
-  template: `
-    <div class="embalagens-container">
-      <!-- Header -->
-      <div class="header-section">
-        <div class="title-section">
-          <h2>Embalagens</h2>
-          <p class="subtitle">Gerenciar tipos de embalagem utilizados no sistema</p>
-        </div>
-        
-        <div class="actions-section">
-          <!-- Filters -->
-          <div class="filters">
-            <!-- Type filter -->
-            <p-select
-              [options]="tiposUnidadeDisponiveis"
-              [(ngModel)]="tipoUnidadeSelecionado"
-              (onChange)="onTipoUnidadeFilterChange()"
-              optionLabel="descricao"
-              optionValue="valor"
-              placeholder="Filtrar por tipo"
-              [showClear]="true"
-              class="filter-dropdown">
-            </p-select>
-            
-            <!-- Unit filter -->
-            <p-select
-              [options]="unidadesFiltradas"
-              [(ngModel)]="unidadeMedidaSelecionada"
-              (onChange)="onUnidadeMedidaFilterChange()"
-              optionLabel="nome"
-              optionValue="id"
-              placeholder="Filtrar por unidade"
-              [showClear]="true"
-              [filter]="true"
-              filterBy="nome,simbolo"
-              class="filter-dropdown">
-              <ng-template pTemplate="item" let-unidade>
-                <div class="dropdown-item">
-                  <strong>{{ unidade.simbolo }}</strong> - {{ unidade.nome }}
-                </div>
-              </ng-template>
-            </p-select>
-          </div>
-          
-          <!-- New button -->
-          <p-button
-            label="Nova Embalagem"
-            icon="pi pi-plus"
-            (onClick)="novoItem()"
-            class="p-button-primary">
-          </p-button>
-        </div>
-      </div>
-
-      <!-- Loading -->
-      <div *ngIf="loading()" class="loading-container">
-        <p>Carregando embalagens...</p>
-      </div>
-
-      <!-- Table -->
-      <div *ngIf="!loading()" class="table-container">
-        <p-table
-          [value]="items()"
-          [paginator]="true"
-          [rows]="10"
-          [rowsPerPageOptions]="[5, 10, 20, 50]"
-          responsiveLayout="scroll"
-          styleClass="p-datatable-gridlines p-datatable-striped">
-          
-          <ng-template pTemplate="header">
-            <tr>
-              <th>Nome</th>
-              <th>Descrição</th>
-              <th>Unidade de Medida</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </ng-template>
-
-          <ng-template pTemplate="body" let-item>
-            <tr>
-              <td>{{ item.nome }}</td>
-              <td>{{ item.descricao || '-' }}</td>
-              <td>
-                <div *ngIf="item.unidadeMedida" class="unidade-info">
-                  <strong>{{ item.unidadeMedida.simbolo }}</strong> - {{ item.unidadeMedida.nome }}
-                  <br>
-                  <small>{{ getTipoUnidadeDescricao(item.unidadeMedida.tipo) }}</small>
-                </div>
-                <span *ngIf="!item.unidadeMedida">-</span>
-              </td>
-              <td>
-                <p-tag
-                  [value]="item.ativo ? 'Ativo' : 'Inativo'"
-                  [severity]="item.ativo ? 'success' : 'danger'">
-                </p-tag>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <p-button
-                    icon="pi pi-pencil"
-                    (onClick)="editarItem(item)"
-                    class="p-button-rounded p-button-text p-button-info"
-                    pTooltip="Editar">
-                  </p-button>
-                  <p-button
-                    *ngIf="item.ativo"
-                    icon="pi pi-times"
-                    (onClick)="desativarItem(item)"
-                    class="p-button-rounded p-button-text p-button-warning"
-                    pTooltip="Desativar">
-                  </p-button>
-                  <p-button
-                    *ngIf="!item.ativo"
-                    icon="pi pi-check"
-                    (onClick)="ativarItem(item)"
-                    class="p-button-rounded p-button-text p-button-success"
-                    pTooltip="Ativar">
-                  </p-button>
-                  <p-button
-                    icon="pi pi-trash"
-                    (onClick)="excluirItem(item)"
-                    class="p-button-rounded p-button-text p-button-danger"
-                    pTooltip="Excluir">
-                  </p-button>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="5" class="empty-state">
-                <div class="empty-content">
-                  <i class="pi pi-info-circle"></i>
-                  <h3>Nenhuma embalagem encontrada</h3>
-                  <p>Não há embalagens cadastradas no sistema.</p>
-                  <p-button
-                    label="Cadastrar Nova Embalagem"
-                    icon="pi pi-plus"
-                    (onClick)="novoItem()"
-                    class="p-button-primary">
-                  </p-button>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </div>
-
-      <!-- Form Dialog -->
-      <p-dialog
-        [header]="dialogTitle()"
-[visible]="showForm()"
-        (onHide)="cancelarEdicao()"
-        [modal]="true"
-        [style]="{ width: '50vw' }"
-        [draggable]="false"
-        [resizable]="false">
-        
-        <form [formGroup]="form" (ngSubmit)="salvarItem()" class="form-container">
-          <!-- Nome field -->
-          <div class="field">
-            <label for="nome" class="required">Nome</label>
-            <input
-              pInputText
-              id="nome"
-              formControlName="nome"
-              placeholder="Ex: Saco, Caixa, Tambor, Fardo"
-              maxlength="100"
-              class="w-full" />
-            <small class="field-help">Nome da embalagem</small>
-          </div>
-
-          <!-- Descrição field -->
-          <div class="field">
-            <label for="descricao">Descrição</label>
-            <textarea
-              id="descricao"
-              formControlName="descricao"
-              placeholder="Descrição detalhada da embalagem (opcional)"
-              maxlength="500"
-              rows="3"
-              class="w-full">
-            </textarea>
-            <small class="field-help">Descrição opcional da embalagem</small>
-          </div>
-
-          <!-- UnidadeMedida field -->
-          <div class="field">
-            <label for="unidadeMedidaId" class="required">Unidade de Medida</label>
-            <p-select
-              id="unidadeMedidaId"
-              formControlName="unidadeMedidaId"
-              [options]="unidadesDisponiveis"
-              optionLabel="nome"
-              optionValue="id"
-              placeholder="Selecione a unidade de medida"
-              [filter]="true"
-              filterBy="nome,simbolo"
-              class="w-full">
-              <ng-template pTemplate="item" let-unidade>
-                <div class="dropdown-item">
-                  <strong>{{ unidade.simbolo }}</strong> - {{ unidade.nome }}
-                  <small class="tipo-badge">{{ getTipoUnidadeDescricao(unidade.tipo) }}</small>
-                </div>
-              </ng-template>
-            </p-select>
-            <small class="field-help">Unidade de medida associada à embalagem</small>
-          </div>
-
-          <!-- Status field (only for edit) -->
-          <div *ngIf="isEditMode()" class="field">
-            <label for="ativo">Status</label>
-            <p-checkbox
-              formControlName="ativo"
-              binary="true"
-              label="Ativo">
-            </p-checkbox>
-          </div>
-        </form>
-
-        <ng-template pTemplate="footer">
-          <div class="dialog-footer">
-            <p-button
-              label="Cancelar"
-              icon="pi pi-times"
-              (onClick)="cancelarEdicao()"
-              class="p-button-text">
-            </p-button>
-            <p-button
-              label="Salvar"
-              icon="pi pi-check"
-              (onClick)="salvarItem()"
-              class="p-button-primary"
-              [disabled]="form.invalid">
-            </p-button>
-          </div>
-        </ng-template>
-      </p-dialog>
-
-      <!-- Toast Messages -->
-      <p-toast position="top-right"></p-toast>
-      
-      <!-- Confirmation Dialog -->
-      <p-confirmDialog></p-confirmDialog>
-    </div>
-  `,
+  providers: [ConfirmationService, MessageService],
+  templateUrl: './embalagens.component.html',
   styleUrls: ['./embalagens.component.scss']
 })
-export class EmbalagensComponent implements OnInit {
-  
-  private service = inject(EmbalagemService);
-  private fb = inject(FormBuilder);
-  private messageService = inject(MessageService);
-  private confirmationService = inject(ConfirmationService);
+export class EmbalagensComponent extends ReferenceCrudBaseComponent<
+  EmbalagemDto,
+  CriarEmbalagemDto,
+  AtualizarEmbalagemDto
+> implements OnInit {
 
-  // Signals for reactive state management
-  items = signal<EmbalagemDto[]>([]);
-  loading = signal<boolean>(false);
-  showForm = signal<boolean>(false);
-  selectedItem = signal<EmbalagemDto | null>(null);
+  // Service injection
+  protected service = inject(EmbalagemService);
 
-  // Form
-  form!: FormGroup;
+  // Entity configuration
+  protected entityDisplayName = () => 'Embalagem';
+  protected entityDescription = () => 'Gerenciar tipos de embalagem com unidades de medida associadas';
+  protected defaultSortField = () => 'nome';
+  protected searchFields = () => ['nome', 'descricao'];
 
-  // UnidadeMedida filtering
-  unidadesDisponiveis: UnidadeDropdownOption[] = [];
-  unidadesFiltradas: UnidadeDropdownOption[] = [];
-  tiposUnidadeDisponiveis: TipoUnidadeOption[] = [];
-  tipoUnidadeSelecionado: TipoUnidadeMedida | null = null;
-  unidadeMedidaSelecionada: number | null = null;
+  // Table columns
+  protected displayColumns = (): TableColumn[] => [
+    { field: 'nome', header: 'Nome', sortable: true, width: '25%', type: 'text' },
+    { field: 'descricao', header: 'Descrição', sortable: true, width: '30%', hideOnMobile: true, type: 'text' },
+    { field: 'unidadeMedida', header: 'Unidade de Medida', width: '25%', type: 'custom', sortable: false },
+    //{ field: 'ativo', header: 'Status', sortable: true, width: '15%', type: 'boolean', hideOnMobile: true },
+    //{ field: 'dataCriacao', header: 'Criado em', sortable: true, width: '150px', type: 'date', hideOnMobile: true, hideOnTablet: true }
+  ];
+
+  // UnidadeMedida filtering signals
+  unidadesDisponiveis = signal<UnidadeDropdownOption[]>([]);
+  unidadesFiltradas = signal<UnidadeDropdownOption[]>([]);
+  tiposUnidadeDisponiveis = signal<TipoUnidadeOption[]>([]);
+  tipoUnidadeSelecionado = signal<TipoUnidadeMedida | null>(null);
+  unidadeMedidaSelecionada = signal<number | null>(null);
+
+  // Current item for template access
+  currentItem: EmbalagemDto | null = null;
 
   ngOnInit(): void {
-    this.createForm();
-    this.carregarItens();
+    super.ngOnInit();
     this.carregarUnidadesMedida();
     this.carregarTiposUnidade();
+    this.setupCustomFilters();
+  }
+
+  protected getCustomFilters(): CustomFilter[] {
+    return [
+      {
+        key: 'tipoUnidade',
+        label: 'Tipo de Unidade',
+        placeholder: 'Selecione um tipo',
+        type: 'select',
+        visible: true,
+        options: [
+          { label: 'Todos os tipos', value: null },
+          ...this.tiposUnidadeDisponiveis().map(tipo => ({
+            label: tipo.descricao,
+            value: tipo.valor
+          }))
+        ]
+      },
+      {
+        key: 'unidadeMedida',
+        label: 'Unidade de Medida',
+        placeholder: 'Selecione uma unidade',
+        type: 'select',
+        visible: true,
+        options: [
+          { label: 'Todas as unidades', value: null },
+          ...this.unidadesFiltradas().map(unidade => ({
+            label: `${unidade.simbolo} - ${unidade.nome}`,
+            value: unidade.id
+          }))
+        ]
+      }
+    ];
+  }
+
+  protected getCustomActions(): CustomAction[] {
+    return [];
+  }
+
+  protected getEmptyStateConfig(): EmptyStateConfig {
+    return {
+      icon: 'pi pi-box',
+      title: 'Nenhuma embalagem encontrada',
+      description: this.hasActiveFilters()
+        ? 'Não há embalagens que atendam aos filtros aplicados.'
+        : 'Não há embalagens cadastradas no sistema.',
+      primaryAction: {
+        label: 'Nova Embalagem',
+        icon: 'pi pi-plus',
+        action: () => this.novoItem()
+      },
+      secondaryActions: this.hasActiveFilters() ? [{
+        label: 'Limpar Filtros',
+        icon: 'pi pi-filter-slash',
+        action: () => this.clearAllFilters()
+      }] : []
+    };
+  }
+
+  protected getLoadingStateConfig(): LoadingStateConfig {
+    return {
+      message: 'Carregando embalagens...',
+      showProgress: false
+    };
+  }
+
+  protected setupCustomFilters(): void {
+    // // Setup tipo unidade filter behavior
+    // this.componentStateService.getCustomFilterValue('tipoUnidade').subscribe(tipoValue => {
+    //   if (tipoValue !== this.tipoUnidadeSelecionado()) {
+    //     this.tipoUnidadeSelecionado.set(tipoValue);
+    //     this.onTipoUnidadeFilterChange();
+    //   }
+    // });
+
+    // // Setup unidade medida filter behavior
+    // this.componentStateService.getCustomFilterValue('unidadeMedida').subscribe(unidadeValue => {
+    //   if (unidadeValue !== this.unidadeMedidaSelecionada()) {
+    //     this.unidadeMedidaSelecionada.set(unidadeValue);
+    //     this.onUnidadeMedidaFilterChange();
+    //   }
+    // });
   }
 
   /**
    * Create reactive form
    */
-  private createForm(): void {
-    this.form = this.fb.group({
+  protected createFormGroup(): FormGroup {
+    return this.fb.group({
       nome: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       descricao: ['', [Validators.maxLength(500)]],
       unidadeMedidaId: [null, [Validators.required]],
@@ -331,20 +182,37 @@ export class EmbalagensComponent implements OnInit {
   }
 
   /**
-   * Load items
+   * Map form value to create DTO
    */
-  carregarItens(): void {
-    this.loading.set(true);
-    
-    this.service.obterTodos().subscribe({
-      next: (items) => {
-        this.items.set(items);
-        this.loading.set(false);
-      },
-      error: (error) => {
-        console.error('Erro ao carregar embalagens:', error);
-        this.loading.set(false);
-      }
+  protected mapToCreateDto(formValue: any): CriarEmbalagemDto {
+    return {
+      nome: formValue.nome?.trim(),
+      descricao: formValue.descricao?.trim() || undefined,
+      unidadeMedidaId: formValue.unidadeMedidaId
+    };
+  }
+
+  /**
+   * Map form value to update DTO
+   */
+  protected mapToUpdateDto(formValue: any): AtualizarEmbalagemDto {
+    return {
+      nome: formValue.nome?.trim(),
+      descricao: formValue.descricao?.trim() || undefined,
+      unidadeMedidaId: formValue.unidadeMedidaId,
+      ativo: formValue.ativo
+    };
+  }
+
+  /**
+   * Populate form with item data
+   */
+  protected populateForm(item: EmbalagemDto): void {
+    this.form.patchValue({
+      nome: item.nome,
+      descricao: item.descricao || '',
+      unidadeMedidaId: item.unidadeMedidaId,
+      ativo: item.ativo
     });
   }
 
@@ -354,11 +222,11 @@ export class EmbalagensComponent implements OnInit {
   private carregarUnidadesMedida(): void {
     this.service.obterUnidadesMedidaParaDropdown().subscribe({
       next: (unidades) => {
-        this.unidadesDisponiveis = unidades;
-        this.unidadesFiltradas = [...unidades];
+        this.unidadesDisponiveis.set(unidades);
+        this.unidadesFiltradas.set([...unidades]);
       },
       error: (error) => {
-        console.error('Erro ao carregar unidades de medida:', error);
+        this.unifiedErrorHandlingService.handleComponentError('embalagens', 'load-unidades', error);
       }
     });
   }
@@ -369,10 +237,10 @@ export class EmbalagensComponent implements OnInit {
   private carregarTiposUnidade(): void {
     this.service.obterTiposUnidade().subscribe({
       next: (tipos) => {
-        this.tiposUnidadeDisponiveis = tipos;
+        this.tiposUnidadeDisponiveis.set(tipos);
       },
       error: (error) => {
-        console.error('Erro ao carregar tipos de unidade:', error);
+        this.unifiedErrorHandlingService.handleComponentError('embalagens', 'load-tipos', error);
       }
     });
   }
@@ -381,38 +249,78 @@ export class EmbalagensComponent implements OnInit {
    * Handle tipo unidade filter change
    */
   onTipoUnidadeFilterChange(): void {
-    if (this.tipoUnidadeSelecionado) {
-      this.unidadesFiltradas = this.unidadesDisponiveis.filter(
-        unidade => unidade.tipo === this.tipoUnidadeSelecionado
+    const tipoSelecionado = this.tipoUnidadeSelecionado();
+
+    if (tipoSelecionado) {
+      const unidadesFiltradas = this.unidadesDisponiveis().filter(
+        unidade => unidade.tipo === tipoSelecionado
       );
+      this.unidadesFiltradas.set(unidadesFiltradas);
     } else {
-      this.unidadesFiltradas = [...this.unidadesDisponiveis];
+      this.unidadesFiltradas.set([...this.unidadesDisponiveis()]);
     }
-    
+
     // Clear unidade selection if it doesn't match the type filter
-    if (this.unidadeMedidaSelecionada && this.tipoUnidadeSelecionado) {
-      const selectedUnidade = this.unidadesDisponiveis.find(u => u.id === this.unidadeMedidaSelecionada);
-      if (selectedUnidade && selectedUnidade.tipo !== this.tipoUnidadeSelecionado) {
-        this.unidadeMedidaSelecionada = null;
+    const unidadeSelecionada = this.unidadeMedidaSelecionada();
+    if (unidadeSelecionada && tipoSelecionado) {
+      const selectedUnidade = this.unidadesDisponiveis().find(u => u.id === unidadeSelecionada);
+      if (selectedUnidade && selectedUnidade.tipo !== tipoSelecionado) {
+        this.unidadeMedidaSelecionada.set(null);
       }
     }
-    
-    this.applyFilters();
+
+    this.applyItemFilters();
   }
 
   /**
    * Handle unidade medida filter change
    */
   onUnidadeMedidaFilterChange(): void {
-    this.applyFilters();
+    this.applyItemFilters();
   }
 
   /**
-   * Apply filters to items
+   * Override carregarItens to implement filtering
    */
-  private applyFilters(): void {
-    // For now, just reload items - in a real implementation, you'd filter the items array
-    this.carregarItens();
+  public carregarItens(): void {
+    this.loading.set(true);
+    this.tableLoading.set(true);
+
+    this.service.obterTodos().subscribe({
+      next: (items: EmbalagemDto[]) => {
+        this.items.set(items);
+        this.applyItemFilters();
+        this.loading.set(false);
+        this.tableLoading.set(false);
+      },
+      error: (error: any) => {
+        console.error('Erro ao carregar embalagens:', error);
+        this.loading.set(false);
+        this.tableLoading.set(false);
+      }
+    });
+  }
+
+  /**
+   * Override clearAllFilters to handle custom filters
+   */
+  public clearAllFilters(): void {
+    this.searchTerm.set('');
+    this.selectedStatusFilter.set('todas');
+    this.tipoUnidadeSelecionado.set(null);
+    this.unidadeMedidaSelecionada.set(null);
+    this.unidadesFiltradas.set([...this.unidadesDisponiveis()]);
+    this.applyItemFilters();
+  }
+
+  /**
+   * Override hasActiveFilters to include custom filters
+   */
+  public hasActiveFilters(): boolean {
+    return this.searchTerm() !== '' ||
+           this.selectedStatusFilter() !== 'todas' ||
+           this.tipoUnidadeSelecionado() !== null ||
+           this.unidadeMedidaSelecionada() !== null;
   }
 
   /**
@@ -423,177 +331,248 @@ export class EmbalagensComponent implements OnInit {
   }
 
   /**
-   * Open form for new item
+   * Get unidade medida display for table
    */
-  novoItem(): void {
-    this.selectedItem.set(null);
-    this.form.reset({ ativo: true });
-    this.showForm.set(true);
+  getUnidadeMedidaDisplay(item: EmbalagemDto): string {
+    if (!item.unidadeMedida) return '-';
+    return `${item.unidadeMedida.simbolo} - ${item.unidadeMedida.nome}`;
   }
 
   /**
-   * Open form for editing item
+   * Get tipo info for unidade medida
    */
-  editarItem(item: EmbalagemDto): void {
-    this.selectedItem.set(item);
-    this.form.patchValue({
-      nome: item.nome,
-      descricao: item.descricao || '',
-      unidadeMedidaId: item.unidadeMedidaId,
-      ativo: item.ativo
-    });
-    this.showForm.set(true);
+  getTipoInfo(item: EmbalagemDto): string {
+    if (!item.unidadeMedida) return '';
+    return this.getTipoUnidadeDescricao(item.unidadeMedida.tipo);
+  }
+
+  // Additional methods needed by the template
+
+  /**
+   * Get dialog title
+   */
+  dialogTitle(): string {
+    return this.selectedItem() ? `Editar ${this.entityDisplayName()}` : `Nova ${this.entityDisplayName()}`;
   }
 
   /**
-   * Save item
-   */
-  salvarItem(): void {
-    if (this.form.invalid) {
-      return;
-    }
-
-    const formValue = this.form.value;
-    
-    if (this.isEditMode()) {
-      // Update
-      const updateDto: AtualizarEmbalagemDto = {
-        nome: formValue.nome?.trim(),
-        descricao: formValue.descricao?.trim() || undefined,
-        unidadeMedidaId: formValue.unidadeMedidaId,
-        ativo: formValue.ativo
-      };
-      
-      this.service.atualizar(this.selectedItem()!.id, updateDto).subscribe({
-        next: () => {
-          this.showForm.set(false);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: 'Embalagem atualizada com sucesso'
-          });
-          this.carregarItens();
-        },
-        error: (error) => {
-          console.error('Erro ao atualizar embalagem:', error);
-        }
-      });
-    } else {
-      // Create
-      const createDto: CriarEmbalagemDto = {
-        nome: formValue.nome?.trim(),
-        descricao: formValue.descricao?.trim() || undefined,
-        unidadeMedidaId: formValue.unidadeMedidaId
-      };
-      
-      this.service.criar(createDto).subscribe({
-        next: () => {
-          this.showForm.set(false);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: 'Embalagem criada com sucesso'
-          });
-          this.carregarItens();
-        },
-        error: (error) => {
-          console.error('Erro ao criar embalagem:', error);
-        }
-      });
-    }
-  }
-
-  /**
-   * Cancel editing
-   */
-  cancelarEdicao(): void {
-    this.showForm.set(false);
-    this.selectedItem.set(null);
-    this.form.reset();
-  }
-
-  /**
-   * Activate item
-   */
-  ativarItem(item: EmbalagemDto): void {
-    this.service.ativar(item.id).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Embalagem ativada com sucesso'
-        });
-        this.carregarItens();
-      },
-      error: (error) => {
-        console.error('Erro ao ativar embalagem:', error);
-      }
-    });
-  }
-
-  /**
-   * Deactivate item
-   */
-  desativarItem(item: EmbalagemDto): void {
-    this.confirmationService.confirm({
-      message: 'Tem certeza que deseja desativar esta embalagem?',
-      header: 'Confirmar Desativação',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.service.desativar(item.id).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Sucesso',
-              detail: 'Embalagem desativada com sucesso'
-            });
-            this.carregarItens();
-          },
-          error: (error) => {
-            console.error('Erro ao desativar embalagem:', error);
-          }
-        });
-      }
-    });
-  }
-
-  /**
-   * Delete item
-   */
-  excluirItem(item: EmbalagemDto): void {
-    this.confirmationService.confirm({
-      message: 'Tem certeza que deseja excluir esta embalagem?',
-      header: 'Confirmar Exclusão',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.service.remover(item.id).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Sucesso',
-              detail: 'Embalagem excluída com sucesso'
-            });
-            this.carregarItens();
-          },
-          error: (error) => {
-            console.error('Erro ao excluir embalagem:', error);
-          }
-        });
-      }
-    });
-  }
-
-  /**
-   * Check if in edit mode
+   * Check if is edit mode
    */
   isEditMode(): boolean {
     return this.selectedItem() !== null;
   }
 
   /**
-   * Get dialog title
+   * Get dialog style
    */
-  dialogTitle(): string {
-    return this.isEditMode() ? 'Editar Embalagem' : 'Nova Embalagem';
+  getDialogStyle(): any {
+    return { width: '500px' };
+  }
+
+  /**
+   * Get page report template
+   */
+  getPageReportTemplate(): string {
+    return 'Mostrando {first} a {last} de {totalRecords} embalagens';
+  }
+
+  /**
+   * Check if mobile
+   */
+  isMobile(): boolean {
+    return window.innerWidth < 768;
+  }
+
+  /**
+   * Check if tablet
+   */
+  isTablet(): boolean {
+    return window.innerWidth >= 768 && window.innerWidth < 1024;
+  }
+
+  /**
+   * Check if row is highlighted
+   */
+  isRowHighlighted(rowIndex: number): boolean {
+    return this.highlightedRowIndex() === rowIndex;
+  }
+
+  /**
+   * Get status label
+   */
+  getStatusLabel(ativo: boolean): string {
+    return ativo ? 'Ativo' : 'Inativo';
+  }
+
+  /**
+   * Get status severity
+   */
+  getStatusSeverity(ativo: boolean): string {
+    return ativo ? 'success' : 'danger';
+  }
+
+  /**
+   * Format date
+   */
+  formatarData(data: string | Date): string {
+    if (!data) return '-';
+    const date = new Date(data);
+    return date.toLocaleDateString('pt-BR');
+  }
+
+  /**
+   * Get field value
+   */
+  getFieldValue(item: any, field: string): string {
+    const value = field.split('.').reduce((obj, key) => obj?.[key], item);
+    return value || '-';
+  }
+
+  /**
+   * Check if action is loading
+   */
+  isActionLoading(action: string, itemId: number): boolean {
+    return this.actionLoadingStates().get(`${action}-${itemId}`) !== undefined;
+  }
+
+  /**
+   * Check if any action is loading
+   */
+  hasAnyActionLoading(): boolean {
+    return this.actionLoadingStates().size > 0;
+  }
+
+  /**
+   * Get active filters summary
+   */
+  getActiveFiltersSummary(): any[] {
+    const filters = [];
+
+    if (this.searchTerm()) {
+      filters.push({
+        key: 'search',
+        label: `Busca: "${this.searchTerm()}"`,
+        removable: true
+      });
+    }
+
+    if (this.selectedStatusFilter() !== 'todas') {
+      const statusLabel = this.statusFilterOptions.find(s => s.value === this.selectedStatusFilter())?.label;
+      filters.push({
+        key: 'status',
+        label: `Status: ${statusLabel}`,
+        removable: true
+      });
+    }
+
+    return filters;
+  }
+
+  /**
+   * Remove specific filter
+   */
+  removeFilter(filterKey: string): void {
+    switch (filterKey) {
+      case 'search':
+        this.clearSearch();
+        break;
+      case 'status':
+        this.selectedStatusFilter.set('todas');
+        break;
+    }
+  }
+
+  /**
+   * Handle sort event
+   */
+  onSort(event: any): void {
+    this.multiSortMeta.set(event.multiSortMeta || []);
+  }
+
+  /**
+   * Handle page change event
+   */
+  onPageChange(event: any): void {
+    this.pageSize.set(event.rows);
+  }
+
+  /**
+   * Clear search
+   */
+  clearSearch(): void {
+    this.searchTerm.set('');
+  }
+
+  /**
+   * Handle search change
+   */
+  onSearchChange(event: any): void {
+    this.searchTerm.set(event.target.value);
+    this.applyItemFilters();
+  }
+
+  /**
+   * Handle status filter change
+   */
+  onStatusFilterChange(event: any): void {
+    this.selectedStatusFilter.set(event.value);
+    this.applyItemFilters();
+  }
+
+  // Additional signals needed by template (these should be in base component)
+  items = signal<EmbalagemDto[]>([]);
+  loading = signal<boolean>(false);
+  tableLoading = signal<boolean>(false);
+  showForm = signal<boolean>(false);
+  formLoading = signal<boolean>(false);
+  selectedItem = signal<EmbalagemDto | null>(null);
+  searchTerm = signal<string>('');
+  selectedStatusFilter = signal<string>('todas');
+  pageSize = signal<number>(10);
+  multiSortMeta = signal<any[]>([]);
+  actionLoadingStates = signal<Map<string, number>>(new Map());
+  highlightedRowIndex = signal<number>(-1);
+  currentLoadingMessage = signal<string>('Carregando embalagens...');
+  
+  // Status filter options
+  statusFilterOptions = [
+    { label: 'Todas', value: 'todas' },
+    { label: 'Ativas', value: 'ativas' },
+    { label: 'Inativas', value: 'inativas' }
+  ];
+
+  // Filtered items signal
+  filteredItems = signal<EmbalagemDto[]>([]);
+
+  /**
+   * Apply filters to items
+   */
+  private applyItemFilters(): void {
+    let items = this.items();
+    
+    // Apply search filter
+    const search = this.searchTerm().toLowerCase();
+    if (search) {
+      items = items.filter(item => 
+        item.nome.toLowerCase().includes(search) ||
+        (item.descricao && item.descricao.toLowerCase().includes(search))
+      );
+    }
+    
+    // Apply status filter
+    const statusFilter = this.selectedStatusFilter();
+    if (statusFilter === 'ativas') {
+      items = items.filter(item => item.ativo);
+    } else if (statusFilter === 'inativas') {
+      items = items.filter(item => !item.ativo);
+    }
+    
+    // Apply unidade medida filter
+    const unidadeFilter = this.unidadeMedidaSelecionada();
+    if (unidadeFilter) {
+      items = items.filter(item => item.unidadeMedidaId === unidadeFilter);
+    }
+    
+    this.filteredItems.set(items);
   }
 }

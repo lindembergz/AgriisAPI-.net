@@ -19,9 +19,9 @@ public class UsuarioRole : EntidadeBase
     public Roles Role { get; private set; }
     
     /// <summary>
-    /// Data de atribuição da role
+    /// Data de atribuição da role (UTC com timezone)
     /// </summary>
-    public DateTime DataAtribuicao { get; private set; }
+    public DateTimeOffset DataAtribuicao { get; private set; }
     
     /// <summary>
     /// Usuário associado
@@ -44,7 +44,7 @@ public class UsuarioRole : EntidadeBase
     {
         UsuarioId = usuarioId;
         Role = role;
-        DataAtribuicao = DateTime.UtcNow;
+        DataAtribuicao = DateTimeOffset.UtcNow;
     }
     
     /// <summary>

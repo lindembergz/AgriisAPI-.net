@@ -51,30 +51,24 @@ export class LayoutComponent implements OnInit {
       ],
     },
     {
-      label: 'Tabelas de sistema',
+      label: 'Configurações de sistema',
       items: [
         { label: 'Ano Safra', routerLink: ['/safras'] },
         { label: 'Culturas', routerLink: ['/culturas'] },
+        { label: 'Moedas', routerLink: ['/referencias/moedas']},
+        { label: 'Países', routerLink: ['/referencias/paises'] },
+        { label: 'Estados', routerLink: ['/referencias/ufs'] },
+        { label: 'Municípios', routerLink: ['/referencias/municipios']},
+        { label: 'Atividades Agropecuárias', routerLink: ['/referencias/atividades-agropecuarias'] },
       ],
     },
     {
       label: 'Produtos',
       items: [
-        { label: 'Produtos', routerLink: ['/produtos'] },
-      ],
-    },
-    {
-      label: 'Referências',
-      icon: 'pi pi-database',
-      items: [
-        { label: 'Categorias', routerLink: ['/referencias/categorias'], icon: 'pi pi-sitemap' },
-        { label: 'Unidades de Medida', routerLink: ['/referencias/unidades-medida'], icon: 'pi pi-calculator' },
-        { label: 'Moedas', routerLink: ['/referencias/moedas'], icon: 'pi pi-dollar' },
-        { label: 'Países', routerLink: ['/referencias/paises'], icon: 'pi pi-globe' },
-        { label: 'Estados', routerLink: ['/referencias/ufs'], icon: 'pi pi-map' },
-        { label: 'Municípios', routerLink: ['/referencias/municipios'], icon: 'pi pi-map-marker' },
-        { label: 'Atividades Agropecuárias', routerLink: ['/referencias/atividades-agropecuarias'], icon: 'pi pi-briefcase' },
-        { label: 'Embalagens', routerLink: ['/referencias/embalagens'], icon: 'pi pi-box' },
+        { label: 'Categorias', routerLink: ['/referencias/categorias'] },
+        { label: 'Embalagens', routerLink: ['/referencias/embalagens'] },
+        { label: 'Unidades de Medida', routerLink: ['/referencias/unidades-medida']},
+        { label: 'Cadastro', routerLink: ['/produtos'] },
       ],
     },
     {

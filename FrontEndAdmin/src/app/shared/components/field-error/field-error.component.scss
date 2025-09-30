@@ -1,0 +1,138 @@
+/**
+ * Field Error Component Styles
+ * Provides consistent error display across different modes and contexts
+ */
+
+@import '../../styles/design-tokens.scss';
+
+// =============================================================================
+// BASE CONTAINER STYLES
+// =============================================================================
+
+.field-error-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  animation: fadeIn var(--duration-fast) var(--ease-out);
+  
+  &.visible {
+    opacity: 1;
+  }
+  
+  &.animating {
+    transition: var(--transition-fast);
+  }
+  
+  // Severity-based styling
+  &.error-error {
+    --error-color: var(--color-danger);
+    --error-bg: var(--color-danger-light);
+    --error-border: var(--color-danger);
+  }
+  
+  &.error-warning {
+    --error-color: var(--color-warning);
+    --error-bg: var(--color-warning-light);
+    --error-border: var(--color-warning);
+  }
+  
+  &.error-info {
+    --error-color: var(--color-info);
+    --error-bg: var(--color-info-light);
+    --error-border: var(--color-info);
+  }
+}
+
+// =============================================================================
+// TEXT DISPLAY MODE
+// =============================================================================
+
+.error-text-container {
+  .error-content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) 0;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    
+    &:hover {
+      opacity: 0.8;
+    }
+    
+    .error-icon {
+      color: var(--error-color);
+      font-size: var(--font-size-sm);
+      margin-top: 2px; // Align with text baseline
+      flex-shrink: 0;
+    }
+    
+    .field-name {
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      font-size: var(--font-size-sm);
+    }
+    
+    .error-message {
+      color: var(--error-color);
+      font-size: var(--font-size-sm);
+      line-height: var(--line-height-normal);
+    }
+  }
+}
+
+// =============================================================================
+// INLINE DISPLAY MODE
+// =============================================================================
+
+.error-inline-container {
+  .error-content {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--error-border);
+    background-color: var(--error-bg);
+    font-size: var(--font-size-xs);
+    color: var(--error-color);
+    line-height: var(--line-height-tight);
+    
+    .error-icon {
+      font-size: var(--font-size-sm);
+    }
+    
+    .field-name {
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+}
+
+// =============================================================================
+// RESPONSIVE ADJUSTMENTS
+// =============================================================================
+
+@media (max-width: calc(var(--mobile-breakpoint) - 1px)) {
+  .error-text-container .error-content {
+    .error-message, .field-name {
+      font-size: var(--font-size-xs);
+    }
+    .error-icon {
+      font-size: var(--font-size-xs);
+    }
+  }
+  
+  .error-inline-container .error-content {
+    font-size: 0.625rem; // Even smaller for inline on mobile
+    padding: var(--spacing-xxs) var(--spacing-xs);
+  }
+}
+
+// =============================================================================
+// ANIMATIONS
+// =============================================================================
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

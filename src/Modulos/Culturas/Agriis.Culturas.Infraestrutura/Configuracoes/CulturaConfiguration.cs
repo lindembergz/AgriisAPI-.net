@@ -32,10 +32,12 @@ public class CulturaConfiguration : IEntityTypeConfiguration<Cultura>
 
         builder.Property(c => c.DataCriacao)
             .HasColumnName("DataCriacao")
+            .HasColumnType("timestamptz")
             .IsRequired();
 
         builder.Property(c => c.DataAtualizacao)
-            .HasColumnName("DataAtualizacao");
+            .HasColumnName("DataAtualizacao")
+            .HasColumnType("timestamptz");
 
         // Índices
         builder.HasIndex(c => c.Nome)

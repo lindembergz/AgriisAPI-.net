@@ -9,7 +9,7 @@ import { providePrimeNG } from 'primeng/config';
 import Lara from '@primeuix/themes/lara';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { environment } from '../environments/environment';
 import { provideServiceWorker } from '@angular/service-worker';
 
@@ -20,6 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     MessageService, // PrimeNG MessageService for toast notifications
+    ConfirmationService, // PrimeNG ConfirmationService for confirmation dialogs
     providePrimeNG({
       theme: {
         preset: Lara,

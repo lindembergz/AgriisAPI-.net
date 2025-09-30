@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, catchError, of, shareReplay } from 'rxjs';
+import { Observable, map, catchError, of, shareReplay, throwError } from 'rxjs';
 import { ReferenceCrudService } from '../../../../shared/services/reference-crud.service';
 import { EmbalagemDto, CriarEmbalagemDto, AtualizarEmbalagemDto, TipoUnidadeMedida } from '../../../../shared/models/reference.model';
+import { environment } from '../../../../../environments/environment';
 
 /**
  * Interface for UnidadeMedida dropdown option with type information
@@ -37,7 +38,7 @@ export class EmbalagemService extends ReferenceCrudService<
 > {
   
   protected readonly entityName = 'Embalagem';
-  protected readonly apiEndpoint = 'api/referencias/embalagens';
+  protected readonly apiEndpoint = 'referencias/embalagens';
 
   /**
    * Get embalagens by nome pattern (for search/autocomplete)
@@ -70,8 +71,7 @@ export class EmbalagemService extends ReferenceCrudService<
   obterPorUnidadeMedida(unidadeMedidaId: number): Observable<EmbalagemDto[]> {
     return this.http.get<EmbalagemDto[]>(`${this.baseUrl}/unidade-medida/${unidadeMedidaId}`)
       .pipe(
-        shareReplay(1),
-        catchError(error => this.handleError('obter embalagens por unidade de medida', error))
+        shareReplay(1)
       );
   }
 
@@ -81,8 +81,7 @@ export class EmbalagemService extends ReferenceCrudService<
   obterPorTipoUnidadeMedida(tipo: TipoUnidadeMedida): Observable<EmbalagemDto[]> {
     return this.http.get<EmbalagemDto[]>(`${this.baseUrl}/tipo-unidade/${tipo}`)
       .pipe(
-        shareReplay(1),
-        catchError(error => this.handleError('obter embalagens por tipo de unidade', error))
+        shareReplay(1)
       );
   }
 
@@ -92,8 +91,7 @@ export class EmbalagemService extends ReferenceCrudService<
   obterDropdownPorUnidadeMedida(unidadeMedidaId: number): Observable<{ id: number; nome: string }[]> {
     return this.http.get<{ id: number; nome: string }[]>(`${this.baseUrl}/unidade-medida/${unidadeMedidaId}/dropdown`)
       .pipe(
-        shareReplay(1),
-        catchError(error => this.handleError('obter embalagens para dropdown por unidade', error))
+        shareReplay(1)
       );
   }
 
@@ -103,8 +101,7 @@ export class EmbalagemService extends ReferenceCrudService<
   obterDropdownPorTipoUnidade(tipo: TipoUnidadeMedida): Observable<{ id: number; nome: string }[]> {
     return this.http.get<{ id: number; nome: string }[]>(`${this.baseUrl}/tipo-unidade/${tipo}/dropdown`)
       .pipe(
-        shareReplay(1),
-        catchError(error => this.handleError('obter embalagens para dropdown por tipo', error))
+        shareReplay(1)
       );
   }
 
@@ -112,22 +109,31 @@ export class EmbalagemService extends ReferenceCrudService<
    * Get all UnidadesMedida for dropdown usage (with type information)
    */
   obterUnidadesMedidaParaDropdown(): Observable<UnidadeDropdownOption[]> {
-    return this.http.get<UnidadeDropdownOption[]>(`api/referencias/unidades-medida/dropdown-completo`)
+    return this.http.get<any[]>(`${environment.apiUrl}/referencias/unidades-medida/ativos`)
       .pipe(
-        shareReplay(1),
-        catchError(error => this.handleError('obter unidades de medida para dropdown', error))
+        map(unidades => unidades.map(u => ({
+          id: u.id,
+          simbolo: u.simbolo,
+          nome: u.nome,
+          tipo: u.tipo
+        }))),
+        shareReplay(1)
       );
   }
 
   /**
-   * Get available unit types
+   * Get available unit types (using enum values directly)
    */
   obterTiposUnidade(): Observable<TipoUnidadeOption[]> {
-    return this.http.get<TipoUnidadeOption[]>(`api/referencias/unidades-medida/tipos`)
-      .pipe(
-        shareReplay(1),
-        catchError(error => this.handleError('obter tipos de unidade', error))
-      );
+    // Return tipos directly from enum without making HTTP request
+    return of([
+      { valor: TipoUnidadeMedida.Peso, nome: 'Peso', descricao: 'Peso' },
+      { valor: TipoUnidadeMedida.Volume, nome: 'Volume', descricao: 'Volume' },
+      { valor: TipoUnidadeMedida.Area, nome: 'Area', descricao: 'Área' },
+      { valor: TipoUnidadeMedida.Unidade, nome: 'Unidade', descricao: 'Unidade' }
+    ]).pipe(
+      shareReplay(1)
+    );
   }
 
   /**
@@ -140,7 +146,7 @@ export class EmbalagemService extends ReferenceCrudService<
           if (error.status === 404) {
             return of(null);
           }
-          return this.handleError('obter embalagem por nome', error);
+          return throwError(() => error);
         })
       );
   }
@@ -154,8 +160,7 @@ export class EmbalagemService extends ReferenceCrudService<
         id: e.id,
         nome: e.nome
       }))),
-      shareReplay(1),
-      catchError(error => this.handleError('obter embalagens para dropdown', error))
+      shareReplay(1)
     );
   }
 
@@ -181,7 +186,7 @@ export class EmbalagemService extends ReferenceCrudService<
    * Validate UnidadeMedida relationship
    */
   validarUnidadeMedida(unidadeMedidaId: number): Observable<boolean> {
-    return this.http.get<{ valida: boolean }>(`api/referencias/unidades-medida/${unidadeMedidaId}/valida`)
+    return this.http.get<{ valida: boolean }>(`${environment.apiUrl}/referencias/unidades-medida/${unidadeMedidaId}/valida`)
       .pipe(
         map(response => response.valida),
         catchError(() => of(false))
@@ -194,8 +199,7 @@ export class EmbalagemService extends ReferenceCrudService<
   obterComUnidadesMedida(): Observable<EmbalagemDto[]> {
     return this.http.get<EmbalagemDto[]>(`${this.baseUrl}/com-unidades`)
       .pipe(
-        shareReplay(1),
-        catchError(error => this.handleError('obter embalagens com unidades de medida', error))
+        shareReplay(1)
       );
   }
 
@@ -205,8 +209,7 @@ export class EmbalagemService extends ReferenceCrudService<
   obterEstatisticasPorTipo(): Observable<{ tipo: TipoUnidadeMedida; quantidade: number; descricao: string }[]> {
     return this.http.get<{ tipo: TipoUnidadeMedida; quantidade: number; descricao: string }[]>(`${this.baseUrl}/estatisticas-tipo`)
       .pipe(
-        shareReplay(1),
-        catchError(error => this.handleError('obter estatísticas por tipo', error))
+        shareReplay(1)
       );
   }
 

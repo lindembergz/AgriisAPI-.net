@@ -1,8 +1,31 @@
+// Força azul institucional em todos os botões primários, sobrescrevendo mixins, variáveis e escopos do projeto e PrimeNG
+
+// Sobrescreve variáveis CSS se usadas por PrimeNG ou pelo projeto
+:root {
+  --primary-500: #002060 !important;
+  --primary-600: #002060 !important;
+  --primary-700: #002060 !important;
+}
+
+@import 'primeicons/primeicons.css';
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+// Sobrescreve cor padrão dos botões primários PrimeNG para azul institucional
+.p-button.p-button-primary,
+.p-button.p-button-primary:enabled,
+.p-button.p-button-primary:not(:disabled),
+.p-button.p-button-primary:active,
+.p-button.p-button-primary:focus,
+.p-button.p-button-primary:hover {
+  background: #002060 !important;
+  border-color: #002060 !important;
+  color: #fff !important;
+}
 
 
 // Import shared styles
 @import 'app/shared/styles/index';
+@import 'primeflex/primeflex';
 
 // Global styles
 * {

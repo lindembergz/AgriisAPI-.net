@@ -40,4 +40,12 @@ public interface IUfService : IReferenciaService<UfDto, CriarUfDto, AtualizarUfD
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de municípios da UF</returns>
     Task<IEnumerable<MunicipioDto>> ObterMunicipiosPorUfAsync(int ufId, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Obtém uma UF por código
+    /// </summary>
+    /// <param name="codigo">Código da UF</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>UF encontrada ou null</returns>
+    Task<UfDto?> ObterPorCodigoAsync(string codigo, CancellationToken cancellationToken = default);
 }

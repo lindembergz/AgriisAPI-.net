@@ -13,8 +13,8 @@ public class SafraDto
     public int AnoColheita { get; set; }
     public string SafraFormatada { get; set; } = string.Empty;
     public bool Atual { get; set; }
-    public DateTime DataCriacao { get; set; }
-    public DateTime? DataAtualizacao { get; set; }
+    public DateTimeOffset DataCriacao { get; set; }
+    public DateTimeOffset? DataAtualizacao { get; set; }
 }
 
 /// <summary>

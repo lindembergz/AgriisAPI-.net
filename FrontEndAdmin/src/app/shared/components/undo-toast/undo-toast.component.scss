@@ -1,0 +1,244 @@
+@import '../../styles/visual-consistency.scss';
+
+.undo-toast {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  min-width: 350px;
+  max-width: 500px;
+  
+  &.undo-toast-success {
+    border-left: 4px solid var(--green-500);
+  }
+  
+  .undo-toast-content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    
+    .undo-toast-icon {
+      flex-shrink: 0;
+      
+      i {
+        font-size: var(--font-size-xl);
+        color: var(--green-500);
+        
+        &.pi-info-circle {
+          color: var(--blue-500);
+        }
+        
+        &.pi-exclamation-triangle {
+          color: var(--orange-500);
+        }
+        
+        &.pi-times-circle {
+          color: var(--red-500);
+        }
+      }
+    }
+    
+    .undo-toast-text {
+      flex: 1;
+      min-width: 0;
+      
+      .undo-toast-summary {
+        font-weight: var(--font-weight-semibold);
+        color: var(--text-color);
+        margin-bottom: var(--spacing-xs);
+        font-size: var(--font-size-base);
+      }
+      
+      .undo-toast-detail {
+        color: var(--text-color-secondary);
+        font-size: var(--font-size-sm);
+        line-height: var(--line-height-normal);
+        word-wrap: break-word;
+      }
+    }
+    
+    .undo-toast-actions {
+      flex-shrink: 0;
+      display: flex;
+      gap: var(--spacing-sm);
+      align-items: flex-start;
+      
+      .undo-button {
+        font-size: var(--font-size-sm);
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-color: var(--green-500);
+        color: var(--green-500);
+        height: var(--button-height);
+        
+        &:hover {
+          background: var(--green-50);
+          border-color: var(--green-600);
+          color: var(--green-600);
+        }
+        
+        :host ::ng-deep {
+          .p-button-icon {
+            font-size: var(--font-size-xs);
+          }
+        }
+      }
+      
+      .close-button {
+        width: var(--button-height);
+        height: var(--button-height);
+        min-width: var(--button-height);
+        padding: 0;
+        color: var(--text-color-secondary);
+        
+        &:hover {
+          background: var(--surface-hover);
+          color: var(--text-color);
+        }
+        
+        :host ::ng-deep {
+          .p-button-icon {
+            margin: 0;
+            font-size: var(--font-size-sm);
+          }
+        }
+      }
+    }
+  }
+  
+  .undo-toast-countdown {
+    background: var(--surface-section);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-top: 1px solid var(--surface-border);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    
+    :host ::ng-deep {
+      .countdown-progress {
+        flex: 1;
+        height: 4px;
+        
+        .p-progressbar {
+          height: 4px;
+          background: var(--surface-300);
+          border-radius: var(--radius-sm);
+          overflow: hidden;
+        }
+        
+        .p-progressbar-value {
+          background: linear-gradient(90deg, var(--green-500), var(--green-400));
+          transition: width 0.1s linear;
+        }
+      }
+    }
+    
+    .countdown-text {
+      color: var(--text-color-secondary);
+      font-size: var(--font-size-xs);
+      white-space: nowrap;
+      font-weight: var(--font-weight-medium);
+    }
+  }
+}
+
+// Animation for toast entrance
+.undo-toast {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Apply standard styling classes
+:host {
+  @extend .standard-buttons;
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .undo-toast {
+    min-width: 280px;
+    max-width: 320px;
+    
+    .undo-toast-content {
+      padding: var(--spacing-md);
+      gap: var(--spacing-md);
+      
+      .undo-toast-actions {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+        
+        .undo-button {
+          font-size: var(--font-size-xs);
+          padding: var(--spacing-xs) var(--spacing-sm);
+        }
+        
+        .close-button {
+          width: 1.75rem;
+          height: 1.75rem;
+          min-width: 1.75rem;
+        }
+      }
+    }
+    
+    .undo-toast-countdown {
+      padding: var(--spacing-sm) var(--spacing-md);
+      
+      .countdown-text {
+        font-size: var(--font-size-xs);
+      }
+    }
+  }
+}
+
+// Dark theme adjustments
+@media (prefers-color-scheme: dark) {
+  .undo-toast {
+    .undo-toast-countdown {
+      background: var(--surface-ground);
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .undo-toast {
+    border-width: 2px;
+    
+    &.undo-toast-success {
+      border-left-width: 6px;
+    }
+    
+    .undo-toast-content {
+      .undo-toast-actions {
+        .undo-button {
+          border-width: 2px;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .undo-toast {
+    animation: none;
+  }
+  
+  :host ::ng-deep {
+    .countdown-progress .p-progressbar-value {
+      transition: none;
+    }
+  }
+}

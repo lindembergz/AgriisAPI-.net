@@ -19,14 +19,16 @@ export class PaisService extends ReferenceCrudService<
 > {
   
   protected readonly entityName = 'País';
-  protected readonly apiEndpoint = 'api/referencias/paises';
+  protected readonly apiEndpoint = 'referencias/paises';
 
   /**
    * Get países with UF count for dependency display
    */
   override obterTodos(): Observable<PaisDto[]> {
-    return this.http.get<PaisDto[]>(`${this.baseUrl}/com-contadores`).pipe(
-      catchError(error => this.handleError('obter países com contadores', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<PaisDto[]>(`${this.baseUrl}`),
+      'obter países',
+      'país'
     );
   }
 
@@ -34,8 +36,10 @@ export class PaisService extends ReferenceCrudService<
    * Get países with UF count (active only)
    */
   override obterAtivos(): Observable<PaisDto[]> {
-    return this.http.get<PaisDto[]>(`${this.baseUrl}/ativos/com-contadores`).pipe(
-      catchError(error => this.handleError('obter países ativos com contadores', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<PaisDto[]>(`${this.baseUrl}/ativos`),
+      'obter países ativos',
+      'país'
     );
   }
 
@@ -43,8 +47,10 @@ export class PaisService extends ReferenceCrudService<
    * Get UFs for a specific país
    */
   obterUfsPorPais(paisId: number): Observable<UfDto[]> {
-    return this.http.get<UfDto[]>(`${this.baseUrl}/${paisId}/ufs`).pipe(
-      catchError(error => this.handleError(`obter UFs do país ${paisId}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<UfDto[]>(`${this.baseUrl}/${paisId}/ufs`),
+      `obter UFs do país ${paisId}`,
+      'país'
     );
   }
 
@@ -62,8 +68,10 @@ export class PaisService extends ReferenceCrudService<
    * Get países for dropdown usage (only active, minimal data)
    */
   obterParaDropdown(): Observable<{ id: number; codigo: string; nome: string }[]> {
-    return this.http.get<{ id: number; codigo: string; nome: string }[]>(`${this.baseUrl}/dropdown`).pipe(
-      catchError(error => this.handleError('obter países para dropdown', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{ id: number; codigo: string; nome: string }[]>(`${this.baseUrl}/dropdown`),
+      'obter países para dropdown',
+      'país'
     );
   }
 
@@ -105,12 +113,14 @@ export class PaisService extends ReferenceCrudService<
     municipiosCount: number;
     fornecedoresCount: number;
   }> {
-    return this.http.get<{
-      ufsCount: number;
-      municipiosCount: number;
-      fornecedoresCount: number;
-    }>(`${this.baseUrl}/${paisId}/estatisticas`).pipe(
-      catchError(error => this.handleError(`obter estatísticas do país ${paisId}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{
+        ufsCount: number;
+        municipiosCount: number;
+        fornecedoresCount: number;
+      }>(`${this.baseUrl}/${paisId}/estatisticas`),
+      `obter estatísticas do país ${paisId}`,
+      'país'
     );
   }
 

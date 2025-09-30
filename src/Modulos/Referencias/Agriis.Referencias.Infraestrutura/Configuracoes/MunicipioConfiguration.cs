@@ -52,10 +52,8 @@ public class MunicipioConfiguration : IEntityTypeConfiguration<Municipio>
             .HasColumnName("data_atualizacao");
 
         // Relacionamentos
-        builder.HasOne(m => m.Uf)
-            .WithMany(u => u.Municipios)
-            .HasForeignKey(m => m.UfId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // Temporariamente ignorando a navegação para Uf para evitar conflitos
+        builder.Ignore(m => m.Uf);
 
         // Índices
         builder.HasIndex(m => m.CodigoIbge)

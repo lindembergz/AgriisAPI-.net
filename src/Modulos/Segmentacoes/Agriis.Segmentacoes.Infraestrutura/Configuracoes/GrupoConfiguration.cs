@@ -50,10 +50,12 @@ public class GrupoConfiguration : IEntityTypeConfiguration<Grupo>
             
         builder.Property(g => g.DataCriacao)
             .HasColumnName("DataCriacao")
+            .HasColumnType("timestamptz")
             .IsRequired();
             
         builder.Property(g => g.DataAtualizacao)
-            .HasColumnName("DataAtualizacao");
+            .HasColumnName("DataAtualizacao")
+            .HasColumnType("timestamptz");
         
         // Relacionamentos
         builder.HasOne(g => g.Segmentacao)

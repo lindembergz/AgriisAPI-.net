@@ -24,6 +24,45 @@ public class UfsController : ReferenciaControllerBase<UfDto, CriarUfDto, Atualiz
     }
 
     /// <summary>
+    /// Obtém todas as UFs com informações do país
+    /// </summary>
+    [HttpGet]
+    public override async Task<IActionResult> ObterTodos()
+    {
+        try
+        {
+            var incluirPais = HttpContext.Request.Query.ContainsKey("include") && 
+                             HttpContext.Request.Query["include"].ToString().Contains("pais");
+            
+            Logger.LogDebug("Obtendo todas as UFs {ComPais}", incluirPais ? "com país" : "");
+            
+            var ufs = await _ufService.ObterTodosAsync();
+            
+            if (incluirPais)
+            {
+                // As UFs já vêm com as informações do país através do DTO
+                Logger.LogDebug("Encontradas {Count} UFs com informações do país", ufs.Count());
+            }
+            else
+            {
+                Logger.LogDebug("Encontradas {Count} UFs", ufs.Count());
+            }
+            
+            return Ok(ufs);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erro ao obter UFs");
+            return StatusCode(500, new { 
+                ErrorCode = "INTERNAL_ERROR", 
+                ErrorDescription = "Erro interno do servidor",
+                TraceId = HttpContext.TraceIdentifier,
+                Timestamp = DateTime.UtcNow
+            });
+        }
+    }
+
+    /// <summary>
     /// Verifica se existe uma UF com o código especificado
     /// </summary>
     /// <param name="codigo">Código da UF (2 caracteres)</param>
@@ -90,7 +129,7 @@ public class UfsController : ReferenciaControllerBase<UfDto, CriarUfDto, Atualiz
         {
             Logger.LogDebug("Obtendo UF com código {Codigo}", codigo);
             
-            var uf = await _ufService.ExisteCodigoAsync(codigo);
+            var uf = await _ufService.ObterPorCodigoAsync(codigo);
             
             if (uf == null)
             {

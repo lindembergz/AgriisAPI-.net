@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Países Unificado</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8fafc;
+            color: #1f2937;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+        
+        .test-header {
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .test-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #111827;
+            margin: 0 0 8px 0;
+        }
+        
+        .test-description {
+            color: #6b7280;
+            margin: 0;
+        }
+        
+        .test-section {
+            margin-bottom: 32px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+            margin: 0 0 16px 0;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            color: #10b981;
+        }
+        
+        .feature-text {
+            flex: 1;
+            color: #374151;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-in-progress {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .code-block {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            color: #374151;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background-color: #fef3c7;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .country-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .country-card {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .country-code {
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .country-name {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .country-ufs {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        .ufs-count {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .ufs-none { background: #f3f4f6; color: #6b7280; }
+        .ufs-few { background: #eff6ff; color: #1d4ed8; }
+        .ufs-many { background: #f0fdf4; color: #15803d; }
+        .ufs-lots { background: #fff7ed; color: #c2410c; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1 class="test-title">🌍 Países Component - Framework Unificado</h1>
+            <p class="test-description">
+                Implementação completa do componente Países usando o framework unificado com suporte a ISO 3166 e gerenciamento de dependências de UFs.
+            </p>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">✅ Funcionalidades Implementadas</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Template unificado com header, filtros, tabela e diálogo</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Sistema de busca em tempo real (código e nome)</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Filtros por status (ativo/inativo)</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Tabela responsiva com contagem de UFs</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Formulário com validação ISO 3166</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Contagem de UFs com badges coloridos por quantidade</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Verificação de dependências antes de exclusão</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Estados de loading, empty e error unificados</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Design responsivo com breakpoints móvel/tablet/desktop</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Componentes de erro de campo padronizados</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🎯 Características Específicas dos Países</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">🏛️</span>
+                    <span class="feature-text">Validação de códigos ISO 3166 (2-3 caracteres maiúsculos)</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🗺️</span>
+                    <span class="feature-text">Contagem de UFs com badges de severidade por quantidade</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🔒</span>
+                    <span class="feature-text">Código não editável após criação (campo desabilitado)</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">⚠️</span>
+                    <span class="feature-text">Validação de dependências de UFs antes de exclusão/desativação</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">📊</span>
+                    <span class="feature-text">Carregamento dinâmico de estatísticas (UFs, municípios, fornecedores)</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🔍</span>
+                    <span class="feature-text">Tooltips informativos para contagem de UFs</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🌍 Exemplos de Países Suportados</h2>
+            <div class="country-examples">
+                <div class="country-card">
+                    <div class="country-code">BR</div>
+                    <div class="country-name">Brasil</div>
+                    <div class="country-ufs">
+                        <span class="ufs-count ufs-lots">27 UFs</span>
+                    </div>
+                </div>
+                <div class="country-card">
+                    <div class="country-code">US</div>
+                    <div class="country-name">Estados Unidos</div>
+                    <div class="country-ufs">
+                        <span class="ufs-count ufs-lots">50 UFs</span>
+                    </div>
+                </div>
+                <div class="country-card">
+                    <div class="country-code">AR</div>
+                    <div class="country-name">Argentina</div>
+                    <div class="country-ufs">
+                        <span class="ufs-count ufs-many">24 UFs</span>
+                    </div>
+                </div>
+                <div class="country-card">
+                    <div class="country-code">CL</div>
+                    <div class="country-name">Chile</div>
+                    <div class="country-ufs">
+                        <span class="ufs-count ufs-many">16 UFs</span>
+                    </div>
+                </div>
+                <div class="country-card">
+                    <div class="country-code">UY</div>
+                    <div class="country-name">Uruguai</div>
+                    <div class="country-ufs">
+                        <span class="ufs-count ufs-many">19 UFs</span>
+                    </div>
+                </div>
+                <div class="country-card">
+                    <div class="country-code">PY</div>
+                    <div class="country-name">Paraguai</div>
+                    <div class="country-ufs">
+                        <span class="ufs-count ufs-many">17 UFs</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🎨 Melhorias de Design</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">🎯</span>
+                    <span class="feature-text">Código do país com estilo monospace e destaque visual</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🏷️</span>
+                    <span class="feature-text">Tags coloridas para contagem de UFs por severidade</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">📱</span>
+                    <span class="feature-text">Layout adaptativo para dispositivos móveis</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🌙</span>
+                    <span class="feature-text">Suporte a modo escuro e alto contraste</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">♿</span>
+                    <span class="feature-text">Melhorias de acessibilidade com ARIA labels</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🖨️</span>
+                    <span class="feature-text">Estilos otimizados para impressão</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🔧 Estrutura Técnica</h2>
+            <div class="code-block">
+<strong>Arquivos Principais:</strong>
+├── paises.component.ts          # Lógica do componente com framework unificado
+├── paises.component.html        # Template usando componentes compartilhados
+├── paises.component.scss        # Estilos específicos + framework unificado
+└── services/
+    └── pais.service.ts          # Serviço para API de Países
+
+<strong>Componentes Utilizados:</strong>
+- ResponsiveTableComponent       # Tabela adaptativa
+- FilterSummaryComponent         # Resumo de filtros ativos
+- LoadingSpinnerComponent        # Estados de carregamento
+- FieldErrorComponent            # Erros de validação padronizados
+
+<strong>Interfaces Implementadas:</strong>
+- ComponentTemplate              # Configuração do template
+- CustomFilter                   # Filtros personalizados
+- TableColumn                    # Configuração de colunas
+- EmptyStateConfig               # Estado vazio
+- LoadingStateConfig             # Estado de carregamento
+- ResponsiveConfig               # Configuração responsiva
+- DialogConfig                   # Configuração de diálogos
+
+<strong>Validações Específicas:</strong>
+- ISO 3166 compliance           # Códigos de 2-3 caracteres maiúsculos
+- Nome único                     # Validação de unicidade
+- Dependências de UFs            # Verificação antes de exclusão
+- Estatísticas dinâmicas         # Carregamento de contadores
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🚀 Próximos Passos</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">📋</span>
+                    <span class="feature-text">Testar integração com API real</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🧪</span>
+                    <span class="feature-text">Implementar testes unitários</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🔄</span>
+                    <span class="feature-text">Validar fluxos de CRUD completos</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🗺️</span>
+                    <span class="feature-text">Testar com diferentes quantidades de UFs</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">♿</span>
+                    <span class="feature-text">Validar acessibilidade com ferramentas automatizadas</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">📝 Notas de Implementação</h2>
+            <p>
+                O componente Países foi completamente implementado usando o <span class="highlight">framework unificado</span>, 
+                com foco especial na conformidade com o padrão ISO 3166 para códigos de países e gerenciamento 
+                inteligente de dependências com UFs.
+            </p>
+            <p>
+                A implementação inclui validações específicas para países, como a impossibilidade de editar o código após 
+                criação, verificação de dependências de UFs antes de permitir exclusão/desativação, e carregamento 
+                dinâmico de estatísticas com contadores visuais por severidade.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

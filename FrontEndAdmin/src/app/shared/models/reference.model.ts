@@ -71,12 +71,14 @@ export interface AtualizarUfDto {
 export interface MunicipioDto extends BaseReferenceEntity {
   codigoIbge: string;
   ufId: number;
+  ufNome?: string;
+  ufCodigo?: string;
   uf?: UfDto;
 }
 
 export interface CriarMunicipioDto {
   nome: string;
-  codigoIbge: string;
+  codigoIbge: number;
   ufId: number;
 }
 

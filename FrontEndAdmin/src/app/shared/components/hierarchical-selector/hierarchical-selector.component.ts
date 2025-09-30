@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, input, output, forwardRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TreeModule } from 'primeng/tree';
 import { TreeNode } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -48,6 +48,7 @@ export interface SelectionChangeEvent {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     TreeModule,
     ButtonModule,
     InputTextModule,

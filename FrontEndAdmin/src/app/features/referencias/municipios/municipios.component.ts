@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -14,25 +14,17 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ReferenceCrudBaseComponent } from '../../../shared/components/reference-crud-base/reference-crud-base.component';
 import { MunicipioDto, CriarMunicipioDto, AtualizarMunicipioDto, UfDto, PaisDto } from '../../../shared/models/reference.model';
+import { CustomFilter, CustomAction, EmptyStateConfig, LoadingStateConfig, TableColumn } from '../../../shared/interfaces/component-template.interface';
 import { MunicipioService } from './services/municipio.service';
 import { UfService } from '../ufs/services/uf.service';
 import { PaisService } from '../paises/services/pais.service';
 import { map } from 'rxjs/operators';
 import { of } from 'rxjs';
-
-interface TableColumn {
-  field: string;
-  header: string;
-  sortable?: boolean;
-  width?: string;
-  type?: 'text' | 'boolean' | 'date' | 'custom';
-  hideOnMobile?: boolean;
-  hideOnTablet?: boolean;
-}
+import { FieldErrorComponent } from '../../../shared/components/field-error/field-error.component';
 
 /**
  * Component for managing Municípios with UF cascading selection
- * Implements search functionality by name and UF filtering
+ * Extends unified ReferenceCrudBaseComponent while maintaining relationship functionality
  */
 @Component({
   selector: 'app-municipios',
@@ -50,72 +42,125 @@ interface TableColumn {
     ConfirmDialogModule,
     ToastModule,
     DialogModule,
-    CheckboxModule
+    CheckboxModule,
+    FieldErrorComponent
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './municipios.component.html',
   styleUrls: ['./municipios.component.scss']
 })
-export class MunicipiosComponent implements OnInit {
+export class MunicipiosComponent extends ReferenceCrudBaseComponent<MunicipioDto, CriarMunicipioDto, AtualizarMunicipioDto> implements OnInit {
   
-  private service = inject(MunicipioService);
+  protected service = inject(MunicipioService);
   private ufService = inject(UfService);
   private paisService = inject(PaisService);
-  private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
-  private fb = inject(FormBuilder);
 
-  // Signals for reactive data
+  // Relationship-specific signals
   paisesOptions = signal<PaisDto[]>([]);
   ufsOptions = signal<UfDto[]>([]);
   loadingPaises = signal<boolean>(false);
   loadingUfs = signal<boolean>(false);
   
-  // Filter signals
+  // Custom filter signals
   selectedPaisFilter = signal<number | null>(null);
   selectedUfFilter = signal<number | null>(null);
-  searchTerm = signal<string>('');
+  
+  // Current item for template access
+  currentItem: MunicipioDto | null = null;
 
-  // Base component signals
-  items = signal<MunicipioDto[]>([]);
-  loading = signal<boolean>(false);
-  tableLoading = signal<boolean>(false);
-  formLoading = signal<boolean>(false);
-  showForm = signal<boolean>(false);
-  selectedItem = signal<MunicipioDto | null>(null);
-  selectedStatusFilter = signal<string>('todas');
-  pageSize = signal<number>(10);
-
-  // Filter options
-  statusFilterOptions = [
-    { label: 'Todas', value: 'todas' },
-    { label: 'Ativas', value: 'ativas' },
-    { label: 'Inativas', value: 'inativas' }
-  ];
-
-  // Form
-  form!: FormGroup;
+  readonly rowsPerPageOptions = [5, 10, 20, 50];
 
   // Entity configuration
-  entityDisplayName = () => 'Município';
-  entityDescription = () => 'Gerenciar Municípios com seleção cascateada de UF';
-  defaultSortField = () => 'nome';
-  searchFields = () => ['nome', 'codigoIbge', 'uf.nome', 'uf.codigo'];
+  protected entityDisplayName = () => 'Município';
+  protected entityDescription = () => 'Gerenciar Municípios com seleção cascateada de UF';
+  protected defaultSortField = () => 'nome';
+  protected searchFields = () => ['nome', 'codigoIbge', 'uf.nome', 'uf.codigo'];
+
+  protected getCustomFilters = computed<CustomFilter[]>(() => {
+    return [
+      {
+        key: 'pais',
+        label: 'País',
+        placeholder: 'Selecione um país',
+        type: 'select',
+        visible: true,
+        options: [
+          { label: 'Todos os países', value: null },
+          ...this.paisesOptions().map(pais => ({
+            label: pais.nome,
+            value: pais.id
+          }))
+        ]
+      },
+      {
+        key: 'uf',
+        label: 'UF',
+        placeholder: 'Selecione uma UF',
+        type: 'select',
+        visible: true,
+        options: [
+          { label: 'Todas as UFs', value: null },
+          ...this.ufsOptions().map(uf => ({
+            label: `${uf.codigo} - ${uf.nome}`,
+            value: uf.id
+          }))
+        ]
+      }
+    ];
+  });
+
+  // Template-friendly option providers to avoid complex expressions in HTML
+  paisFilterOptions = computed(() => [{ label: 'Todos os países', value: null }, ...this.paisesOptions().map(pais => ({ label: pais.nome, value: pais.id }))]);
+
+  ufFilterOptions = computed(() => [{ label: 'Todas as UFs', value: null }, ...this.ufsOptions().map(uf => ({ label: `${uf.codigo} - ${uf.nome}`, value: uf.id }))]);
+
+  protected getCustomActions(): CustomAction[] {
+    return [];
+  }
+
+  protected getEmptyStateConfig(): EmptyStateConfig {
+    return {
+      icon: 'pi pi-map-marker',
+      title: 'Nenhum município encontrado',
+      description: this.hasActiveFilters() 
+        ? 'Não há municípios que atendam aos filtros aplicados.'
+        : 'Não há municípios cadastrados no sistema.',
+      primaryAction: {
+        label: 'Novo Município',
+        icon: 'pi pi-plus',
+        action: () => this.novoItem()
+      },
+      secondaryActions: this.hasActiveFilters() ? [{
+        label: 'Limpar Filtros',
+        icon: 'pi pi-filter-slash',
+        action: () => this.clearAllFilters()
+      }] : []
+    };
+  }
+
+  protected getLoadingStateConfig(): LoadingStateConfig {
+    return {
+      message: 'Carregando municípios...',
+      showProgress: false
+    };
+  }
 
   // Table columns configuration
-  displayColumns = (): TableColumn[] => [
+  private readonly _displayColumns: TableColumn[] = [
     {
       field: 'nome',
       header: 'Nome',
       sortable: true,
-      width: '300px'
+      width: '300px',
+      type: 'text'
     },
     {
       field: 'codigoIbge',
       header: 'Código IBGE',
       sortable: true,
       width: '150px',
-      hideOnMobile: true
+      hideOnMobile: true,
+      type: 'text'
     },
     {
       field: 'uf',
@@ -132,7 +177,7 @@ export class MunicipiosComponent implements OnInit {
       type: 'custom',
       hideOnMobile: true,
       hideOnTablet: true
-    },
+    }/*,
     {
       field: 'ativo',
       header: 'Status',
@@ -149,14 +194,41 @@ export class MunicipiosComponent implements OnInit {
       type: 'date',
       hideOnMobile: true,
       hideOnTablet: true
-    }
+    }*/
   ];
 
+  protected displayColumns = (): TableColumn[] => this._displayColumns;
+
   ngOnInit(): void {
-    this.form = this.createFormGroup();
+    super.ngOnInit();
     this.carregarPaises();
-    this.carregarItens();
-    this.setupSearchSubscription();
+    this.setupCustomFilters();
+  }
+
+  protected setupCustomFilters(): void {
+    // // Setup cascading filter behavior
+    // this.componentStateService.getCustomFilterValue('pais').subscribe(paisId => {
+    //   if (paisId !== this.selectedPaisFilter()) {
+    //     this.selectedPaisFilter.set(paisId);
+    //     this.selectedUfFilter.set(null);
+    //     this.componentStateService.setCustomFilterValue('uf', null);
+        
+    //     if (paisId) {
+    //       this.carregarUfsPorPais(paisId);
+    //     } else {
+    //       this.ufsOptions.set([]);
+    //     }
+        
+    //     this.carregarItens();
+    //   }
+    // });
+
+    // this.componentStateService.getCustomFilterValue('uf').subscribe(ufId => {
+    //   if (ufId !== this.selectedUfFilter()) {
+    //     this.selectedUfFilter.set(ufId);
+    //     this.carregarItens();
+    //   }
+    // });
   }
 
   /**
@@ -173,12 +245,12 @@ export class MunicipiosComponent implements OnInit {
         // Auto-select Brasil if available
         const brasil = paises.find(p => p.codigo === 'BR' || p.nome.toLowerCase().includes('brasil'));
         if (brasil) {
-          this.selectedPaisFilter.set(brasil.id);
+          // this.componentStateService.setCustomFilterValue('pais', brasil.id);
           this.carregarUfsPorPais(brasil.id);
         }
       },
       error: (error) => {
-        console.error('Erro ao carregar países:', error);
+        this.unifiedErrorHandlingService.handleComponentError('municipios', 'load-paises', error);
         this.loadingPaises.set(false);
       }
     });
@@ -189,7 +261,6 @@ export class MunicipiosComponent implements OnInit {
    */
   carregarUfsPorPais(paisId: number): void {
     this.loadingUfs.set(true);
-    this.selectedUfFilter.set(null);
     
     this.ufService.obterAtivosPorPais(paisId).subscribe({
       next: (ufs) => {
@@ -197,91 +268,58 @@ export class MunicipiosComponent implements OnInit {
         this.loadingUfs.set(false);
       },
       error: (error) => {
-        console.error('Erro ao carregar UFs:', error);
+        this.unifiedErrorHandlingService.handleComponentError('municipios', 'load-ufs', error);
         this.loadingUfs.set(false);
       }
     });
   }
 
   /**
-   * Handle país selection change
+   * Override carregarItens to implement UF filtering and search
    */
-  onPaisFilterChange(paisId: number | null): void {
-    this.selectedPaisFilter.set(paisId);
-    this.ufsOptions.set([]);
-    this.selectedUfFilter.set(null);
-    
-    if (paisId) {
-      this.carregarUfsPorPais(paisId);
-    }
-    
-    this.carregarItens();
-  }
-
-  /**
-   * Handle UF selection change
-   */
-  onUfFilterChange(ufId: number | null): void {
-    this.selectedUfFilter.set(ufId);
-    this.carregarItens();
-  }
-
-  /**
-   * Setup search subscription with debounce
-   */
-  private setupSearchSubscription(): void {
-    // This would be implemented with a search input field
-    // For now, we'll handle it in the carregarItens method
-  }
-
-  /**
-   * Load items with UF filtering and search
-   */
-  carregarItens(): void {
+  public carregarItens(): void {
     this.loading.set(true);
-    this.tableLoading.set(true);
     
-    const filter = this.selectedStatusFilter();
+    // const statusFilter = this.componentStateService.getStatusFilter();
     const ufId = this.selectedUfFilter();
-    const search = this.searchTerm();
+    // const searchTerm = this.componentStateService.getSearchTerm();
     
     let request;
 
-    if (search && search.length >= 2) {
-      // Use search functionality
-      request = this.service.buscarPorNome(search, ufId || undefined);
-    } else if (ufId) {
+    // if (searchTerm && searchTerm.length >= 2) {
+    //   // Use search functionality
+    //   request = this.service.buscarPorNome(searchTerm, ufId || undefined);
+    // } else if (ufId) {
+    if (ufId) {
       // Filter by UF
-      if (filter === 'ativas') {
+      // if (statusFilter === 'ativas') {
         request = this.service.obterAtivosPorUf(ufId);
-      } else {
-        request = this.service.obterPorUf(ufId);
-      }
+      // } else {
+      //   request = this.service.obterPorUf(ufId);
+      // }
     } else {
       // Get all with UF information
-      if (filter === 'ativas') {
+      // if (statusFilter === 'ativas') {
         request = this.service.obterAtivos();
-      } else {
-        request = this.service.obterComUf();
-      }
+      // } else {
+      //   request = this.service.obterComUf();
+      // }
     }
 
     request.subscribe({
-      next: (items) => {
-        if (filter === 'inativas') {
-          // Filter inactive items when showing only inactive ones
-          this.items.set(items.filter(item => !item.ativo));
-        } else {
-          this.items.set(items);
-        }
+      next: (items: MunicipioDto[]) => {
+        let filteredItems = items;
         
+        // if (statusFilter === 'inativas') {
+        //   filteredItems = items.filter(item => !item.ativo);
+        // }
+        
+        this.items.set(filteredItems);
         this.loading.set(false);
-        this.tableLoading.set(false);
       },
-      error: (error) => {
-        console.error('Erro ao carregar municípios:', error);
+      error: (error: any) => {
+        this.unifiedErrorHandlingService.handleComponentError('municipios', 'load', error);
         this.loading.set(false);
-        this.tableLoading.set(false);
       }
     });
   }
@@ -289,7 +327,7 @@ export class MunicipiosComponent implements OnInit {
   /**
    * Create reactive form with validation
    */
-  createFormGroup(): FormGroup {
+  protected createFormGroup(): FormGroup {
     const form = this.fb.group({
       nome: ['', [
         Validators.required,
@@ -338,7 +376,7 @@ export class MunicipiosComponent implements OnInit {
         this.loadingUfs.set(false);
       },
       error: (error) => {
-        console.error('Erro ao carregar UFs para formulário:', error);
+        this.unifiedErrorHandlingService.handleComponentError('municipios', 'load-ufs-form', error);
         this.loadingUfs.set(false);
       }
     });
@@ -347,7 +385,7 @@ export class MunicipiosComponent implements OnInit {
   /**
    * Map form values to create DTO
    */
-  mapToCreateDto(formValue: any): CriarMunicipioDto {
+  protected mapToCreateDto(formValue: any): CriarMunicipioDto {
     return {
       nome: formValue.nome?.trim(),
       codigoIbge: formValue.codigoIbge?.trim(),
@@ -358,7 +396,7 @@ export class MunicipiosComponent implements OnInit {
   /**
    * Map form values to update DTO
    */
-  mapToUpdateDto(formValue: any): AtualizarMunicipioDto {
+  protected mapToUpdateDto(formValue: any): AtualizarMunicipioDto {
     return {
       nome: formValue.nome?.trim(),
       ativo: formValue.ativo
@@ -368,7 +406,7 @@ export class MunicipiosComponent implements OnInit {
   /**
    * Populate form with entity data for editing
    */
-  populateForm(item: MunicipioDto): void {
+  protected populateForm(item: MunicipioDto): void {
     // First set país to load UFs
     if (item.uf?.paisId) {
       this.form.patchValue({
@@ -445,273 +483,25 @@ export class MunicipiosComponent implements OnInit {
   }
 
   /**
-   * Handle search input
+   * Override clearAllFilters to handle custom filters
    */
-  onSearchChange(searchTerm: string): void {
-    this.searchTerm.set(searchTerm);
-    
-    // Debounce search
-    setTimeout(() => {
-      if (this.searchTerm() === searchTerm) {
-        this.carregarItens();
-      }
-    }, 300);
-  }
-
-  /**
-   * Clear all filters
-   */
-  limparFiltros(): void {
+  public clearAllFilters(): void {
+    super.clearAllFilters();
     this.selectedPaisFilter.set(null);
     this.selectedUfFilter.set(null);
-    this.searchTerm.set('');
     this.ufsOptions.set([]);
-    this.carregarItens();
+    // this.componentStateService.setCustomFilterValue('pais', null);
+    // this.componentStateService.setCustomFilterValue('uf', null);
   }
 
   /**
-   * Get filter summary text
+   * Override hasActiveFilters to include custom filters
    */
-  getFilterSummary(): string {
-    const filters = [];
-    
-    if (this.selectedUfFilter()) {
-      const uf = this.ufsOptions().find(u => u.id === this.selectedUfFilter());
-      if (uf) {
-        filters.push(`UF: ${uf.codigo}`);
-      }
-    }
-    
-    if (this.searchTerm()) {
-      filters.push(`Busca: "${this.searchTerm()}"`);
-    }
-    
-    return filters.length > 0 ? `Filtros: ${filters.join(', ')}` : '';
+  public hasActiveFilters(): boolean {
+    return super.hasActiveFilters() || 
+           this.selectedPaisFilter() !== null || 
+           this.selectedUfFilter() !== null;
   }
 
-  /**
-   * Handle status filter change
-   */
-  onStatusFilterChange(event: any): void {
-    this.selectedStatusFilter.set(event.value);
-    this.carregarItens();
-  }
 
-  /**
-   * Open form for editing item
-   */
-  editarItem(item: MunicipioDto): void {
-    this.selectedItem.set(item);
-    this.populateForm(item);
-    this.showForm.set(true);
-  }
-
-  /**
-   * Open form for creating new item
-   */
-  novoItem(): void {
-    this.selectedItem.set(null);
-    this.form.reset();
-    this.showForm.set(true);
-  }
-
-  /**
-   * Save item (create or update)
-   */
-  salvarItem(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    this.formLoading.set(true);
-    const formValue = this.form.value;
-    
-    if (this.isEditMode()) {
-      // Update existing item
-      const updateDto = this.mapToUpdateDto(formValue);
-      const itemId = this.selectedItem()!.id;
-      
-      this.service.atualizar(itemId, updateDto).subscribe({
-        next: () => {
-          this.formLoading.set(false);
-          this.showForm.set(false);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: `${this.entityDisplayName()} atualizado com sucesso`,
-            life: 3000
-          });
-          this.carregarItens();
-        },
-        error: (error) => {
-          this.formLoading.set(false);
-          console.error('Erro ao atualizar:', error);
-        }
-      });
-    } else {
-      // Create new item
-      const createDto = this.mapToCreateDto(formValue);
-      
-      this.service.criar(createDto).subscribe({
-        next: () => {
-          this.formLoading.set(false);
-          this.showForm.set(false);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: `${this.entityDisplayName()} criado com sucesso`,
-            life: 3000
-          });
-          this.carregarItens();
-        },
-        error: (error) => {
-          this.formLoading.set(false);
-          console.error('Erro ao criar:', error);
-        }
-      });
-    }
-  }
-
-  /**
-   * Cancel form editing
-   */
-  cancelarEdicao(): void {
-    this.showForm.set(false);
-    this.selectedItem.set(null);
-    this.form.reset();
-  }
-
-  /**
-   * Activate item
-   */
-  ativarItem(item: MunicipioDto): void {
-    this.service.ativar(item.id).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: `${this.entityDisplayName()} ativado com sucesso`,
-          life: 3000
-        });
-        this.carregarItens();
-      },
-      error: (error) => {
-        console.error('Erro ao ativar:', error);
-      }
-    });
-  }
-
-  /**
-   * Deactivate item
-   */
-  desativarItem(item: MunicipioDto): void {
-    this.confirmationService.confirm({
-      message: `Tem certeza que deseja desativar este ${this.entityDisplayName().toLowerCase()}?`,
-      header: 'Confirmar Desativação',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sim',
-      rejectLabel: 'Não',
-      accept: () => {
-        this.service.desativar(item.id).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Sucesso',
-              detail: `${this.entityDisplayName()} desativado com sucesso`,
-              life: 3000
-            });
-            this.carregarItens();
-          },
-          error: (error) => {
-            console.error('Erro ao desativar:', error);
-          }
-        });
-      }
-    });
-  }
-
-  /**
-   * Confirm and delete item
-   */
-  excluirItem(item: MunicipioDto): void {
-    this.confirmationService.confirm({
-      message: `Tem certeza que deseja excluir este ${this.entityDisplayName().toLowerCase()}?`,
-      header: 'Confirmar Exclusão',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sim',
-      rejectLabel: 'Não',
-      accept: () => {
-        this.service.remover(item.id).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Sucesso',
-              detail: `${this.entityDisplayName()} excluído com sucesso`,
-              life: 3000
-            });
-            this.carregarItens();
-          },
-          error: (error) => {
-            console.error('Erro ao excluir:', error);
-          }
-        });
-      }
-    });
-  }
-
-  /**
-   * Handle dialog hide event
-   */
-  onDialogHide(): void {
-    if (!this.formLoading()) {
-      this.cancelarEdicao();
-    }
-  }
-
-  /**
-   * Check if in edit mode
-   */
-  isEditMode(): boolean {
-    return this.selectedItem() !== null;
-  }
-
-  /**
-   * Get dialog title
-   */
-  dialogTitle(): string {
-    return this.isEditMode() 
-      ? `Editar ${this.entityDisplayName()}` 
-      : `Novo ${this.entityDisplayName()}`;
-  }
-
-  /**
-   * Format date for display
-   */
-  formatarData(data: Date | string): string {
-    if (!data) return '-';
-    return new Date(data).toLocaleDateString('pt-BR');
-  }
-
-  /**
-   * Get status label for display
-   */
-  getStatusLabel(ativo: boolean): string {
-    return ativo ? 'Ativo' : 'Inativo';
-  }
-
-  /**
-   * Get status severity for PrimeNG styling
-   */
-  getStatusSeverity(ativo: boolean): string {
-    return ativo ? 'success' : 'danger';
-  }
-
-  /**
-   * Get field value with null safety
-   */
-  getFieldValue(item: any, field: string): string {
-    const value = field.split('.').reduce((obj, key) => obj?.[key], item);
-    return value ?? '-';
-  }
 }

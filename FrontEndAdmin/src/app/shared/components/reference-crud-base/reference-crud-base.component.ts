@@ -1,8 +1,10 @@
-import { Component, OnInit, inject, signal, input, output } from '@angular/core';
+
+import { Component, OnInit, inject, signal, input, output, OnDestroy, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TableModule } from 'primeng/table';
+import { TreeTableModule } from 'primeng/treetable';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -13,24 +15,37 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
+import { ProgressBarModule } from 'primeng/progressbar';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ReferenceCrudService } from '../../services/reference-crud.service';
 import { BaseEntity } from '../../models/base.model';
 import { ValidationService } from '../../services/validation.service';
+import { LoadingStateService, LoadingStateType } from '../../services/loading-state.service';
+import { ErrorHandlingService } from '../../services/error-handling.service';
+import { FeedbackService } from '../../services/feedback.service';
+import { Subject, takeUntil } from 'rxjs';
+
+import { 
+  ComponentTemplate, 
+  CustomFilter, 
+  CustomAction, 
+  EmptyStateConfig, 
+  LoadingStateConfig, 
+  ResponsiveConfig, 
+  TableColumn, 
+  ActiveFilter,
+  DisplayMode
+} from '../../interfaces/component-template.interface';
+import { ComponentStateService } from '../../services/component-state.service';
+import { UnifiedErrorHandlingService } from '../../services/unified-error-handling.service';
+import { EmptyStateComponent } from '../empty-state/empty-state.component';
+import { FieldErrorComponent } from '../field-error/field-error.component';
+import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
+import { FilterSummaryComponent } from '../filter-summary/filter-summary.component';
 
 interface StatusFilter {
   label: string;
   value: string;
-}
-
-interface TableColumn {
-  field: string;
-  header: string;
-  sortable?: boolean;
-  width?: string;
-  type?: 'text' | 'boolean' | 'date' | 'custom';
-  hideOnMobile?: boolean;
-  hideOnTablet?: boolean;
 }
 
 /**
@@ -45,270 +60,64 @@ interface TableColumn {
     ReactiveFormsModule,
     FormsModule,
     TableModule,
+    TreeTableModule,
     ButtonModule,
     SelectModule,
     ConfirmDialogModule,
     ToastModule,
     ProgressSpinnerModule,
+    ProgressBarModule,
     TagModule,
     TooltipModule,
     DialogModule,
     InputTextModule,
-    CheckboxModule
+    CheckboxModule,
+    EmptyStateComponent,
+    FieldErrorComponent,
+    LoadingSpinnerComponent,
+    FilterSummaryComponent
   ],
   providers: [ConfirmationService, MessageService],
-  template: `
-    <div class="reference-crud-container">
-      <!-- Header with title and actions -->
-      <div class="header-section">
-        <div class="title-section">
-          <h2>{{ entityDisplayName() }}</h2>
-          <p class="subtitle">{{ entityDescription() }}</p>
-        </div>
-        
-        <div class="actions-section">
-          <!-- Status Filter -->
-          <p-select
-            [options]="statusFilterOptions"
-            [ngModel]="selectedStatusFilter()"
-            (onChange)="onStatusFilterChange($event)"
-            placeholder="Filtrar por status"
-            optionLabel="label"
-            optionValue="value"
-            class="status-filter">
-          </p-select>
-          
-          <!-- New Entity Button -->
-          <p-button
-            [label]="'Novo ' + entityDisplayName()"
-            icon="pi pi-plus"
-            (onClick)="novoItem()"
-            class="p-button-primary new-item-btn">
-          </p-button>
-        </div>
-      </div>
-
-      <!-- Loading Spinner -->
-      <div *ngIf="loading()" class="loading-container">
-        <p-progressSpinner></p-progressSpinner>
-        <p>Carregando {{ entityDisplayName().toLowerCase() }}...</p>
-      </div>
-
-      <!-- Items Table -->
-      <div *ngIf="!loading()" class="table-container">
-        <p-table
-          [value]="items()"
-          [paginator]="true"
-          [rows]="pageSize()"
-          [rowsPerPageOptions]="[5, 10, 20, 50]"
-          [sortField]="defaultSortField()"
-          [sortOrder]="1"
-          [globalFilterFields]="searchFields()"
-          responsiveLayout="scroll"
-          styleClass="p-datatable-gridlines p-datatable-striped"
-          [tableStyle]="{ 'min-width': '50rem' }"
-          [showCurrentPageReport]="true"
-          [currentPageReportTemplate]="'Mostrando {first} a {last} de {totalRecords} ' + entityDisplayName().toLowerCase()"
-          [loading]="tableLoading()"
-          loadingIcon="pi pi-spinner"
-          [sortMode]="'multiple'"
-          [multiSortMeta]="multiSortMeta()"
-          (onSort)="onSort($event)"
-          (onPage)="onPageChange($event)"
-          [lazy]="false"
-          [scrollable]="true"
-          scrollHeight="60vh"
-          [resizableColumns]="true"
-          columnResizeMode="expand">
-          
-          <!-- Table Header -->
-          <ng-template pTemplate="header">
-            <tr>
-              <th *ngFor="let col of displayColumns()" 
-                  [pSortableColumn]="col.sortable ? col.field : null"
-                  [style.width]="col.width"
-                  [class.hide-mobile]="col.hideOnMobile"
-                  [class.hide-tablet]="col.hideOnTablet"
-                  pResizableColumn>
-                <div class="header-content">
-                  {{ col.header }}
-                  <p-sortIcon *ngIf="col.sortable" [field]="col.field"></p-sortIcon>
-                </div>
-              </th>
-              <th style="width: 150px" class="actions-column">
-                <div class="header-content">Ações</div>
-              </th>
-            </tr>
-          </ng-template>
-
-          <!-- Table Body -->
-          <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
-            <tr [class.row-highlight]="isRowHighlighted(rowIndex)">
-              <td *ngFor="let col of displayColumns()" 
-                  [class.hide-mobile]="col.hideOnMobile"
-                  [class.hide-tablet]="col.hideOnTablet">
-                <span class="mobile-label">{{ col.header }}:</span>
-                <ng-container [ngSwitch]="col.type">
-                  <span *ngSwitchCase="'boolean'">
-                    <p-tag
-                      [value]="getStatusLabel(item[col.field])"
-                      [severity]="getStatusSeverity(item[col.field])">
-                    </p-tag>
-                  </span>
-                  <span *ngSwitchCase="'date'">
-                    {{ formatarData(item[col.field]) }}
-                  </span>
-                  <ng-container *ngSwitchCase="'custom'">
-                    <ng-content [select]="'[slot=custom-' + col.field + ']'"></ng-content>
-                  </ng-container>
-                  <span *ngSwitchDefault>
-                    {{ getFieldValue(item, col.field) }}
-                  </span>
-                </ng-container>
-              </td>
-              <td class="actions-column">
-                <div class="action-buttons">
-                  <p-button
-                    icon="pi pi-pencil"
-                    (onClick)="editarItem(item)"
-                    class="p-button-rounded p-button-text p-button-info"
-                    pTooltip="Editar"
-                    tooltipPosition="top"
-                    [loading]="isActionLoading('edit', item.id)"
-                    [disabled]="hasAnyActionLoading()">
-                  </p-button>
-                  <p-button
-                    *ngIf="item.ativo"
-                    icon="pi pi-times"
-                    (onClick)="desativarItem(item)"
-                    class="p-button-rounded p-button-text p-button-warning"
-                    pTooltip="Desativar"
-                    tooltipPosition="top"
-                    [loading]="isActionLoading('deactivate', item.id)"
-                    [disabled]="hasAnyActionLoading()">
-                  </p-button>
-                  <p-button
-                    *ngIf="!item.ativo"
-                    icon="pi pi-check"
-                    (onClick)="ativarItem(item)"
-                    class="p-button-rounded p-button-text p-button-success"
-                    pTooltip="Ativar"
-                    tooltipPosition="top"
-                    [loading]="isActionLoading('activate', item.id)"
-                    [disabled]="hasAnyActionLoading()">
-                  </p-button>
-                  <p-button
-                    icon="pi pi-trash"
-                    (onClick)="excluirItem(item)"
-                    class="p-button-rounded p-button-text p-button-danger"
-                    pTooltip="Excluir"
-                    tooltipPosition="top"
-                    [loading]="isActionLoading('delete', item.id)"
-                    [disabled]="hasAnyActionLoading()">
-                  </p-button>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-
-          <!-- Empty State -->
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td [attr.colspan]="displayColumns().length + 1" class="empty-state">
-                <div class="empty-content">
-                  <i class="pi pi-info-circle empty-icon"></i>
-                  <h3>Nenhum {{ entityDisplayName().toLowerCase() }} encontrado</h3>
-                  <p>
-                    @if (selectedStatusFilter() === 'todas') {
-                      Não há {{ entityDisplayName().toLowerCase() }} cadastrados no sistema.
-                    } @else if (selectedStatusFilter() === 'ativas') {
-                      Não há {{ entityDisplayName().toLowerCase() }} ativos no momento.
-                    } @else {
-                      Não há {{ entityDisplayName().toLowerCase() }} inativos no momento.
-                    }
-                  </p>
-                  <p-button
-                    [label]="'Cadastrar Novo ' + entityDisplayName()"
-                    icon="pi pi-plus"
-                    (onClick)="novoItem()"
-                    class="p-button-primary">
-                  </p-button>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </div>
-
-      <!-- Form Dialog -->
-      <p-dialog
-        [header]="dialogTitle()"
-[visible]="showForm()"
-        (onHide)="cancelarEdicao()"
-        [modal]="true"
-        [style]="{ width: '50vw' }"
-        [draggable]="false"
-        [resizable]="false"
-        [closable]="!formLoading()"
-        (onHide)="onDialogHide()">
-        
-        <form [formGroup]="form" (ngSubmit)="salvarItem()" class="form-container">
-          <!-- Form fields will be projected here -->
-          <ng-content select="[slot=form-fields]"></ng-content>
-          
-          <!-- Default Ativo field for edit mode -->
-          <div *ngIf="isEditMode()" class="field">
-            <label for="ativo">Status</label>
-            <p-checkbox
-              formControlName="ativo"
-              binary="true"
-              label="Ativo">
-            </p-checkbox>
-          </div>
-        </form>
-
-        <ng-template pTemplate="footer">
-          <div class="dialog-footer">
-            <p-button
-              label="Cancelar"
-              icon="pi pi-times"
-              (onClick)="cancelarEdicao()"
-              class="p-button-text"
-              [disabled]="formLoading()">
-            </p-button>
-            <p-button
-              label="Salvar"
-              icon="pi pi-check"
-              (onClick)="salvarItem()"
-              class="p-button-primary"
-              [loading]="formLoading()"
-              [disabled]="form.invalid">
-            </p-button>
-          </div>
-        </ng-template>
-      </p-dialog>
-
-      <!-- Toast Messages -->
-      <p-toast position="top-right"></p-toast>
-      
-      <!-- Confirmation Dialog -->
-      <p-confirmDialog></p-confirmDialog>
-    </div>
-  `,
-  styleUrls: ['./reference-crud-base.component.scss']
+  templateUrl: './reference-crud-base.component.html',
+  styleUrls: ['./reference-crud-base.component.scss', '../../styles/reference-components.scss']
 })
 export abstract class ReferenceCrudBaseComponent<
   TDto extends BaseEntity,
   TCreateDto,
   TUpdateDto
-> implements OnInit {
+> implements OnInit, OnDestroy {
   
   // Injected services
   protected fb = inject(FormBuilder);
   protected router = inject(Router);
+  protected validationService = inject(ValidationService);
+  protected loadingStateService = inject(LoadingStateService);
+  protected errorHandlingService = inject(ErrorHandlingService);
+  protected feedbackService = inject(FeedbackService);
+  protected componentStateService = inject(ComponentStateService);
+  protected unifiedErrorHandlingService = inject(UnifiedErrorHandlingService);
   protected confirmationService = inject(ConfirmationService);
   protected messageService = inject(MessageService);
-  protected validationService = inject(ValidationService);
+
+  // Destroy subject for cleanup
+  private destroy$ = new Subject<void>();
+
+  constructor() {
+    // Setup loading message effect in injection context
+    try {
+      effect(() => {
+        const messages = this.loadingStateService.loadingMessages();
+        if (messages.length > 0) {
+          this.currentLoadingMessage.set(messages[0]);
+        } else {
+          this.currentLoadingMessage.set(`Carregando ${this.entityDisplayName().toLowerCase()}...`);
+        }
+      });
+    } catch (error) {
+      console.warn('Effect setup failed, using fallback loading message:', error);
+      this.currentLoadingMessage.set('Carregando dados...');
+    }
+  }
 
   // Abstract properties that must be implemented by child components
   protected abstract service: ReferenceCrudService<TDto, TCreateDto, TUpdateDto>;
@@ -324,66 +133,213 @@ export abstract class ReferenceCrudBaseComponent<
   protected abstract mapToUpdateDto(formValue: any): TUpdateDto;
   protected abstract populateForm(item: TDto): void;
 
+  // Enhanced abstract methods for unified system
+  protected getDisplayMode(): DisplayMode { return 'table'; }
+  protected getCustomActions(): CustomAction[] { return []; }
+  protected getResponsiveBreakpoints(): ResponsiveConfig { return this.componentStateService.getResponsiveConfig(); }
+  protected canPerformAction(action: string, item: TDto): boolean { return true; }
+  protected hasAtivoField(): boolean { return true; }
+  protected getAtivoFieldHelp(): string { return 'Indica se o registro está ativo no sistema'; }
+  protected canSaveForm(): boolean { return true; }
+
+
+  // Optional methods for custom filters (can be overridden by child components)
+  protected getCustomFilters(): CustomFilter[] {
+    return [];
+  }
+
+  protected applyCustomFilter(items: TDto[], filterKey: string, filterValue: any): TDto[] {
+    return items; // Default implementation does nothing
+  }
+
+  // Enhanced configuration methods
+  protected getEmptyStateConfig(): EmptyStateConfig {
+    return {
+      icon: 'pi pi-info-circle',
+      title: `Nenhum ${this.entityDisplayName().toLowerCase()} encontrado`,
+      description: `Não há ${this.entityDisplayName().toLowerCase()} cadastrados no sistema.`,
+      primaryAction: {
+        label: `Cadastrar Novo ${this.entityDisplayName()}`,
+        icon: 'pi pi-plus',
+        action: () => this.novoItem()
+      }
+    };
+  }
+
+  protected getLoadingStateConfig(): LoadingStateConfig {
+    return {
+      message: 'Carregando ' + this.entityDisplayName().toLowerCase() + '...',
+      showProgress: false
+    };
+  }
+
+  protected getComponentName(): string {
+    return this.entityDisplayName().toLowerCase().replace(/\s+/g, '-');
+  }
+
+  protected executeCustomAction(actionKey: string): void {
+    const action = this.getCustomActions().find(a => a.key === actionKey);
+    if (action) {
+      console.log(`Executing custom action: ${actionKey}`);
+      // Child components can override this method to handle custom actions
+    }
+  }
+
+  protected executeEmptyStatePrimaryAction(): void {
+    this.novoItem();
+  }
+
+  protected executeEmptyStateSecondaryAction(action: any): void {
+    if (action.key === 'refresh') {
+      this.carregarItens();
+    }
+  }
+
   // Signals for reactive state management
   items = signal<TDto[]>([]);
+  filteredItems = signal<TDto[]>([]);
   loading = signal<boolean>(false);
   tableLoading = signal<boolean>(false);
   formLoading = signal<boolean>(false);
   showForm = signal<boolean>(false);
   selectedItem = signal<TDto | null>(null);
   selectedStatusFilter = signal<string>('todas');
+  searchTerm = signal<string>('');
+  customFilters = signal<Map<string, any>>(new Map());
   pageSize = signal<number>(10);
   multiSortMeta = signal<any[]>([]);
   actionLoadingStates = signal<Map<string, number>>(new Map());
   highlightedRowIndex = signal<number>(-1);
   currentRowVersion = signal<string | null>(null);
+  
+  // Enhanced loading states
+  currentLoadingMessage = signal<string>('Carregando dados...');
+  loadingProgress = signal<number>(0);
+  hasError = signal<boolean>(false);
+  errorMessage = signal<string>('');
 
   // Form
   form!: FormGroup;
 
   // Filter options
   statusFilterOptions: StatusFilter[] = [
-    { label: 'Todas', value: 'todas' },
-    { label: 'Ativas', value: 'ativas' },
-    { label: 'Inativas', value: 'inativas' }
+    { label: 'Todos os Status', value: 'todas' },
+    { label: 'Apenas Ativos', value: 'ativas' },
+    { label: 'Apenas Inativos', value: 'inativas' }
   ];
 
   ngOnInit(): void {
-    this.form = this.createFormGroup();
+    try {
+      this.form = this.createFormGroup();
+      if (!this.form) {
+        throw new Error('Form group creation failed');
+      }
+    } catch (error) {
+      console.error('Error creating form group:', error);
+      // Create a minimal form as fallback
+      this.form = this.fb.group({
+        ativo: [true]
+      });
+    }
+    
+    this.setupLoadingStateSubscriptions();
+    this.resetFiltersOnInit();
     this.carregarItens();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.loadingStateService.clearType('table-data');
+    this.loadingStateService.clearType('form-submit');
+    this.loadingStateService.clearType('item-action');
+    
+    // Optionally clear saved filter state on navigation
+    // Uncomment the line below if you want filters to reset when navigating between components
+    // this.clearSavedFilterState();
+  }
+
   /**
-   * Load items based on current filter
+   * Reset filters when component initializes
+   */
+  private resetFiltersOnInit(): void {
+    // Try to restore saved filter state first
+    const restored = this.restoreFilterState();
+    
+    // If no saved state, initialize with defaults
+    if (!restored) {
+      this.selectedStatusFilter.set('todas');
+      this.searchTerm.set('');
+      this.customFilters.set(new Map());
+    }
+    
+    // Setup filter state maintenance
+    this.maintainFilterState();
+  }
+
+  /**
+   * Setup loading state subscriptions
+   */
+  private setupLoadingStateSubscriptions(): void {
+    // Subscribe to table loading state
+    this.loadingStateService.getTypeLoading$('table-data')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isLoading => {
+        this.loading.set(isLoading);
+        this.tableLoading.set(isLoading);
+      });
+
+    // Subscribe to form loading state
+    this.loadingStateService.getTypeLoading$('form-submit')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isLoading => {
+        this.formLoading.set(isLoading);
+      });
+
+
+  }
+
+  /**
+   * Load items from API
    */
   carregarItens(): void {
-    this.loading.set(true);
-    this.tableLoading.set(true);
+    const loadingMessage = `Carregando ${this.entityDisplayName().toLowerCase()}...`;
     
-    const filter = this.selectedStatusFilter();
-    let request;
+    this.hasError.set(false);
+    this.errorMessage.set('');
+    this.loadingProgress.set(0);
+    
+    const request = this.loadingStateService.wrapAsync(
+      'table-data',
+      'load-all',
+      () => this.service.obterTodos(),
+      loadingMessage
+    );
 
-    if (filter === 'ativas') {
-      request = this.service.obterAtivos();
-    } else {
-      request = this.service.obterTodos();
-    }
+    // Simulate progress for better UX
+    this.simulateProgress();
 
     request.subscribe({
       next: (items) => {
-        if (filter === 'inativas') {
-          // Filter inactive items when showing only inactive ones
-          this.items.set(items.filter(item => !item.ativo));
-        } else {
-          this.items.set(items);
+        console.log(items)
+        this.items.set(items);
+        this.applyFilters(); // Apply current filters to the loaded items
+        this.loadingProgress.set(100);
+        
+        // Show info message if no items found
+        if (items.length === 0) {
+          this.errorHandlingService.showInfo(
+            `Nenhum ${this.entityDisplayName().toLowerCase()} encontrado`,
+            'Informação'
+          );
         }
-        this.loading.set(false);
-        this.tableLoading.set(false);
       },
       error: (error) => {
         console.error(`Erro ao carregar ${this.entityDisplayName().toLowerCase()}:`, error);
-        this.loading.set(false);
-        this.tableLoading.set(false);
+        this.hasError.set(true);
+        this.errorMessage.set(error.message || 'Erro ao carregar dados');
+        this.loadingProgress.set(0);
+        this.filteredItems.set([]); // Clear filtered items on error
       }
     });
   }
@@ -393,7 +349,218 @@ export abstract class ReferenceCrudBaseComponent<
    */
   onStatusFilterChange(event: any): void {
     this.selectedStatusFilter.set(event.value);
-    this.carregarItens();
+    this.applyFilters();
+  }
+
+  /**
+   * Handle search input change
+   */
+  onSearchChange(event: any): void {
+    this.searchTerm.set(event.target.value);
+    this.applyFilters();
+  }
+
+  /**
+   * Clear search input
+   */
+  clearSearch(): void {
+    this.searchTerm.set('');
+    this.applyFilters();
+  }
+
+  /**
+   * Apply all filters (search + status + custom)
+   */
+  private applyFilters(): void {
+    let filtered = [...this.items()];
+    
+    // Apply status filter
+    const statusFilter = this.selectedStatusFilter();
+    if (statusFilter === 'ativas') {
+      filtered = filtered.filter(item => item.ativo);
+    } else if (statusFilter === 'inativas') {
+      filtered = filtered.filter(item => !item.ativo);
+    }
+    
+    // Apply search filter
+    const searchTerm = this.searchTerm().toLowerCase().trim();
+    if (searchTerm) {
+      const searchFields = this.searchFields();
+      filtered = filtered.filter(item => {
+        return searchFields.some(field => {
+          const value = this.getFieldValue(item, field).toLowerCase();
+          return value.includes(searchTerm);
+        });
+      });
+    }
+    
+    // Apply custom filters
+    const customFiltersMap = this.customFilters();
+    for (const [filterKey, filterValue] of customFiltersMap.entries()) {
+      if (filterValue !== null && filterValue !== undefined && filterValue !== '') {
+        filtered = this.applyCustomFilter(filtered, filterKey, filterValue);
+      }
+    }
+    
+    this.filteredItems.set(filtered);
+  }
+
+  /**
+   * Handle table sorting
+   */
+  onSort(event: any): void {
+    this.multiSortMeta.set(event.multiSortMeta || []);
+  }
+
+  /**
+   * Handle page change
+   */
+  onPageChange(event: any): void {
+    this.pageSize.set(event.rows);
+  }
+
+  /**
+   * Handle dialog hide event
+   */
+  async onDialogHide(): Promise<void> {
+    if (this.hasUnsavedChanges()) {
+      const confirmed = await this.feedbackService.showUnsavedChangesConfirmation();
+      if (!confirmed) {
+        // Prevent dialog from closing
+        this.showForm.set(true);
+        return;
+      }
+    }
+    
+    if (!this.formLoading()) {
+      this.cancelarEdicao();
+    }
+  }
+
+  /**
+   * Handle custom filter change
+   */
+  onCustomFilterChange(filterKey: string, event: any): void {
+    const currentFilters = new Map(this.customFilters());
+    currentFilters.set(filterKey, event.value);
+    this.customFilters.set(currentFilters);
+    this.applyFilters();
+  }
+
+  /**
+   * Get custom filter value
+   */
+  getCustomFilterValue(filterKey: string): any {
+    return this.customFilters().get(filterKey) || null;
+  }
+
+  /**
+   * Clear custom filter
+   */
+  clearCustomFilter(filterKey: string): void {
+    const currentFilters = new Map(this.customFilters());
+    currentFilters.delete(filterKey);
+    this.customFilters.set(currentFilters);
+    this.applyFilters();
+    this.saveFilterState();
+  }
+
+  /**
+   * Clear all filters
+   */
+  clearAllFilters(): void {
+    this.selectedStatusFilter.set('todas');
+    this.searchTerm.set('');
+    this.customFilters.set(new Map());
+    this.clearSavedFilterState();
+    this.applyFilters();
+    
+    this.feedbackService.showInfo(
+      'Filtros removidos. Mostrando todos os registros.',
+      'Filtros Limpos'
+    );
+  }
+
+  /**
+   * Reset filters to default state
+   */
+  resetFilters(): void {
+    this.selectedStatusFilter.set('ativas'); // Default to active items
+    this.searchTerm.set('');
+    this.customFilters.set(new Map());
+    this.clearSavedFilterState();
+    this.applyFilters();
+    
+    this.feedbackService.showInfo(
+      'Filtros resetados para o padrão (apenas ativos).',
+      'Filtros Resetados'
+    );
+  }
+
+  /**
+   * Remove specific filter from active filters
+   */
+  removeFilter(filterKey: string): void {
+    if (filterKey === 'search') {
+      this.clearSearch();
+    } else if (filterKey === 'status') {
+      this.selectedStatusFilter.set('todas');
+      this.applyFilters();
+      this.saveFilterState();
+    } else {
+      this.clearCustomFilter(filterKey);
+    }
+  }
+
+  /**
+   * Save current filter state
+   */
+  private saveFilterState(): void {
+    const filterState = {
+      statusFilter: this.selectedStatusFilter(),
+      searchTerm: this.searchTerm(),
+      customFilters: Object.fromEntries(this.customFilters())
+    };
+    
+    const key = `filters_${this.constructor.name}`;
+    sessionStorage.setItem(key, JSON.stringify(filterState));
+  }
+
+  /**
+   * Restore filter state from session storage
+   */
+  private restoreFilterState(): boolean {
+    const key = `filters_${this.constructor.name}`;
+    const savedState = sessionStorage.getItem(key);
+    
+    if (savedState) {
+      try {
+        const filterState = JSON.parse(savedState);
+        
+        this.selectedStatusFilter.set(filterState.statusFilter || 'todas');
+        this.searchTerm.set(filterState.searchTerm || '');
+        
+        if (filterState.customFilters) {
+          const customFiltersMap = new Map(Object.entries(filterState.customFilters));
+          this.customFilters.set(customFiltersMap);
+        }
+        
+        return true;
+      } catch (error) {
+        console.warn('Error restoring filter state:', error);
+        sessionStorage.removeItem(key);
+      }
+    }
+    
+    return false;
+  }
+
+  /**
+   * Clear saved filter state
+   */
+  private clearSavedFilterState(): void {
+    const key = `filters_${this.constructor.name}`;
+    sessionStorage.removeItem(key);
   }
 
   /**
@@ -403,6 +570,12 @@ export abstract class ReferenceCrudBaseComponent<
     this.selectedItem.set(null);
     this.currentRowVersion.set(null);
     this.form.reset();
+    
+    // Set default values for new items
+    if (this.hasAtivoField()) {
+      this.form.patchValue({ ativo: true });
+    }
+    
     this.showForm.set(true);
   }
 
@@ -410,20 +583,23 @@ export abstract class ReferenceCrudBaseComponent<
    * Open form for editing item
    */
   editarItem(item: TDto): void {
-    this.setActionLoading('edit', item.id, true);
+    const loadingKey = `edit-${item.id}`;
     
-    // Load fresh data to get current row version
-    this.service.obterPorId(item.id).subscribe({
+    this.loadingStateService.wrapAsync(
+      'item-action',
+      loadingKey,
+      () => this.service.obterPorId(item.id),
+      `Carregando ${this.entityDisplayName().toLowerCase()} para edição...`
+    ).subscribe({
       next: (freshItem) => {
         this.selectedItem.set(freshItem);
         this.currentRowVersion.set((freshItem as any).rowVersion);
         this.populateForm(freshItem);
         this.showForm.set(true);
-        this.setActionLoading('edit', item.id, false);
       },
       error: (error) => {
         console.error('Erro ao carregar item para edição:', error);
-        this.setActionLoading('edit', item.id, false);
+        // Error is already handled by the error handling service
       }
     });
   }
@@ -434,10 +610,17 @@ export abstract class ReferenceCrudBaseComponent<
   salvarItem(): void {
     if (this.form.invalid) {
       this.validationService.markFormGroupTouched(this.form);
+      
+      // Collect validation errors
+      const errors = this.collectFormErrors();
+      this.feedbackService.showValidationFeedback(errors, {
+        showSummaryErrors: true,
+        scrollToFirstError: true,
+        focusFirstError: true
+      });
       return;
     }
 
-    this.formLoading.set(true);
     const formValue = this.form.value;
     
     if (this.isEditMode()) {
@@ -446,44 +629,55 @@ export abstract class ReferenceCrudBaseComponent<
       const itemId = this.selectedItem()!.id;
       const rowVersion = this.currentRowVersion();
       
-      this.service.atualizar(itemId, updateDto, rowVersion || undefined).subscribe({
+      this.loadingStateService.wrapAsync(
+        'form-submit',
+        'update',
+        () => this.service.atualizar(itemId, updateDto, rowVersion || undefined),
+        `Atualizando ${this.entityDisplayName().toLowerCase()}...`
+      ).subscribe({
         next: (updatedItem) => {
-          this.formLoading.set(false);
           this.showForm.set(false);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: `${this.entityDisplayName()} atualizado com sucesso`,
-            life: 3000
+          this.feedbackService.showSuccess({
+            message: this.entityDisplayName() + ' atualizado com sucesso',
+            summary: 'Atualização Realizada'
           });
           this.carregarItens();
+          this.saveFilterState();
         },
         error: (error) => {
-          this.formLoading.set(false);
           if (error.originalError?.status === 412) {
             // Concurrency conflict - reload item
+            this.errorHandlingService.showWarning(
+              'Este registro foi modificado por outro usuário. Recarregando dados atuais...', 
+              'Conflito de Concorrência'
+            );
             this.editarItem(this.selectedItem()!);
           }
+          // Other errors are already handled by the error handling service
         }
       });
     } else {
       // Create new item
       const createDto = this.mapToCreateDto(formValue);
       
-      this.service.criar(createDto).subscribe({
+      this.loadingStateService.wrapAsync(
+        'form-submit',
+        'create',
+        () => this.service.criar(createDto),
+        `Criando ${this.entityDisplayName().toLowerCase()}...`
+      ).subscribe({
         next: (newItem) => {
-          this.formLoading.set(false);
           this.showForm.set(false);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: `${this.entityDisplayName()} criado com sucesso`,
-            life: 3000
+          this.feedbackService.showSuccess({
+            message: this.entityDisplayName() + ' criado com sucesso',
+            summary: 'Criação Realizada',
+            includeUndo: false // Could be enabled for specific entities
           });
           this.carregarItens();
+          this.saveFilterState();
         },
         error: (error) => {
-          this.formLoading.set(false);
+          // Error is already handled by the service
         }
       });
     }
@@ -500,142 +694,254 @@ export abstract class ReferenceCrudBaseComponent<
   }
 
   /**
-   * Activate item
+   * Activate item with confirmation
    */
-  ativarItem(item: TDto): void {
-    this.setActionLoading('activate', item.id, true);
+  async ativarItem(item: TDto): Promise<void> {
+    try {
+      // Get custom warning message if any
+      const warningMessage = this.getStatusChangeWarning(item, true);
+      let confirmationMessage = `Tem certeza que deseja ativar este ${this.entityDisplayName().toLowerCase()}?`;
+      
+      if (warningMessage) {
+        confirmationMessage += `\n\n⚠️ ${warningMessage}`;
+      }
+
+      const confirmed = await this.feedbackService.showConfirmation({
+        message: confirmationMessage,
+        header: 'Confirmar Ativação',
+        icon: 'pi pi-question-circle',
+        acceptLabel: 'Ativar',
+        rejectLabel: 'Cancelar',
+        acceptButtonStyleClass: 'p-button-success',
+        rejectButtonStyleClass: 'p-button-text'
+      });
+      
+      if (confirmed) {
+        this.confirmarAtivacao(item);
+      }
+    } catch (error) {
+      console.error('Erro ao processar ativação:', error);
+      this.feedbackService.showError(
+        'Erro ao processar ativação. Tente novamente.',
+        'Erro de Operação'
+      );
+    }
+  }
+
+  /**
+   * Execute item activation
+   */
+  private confirmarAtivacao(item: TDto): void {
+    const loadingKey = `activate-${item.id}`;
     
-    this.service.ativar(item.id).subscribe({
+    // Optimistically update the UI
+    this.updateItemStatusOptimistically(item, true);
+    
+    this.loadingStateService.wrapAsync(
+      'item-action',
+      loadingKey,
+      () => this.service.ativar(item.id),
+      `Ativando ${this.entityDisplayName().toLowerCase()}...`
+    ).subscribe({
       next: () => {
-        this.setActionLoading('activate', item.id, false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: `${this.entityDisplayName()} ativado com sucesso`,
-          life: 3000
+        this.feedbackService.showSuccess({
+          message: this.entityDisplayName() + ' ativado com sucesso',
+          summary: 'Ativação Realizada',
+          includeUndo: true,
+          undoAction: () => this.confirmarDesativacao(item),
+          undoLabel: 'Desativar'
         });
-        this.carregarItens();
+        
+        // Highlight the row temporarily
+        this.highlightRowTemporarily(item);
+        
+        // Refresh data to ensure consistency
+        this.refreshItemData(item);
       },
       error: (error) => {
-        this.setActionLoading('activate', item.id, false);
+        // Revert optimistic update on error
+        this.updateItemStatusOptimistically(item, false);
+        // Error is already handled by the service
       }
     });
   }
 
   /**
-   * Deactivate item
+   * Deactivate item with enhanced confirmation and dependency checking
    */
-  desativarItem(item: TDto): void {
-    this.confirmationService.confirm({
-      message: `Tem certeza que deseja desativar este ${this.entityDisplayName().toLowerCase()}?`,
-      header: 'Confirmar Desativação',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sim',
-      rejectLabel: 'Não',
-      accept: () => {
+  async desativarItem(item: TDto): Promise<void> {
+    // Check for dependencies before showing confirmation
+    try {
+      const dependencyInfo = await this.checkDeactivationDependencies(item);
+      if (dependencyInfo && !dependencyInfo.canDeactivate) {
+        // Show dependency warning
+        this.feedbackService.showWarning(
+          dependencyInfo.message || `Este ${this.entityDisplayName().toLowerCase()} está sendo usado por outros registros e não pode ser desativado`,
+          'Desativação Não Permitida'
+        );
+        return;
+      }
+
+      // Get custom warning message if any
+      const warningMessage = this.getStatusChangeWarning(item, false);
+      let confirmationMessage = `Tem certeza que deseja desativar este ${this.entityDisplayName().toLowerCase()}?`;
+      
+      if (warningMessage) {
+        confirmationMessage += `\n\n⚠️ ${warningMessage}`;
+      }
+
+      if (dependencyInfo && dependencyInfo.warningMessage) {
+        confirmationMessage += `\n\n⚠️ ${dependencyInfo.warningMessage}`;
+      }
+
+      const confirmed = await this.feedbackService.showConfirmation({
+        message: confirmationMessage,
+        header: 'Confirmar Desativação',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Desativar',
+        rejectLabel: 'Cancelar',
+        acceptButtonStyleClass: 'p-button-warning',
+        rejectButtonStyleClass: 'p-button-text'
+      });
+      
+      if (confirmed) {
         this.confirmarDesativacao(item);
       }
-    });
+    } catch (error) {
+      console.error('Erro ao verificar dependências para desativação:', error);
+      this.feedbackService.showError(
+        'Erro ao verificar dependências. Tente novamente.',
+        'Erro de Validação'
+      );
+    }
+  }
+
+  /**
+   * Check if item can be deactivated (override in child components if needed)
+   */
+  protected async checkDeactivationDependencies(item: TDto): Promise<{
+    canDeactivate: boolean;
+    message?: string;
+    warningMessage?: string;
+  } | null> {
+    // Default implementation - no dependency checks
+    // Override in child components that need to check dependencies
+    // Return null to indicate no dependency checks needed
+    return null;
   }
 
   /**
    * Execute item deactivation
    */
   private confirmarDesativacao(item: TDto): void {
-    this.setActionLoading('deactivate', item.id, true);
+    const loadingKey = `deactivate-${item.id}`;
     
-    this.service.desativar(item.id).subscribe({
+    // Optimistically update the UI
+    this.updateItemStatusOptimistically(item, false);
+    
+    this.loadingStateService.wrapAsync(
+      'item-action',
+      loadingKey,
+      () => this.service.desativar(item.id),
+      `Desativando ${this.entityDisplayName().toLowerCase()}...`
+    ).subscribe({
       next: () => {
-        this.setActionLoading('deactivate', item.id, false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: `${this.entityDisplayName()} desativado com sucesso`,
-          life: 3000
+        this.feedbackService.showSuccess({
+          message: this.entityDisplayName() + ' desativado com sucesso',
+          summary: 'Desativação Realizada',
+          includeUndo: true,
+          undoAction: () => this.confirmarAtivacao(item),
+          undoLabel: 'Reativar'
         });
-        this.carregarItens();
+        
+        // Highlight the row temporarily
+        this.highlightRowTemporarily(item);
+        
+        // Refresh data to ensure consistency
+        this.refreshItemData(item);
       },
       error: (error) => {
-        this.setActionLoading('deactivate', item.id, false);
+        // Revert optimistic update on error
+        this.updateItemStatusOptimistically(item, true);
+        // Error is already handled by the service
       }
     });
   }
 
   /**
-   * Confirm and delete item
+   * Confirm and delete item with enhanced feedback
    */
-  excluirItem(item: TDto): void {
-    // First check if item can be removed
-    this.service.podeRemover(item.id).subscribe({
-      next: (canRemove) => {
-        if (!canRemove) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Não é possível excluir',
-            detail: `Este ${this.entityDisplayName().toLowerCase()} está sendo usado por outros registros`,
-            life: 5000
-          });
-          return;
-        }
-
-        this.confirmationService.confirm({
-          message: `Tem certeza que deseja excluir este ${this.entityDisplayName().toLowerCase()}?`,
-          header: 'Confirmar Exclusão',
-          icon: 'pi pi-exclamation-triangle',
-          acceptLabel: 'Sim',
-          rejectLabel: 'Não',
-          accept: () => {
-            this.confirmarExclusao(item);
-          }
-        });
-      },
-      error: (error) => {
-        console.error('Erro ao verificar se pode remover:', error);
+  async excluirItem(item: TDto): Promise<void> {
+    try {
+      // First check if item can be removed
+      const canRemove = await this.service.podeRemover(item.id).toPromise();
+      
+      if (!canRemove) {
+        this.feedbackService.showWarning(
+          `Este ${this.entityDisplayName().toLowerCase()} está sendo usado por outros registros e não pode ser excluído`,
+          'Exclusão Não Permitida'
+        );
+        return;
       }
-    });
+
+      // Show enhanced delete confirmation
+      const confirmed = await this.feedbackService.showDeleteConfirmation(
+        `este ${this.entityDisplayName().toLowerCase()}`
+      );
+      
+      if (confirmed) {
+        this.confirmarExclusao(item);
+      }
+    } catch (error) {
+      console.error('Erro ao verificar se pode remover:', error);
+      this.feedbackService.showError(
+        'Erro ao verificar se o item pode ser removido',
+        'Erro de Validação'
+      );
+    }
   }
 
   /**
    * Execute item deletion
    */
   private confirmarExclusao(item: TDto): void {
-    this.setActionLoading('delete', item.id, true);
+    const loadingKey = `delete-${item.id}`;
     
-    this.service.remover(item.id).subscribe({
+    this.loadingStateService.wrapAsync(
+      'item-action',
+      loadingKey,
+      () => this.service.remover(item.id),
+      `Excluindo ${this.entityDisplayName().toLowerCase()}...`
+    ).subscribe({
       next: () => {
-        this.setActionLoading('delete', item.id, false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: `${this.entityDisplayName()} excluído com sucesso`,
-          life: 3000
+        this.feedbackService.showSuccess({
+          message: `${this.entityDisplayName()} excluído com sucesso`,
+          summary: 'Exclusão Realizada'
         });
         this.carregarItens();
       },
       error: (error) => {
-        this.setActionLoading('delete', item.id, false);
+        // Error is already handled by the service
       }
     });
   }
 
-  /**
-   * Handle dialog hide event
-   */
-  onDialogHide(): void {
-    if (!this.formLoading()) {
-      this.cancelarEdicao();
-    }
-  }
+
 
   /**
    * Check if in edit mode
    */
   isEditMode(): boolean {
-    return this.selectedItem() !== null;
+    try {
+      return this.selectedItem() !== null;
+    } catch (error) {
+      console.warn('Error checking edit mode:', error);
+      return false;
+    }
   }
 
   /**
-   * Get dialog title
+   * Get dialog title based on mode
    */
   dialogTitle(): string {
     return this.isEditMode() 
@@ -643,6 +949,52 @@ export abstract class ReferenceCrudBaseComponent<
       : `Novo ${this.entityDisplayName()}`;
   }
 
+  // Enhanced action management methods
+  isActionLoading(action: string, itemId: number): boolean {
+    const key = `${action}-${itemId}`;
+    return this.actionLoadingStates().has(key);
+  }
+
+  hasAnyActionLoading(): boolean {
+    return this.actionLoadingStates().size > 0;
+  }
+
+  setActionLoading(action: string, itemId: number, loading: boolean): void {
+    const key = `${action}-${itemId}`;
+    const currentStates = new Map(this.actionLoadingStates());
+    
+    if (loading) {
+      currentStates.set(key, Date.now());
+    } else {
+      currentStates.delete(key);
+    }
+    
+    this.actionLoadingStates.set(currentStates);
+  }
+
+  isRowHighlighted(rowIndex: number): boolean {
+    return this.highlightedRowIndex() === rowIndex;
+  }
+
+  canDeactivateItem(item: TDto): boolean {
+    return this.canPerformAction('deactivate', item);
+  }
+
+  canActivateItem(item: TDto): boolean {
+    return this.canPerformAction('activate', item);
+  }
+
+  getDeactivateTooltip(item: TDto): string {
+    return `Desativar ${this.entityDisplayName().toLowerCase()}`;
+  }
+
+  getActivateTooltip(item: TDto): string {
+    return `Ativar ${this.entityDisplayName().toLowerCase()}`;
+  }
+
+  /**
+   * Get dialog title
+   */
   /**
    * Format date for display
    */
@@ -674,72 +1026,213 @@ export abstract class ReferenceCrudBaseComponent<
   }
 
   /**
-   * Handle table sorting
-   */
-  onSort(event: any): void {
-    this.multiSortMeta.set(event.multiSortMeta || []);
-  }
-
-  /**
-   * Handle page change
-   */
-  onPageChange(event: any): void {
-    this.pageSize.set(event.rows);
-  }
-
-  /**
-   * Set action loading state
-   */
-  private setActionLoading(action: string, id: number, loading: boolean): void {
-    const key = `${action}-${id}`;
-    const currentStates = new Map(this.actionLoadingStates());
-    
-    if (loading) {
-      currentStates.set(key, id);
-    } else {
-      currentStates.delete(key);
-    }
-    
-    this.actionLoadingStates.set(currentStates);
-  }
-
-  /**
-   * Check if specific action is loading
-   */
-  isActionLoading(action: string, id: number): boolean {
-    const key = `${action}-${id}`;
-    return this.actionLoadingStates().has(key);
-  }
-
-  /**
-   * Check if any action is loading
-   */
-  hasAnyActionLoading(): boolean {
-    return this.actionLoadingStates().size > 0;
-  }
-
-  /**
-   * Check if row should be highlighted
-   */
-  isRowHighlighted(rowIndex: number): boolean {
-    return this.highlightedRowIndex() === rowIndex;
-  }
-
-  /**
    * Get validation error message for form control
    */
   getErrorMessage(controlName: string): string {
-    const control = this.form.get(controlName);
-    if (!control) return '';
-    return this.validationService.getErrorMessage(control, controlName);
+    try {
+      if (!this.form) return '';
+      const control = this.form.get(controlName);
+      if (!control) return '';
+      return this.validationService.getErrorMessage(control, controlName);
+    } catch (error) {
+      console.warn(`Error getting error message for ${controlName}:`, error);
+      return '';
+    }
   }
 
   /**
    * Check if form control should show error
    */
   shouldShowError(controlName: string): boolean {
-    const control = this.form.get(controlName);
-    if (!control) return false;
-    return this.validationService.shouldShowError(control);
+    try {
+      if (!this.form) return false;
+      const control = this.form.get(controlName);
+      if (!control) return false;
+      return this.validationService.shouldShowError(control);
+    } catch (error) {
+      console.warn(`Error checking should show error for ${controlName}:`, error);
+      return false;
+    }
+  }
+
+  // Enhanced responsive and state management methods
+  isMobile(): boolean {
+    return this.componentStateService.isMobile();
+  }
+
+  isTablet(): boolean {
+    return this.componentStateService.isTablet();
+  }
+
+  isDesktop(): boolean {
+    return this.componentStateService.isDesktop();
+  }
+
+  getVisibleColumns(): TableColumn[] {
+    // Return cached computed visible columns to avoid creating new arrays on each CD cycle
+    try {
+      return this._visibleColumns();
+    } catch (error) {
+      // Fallback in case computed isn't available
+      return this.componentStateService.getVisibleColumns(this.displayColumns());
+    }
+  }
+
+  // Computed signal that derives visible columns from displayColumns() and component state
+  private _visibleColumns = computed(() => {
+    try {
+      const cols = this.displayColumns();
+      return this.componentStateService.getVisibleColumns(cols as TableColumn[]);
+    } catch (error) {
+      return [] as TableColumn[];
+    }
+  });
+
+  private _dialogStyle = computed(() => {
+    try {
+      return this.componentStateService.getDialogStyle();
+    } catch (error) {
+      console.warn('Error computing dialog style:', error);
+      return {};
+    }
+  });
+
+  getDialogStyle(): { [key: string]: string } {
+    return this._dialogStyle();
+  }
+
+  getPageReportTemplate(): string {
+    return this.componentStateService.getPageReportTemplate(this.entityDisplayName());
+  }
+
+  // Computed signal for active filters summary
+  private _activeFilters = computed(() => {
+    try {
+      return this.componentStateService.getActiveFiltersSummary(this.getComponentName());
+    } catch (error) {
+      console.warn('Error computing active filters summary:', error);
+      return [];
+    }
+  });
+
+  getActiveFiltersSummary(): ActiveFilter[] {
+    return this._activeFilters();
+  }
+
+  hasActiveFilters(): boolean {
+    return this.componentStateService.hasActiveFilters(this.getComponentName());
+  }
+
+  private getNestedValue(obj: any, path: string): any {
+    return path.split('.').reduce((current, key) => current?.[key], obj);
+  }
+
+  /**
+   * Simulate progress for better UX during loading
+   */
+  private simulateProgress(): void {
+    this.loadingProgress.set(0);
+    
+    const progressInterval = setInterval(() => {
+      const currentProgress = this.loadingProgress();
+      if (currentProgress < 90) {
+        this.loadingProgress.set(currentProgress + Math.random() * 15);
+      } else {
+        clearInterval(progressInterval);
+      }
+    }, 200);
+
+    // Clear interval after 10 seconds to prevent memory leaks
+    setTimeout(() => clearInterval(progressInterval), 10000);
+  }
+
+  /**
+   * Enhanced filter state management
+   */
+  private maintainFilterState(): void {
+    // Save filter state when filters change
+    // Note: Signals don't have subscribe method, filter state is saved on change events
+  }
+
+  /**
+   * Collect form validation errors
+   */
+  private collectFormErrors(): string[] {
+    const errors: string[] = [];
+    
+    Object.keys(this.form.controls).forEach(key => {
+      const control = this.form.get(key);
+      if (control && control.invalid && control.touched) {
+        const errorMessage = this.getErrorMessage(key);
+        if (errorMessage) {
+          errors.push(errorMessage);
+        }
+      }
+    });
+    
+    return errors;
+  }
+
+  /**
+   * Check if form has unsaved changes
+   */
+  hasUnsavedChanges(): boolean {
+    return this.form.dirty && !this.formLoading();
+  }
+
+  /**
+   * Show contextual help for the current entity
+   */
+  showHelp(): void {
+    const helpMessage = this.getEntityHelpText();
+    if (helpMessage) {
+      this.feedbackService.showHelp(helpMessage, `Ajuda - ${this.entityDisplayName()}`);
+    }
+  }
+
+  /**
+   * Get entity-specific help text (override in child components)
+   */
+  protected getEntityHelpText(): string | null {
+    return `${this.entityDisplayName()} são dados de referência utilizados em todo o sistema. Mantenha-os atualizados para garantir o funcionamento correto.`;
+  }
+
+  protected getStatusChangeWarning(item: TDto, activating: boolean): string | null {
+    return null;
+  }
+
+  protected updateItemStatusOptimistically(item: TDto, newStatus: boolean): void {
+    const items = this.items();
+    const index = items.findIndex(i => i.id === item.id);
+    if (index !== -1) {
+      const updatedItem = { ...items[index], ativo: newStatus };
+      const updatedItems = [...items];
+      updatedItems[index] = updatedItem;
+      this.items.set(updatedItems);
+      this.applyFilters();
+    }
+  }
+
+  protected highlightRowTemporarily(item: TDto): void {
+    const index = this.filteredItems().findIndex(i => i.id === item.id);
+    if (index !== -1) {
+      this.highlightedRowIndex.set(index);
+      setTimeout(() => {
+        this.highlightedRowIndex.set(-1);
+      }, 2000);
+    }
+  }
+
+  protected refreshItemData(item: TDto): void {
+    this.service.obterPorId(item.id).subscribe(freshItem => {
+      const items = this.items();
+      const index = items.findIndex(i => i.id === item.id);
+      if (index !== -1) {
+        const updatedItems = [...items];
+        updatedItems[index] = freshItem;
+        this.items.set(updatedItems);
+        this.applyFilters();
+      }
+    });
   }
 }

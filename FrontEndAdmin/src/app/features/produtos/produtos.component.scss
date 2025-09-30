@@ -1,4 +1,15 @@
-@import '../../shared/styles/variables';
+.form-section {
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--surface-border);
+  padding-bottom: 0rem;
+}@import '../../shared/styles/variables';
 @import '../../shared/styles/mixins';
 
 .produtos-container {
@@ -51,65 +62,7 @@
   }
 }
 
-.form-fields {
-  display: grid;
-  gap: 1.5rem;
-  
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    
-    label {
-      font-weight: 600;
-      color: var(--text-color);
-      
-      &.required::after {
-        content: ' *';
-        color: var(--red-500);
-      }
-    }
-    
-    .field-help {
-      font-size: 0.875rem;
-      color: var(--text-color-secondary);
-      font-style: italic;
-    }
-    
-    // Input styling
-    input[pInputText],
-    textarea[pTextarea] {
-      &.ng-invalid.ng-touched {
-        border-color: var(--red-500);
-      }
-    }
-    
-    // Select styling
-    p-select {
-      &.ng-invalid .p-select {
-        border-color: var(--red-500);
-      }
-    }
-    
-    // InputNumber styling
-    p-inputNumber {
-      &.ng-invalid ::ng-deep .p-inputnumber-input {
-        border-color: var(--red-500);
-      }
-    }
-  }
-  
-  // Categoria selector specific styling
-  .categoria-selector {
-    border: 1px solid var(--surface-border);
-    border-radius: var(--border-radius);
-    background: var(--surface-ground);
-    
-    &.ng-invalid {
-      border-color: var(--red-500);
-    }
-  }
-}
+
 
 // Responsive design
 @media (max-width: 768px) {
@@ -132,13 +85,6 @@
     }
   }
   
-  .form-fields {
-    gap: 1rem;
-    
-    .field {
-      gap: 0.25rem;
-    }
-  }
 }
 
 // Custom dropdown templates

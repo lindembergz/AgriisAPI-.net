@@ -2,7 +2,7 @@ using System.Text.Json;
 using Agriis.Compartilhado.Dominio.Entidades;
 using Agriis.Compartilhado.Dominio.ObjetosValor;
 using Agriis.Compartilhado.Dominio.Enums;
-using Agriis.Referencias.Dominio.Entidades;
+using Agriis.Enderecos.Dominio.Entidades;
 
 namespace Agriis.Fornecedores.Dominio.Entidades;
 
@@ -37,9 +37,9 @@ public class Fornecedor : EntidadeRaizAgregada
     public int? UfId { get; private set; }
     
     /// <summary>
-    /// UF do fornecedor
+    /// Estado do fornecedor
     /// </summary>
-    public virtual Uf? Uf { get; private set; }
+    public virtual Estado? Estado { get; private set; }
     
     /// <summary>
     /// ID do município do fornecedor

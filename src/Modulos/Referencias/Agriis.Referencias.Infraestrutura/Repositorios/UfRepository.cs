@@ -32,7 +32,6 @@ public class UfRepository : ReferenciaRepositoryBase<Uf, DbContext>, IUfReposito
     public async Task<IEnumerable<Uf>> ObterPorPaisAsync(int paisId, CancellationToken cancellationToken = default)
     {
         return await Context.Set<Uf>()
-            .Include(u => u.Pais)
             .Where(u => u.PaisId == paisId)
             .OrderBy(u => u.Nome)
             .ToListAsync(cancellationToken);
@@ -44,7 +43,6 @@ public class UfRepository : ReferenciaRepositoryBase<Uf, DbContext>, IUfReposito
     public async Task<IEnumerable<Uf>> ObterAtivasPorPaisAsync(int paisId, CancellationToken cancellationToken = default)
     {
         return await Context.Set<Uf>()
-            .Include(u => u.Pais)
             .Where(u => u.PaisId == paisId && u.Ativo)
             .OrderBy(u => u.Nome)
             .ToListAsync(cancellationToken);
@@ -125,7 +123,6 @@ public class UfRepository : ReferenciaRepositoryBase<Uf, DbContext>, IUfReposito
     public async Task<IEnumerable<Uf>> ObterComMunicipiosAsync(int? paisId = null, CancellationToken cancellationToken = default)
     {
         var query = Context.Set<Uf>()
-            .Include(u => u.Pais)
             .Include(u => u.Municipios.Where(m => m.Ativo))
             .Where(u => u.Ativo);
 
@@ -143,7 +140,6 @@ public class UfRepository : ReferenciaRepositoryBase<Uf, DbContext>, IUfReposito
     public async Task<IEnumerable<Uf>> BuscarPorNomeAsync(string nome, int? paisId = null, CancellationToken cancellationToken = default)
     {
         var query = Context.Set<Uf>()
-            .Include(u => u.Pais)
             .Where(u => u.Nome.Contains(nome) && u.Ativo);
 
         if (paisId.HasValue)
@@ -155,34 +151,31 @@ public class UfRepository : ReferenciaRepositoryBase<Uf, DbContext>, IUfReposito
     }
 
     /// <summary>
-    /// Sobrescreve o método para incluir o país e municípios nas consultas quando necessário
+    /// Sobrescreve o método para incluir municípios nas consultas quando necessário
     /// </summary>
     public override async Task<Uf?> ObterPorIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await Context.Set<Uf>()
-            .Include(u => u.Pais)
             .Include(u => u.Municipios)
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
     /// <summary>
-    /// Sobrescreve o método para incluir o país nas consultas
+    /// Sobrescreve o método para obter todas as UFs ordenadas por nome
     /// </summary>
     public override async Task<IEnumerable<Uf>> ObterTodosAsync(CancellationToken cancellationToken = default)
     {
         return await Context.Set<Uf>()
-            .Include(u => u.Pais)
             .OrderBy(u => u.Nome)
             .ToListAsync(cancellationToken);
     }
 
     /// <summary>
-    /// Sobrescreve o método para incluir o país nas consultas
+    /// Sobrescreve o método para obter UFs ativas ordenadas por nome
     /// </summary>
     public override async Task<IEnumerable<Uf>> ObterAtivosAsync(CancellationToken cancellationToken = default)
     {
         return await Context.Set<Uf>()
-            .Include(u => u.Pais)
             .Where(u => u.Ativo)
             .OrderBy(u => u.Nome)
             .ToListAsync(cancellationToken);

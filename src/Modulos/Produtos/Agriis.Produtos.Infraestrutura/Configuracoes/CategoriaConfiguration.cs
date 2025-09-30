@@ -12,7 +12,7 @@ public class CategoriaConfiguration : IEntityTypeConfiguration<Categoria>
     public void Configure(EntityTypeBuilder<Categoria> builder)
     {
         // Tabela
-        builder.ToTable("Categorias");
+        builder.ToTable("Categoria");
 
         // Chave primária
         builder.HasKey(c => c.Id);
@@ -39,9 +39,11 @@ public class CategoriaConfiguration : IEntityTypeConfiguration<Categoria>
 
         // Propriedades de auditoria
         builder.Property(c => c.DataCriacao)
+            .HasColumnType("timestamptz")
             .IsRequired();
 
-        builder.Property(c => c.DataAtualizacao);
+        builder.Property(c => c.DataAtualizacao)
+            .HasColumnType("timestamptz");
 
         // Relacionamentos
         builder.HasOne(c => c.CategoriaPai)

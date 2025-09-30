@@ -77,10 +77,13 @@ export class CategoriaService extends ReferenceCrudService<
       return of(cached);
     }
 
-    return this.http.get<CategoriaDto[]>(`${this.baseUrl}/hierarquia`).pipe(
-      map(categorias => this.buildHierarchy(categorias)),
-      tap(categorias => this.setCache(cacheKey, categorias)),
-      catchError(error => this.handleError('obter categorias com hierarquia', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<CategoriaDto[]>(`${this.baseUrl}/hierarquia`).pipe(
+        map(categorias => this.buildHierarchy(categorias)),
+        tap(categorias => this.setCache(cacheKey, categorias))
+      ),
+      'obter categorias com hierarquia',
+      'categoria'
     );
   }
 
@@ -95,9 +98,12 @@ export class CategoriaService extends ReferenceCrudService<
       return of(cached);
     }
 
-    return this.http.get<CategoriaDto[]>(`${this.baseUrl}/raiz`).pipe(
-      tap(categorias => this.setCache(cacheKey, categorias)),
-      catchError(error => this.handleError('obter categorias raiz', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<CategoriaDto[]>(`${this.baseUrl}/raiz`).pipe(
+        tap(categorias => this.setCache(cacheKey, categorias))
+      ),
+      'obter categorias raiz',
+      'categoria'
     );
   }
 
@@ -112,9 +118,12 @@ export class CategoriaService extends ReferenceCrudService<
       return of(cached);
     }
 
-    return this.http.get<CategoriaDto[]>(`${this.baseUrl}/${categoriaPaiId}/subcategorias`).pipe(
-      tap(categorias => this.setCache(cacheKey, categorias)),
-      catchError(error => this.handleError(`obter subcategorias da categoria ${categoriaPaiId}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<CategoriaDto[]>(`${this.baseUrl}/${categoriaPaiId}/subcategorias`).pipe(
+        tap(categorias => this.setCache(cacheKey, categorias))
+      ),
+      `obter subcategorias da categoria ${categoriaPaiId}`,
+      'categoria'
     );
   }
 
@@ -129,9 +138,12 @@ export class CategoriaService extends ReferenceCrudService<
       return of(cached);
     }
 
-    return this.http.get<CategoriaDto[]>(`${this.baseUrl}/tipo/${tipo}`).pipe(
-      tap(categorias => this.setCache(cacheKey, categorias)),
-      catchError(error => this.handleError(`obter categorias do tipo ${tipo}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<CategoriaDto[]>(`${this.baseUrl}/tipo/${tipo}`).pipe(
+        tap(categorias => this.setCache(cacheKey, categorias))
+      ),
+      `obter categorias do tipo ${tipo}`,
+      'categoria'
     );
   }
 
@@ -146,9 +158,12 @@ export class CategoriaService extends ReferenceCrudService<
       return of(cached);
     }
 
-    return this.http.get<CategoriaDto[]>(`${this.baseUrl}/ordenadas`).pipe(
-      tap(categorias => this.setCache(cacheKey, categorias)),
-      catchError(error => this.handleError('obter categorias ordenadas', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<CategoriaDto[]>(`${this.baseUrl}/ordenadas`).pipe(
+        tap(categorias => this.setCache(cacheKey, categorias))
+      ),
+      'obter categorias ordenadas',
+      'categoria'
     );
   }
 
@@ -156,8 +171,10 @@ export class CategoriaService extends ReferenceCrudService<
    * Get category by exact name
    */
   obterPorNome(nome: string): Observable<CategoriaDto> {
-    return this.http.get<CategoriaDto>(`${this.baseUrl}/nome/${encodeURIComponent(nome)}`).pipe(
-      catchError(error => this.handleError(`obter categoria por nome '${nome}'`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<CategoriaDto>(`${this.baseUrl}/nome/${encodeURIComponent(nome)}`),
+      `obter categoria por nome '${nome}'`,
+      'categoria'
     );
   }
 
@@ -170,9 +187,12 @@ export class CategoriaService extends ReferenceCrudService<
       url += `&idExcluir=${idExcluir}`;
     }
     
-    return this.http.get<{ exists: boolean }>(url).pipe(
-      map(response => response.exists),
-      catchError(error => this.handleError(`verificar existência do nome '${nome}'`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{ exists: boolean }>(url).pipe(
+        map(response => response.exists)
+      ),
+      `verificar existência do nome '${nome}'`,
+      'categoria'
     );
   }
 
@@ -180,9 +200,12 @@ export class CategoriaService extends ReferenceCrudService<
    * Check if category can be removed (override base method for hierarchy validation)
    */
   override podeRemover(id: number): Observable<boolean> {
-    return this.http.get<{ canRemove: boolean; reason?: string }>(`${this.baseUrl}/${id}/pode-remover`).pipe(
-      map(response => response.canRemove),
-      catchError(error => this.handleError(`verificar se categoria ${id} pode ser removida`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{ canRemove: boolean; reason?: string }>(`${this.baseUrl}/${id}/pode-remover`).pipe(
+        map(response => response.canRemove)
+      ),
+      `verificar se categoria ${id} pode ser removida`,
+      'categoria'
     );
   }
 

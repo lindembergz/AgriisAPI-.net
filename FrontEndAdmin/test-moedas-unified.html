@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Moedas Unificado</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8fafc;
+            color: #1f2937;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+        
+        .test-header {
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .test-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #111827;
+            margin: 0 0 8px 0;
+        }
+        
+        .test-description {
+            color: #6b7280;
+            margin: 0;
+        }
+        
+        .test-section {
+            margin-bottom: 32px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+            margin: 0 0 16px 0;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            color: #10b981;
+        }
+        
+        .feature-text {
+            flex: 1;
+            color: #374151;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-in-progress {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .code-block {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            color: #374151;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background-color: #fef3c7;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .currency-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .currency-card {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .currency-symbol {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .currency-code {
+            font-family: monospace;
+            font-weight: bold;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        
+        .currency-name {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        .brl { color: #16a085; }
+        .usd { color: #27ae60; }
+        .eur { color: #2980b9; }
+        .gbp { color: #8e44ad; }
+        .jpy { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1 class="test-title">💰 Moedas Component - Framework Unificado</h1>
+            <p class="test-description">
+                Implementação completa do componente Moedas usando o framework unificado com suporte a ISO 4217 e símbolos de moedas.
+            </p>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">✅ Funcionalidades Implementadas</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Template unificado com header, filtros, tabela e diálogo</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Sistema de busca em tempo real (código, nome, símbolo)</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Filtros por status (ativo/inativo)</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Tabela responsiva com colunas adaptáveis</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Formulário com validação ISO 4217</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Exibição de símbolos de moedas com estilo personalizado</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Validação de códigos de moeda (3 caracteres maiúsculos)</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Estados de loading, empty e error unificados</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Design responsivo com breakpoints móvel/tablet/desktop</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Componentes de erro de campo padronizados</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🎯 Características Específicas das Moedas</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">🏛️</span>
+                    <span class="feature-text">Validação de códigos ISO 4217 (3 caracteres maiúsculos)</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">💱</span>
+                    <span class="feature-text">Exibição de símbolos de moedas com cores específicas</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🔒</span>
+                    <span class="feature-text">Código não editável após criação (campo desabilitado)</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✨</span>
+                    <span class="feature-text">Renderização personalizada para símbolos de moedas populares</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🎨</span>
+                    <span class="feature-text">Estilo monospace para códigos e símbolos</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">📊</span>
+                    <span class="feature-text">Tooltips informativos para símbolos de moedas</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">💰 Exemplos de Moedas Suportadas</h2>
+            <div class="currency-examples">
+                <div class="currency-card">
+                    <div class="currency-symbol brl">R$</div>
+                    <div class="currency-code">BRL</div>
+                    <div class="currency-name">Real Brasileiro</div>
+                </div>
+                <div class="currency-card">
+                    <div class="currency-symbol usd">US$</div>
+                    <div class="currency-code">USD</div>
+                    <div class="currency-name">Dólar Americano</div>
+                </div>
+                <div class="currency-card">
+                    <div class="currency-symbol eur">€</div>
+                    <div class="currency-code">EUR</div>
+                    <div class="currency-name">Euro</div>
+                </div>
+                <div class="currency-card">
+                    <div class="currency-symbol gbp">£</div>
+                    <div class="currency-code">GBP</div>
+                    <div class="currency-name">Libra Esterlina</div>
+                </div>
+                <div class="currency-card">
+                    <div class="currency-symbol jpy">¥</div>
+                    <div class="currency-code">JPY</div>
+                    <div class="currency-name">Iene Japonês</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🎨 Melhorias de Design</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">🎯</span>
+                    <span class="feature-text">Código da moeda com estilo monospace e destaque visual</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">💱</span>
+                    <span class="feature-text">Símbolos de moedas com cores específicas por tipo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">📱</span>
+                    <span class="feature-text">Layout adaptativo para dispositivos móveis</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🌙</span>
+                    <span class="feature-text">Suporte a modo escuro e alto contraste</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">♿</span>
+                    <span class="feature-text">Melhorias de acessibilidade com ARIA labels</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🖨️</span>
+                    <span class="feature-text">Estilos otimizados para impressão</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🔧 Estrutura Técnica</h2>
+            <div class="code-block">
+<strong>Arquivos Principais:</strong>
+├── moedas.component.ts          # Lógica do componente com framework unificado
+├── moedas.component.html        # Template usando componentes compartilhados
+├── moedas.component.scss        # Estilos específicos + framework unificado
+└── services/
+    └── moeda.service.ts         # Serviço para API de Moedas
+
+<strong>Componentes Utilizados:</strong>
+- ResponsiveTableComponent       # Tabela adaptativa
+- FilterSummaryComponent         # Resumo de filtros ativos
+- LoadingSpinnerComponent        # Estados de carregamento
+- FieldErrorComponent            # Erros de validação padronizados
+
+<strong>Interfaces Implementadas:</strong>
+- ComponentTemplate              # Configuração do template
+- CustomFilter                   # Filtros personalizados
+- TableColumn                    # Configuração de colunas
+- EmptyStateConfig               # Estado vazio
+- LoadingStateConfig             # Estado de carregamento
+- ResponsiveConfig               # Configuração responsiva
+- DialogConfig                   # Configuração de diálogos
+
+<strong>Validações Específicas:</strong>
+- ISO 4217 compliance           # Códigos de 3 caracteres maiúsculos
+- Símbolo único                  # Validação de unicidade
+- Nome único                     # Validação de unicidade
+- Formato de símbolo             # 1-5 caracteres permitidos
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🚀 Próximos Passos</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">📋</span>
+                    <span class="feature-text">Testar integração com API real</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🧪</span>
+                    <span class="feature-text">Implementar testes unitários</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🔄</span>
+                    <span class="feature-text">Validar fluxos de CRUD completos</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">💱</span>
+                    <span class="feature-text">Testar com diferentes símbolos de moedas</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">♿</span>
+                    <span class="feature-text">Validar acessibilidade com ferramentas automatizadas</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">📝 Notas de Implementação</h2>
+            <p>
+                O componente Moedas foi completamente implementado usando o <span class="highlight">framework unificado</span>, 
+                com foco especial na conformidade com o padrão ISO 4217 para códigos de moedas e exibição 
+                personalizada de símbolos monetários.
+            </p>
+            <p>
+                A implementação inclui validações específicas para moedas, como a impossibilidade de editar o código após 
+                criação, validação de formato ISO 4217, e renderização personalizada de símbolos com cores específicas 
+                para moedas populares (BRL, USD, EUR, GBP, JPY).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,137 +1,220 @@
-.custom-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
+@import '../../../shared/styles/design-tokens.scss';
+@import '../../../shared/styles/utility-classes.scss';
+@import '../../../shared/styles/unified-framework.scss';
 
-  .filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-
-    label {
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--text-color-secondary);
-    }
-
-    .filter-dropdown {
-      min-width: 200px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-
-    .filter-group {
-      .filter-dropdown {
-        min-width: 100%;
-      }
-    }
-  }
-}
-
+// Form fields styling
 .form-fields {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-
+  gap: var(--spacing-md);
+  
   .field {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-
-    label {
-      font-weight: 500;
-      color: var(--text-color);
-
+    gap: var(--spacing-xs);
+    
+    .field-label {
+      font-weight: var(--font-weight-medium);
+      color: var(--text-color-primary);
+      font-size: var(--font-size-sm);
+      
       &.required::after {
         content: ' *';
-        color: var(--red-500);
+        color: var(--color-danger);
       }
     }
-
+    
     .field-help {
       color: var(--text-color-secondary);
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
+      font-size: var(--font-size-xs);
+      margin-top: var(--spacing-xs);
     }
-
-    .p-error {
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
+    
+    // PrimeNG component styling
+    ::ng-deep {
+      .p-select,
+      .p-inputtext,
+      textarea {
+        width: 100%;
+        
+        &.p-invalid {
+          border-color: var(--color-danger);
+        }
+      }
+      
+      .p-select-panel {
+        .p-select-item {
+          padding: var(--spacing-sm);
+          
+          &:hover {
+            background-color: var(--surface-hover);
+          }
+          
+          &.p-selected {
+            background-color: var(--primary-color);
+            color: var(--primary-color-text);
+          }
+        }
+      }
+      
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
     }
   }
 }
 
+// Dropdown item styling
 .dropdown-item {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) 0;
+
+  .unidade-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-weight: var(--font-weight-medium);
+  }
 
   .tipo-badge {
-    color: var(--text-color-secondary);
-    font-size: 0.75rem;
     background: var(--surface-100);
-    padding: 0.125rem 0.5rem;
-    border-radius: 0.25rem;
+    color: var(--text-color-secondary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    border: 1px solid var(--surface-border);
     align-self: flex-start;
   }
 }
 
-.selected-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.unidade-medida-display {
+// Selected item styling
+.selected-unidade {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--spacing-xs);
 
   .tipo-info {
     color: var(--text-color-secondary);
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     font-style: italic;
+  }
+}
+
+// Table display components
+.unidade-medida-display {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+
+  .selected-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color-primary);
+  }
+
+  .tipo-info {
+    color: var(--text-color-secondary);
+    font-size: var(--font-size-xs);
+    font-style: italic;
+    font-weight: var(--font-weight-normal);
+  }
+}
+
+// Custom table cell styling
+::ng-deep {
+  .custom-unidade-cell {
+    .unidade-medida-display {
+      .selected-item {
+        strong {
+          color: var(--primary-color);
+          font-family: 'Courier New', monospace;
+        }
+      }
+    }
   }
 }
 
 // Responsive adjustments
 @media (max-width: 768px) {
   .form-fields {
-    gap: 1rem;
-
+    gap: var(--spacing-sm);
+    
     .field {
-      .field-help {
-        font-size: 0.8125rem;
+      .field-label {
+        font-size: var(--font-size-xs);
+      }
+      
+      ::ng-deep {
+        textarea {
+          min-height: 60px;
+        }
       }
     }
   }
-
+  
   .dropdown-item {
     .tipo-badge {
+      font-size: 0.6875rem;
+      padding: 0.1rem 0.4rem;
+    }
+  }
+
+  .unidade-medida-display {
+    .tipo-info {
       font-size: 0.6875rem;
     }
   }
 }
 
-// Dark theme adjustments
-:host-context(.dark-theme) {
-  .custom-toolbar {
-    .filter-group {
-      label {
-        color: var(--text-color-secondary);
+@media (max-width: 1024px) {
+  .form-fields {
+    .field {
+      ::ng-deep {
+        .p-select-panel {
+          max-width: 90vw;
+        }
       }
     }
   }
+}
 
+// Loading states
+.loading-overlay {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+}
+
+// Validation styling
+.field-error {
+  margin-top: var(--spacing-xs);
+}
+
+// Theme adjustments
+:host-context(.dark-theme) {
   .dropdown-item {
     .tipo-badge {
       background: var(--surface-200);
       color: var(--text-color);
+      border-color: var(--surface-border);
     }
   }
 }
@@ -140,7 +223,7 @@
 :host-context(.high-contrast-theme) {
   .form-fields {
     .field {
-      label.required::after {
+      .field-label.required::after {
         color: var(--red-400);
         font-weight: bold;
       }
@@ -149,7 +232,19 @@
 
   .dropdown-item {
     .tipo-badge {
-      border: 1px solid var(--surface-border);
+      border: 2px solid var(--surface-border);
+      font-weight: 600;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .form-fields {
+    .field {
+      .field-help {
+        display: none;
+      }
     }
   }
 }

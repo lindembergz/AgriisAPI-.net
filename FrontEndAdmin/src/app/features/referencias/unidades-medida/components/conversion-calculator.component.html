@@ -1,0 +1,119 @@
+<p-dialog
+  header="Calculadora de Conversão"
+  [visible]="visible"
+  (onHide)="onClose.emit()"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="conversion-dialog"
+  [style]="{ width: '700px' }">
+  
+  <div class="conversion-form">
+    <div class="p-grid p-align-center">
+      <!-- Quantidade origem -->
+      <div class="p-col-12 p-md-3">
+        <label for="quantidadeOrigem">Quantidade:</label>
+        <p-inputNumber
+          id="quantidadeOrigem"
+          [(ngModel)]="conversaoForm.quantidade"
+          [minFractionDigits]="0"
+          [maxFractionDigits]="6"
+          [min]="0"
+          placeholder="0"
+          class="w-full">
+        </p-inputNumber>
+      </div>
+
+      <!-- Unidade origem -->
+      <div class="p-col-12 p-md-3">
+        <label for="unidadeOrigem">De:</label>
+        <p-select
+          id="unidadeOrigem"
+          [(ngModel)]="conversaoForm.unidadeOrigemId"
+          [options]="unidades"
+          optionLabel="nome"
+          optionValue="id"
+          placeholder="Selecione"
+          [filter]="true"
+          filterBy="nome,simbolo"
+          class="w-full">
+          <ng-template pTemplate="item" let-unidade>
+            <div class="dropdown-item">
+              <strong>{{ unidade.simbolo }}</strong> - {{ unidade.nome }}
+            </div>
+          </ng-template>
+        </p-select>
+      </div>
+
+      <!-- Unidade destino -->
+      <div class="p-col-12 p-md-3">
+        <label for="unidadeDestino">Para:</label>
+        <p-select
+          id="unidadeDestino"
+          [(ngModel)]="conversaoForm.unidadeDestinoId"
+          [options]="unidades"
+          optionLabel="nome"
+          optionValue="id"
+          placeholder="Selecione"
+          [filter]="true"
+          filterBy="nome,simbolo"
+          class="w-full">
+          <ng-template pTemplate="item" let-unidade>
+            <div class="dropdown-item">
+              <strong>{{ unidade.simbolo }}</strong> - {{ unidade.nome }}
+            </div>
+          </ng-template>
+        </p-select>
+      </div>
+
+      <!-- Botão converter -->
+      <div class="p-col-12 p-md-3">
+        <p-button
+          label="Converter"
+          icon="pi pi-arrow-right"
+          (onClick)="calcularConversao()"
+          [disabled]="!podeCalcularConversao()"
+          [loading]="calculandoConversao"
+          class="w-full">
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Resultado da conversão -->
+    <div *ngIf="resultadoConversao" class="conversion-result mt-3">
+      <p-divider></p-divider>
+      <div class="result-display">
+        <h4>Resultado da Conversão:</h4>
+        <p class="result-text">
+          <strong>{{ resultadoConversao.quantidadeOriginal | number:'1.0-6' }}</strong>
+          {{ getUnidadeById(resultadoConversao.unidadeOrigemId)?.simbolo }}
+          =
+          <strong>{{ resultadoConversao.quantidadeConvertida | number:'1.0-6' }}</strong>
+          {{ getUnidadeById(resultadoConversao.unidadeDestinoId)?.simbolo }}
+        </p>
+        <small class="conversion-details">
+          {{ getUnidadeById(resultadoConversao.unidadeOrigemId)?.nome }} para 
+          {{ getUnidadeById(resultadoConversao.unidadeDestinoId)?.nome }}
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-between">
+      <p-button
+        label="Limpar"
+        icon="pi pi-refresh"
+        (onClick)="limparFormulario()"
+        class="p-button-text">
+      </p-button>
+      <p-button
+        label="Fechar"
+        icon="pi pi-times"
+        (onClick)="onClose.emit()"
+        class="p-button-text">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>

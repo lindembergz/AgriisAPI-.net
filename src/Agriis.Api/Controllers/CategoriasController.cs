@@ -9,7 +9,7 @@ namespace Agriis.Api.Controllers;
 /// Controller para gerenciamento de categorias de produtos
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/referencias/[controller]")]
 public class CategoriasController : ControllerBase
 {
     private readonly ICategoriaService _categoriaService;

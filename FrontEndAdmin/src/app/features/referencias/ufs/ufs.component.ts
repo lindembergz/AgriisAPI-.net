@@ -1,32 +1,38 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CheckboxModule } from 'primeng/checkbox';
+
 import { ReferenceCrudBaseComponent } from '../../../shared/components/reference-crud-base/reference-crud-base.component';
 import { UfDto, CriarUfDto, AtualizarUfDto, PaisDto } from '../../../shared/models/reference.model';
 import { UfService } from './services/uf.service';
 import { PaisService } from '../paises/services/pais.service';
-import { map } from 'rxjs';
+import { FieldValidatorsUtil } from '../../../shared/utils/field-validators.util';
 
-interface TableColumn {
-  field: string;
-  header: string;
-  sortable?: boolean;
-  width?: string;
-  type?: 'text' | 'boolean' | 'date' | 'custom';
-  hideOnMobile?: boolean;
-  hideOnTablet?: boolean;
-}
+import { 
+  ComponentTemplate, 
+  CustomAction, 
+  TableColumn, 
+  EmptyStateConfig, 
+  LoadingStateConfig, 
+  ResponsiveConfig,
+  DialogConfig,
+  DisplayMode
+} from '../../../shared/interfaces/unified-component.interfaces';
+import { CustomFilter } from '../../../shared/interfaces/component-template.interface';
+import { FieldErrorComponent } from '../../../shared/components/field-error/field-error.component';
+
+
 
 /**
  * Component for managing UFs (Unidades Federativas) with País selection and Município dependency
@@ -38,19 +44,21 @@ interface TableColumn {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     InputTextModule,
     SelectModule,
-    TagModule,
-    TooltipModule,
-    TableModule,
     ButtonModule,
-    SelectModule,
+    TableModule,
     ConfirmDialogModule,
     ToastModule,
     ProgressSpinnerModule,
+    TagModule,
+    TooltipModule,
     DialogModule,
-    CheckboxModule
+    CheckboxModule,
+    FieldErrorComponent
   ],
+  providers: [],
   templateUrl: './ufs.component.html',
   styleUrls: ['./ufs.component.scss']
 })
@@ -67,41 +75,59 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
   paisesOptions = signal<PaisDto[]>([]);
   loadingPaises = signal<boolean>(false);
 
+  // Computed options for pais filter to avoid spread syntax in template
+  paisFilterOptions = () => [{ label: 'Todos os países', value: null }, ...this.paisesOptions().map(p => ({ label: p.nome, value: p.id }))];
+
   // Entity configuration
   protected entityDisplayName = () => 'UF';
   protected entityDescription = () => 'Gerenciar Unidades Federativas (Estados)';
   protected defaultSortField = () => 'codigo';
   protected searchFields = () => ['codigo', 'nome', 'pais.nome'];
 
-  // Table columns configuration
-  protected displayColumns = (): TableColumn[] => [
-    {
-      field: 'codigo',
+  // =============================================================================
+  // UNIFIED FRAMEWORK IMPLEMENTATION
+  // =============================================================================
+
+  displayColumns: () => TableColumn[] = () => [
+        {
+      field: 'id',
       header: 'Código',
       sortable: true,
-      width: '100px'
+      width: '100px',
+      align: 'center',
+      type: 'text'
+    },
+    {
+      field: 'codigo',
+      header: 'UF',
+      sortable: true,
+      width: '100px',
+      align: 'center',
+      type: 'text'
     },
     {
       field: 'nome',
       header: 'Nome',
       sortable: true,
-      width: '250px'
+      width: '250px',
+      type: 'text'
     },
     {
-      field: 'pais',
+      field: 'pais.nome',
       header: 'País',
       sortable: true,
       width: '200px',
-      type: 'custom',
-      hideOnMobile: true
-    },
+      hideOnMobile: true,
+      type: 'text'
+    }/*,
     {
       field: 'municipiosCount',
       header: 'Municípios',
-      sortable: true,
+      sortable: false,
       width: '120px',
+      hideOnMobile: true,
       type: 'custom',
-      hideOnMobile: true
+      align: 'center'
     },
     {
       field: 'ativo',
@@ -109,7 +135,8 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
       sortable: true,
       width: '100px',
       type: 'boolean',
-      hideOnMobile: true
+      hideOnMobile: true,
+      align: 'center'
     },
     {
       field: 'dataCriacao',
@@ -119,12 +146,49 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
       type: 'date',
       hideOnMobile: true,
       hideOnTablet: true
-    }
+    }*/
   ];
 
+
   ngOnInit(): void {
-    super.ngOnInit();
-    this.carregarPaises();
+    try {
+      super.ngOnInit();
+      this.carregarPaises();
+      this.carregarItens(); // Explicitly call to load items
+    } catch (error) {
+      console.error('Error initializing UfsComponent:', error);
+      // Try to initialize with minimal setup
+      this.carregarPaises();
+      this.carregarItens();
+    }
+  }
+
+  // =============================================================================
+  // UTILITY METHODS FOR TEMPLATE
+  // =============================================================================
+
+
+
+
+
+  /**
+   * Get país name by ID
+   */
+  getPaisNome(paisId: number): string {
+    const pais = this.paisesOptions().find(p => p.id === paisId);
+    return pais ? pais.nome : 'N/A';
+  }
+
+
+
+  /**
+   * Apply custom filter for país
+   */
+  protected override applyCustomFilter(items: UfDto[], filterKey: string, filterValue: any): UfDto[] {
+    if (filterKey === 'pais') {
+      return items.filter(item => item.paisId === filterValue);
+    }
+    return super.applyCustomFilter(items, filterKey, filterValue);
   }
 
   /**
@@ -146,7 +210,7 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
   }
 
   /**
-   * Override carregarItens to include País information
+   * Override carregarItens to include País information and load municípios count
    */
   override carregarItens(): void {
     this.loading.set(true);
@@ -170,8 +234,10 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
           this.items.set(items);
         }
         
+        this.applyItemFilters();
+        
         // Load municípios count for each UF
-        this.carregarContagemMunicipios(items);
+        //this.carregarContagemMunicipios(items);
         
         this.loading.set(false);
         this.tableLoading.set(false);
@@ -264,74 +330,492 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
     return `${count} município${count > 1 ? 's' : ''} cadastrado${count > 1 ? 's' : ''}`;
   }
 
+
+
   /**
-   * Override excluir to check Município dependencies
+   * Override to check dependencies before deactivation
    */
-  override excluirItem(item: UfDto): void {
-    // Check if UF has Municípios before allowing deletion
-    this.service.verificarDependenciasMunicipio(item.id).subscribe({
-      next: (temMunicipios) => {
-        if (temMunicipios) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Não é possível excluir',
-            detail: 'Esta UF possui municípios cadastrados. Remova os municípios primeiro.',
-            life: 5000
-          });
-          return;
-        }
-        
-        // Proceed with normal deletion flow
-        super.excluirItem(item);
-      },
-      error: (error) => {
-        console.error('Erro ao verificar dependências:', error);
+  protected override async checkDeactivationDependencies(item: UfDto): Promise<{
+    canDeactivate: boolean;
+    message?: string;
+    warningMessage?: string;
+  } | null> {
+    try {
+      const temMunicipios = await this.service.verificarDependenciasMunicipio(item.id).toPromise();
+      const municipiosCount = (item as any).municipiosCount || 0;
+      
+      if (temMunicipios && municipiosCount > 0) {
+        return {
+          canDeactivate: false,
+          message: `Esta UF possui ${municipiosCount} município${municipiosCount > 1 ? 's' : ''} cadastrado${municipiosCount > 1 ? 's' : ''}. Desative os municípios primeiro.`
+        };
       }
-    });
+      
+      if (municipiosCount > 0) {
+        return {
+          canDeactivate: true,
+          warningMessage: `Esta UF possui ${municipiosCount} município${municipiosCount > 1 ? 's' : ''} cadastrado${municipiosCount > 1 ? 's' : ''}. Eles também serão afetados pela desativação.`
+        };
+      }
+      
+      return { canDeactivate: true };
+    } catch (error) {
+      console.error('Erro ao verificar dependências de municípios:', error);
+      return { canDeactivate: true };
+    }
   }
 
   /**
-   * Custom validation for código uniqueness within país
+   * Override excluir to check Município dependencies
    */
-  private validarCodigoUnico = (control: any) => {
-    if (!control.value || !this.form?.get('paisId')?.value) {
-      return null;
+  override async excluirItem(item: UfDto): Promise<void> {
+    try {
+      // Check if UF has Municípios before allowing deletion
+      const temMunicipios = await this.service.verificarDependenciasMunicipio(item.id).toPromise();
+      
+      if (temMunicipios) {
+        const municipiosCount = (item as any).municipiosCount || 0;
+        this.feedbackService.showWarning(
+          `Esta UF possui ${municipiosCount} município${municipiosCount > 1 ? 's' : ''} cadastrado${municipiosCount > 1 ? 's' : ''}. Remova os municípios primeiro.`,
+          'Exclusão Não Permitida'
+        );
+        return;
+      }
+      
+      // Proceed with normal deletion flow
+      await super.excluirItem(item);
+    } catch (error) {
+      console.error('Erro ao verificar dependências:', error);
+      this.feedbackService.showError(
+        'Erro ao verificar dependências. Tente novamente.',
+        'Erro de Validação'
+      );
     }
-
-    const codigo = control.value.toUpperCase();
-    const paisId = parseInt(this.form.get('paisId')?.value);
-    const ufId = this.selectedItem()?.id;
-
-    return this.service.validarCodigoUnico(codigo, paisId, ufId).pipe(
-      map(isUnique => isUnique ? null : { codigoNaoUnico: true })
-    );
-  };
+  }
 
   /**
-   * Override form creation to add custom validators
+   * Create reactive form with validation
    */
-  protected override createFormGroup(): FormGroup {
-    const form = this.fb.group({
+  protected createFormGroup(): FormGroup {
+    return this.fb.group({
       codigo: ['', [
         Validators.required,
         Validators.minLength(2),
         Validators.maxLength(2),
-        Validators.pattern(/^[A-Z]{2}$/)
+        FieldValidatorsUtil.alphaNumeric(),
+        FieldValidatorsUtil.upperCase()
       ]],
       nome: ['', [
         Validators.required,
         Validators.minLength(2),
-        Validators.maxLength(100)
+        Validators.maxLength(100),
+        FieldValidatorsUtil.noSpecialChars()
       ]],
       paisId: ['', [
         Validators.required
       ]],
       ativo: [true]
     });
+  }
 
-    // Add async validator for código uniqueness
-    form.get('codigo')?.setAsyncValidators([this.validarCodigoUnico]);
+  // Additional methods needed by template
 
-    return form;
+  /**
+   * Get dialog title
+   */
+  dialogTitle(): string {
+    return this.selectedItem() ? `Editar ${this.entityDisplayName()}` : `Nova ${this.entityDisplayName()}`;
+  }
+
+  /**
+   * Check if is edit mode
+   */
+  isEditMode(): boolean {
+    return this.selectedItem() !== null;
+  }
+
+  /**
+   * Get dialog style
+   */
+  getDialogStyle(): any {
+    return { width: '450px' };
+  }
+
+  /**
+   * Get page report template
+   */
+  getPageReportTemplate(): string {
+    return 'Mostrando {first} a {last} de {totalRecords} UFs';
+  }
+
+  /**
+   * Check if mobile
+   */
+  isMobile(): boolean {
+    return window.innerWidth < 768;
+  }
+
+  /**
+   * Check if tablet
+   */
+  isTablet(): boolean {
+    return window.innerWidth >= 768 && window.innerWidth < 1024;
+  }
+
+  /**
+   * Check if row is highlighted
+   */
+  isRowHighlighted(rowIndex: number): boolean {
+    return this.highlightedRowIndex() === rowIndex;
+  }
+
+  /**
+   * Get status label
+   */
+  getStatusLabel(ativo: boolean): string {
+    return ativo ? 'Ativo' : 'Inativo';
+  }
+
+  /**
+   * Get status severity
+   */
+  getStatusSeverity(ativo: boolean): string {
+    return ativo ? 'success' : 'danger';
+  }
+
+  /**
+   * Format date
+   */
+  formatarData(data: string | Date): string {
+    if (!data) return '-';
+    const date = new Date(data);
+    return date.toLocaleDateString('pt-BR');
+  }
+
+  /**
+   * Get field value
+   */
+  getFieldValue(item: any, field: string): string {
+    const value = field.split('.').reduce((obj, key) => obj?.[key], item);
+    return value || '-';
+  }
+
+  /**
+   * Check if action is loading
+   */
+  isActionLoading(action: string, itemId: number): boolean {
+    return this.actionLoadingStates().get(`${action}-${itemId}`) !== undefined;
+  }
+
+  /**
+   * Check if any action is loading
+   */
+  hasAnyActionLoading(): boolean {
+    return this.actionLoadingStates().size > 0;
+  }
+
+  /**
+   * Get active filters summary
+   */
+  getActiveFiltersSummary(): any[] {
+    const filters = [];
+    
+    if (this.searchTerm()) {
+      filters.push({
+        key: 'search',
+        label: `Busca: "${this.searchTerm()}"`,
+        removable: true
+      });
+    }
+    
+    if (this.selectedStatusFilter() !== 'todas') {
+      const statusLabel = this.statusFilterOptions.find(s => s.value === this.selectedStatusFilter())?.label;
+      filters.push({
+        key: 'status',
+        label: `Status: ${statusLabel}`,
+        removable: true
+      });
+    }
+    
+    const paisFilter = this.getCustomFilterValue('pais');
+    if (paisFilter) {
+      const paisLabel = this.paisesOptions().find(p => p.id === paisFilter)?.nome;
+      filters.push({
+        key: 'pais',
+        label: `País: ${paisLabel}`,
+        removable: true
+      });
+    }
+    
+    return filters;
+  }
+
+  /**
+   * Remove specific filter
+   */
+  removeFilter(filterKey: string): void {
+    switch (filterKey) {
+      case 'search':
+        this.clearSearch();
+        break;
+      case 'status':
+        this.selectedStatusFilter.set('todas');
+        break;
+      case 'pais':
+        this.onCustomFilterChange('pais', null);
+        break;
+    }
+  }
+
+  /**
+   * Handle search change
+   */
+  onSearchChange(event: any): void {
+    this.searchTerm.set(event.target.value);
+    this.applyItemFilters();
+  }
+
+  /**
+   * Clear search
+   */
+  clearSearch(): void {
+    this.searchTerm.set('');
+  }
+
+  /**
+   * Handle status filter change
+   */
+  onStatusFilterChange(event: any): void {
+    this.selectedStatusFilter.set(event.value);
+    this.applyItemFilters();
+  }
+
+  /**
+   * Get custom filter value
+   */
+  getCustomFilterValue(key: string): any {
+    return this.customFilters().get(key);
+  }
+
+  /**
+   * Handle custom filter change
+   */
+  onCustomFilterChange(key: string, value: any): void {
+    const filters = new Map(this.customFilters());
+    filters.set(key, value);
+    this.customFilters.set(filters);
+    this.applyItemFilters();
+  }
+
+  // Additional signals needed by template (these should be in base component)
+  items = signal<UfDto[]>([]);
+  loading = signal<boolean>(false);
+  tableLoading = signal<boolean>(false);
+  showForm = signal<boolean>(false);
+  formLoading = signal<boolean>(false);
+  selectedItem = signal<UfDto | null>(null);
+  searchTerm = signal<string>('');
+  selectedStatusFilter = signal<string>('todas');
+  pageSize = signal<number>(10);
+  multiSortMeta = signal<any[]>([]);
+  actionLoadingStates = signal<Map<string, number>>(new Map());
+  highlightedRowIndex = signal<number>(-1);
+  currentLoadingMessage = signal<string>('Carregando UFs...');
+  customFilters = signal<Map<string, any>>(new Map());
+
+  // Filtered items signal
+  filteredItems = signal<UfDto[]>([]);
+
+  /**
+   * Apply filters to items
+   */
+  private applyItemFilters(): void {
+    let items = this.items();
+    
+    // Apply search filter
+    const search = this.searchTerm().toLowerCase();
+    if (search) {
+      items = items.filter(item => 
+        item.codigo.toLowerCase().includes(search) ||
+        item.nome.toLowerCase().includes(search) ||
+        this.getPaisNome(item.paisId).toLowerCase().includes(search)
+      );
+    }
+    
+    // Apply status filter
+    const statusFilter = this.selectedStatusFilter();
+    if (statusFilter === 'ativas') {
+      items = items.filter(item => item.ativo);
+    } else if (statusFilter === 'inativas') {
+      items = items.filter(item => !item.ativo);
+    }
+    
+    // Apply custom filters
+    const paisFilter = this.customFilters().get('pais');
+    if (paisFilter) {
+      items = items.filter(item => item.paisId === paisFilter);
+    }
+    
+    this.filteredItems.set(items);
+  }
+
+  /**
+   * Handle sort event
+   */
+  onSort(event: any): void {
+    this.multiSortMeta.set(event.multiSortMeta || []);
+  }
+
+  /**
+   * Handle page change event
+   */
+  onPageChange(event: any): void {
+    this.pageSize.set(event.rows);
+  }
+
+  /**
+   * Get visible columns
+   */
+  getVisibleColumns() {
+    return this.displayColumns();
+  }
+
+  /**
+   * Check if can save form
+   */
+  canSaveForm(): boolean {
+    return this.form.valid && !this.formLoading();
+  }
+
+  /**
+   * Cancel editing
+   */
+  cancelarEdicao(): void {
+    this.showForm.set(false);
+    this.selectedItem.set(null);
+    this.form.reset();
+  }
+
+  /**
+   * Save item
+   */
+  async salvarItem(): Promise<void> {
+    if (!this.canSaveForm()) return;
+
+    this.formLoading.set(true);
+    
+    try {
+      const formValue = this.form.value;
+      
+      if (this.isEditMode()) {
+        const updateDto = this.mapToUpdateDto(formValue);
+        await this.service.atualizar(this.selectedItem()!.id, updateDto).toPromise();
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'UF atualizada com sucesso!' });
+      } else {
+        const createDto = this.mapToCreateDto(formValue);
+        await this.service.criar(createDto).toPromise();
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'UF criada com sucesso!' });
+      }
+      
+      this.cancelarEdicao();
+      this.carregarItens();
+    } catch (error) {
+      console.error('Erro ao salvar UF:', error);
+      this.feedbackService.showError('Erro ao salvar UF. Tente novamente.');
+    } finally {
+      this.formLoading.set(false);
+    }
+  }
+
+  /**
+   * New item
+   */
+  novoItem(): void {
+    this.selectedItem.set(null);
+    this.form.reset({ ativo: true });
+    this.showForm.set(true);
+  }
+
+  /**
+   * Edit item
+   */
+  editarItem(item: UfDto): void {
+    this.selectedItem.set(item);
+    this.populateForm(item);
+    this.showForm.set(true);
+  }
+
+  /**
+   * Deactivate item
+   */
+  async desativarItem(item: UfDto): Promise<void> {
+    // Check dependencies first
+    const dependencyCheck = await this.checkDeactivationDependencies(item);
+    
+    if (dependencyCheck && !dependencyCheck.canDeactivate) {
+      this.feedbackService.showWarning(dependencyCheck.message!, 'Desativação Não Permitida');
+      return;
+    }
+
+    let message = `Tem certeza que deseja desativar a UF "${item.nome}"?`;
+    if (dependencyCheck?.warningMessage) {
+      message += `\n\n${dependencyCheck.warningMessage}`;
+    }
+
+    this.confirmationService.confirm({
+      message,
+      header: 'Confirmar Desativação',
+      icon: 'pi pi-exclamation-triangle',
+      accept: async () => {
+        try {
+          const actionKey = `deactivate-${item.id}`;
+          this.actionLoadingStates().set(actionKey, Date.now());
+          
+          const updateDto: AtualizarUfDto = {
+            nome: item.nome,
+            ativo: false
+          };
+          
+          await this.service.atualizar(item.id, updateDto).toPromise();
+          this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'UF desativada com sucesso!' });
+          this.carregarItens();
+        } catch (error) {
+          console.error('Erro ao desativar UF:', error);
+          this.feedbackService.showError('Erro ao desativar UF. Tente novamente.');
+        } finally {
+          const actionKey = `deactivate-${item.id}`;
+          const states = new Map(this.actionLoadingStates());
+          states.delete(actionKey);
+          this.actionLoadingStates.set(states);
+        }
+      }
+    });
+  }
+
+  /**
+   * Activate item
+   */
+  async ativarItem(item: UfDto): Promise<void> {
+    try {
+      const actionKey = `activate-${item.id}`;
+      this.actionLoadingStates().set(actionKey, Date.now());
+      
+      const updateDto: AtualizarUfDto = {
+        nome: item.nome,
+        ativo: true
+      };
+      
+      await this.service.atualizar(item.id, updateDto).toPromise();
+      this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'UF ativada com sucesso!' });
+      this.carregarItens();
+    } catch (error) {
+      console.error('Erro ao ativar UF:', error);
+      this.feedbackService.showError('Erro ao ativar UF. Tente novamente.');
+    } finally {
+      const actionKey = `activate-${item.id}`;
+      const states = new Map(this.actionLoadingStates());
+      states.delete(actionKey);
+      this.actionLoadingStates.set(states);
+    }
   }
 }

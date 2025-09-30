@@ -13,7 +13,7 @@ namespace Agriis.Api.Controllers;
 /// <typeparam name="TAtualizarDto">DTO de atualização</typeparam>
 [ApiController]
 [Route("api/referencias/[controller]")]
-[Authorize]
+//[Authorize]
 public abstract class ReferenciaControllerBase<TDto, TCriarDto, TAtualizarDto> : ControllerBase
 {
     protected readonly IReferenciaService<TDto, TCriarDto, TAtualizarDto> Service;

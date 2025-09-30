@@ -1,10 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject, of } from 'rxjs';
-import { catchError, tap, shareReplay, map } from 'rxjs/operators';
+import { catchError, tap, shareReplay, map, retry, delay } from 'rxjs/operators';
 import { MessageService } from 'primeng/api';
 import { environment } from '../../../environments/environment';
 import { BaseEntity } from '../models/base.model';
+import { ErrorHandlingService } from './error-handling.service';
 
 /**
  * API Error Response interface for standardized error handling
@@ -57,6 +58,7 @@ export abstract class ReferenceCrudService<
 > {
   protected http = inject(HttpClient);
   protected messageService = inject(MessageService);
+  protected errorHandlingService = inject(ErrorHandlingService);
   
   protected abstract readonly entityName: string;
   protected abstract readonly apiEndpoint: string;
@@ -87,10 +89,20 @@ export abstract class ReferenceCrudService<
       return of(cached);
     }
 
-    return this.http.get<TDto[]>(this.baseUrl).pipe(
-      tap(data => this.setCache(cacheKey, data)),
-      catchError(error => this.handleError('obter todos', error)),
-      shareReplay(1)
+    // Debug: trace calls to obterTodos so we can confirm at runtime whether the request is issued
+    console.debug(`[ReferenceCrudService] obterTodos called for ${this.entityName} -> ${this.baseUrl}`);
+
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<TDto[]>(this.baseUrl).pipe(
+        tap(data => {
+          console.debug(`[ReferenceCrudService] obterTodos response for ${this.entityName}:`, data?.length ?? 0);
+          this.setCache(cacheKey, data);
+        }),
+        shareReplay(1)
+      ),
+      `obter todos ${this.entityName}`,
+      this.entityName,
+      { maxRetries: 2, delayMs: 1000 }
     );
   }
 
@@ -105,13 +117,17 @@ export abstract class ReferenceCrudService<
       return of(cached);
     }
 
-    return this.http.get<TDto[]>(`${this.baseUrl}/ativos`).pipe(
-      tap(data => {
-        this.setCache(cacheKey, data);
-        this.activeItemsCache$.next(data);
-      }),
-      catchError(error => this.handleError('obter ativos', error)),
-      shareReplay(1)
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<TDto[]>(`${this.baseUrl}/ativos`).pipe(
+        tap(data => {
+          this.setCache(cacheKey, data);
+          this.activeItemsCache$.next(data);
+        }),
+        shareReplay(1)
+      ),
+      `obter ${this.entityName} ativos`,
+      this.entityName,
+      { maxRetries: 2, delayMs: 1000 }
     );
   }
 
@@ -126,9 +142,13 @@ export abstract class ReferenceCrudService<
       return of(cached);
     }
 
-    return this.http.get<TDto>(`${this.baseUrl}/${id}`).pipe(
-      tap(data => this.setCache(cacheKey, data)),
-      catchError(error => this.handleError(`obter ${this.entityName} id=${id}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<TDto>(`${this.baseUrl}/${id}`).pipe(
+        tap(data => this.setCache(cacheKey, data))
+      ),
+      `obter ${this.entityName} por ID`,
+      this.entityName,
+      { maxRetries: 1, delayMs: 500 }
     );
   }
 
@@ -136,9 +156,13 @@ export abstract class ReferenceCrudService<
    * Create new entity
    */
   criar(dto: TCreateDto): Observable<TDto> {
-    return this.http.post<TDto>(this.baseUrl, dto).pipe(
-      tap(() => this.invalidateCache()),
-      catchError(error => this.handleError(`criar ${this.entityName}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.post<TDto>(this.baseUrl, dto).pipe(
+        tap(() => this.invalidateCache())
+      ),
+      `criar ${this.entityName}`,
+      this.entityName,
+      { maxRetries: 0 } // Don't retry create operations
     );
   }
 
@@ -152,9 +176,13 @@ export abstract class ReferenceCrudService<
       headers['If-Match'] = rowVersion;
     }
 
-    return this.http.put<TDto>(`${this.baseUrl}/${id}`, dto, { headers }).pipe(
-      tap(() => this.invalidateCache()),
-      catchError(error => this.handleError(`atualizar ${this.entityName} id=${id}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.put<TDto>(`${this.baseUrl}/${id}`, dto, { headers }).pipe(
+        tap(() => this.invalidateCache())
+      ),
+      `atualizar ${this.entityName}`,
+      this.entityName,
+      { maxRetries: 0 } // Don't retry update operations due to concurrency
     );
   }
 
@@ -162,9 +190,13 @@ export abstract class ReferenceCrudService<
    * Activate entity
    */
   ativar(id: number): Observable<void> {
-    return this.http.patch<void>(`${this.baseUrl}/${id}/ativar`, {}).pipe(
-      tap(() => this.invalidateCache()),
-      catchError(error => this.handleError(`ativar ${this.entityName} id=${id}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.patch<void>(`${this.baseUrl}/${id}/ativar`, {}).pipe(
+        tap(() => this.invalidateCache())
+      ),
+      `ativar ${this.entityName}`,
+      this.entityName,
+      { maxRetries: 1, delayMs: 500 }
     );
   }
 
@@ -172,9 +204,13 @@ export abstract class ReferenceCrudService<
    * Deactivate entity
    */
   desativar(id: number): Observable<void> {
-    return this.http.patch<void>(`${this.baseUrl}/${id}/desativar`, {}).pipe(
-      tap(() => this.invalidateCache()),
-      catchError(error => this.handleError(`desativar ${this.entityName} id=${id}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.patch<void>(`${this.baseUrl}/${id}/desativar`, {}).pipe(
+        tap(() => this.invalidateCache())
+      ),
+      `desativar ${this.entityName}`,
+      this.entityName,
+      { maxRetries: 1, delayMs: 500 }
     );
   }
 
@@ -182,9 +218,13 @@ export abstract class ReferenceCrudService<
    * Remove entity
    */
   remover(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`).pipe(
-      tap(() => this.invalidateCache()),
-      catchError(error => this.handleError(`remover ${this.entityName} id=${id}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.delete<void>(`${this.baseUrl}/${id}`).pipe(
+        tap(() => this.invalidateCache())
+      ),
+      `remover ${this.entityName}`,
+      this.entityName,
+      { maxRetries: 0 } // Don't retry delete operations
     );
   }
 
@@ -192,9 +232,13 @@ export abstract class ReferenceCrudService<
    * Check if entity can be removed
    */
   podeRemover(id: number): Observable<boolean> {
-    return this.http.get<{ canRemove: boolean }>(`${this.baseUrl}/${id}/pode-remover`).pipe(
-      map(response => response.canRemove),
-      catchError(error => this.handleError(`verificar remoção ${this.entityName} id=${id}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{ canRemove: boolean }>(`${this.baseUrl}/${id}/pode-remover`).pipe(
+        map(response => response.canRemove)
+      ),
+      `verificar remoção ${this.entityName}`,
+      this.entityName,
+      { maxRetries: 1, delayMs: 500 }
     );
   }
 
@@ -216,8 +260,11 @@ export abstract class ReferenceCrudService<
     if (params.tamanhoPagina) httpParams = httpParams.set('tamanhoPagina', params.tamanhoPagina.toString());
     if (params.ordenacao) httpParams = httpParams.set('ordenacao', params.ordenacao);
 
-    return this.http.get<{ items: TDto[]; total: number }>(`${this.baseUrl}/buscar`, { params: httpParams }).pipe(
-      catchError(error => this.handleError(`buscar ${this.entityName}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{ items: TDto[]; total: number }>(`${this.baseUrl}/buscar`, { params: httpParams }),
+      `buscar ${this.entityName}`,
+      this.entityName,
+      { maxRetries: 2, delayMs: 1000 }
     );
   }
 
@@ -285,104 +332,7 @@ export abstract class ReferenceCrudService<
     }
   }
 
-  /**
-   * Standardized error handling with user-friendly messages
-   */
-  protected handleError(operation: string, error: HttpErrorResponse): Observable<never> {
-    console.error(`${this.constructor.name}: ${operation} failed:`, error);
-    
-    let errorMessage = 'Ocorreu um erro inesperado';
-    let severity: 'error' | 'warn' | 'info' = 'error';
-    
-    // Handle API error response format
-    if (error.error && typeof error.error === 'object') {
-      const apiError = error.error as ApiErrorResponse;
-      
-      if (apiError.errorCode) {
-        switch (apiError.errorCode) {
-          case 'ENTITY_NOT_FOUND':
-            errorMessage = `${this.entityName} não encontrado(a)`;
-            break;
-          case 'DUPLICATE_CODE':
-            errorMessage = 'Este código já está em uso. Por favor, escolha outro.';
-            break;
-          case 'DUPLICATE_NAME':
-            errorMessage = 'Este nome já está em uso. Por favor, escolha outro.';
-            break;
-          case 'CANNOT_DELETE_REFERENCED':
-            errorMessage = `Não é possível excluir este(a) ${this.entityName} pois está sendo usado(a) por outros registros.`;
-            severity = 'warn';
-            break;
-          case 'CONCURRENCY_CONFLICT':
-            errorMessage = 'Este registro foi modificado por outro usuário. Por favor, recarregue e tente novamente.';
-            severity = 'warn';
-            break;
-          case 'VALIDATION_ERROR':
-            if (apiError.validationErrors) {
-              const validationMessages = Object.values(apiError.validationErrors).flat();
-              errorMessage = validationMessages.join(', ');
-            } else {
-              errorMessage = 'Dados inválidos fornecidos';
-            }
-            break;
-          default:
-            errorMessage = apiError.errorDescription || errorMessage;
-        }
-      } else if (apiError.errorDescription) {
-        errorMessage = apiError.errorDescription;
-      }
-    } else if (error.status) {
-      // Handle HTTP status codes
-      switch (error.status) {
-        case 400:
-          errorMessage = 'Dados inválidos fornecidos';
-          break;
-        case 401:
-          errorMessage = 'Não autorizado. Faça login novamente';
-          break;
-        case 403:
-          errorMessage = 'Acesso negado';
-          break;
-        case 404:
-          errorMessage = `${this.entityName} não encontrado(a)`;
-          break;
-        case 409:
-          errorMessage = `Já existe um(a) ${this.entityName} com estes dados`;
-          break;
-        case 412:
-          errorMessage = 'Este registro foi modificado por outro usuário. Por favor, recarregue e tente novamente.';
-          severity = 'warn';
-          break;
-        case 422:
-          errorMessage = 'Dados de entrada inválidos';
-          break;
-        case 500:
-          errorMessage = 'Erro interno do servidor';
-          break;
-        case 502:
-        case 503:
-        case 504:
-          errorMessage = 'Serviço temporariamente indisponível';
-          break;
-        default:
-          errorMessage = `Erro ${error.status}: ${error.statusText}`;
-      }
-    }
 
-    // Show toast message
-    this.messageService.add({
-      severity,
-      summary: severity === 'error' ? 'Erro' : 'Aviso',
-      detail: errorMessage,
-      life: severity === 'warn' ? 7000 : 5000
-    });
-
-    return throwError(() => ({
-      message: errorMessage,
-      originalError: error,
-      operation
-    }));
-  }
 
   /**
    * Configure cache settings

@@ -63,10 +63,14 @@ public class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
             
         builder.Property(p => p.DataCriacao)
             .HasColumnName("DataCriacao")
+            .HasColumnType("timestamptz")
             .IsRequired();
             
         builder.Property(p => p.DataAtualizacao)
-            .HasColumnName("DataAtualizacao");
+            .HasColumnName("DataAtualizacao")
+            .HasColumnType("timestamptz");
+            
+        // RowVersion será ignorado globalmente no AgriisDbContext
         
         // Relacionamentos
         builder.HasMany(p => p.Itens)

@@ -1,257 +1,240 @@
-// UFs Component Styles
+/**
+ * UFs Component Styles
+ * Uses the unified framework for consistent styling
+ */
 
-.form-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+@import '../../../shared/styles/unified-framework.scss';
 
+// =============================================================================
+// COMPONENT-SPECIFIC STYLES
+// =============================================================================
+
+// Código field styling
+.codigo-field {
+  font-family: var(--font-family-mono);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-light);
+  font-size: var(--font-size-sm);
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+// Nome field styling
+.nome-field {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+// País field styling
+.pais-field {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+// Municípios field styling with enhanced badges
+.municipios-field {
+  .municipios-tag {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+  }
+}
+
+// Status field styling
+.status-field {
+  .status-tag {
+    font-size: var(--font-size-xs);
+  }
+}
+
+// Date field styling
+.date-field {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+// =============================================================================
+// FORM ENHANCEMENTS
+// =============================================================================
+
+.reference-form {
   .field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-
-    label {
-      font-weight: 600;
-      color: var(--text-color);
-      
-      &.required::after {
-        content: ' *';
-        color: var(--red-500);
-      }
-    }
-
     .field-help {
-      color: var(--text-color-secondary);
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
+      margin-top: var(--spacing-xs);
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+      line-height: var(--line-height-normal);
     }
-
-    .p-error {
-      color: var(--red-500);
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
+    
+    // Código field specific styling
+    .codigo-input {
+      font-family: var(--font-family-mono);
+      font-weight: var(--font-weight-medium);
+      text-transform: uppercase;
     }
-
-    // Country selector styles
-    .selected-country,
-    .country-option {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-
-      .country-code {
-        background: var(--primary-100);
-        color: var(--primary-700);
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        min-width: 2.5rem;
-        text-align: center;
-      }
-
-      .country-name {
-        flex: 1;
-      }
-    }
-
-    .country-option:hover {
-      .country-code {
-        background: var(--primary-200);
-        color: var(--primary-800);
-      }
+    
+    // Disabled state for código in edit mode
+    input[disabled] {
+      background-color: var(--color-background-section);
+      color: var(--color-text-muted);
+      cursor: not-allowed;
     }
   }
 }
 
-// Table custom columns styles
-.pais-info {
+// =============================================================================
+// COUNTRY SELECTION STYLING
+// =============================================================================
+
+.selected-country,
+.country-option {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 
-  .pais-codigo {
-    background: var(--blue-100);
-    color: var(--blue-700);
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    min-width: 2.5rem;
-    text-align: center;
+  .country-code {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    min-width: 3rem;
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
   }
 
-  .pais-nome {
-    color: var(--text-color);
-    font-weight: 500;
+  .country-name {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
   }
 }
 
-.no-pais {
-  color: var(--text-color-secondary);
-  font-style: italic;
-}
+// =============================================================================
+// RESPONSIVE DESIGN
+// =============================================================================
 
-.municipios-count-tag {
-  min-width: 3rem;
-  text-align: center;
-  
-  &.p-tag-secondary {
-    background: var(--gray-100);
-    color: var(--gray-600);
+@media (max-width: calc(var(--mobile-breakpoint) - 1px)) {
+  .codigo-field {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs);
   }
   
-  &.p-tag-info {
-    background: var(--blue-100);
-    color: var(--blue-700);
+  .municipios-field .municipios-tag {
+    font-size: 0.625rem;
   }
   
-  &.p-tag-success {
-    background: var(--green-100);
-    color: var(--green-700);
-  }
-  
-  &.p-tag-warning {
-    background: var(--orange-100);
-    color: var(--orange-700);
-  }
-  
-  &.p-tag-danger {
-    background: var(--red-100);
-    color: var(--red-700);
-  }
-}
-
-// Responsive styles
-@media (max-width: 768px) {
-  .form-fields {
-    gap: 1rem;
-    
-    .field {
-      .selected-country,
-      .country-option {
-        .country-name {
-          font-size: 0.875rem;
-        }
-      }
-    }
-  }
-
-  .pais-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-
-    .pais-nome {
-      font-size: 0.875rem;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .municipios-count-tag {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-  }
-}
-
-// Dark theme adjustments
-:host-context(.dark-theme) {
   .selected-country,
   .country-option {
     .country-code {
-      background: var(--primary-800);
-      color: var(--primary-100);
+      min-width: 2.5rem;
+      font-size: var(--font-size-xs);
+    }
+
+    .country-name {
+      font-size: var(--font-size-xs);
     }
   }
-
-  .country-option:hover {
-    .country-code {
-      background: var(--primary-700);
-      color: var(--primary-50);
-    }
-  }
-
-  .pais-info {
-    .pais-codigo {
-      background: var(--blue-800);
-      color: var(--blue-100);
-    }
-  }
-
-  .municipios-count-tag {
-    &.p-tag-secondary {
-      background: var(--gray-800);
-      color: var(--gray-200);
-    }
-    
-    &.p-tag-info {
-      background: var(--blue-800);
-      color: var(--blue-200);
-    }
-    
-    &.p-tag-success {
-      background: var(--green-800);
-      color: var(--green-200);
-    }
-    
-    &.p-tag-warning {
-      background: var(--orange-800);
-      color: var(--orange-200);
-    }
-    
-    &.p-tag-danger {
-      background: var(--red-800);
-      color: var(--red-200);
-    }
-  }
-}
-
-// Loading states
-.loading-paises {
-  .p-select {
-    opacity: 0.6;
-    pointer-events: none;
-  }
-}
-
-// Validation states
-.ng-invalid.ng-touched {
-  border-color: var(--red-500) !important;
-  box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2) !important;
-}
-
-// Form field animations
-.field {
-  transition: all 0.2s ease-in-out;
   
-  &:focus-within {
-    transform: translateY(-1px);
+  .reference-form {
+    .field {
+      margin-bottom: var(--spacing-md);
+      
+      .field-help {
+        font-size: 0.625rem;
+      }
+    }
   }
 }
 
-// Accessibility improvements
-.country-code,
-.pais-codigo {
-  &:focus {
-    outline: 2px solid var(--primary-500);
+@media (max-width: calc(var(--tablet-breakpoint) - 1px)) {
+  .reference-table {
+    .codigo-field {
+      font-size: var(--font-size-sm);
+    }
+  }
+}
+
+// =============================================================================
+// DARK MODE SUPPORT
+// =============================================================================
+
+@media (prefers-color-scheme: dark) {
+  .codigo-field {
+    background: var(--color-primary-light);
+    border-color: var(--color-border-dark);
+  }
+  
+  .selected-country,
+  .country-option {
+    .country-name {
+      color: var(--color-text-primary);
+    }
+  }
+  
+  .reference-form {
+    input[disabled] {
+      background-color: var(--color-background-hover);
+      color: var(--color-text-muted);
+    }
+  }
+}
+
+// =============================================================================
+// HIGH CONTRAST MODE
+// =============================================================================
+
+@media (prefers-contrast: high) {
+  .codigo-field {
+    border-width: 2px;
+    font-weight: var(--font-weight-bold);
+  }
+  
+  .municipios-field .municipios-tag {
+    border-width: 2px;
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+// =============================================================================
+// PRINT STYLES
+// =============================================================================
+
+@media print {
+  .codigo-field {
+    background: transparent !important;
+    border: 1px solid #000 !important;
+    color: #000 !important;
+  }
+  
+  .municipios-field .municipios-tag {
+    background: transparent !important;
+    border: 1px solid #000 !important;
+    color: #000 !important;
+  }
+}
+
+// =============================================================================
+// ACCESSIBILITY ENHANCEMENTS
+// =============================================================================
+
+// Focus styles
+.reference-form {
+  input:focus,
+  .p-select:focus-within {
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 }
 
-// Print styles
-@media print {
-  .municipios-count-tag {
-    background: transparent !important;
-    color: var(--text-color) !important;
-    border: 1px solid var(--surface-border);
-  }
-  
-  .pais-info {
-    .pais-codigo {
-      background: transparent !important;
-      color: var(--text-color) !important;
-      border: 1px solid var(--surface-border);
-    }
-  }
+// Screen reader support
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

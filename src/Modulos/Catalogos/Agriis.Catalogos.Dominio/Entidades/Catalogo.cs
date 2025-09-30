@@ -71,7 +71,7 @@ public class Catalogo : EntidadeRaizAgregada
         AtualizarDataModificacao();
     }
     
-    public bool EstaVigente(DateTime data)
+    public bool EstaVigente(DateTimeOffset data)
     {
         return Ativo && 
                data >= DataInicio && 

@@ -1,0 +1,78 @@
+<!-- Responsive Table Component -->
+<div class="responsive-table-container" [class.mobile-view]="isMobile()" [class.tablet-view]="isTablet()">
+  <!-- Loading Skeleton -->
+  <div *ngIf="showSkeleton()" class="table-skeleton">
+    <div class="skeleton-header">
+      <p-skeleton height="40px" class="mb-2"></p-skeleton>
+    </div>
+    <div class="skeleton-rows">
+      <p-skeleton *ngFor="let item of [1,2,3]" height="50px" class="mb-1"></p-skeleton>
+    </div>
+  </div>
+
+  <!-- Main Table (simplified bindings to match component API) -->
+  <p-table
+    *ngIf="!showSkeleton()"
+    [value]="data"
+    [columns]="columns"
+    [paginator]="paginator"
+    [rows]="rows"
+    [rowsPerPageOptions]="rowsPerPageOptions"
+    [sortField]="sortField"
+    [sortOrder]="sortOrder"
+    [loading]="loading"
+    [scrollable]="scrollable"
+    [scrollHeight]="scrollHeight"
+    [resizableColumns]="resizableColumns"
+    [reorderableColumns]="true"
+    [showCurrentPageReport]="showCurrentPageReport"
+    [currentPageReportTemplate]="currentPageReportTemplate"
+    [responsiveLayout]="responsiveLayout"
+    [breakpoint]="breakpoint"
+    [styleClass]="styleClass"
+    [dataKey]="dataKey"
+    (onPage)="handlePage($event)"
+    (onSort)="handleSort($event)"
+    (onRowSelect)="handleRowSelect($event)"
+    (onRowUnselect)="handleRowUnselect($event)"
+    #dt>
+
+    <!-- Header Template -->
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th *ngFor="let col of columns" pResizableColumn [pSortableColumn]="col.field" [pSortableColumnDisabled]="!col.sortable" [style.width]="col.width">
+          <div class="header-content">
+            <span class="header-title">{{ col.header }}</span>
+            <p-sortIcon [field]="col.field"></p-sortIcon>
+          </div>
+        </th>
+        <th *ngIf="actionsTemplate" class="actions-header">Ações</th>
+      </tr>
+    </ng-template>
+
+    <!-- Body Template -->
+    <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <tr>
+        <td *ngFor="let col of columns">
+          <ng-container [ngSwitch]="col.type">
+            <ng-container *ngSwitchCase="'date'">{{ rowData[col.field] | date: col.format || 'dd/MM/yyyy' }}</ng-container>
+            <ng-container *ngSwitchCase="'currency'">{{ rowData[col.field] | currency: col.currency || 'BRL' }}</ng-container>
+            <ng-container *ngSwitchCase="'tag'"><p-tag [value]="rowData[col.field]" [severity]="col.severityMap ? col.severityMap[rowData[col.field]] : 'info'"></p-tag></ng-container>
+            <ng-container *ngSwitchDefault>{{ rowData[col.field] }}</ng-container>
+          </ng-container>
+        </td>
+        <td *ngIf="actionsTemplate" class="actions-cell">
+          <ng-container [ngTemplateOutlet]="actionsTemplate" [ngTemplateOutletContext]="{ $implicit: rowData }"></ng-container>
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- Paginator Left Template -->
+    <ng-template pTemplate="paginatorleft">
+      <div class="paginator-left-content">
+        <span>Total: {{ data?.length || 0 }}</span>
+      </div>
+    </ng-template>
+
+  </p-table>
+</div>

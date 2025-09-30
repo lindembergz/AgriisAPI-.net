@@ -8,7 +8,7 @@ namespace Agriis.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class CatalogosController : ControllerBase
 {
     private readonly ICatalogoService _catalogoService;

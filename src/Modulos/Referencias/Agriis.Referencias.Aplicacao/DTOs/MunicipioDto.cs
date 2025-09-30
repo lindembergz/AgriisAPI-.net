@@ -9,7 +9,7 @@ public class MunicipioDto
 {
     public int Id { get; set; }
     public string Nome { get; set; } = string.Empty;
-    public string CodigoIbge { get; set; } = string.Empty;
+    public int CodigoIbge { get; set; }
     public int UfId { get; set; }
     public string UfNome { get; set; } = string.Empty;
     public string UfCodigo { get; set; } = string.Empty;
@@ -29,9 +29,8 @@ public class CriarMunicipioDto
     public string Nome { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "O código IBGE é obrigatório")]
-    [StringLength(7, MinimumLength = 7, ErrorMessage = "O código IBGE deve ter exatamente 7 dígitos")]
-    [RegularExpression(@"^\d{7}$", ErrorMessage = "O código IBGE deve conter apenas números")]
-    public string CodigoIbge { get; set; } = string.Empty;
+    [Range(1000000, 9999999, ErrorMessage = "O código IBGE deve ter exatamente 7 dígitos")]
+    public int CodigoIbge { get; set; }
 
     [Required(ErrorMessage = "A UF é obrigatória")]
     [Range(1, int.MaxValue, ErrorMessage = "Deve ser selecionada uma UF válida")]

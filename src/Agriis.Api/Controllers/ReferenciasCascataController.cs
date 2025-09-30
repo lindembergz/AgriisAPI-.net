@@ -31,7 +31,7 @@ public class ReferenciasCascataController : ControllerBase
     /// Obtém UFs de um país específico (otimizado para dropdowns)
     /// </summary>
     /// <param name="paisId">ID do país</param>
-    [HttpGet("ufs/pais/{paisId:int}")]
+    [HttpGet("cascata/ufs/pais/{paisId:int}")]
     public async Task<IActionResult> ObterUfsPorPais(int paisId)
     {
         try
@@ -70,7 +70,7 @@ public class ReferenciasCascataController : ControllerBase
     /// Obtém municípios de uma UF específica (otimizado para dropdowns)
     /// </summary>
     /// <param name="ufId">ID da UF</param>
-    [HttpGet("municipios/uf/{ufId:int}")]
+    [HttpGet("cascata/municipios/uf/{ufId:int}")]
     public async Task<IActionResult> ObterMunicipiosPorUf(int ufId)
     {
         try
@@ -109,7 +109,7 @@ public class ReferenciasCascataController : ControllerBase
     /// Obtém embalagens de uma unidade de medida específica (otimizado para dropdowns)
     /// </summary>
     /// <param name="unidadeId">ID da unidade de medida</param>
-    [HttpGet("embalagens/unidade/{unidadeId:int}")]
+    [HttpGet("cascata/embalagens/unidade/{unidadeId:int}")]
     public async Task<IActionResult> ObterEmbalagensPorUnidade(int unidadeId)
     {
         try

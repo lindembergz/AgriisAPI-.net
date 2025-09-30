@@ -7,7 +7,7 @@ namespace Agriis.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class PropriedadesController : ControllerBase
 {
     private readonly IPropriedadeService _propriedadeService;

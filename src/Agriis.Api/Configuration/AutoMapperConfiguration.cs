@@ -12,6 +12,9 @@ using Agriis.Pagamentos.Aplicacao.Mapeamentos;
 using Agriis.Combos.Aplicacao.Mapeamentos;
 using Agriis.Produtos.Aplicacao.Mapeamentos;
 using Agriis.Referencias.Aplicacao.Mapeamentos;
+using Agriis.Compartilhado.Aplicacao.Mapeamentos;
+using Agriis.Segmentacoes.Aplicacao.Mapeamentos;
+using Agriis.Pedidos.Aplicacao.Mapeamentos;
 
 namespace Agriis.Api.Configuration;
 
@@ -30,6 +33,9 @@ public static class AutoMapperConfiguration
         // Configurar AutoMapper manualmente
         var config = new MapperConfiguration(cfg =>
         {
+            // Profile global deve ser adicionado primeiro
+            cfg.AddProfile<GlobalMappingProfile>();
+            
             cfg.AddProfile<EnderecoMappingProfile>();
             cfg.AddProfile<UsuarioMappingProfile>();
             cfg.AddProfile<CulturaMappingProfile>();
@@ -44,6 +50,8 @@ public static class AutoMapperConfiguration
             cfg.AddProfile<CategoriaMappingProfile>();
             cfg.AddProfile<ProdutoMappingProfile>();
             cfg.AddProfile<ReferenciasMappingProfile>();
+            cfg.AddProfile<SegmentacaoMappingProfile>();
+            cfg.AddProfile<PedidoMappingProfile>();
         });
 
         services.AddSingleton(config);

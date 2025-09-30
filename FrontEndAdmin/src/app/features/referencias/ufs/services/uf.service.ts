@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { ReferenceCrudService } from '../../../../shared/services/reference-crud.service';
 import { UfDto, CriarUfDto, AtualizarUfDto, PaisDto, MunicipioDto } from '../../../../shared/models/reference.model';
 
@@ -14,14 +14,16 @@ import { UfDto, CriarUfDto, AtualizarUfDto, PaisDto, MunicipioDto } from '../../
 export class UfService extends ReferenceCrudService<UfDto, CriarUfDto, AtualizarUfDto> {
   
   protected readonly entityName = 'UF';
-  protected readonly apiEndpoint = 'api/referencias/ufs';
+  protected readonly apiEndpoint = 'referencias/ufs';
 
   /**
    * Get UFs by País ID
    */
   obterPorPais(paisId: number): Observable<UfDto[]> {
-    return this.http.get<UfDto[]>(`${this.baseUrl}/pais/${paisId}`).pipe(
-      catchError(error => this.handleError(`obter UFs por país id=${paisId}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<UfDto[]>(`${this.baseUrl}/pais/${paisId}`),
+      `obter UFs por país id=${paisId}`,
+      'UF'
     );
   }
 
@@ -29,17 +31,28 @@ export class UfService extends ReferenceCrudService<UfDto, CriarUfDto, Atualizar
    * Get UFs with País information included
    */
   obterComPais(): Observable<UfDto[]> {
-    return this.http.get<UfDto[]>(`${this.baseUrl}?include=pais`).pipe(
-      catchError(error => this.handleError('obter UFs com país', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<UfDto[]>(`${this.baseUrl}?include=pais`),
+      'obter UFs com país',
+      'UF'
     );
+  }
+
+  /**
+   * Override obterTodos to include país information by default
+   */
+  override obterTodos(): Observable<UfDto[]> {
+    return this.obterComPais();
   }
 
   /**
    * Get active UFs by País ID for dropdowns
    */
   obterAtivosPorPais(paisId: number): Observable<UfDto[]> {
-    return this.http.get<UfDto[]>(`${this.baseUrl}/ativos/pais/${paisId}`).pipe(
-      catchError(error => this.handleError(`obter UFs ativas por país id=${paisId}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<UfDto[]>(`${this.baseUrl}/pais/${paisId}`),
+      `obter UFs ativas por país id=${paisId}`,
+      'UF'
     );
   }
 
@@ -47,9 +60,12 @@ export class UfService extends ReferenceCrudService<UfDto, CriarUfDto, Atualizar
    * Check if UF has Municípios before deletion
    */
   verificarDependenciasMunicipio(ufId: number): Observable<boolean> {
-    return this.http.get<{ hasMunicipios: boolean }>(`${this.baseUrl}/${ufId}/tem-municipios`).pipe(
-      map(response => response.hasMunicipios),
-      catchError(error => this.handleError(`verificar dependências município UF id=${ufId}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{ hasMunicipios: boolean }>(`${this.baseUrl}/${ufId}/tem-municipios`).pipe(
+        map(response => response.hasMunicipios)
+      ),
+      `verificar dependências município UF id=${ufId}`,
+      'UF'
     );
   }
 
@@ -57,9 +73,12 @@ export class UfService extends ReferenceCrudService<UfDto, CriarUfDto, Atualizar
    * Get Municípios count for UF
    */
   obterContagemMunicipios(ufId: number): Observable<number> {
-    return this.http.get<{ count: number }>(`${this.baseUrl}/${ufId}/municipios/count`).pipe(
-      map(response => response.count),
-      catchError(error => this.handleError(`obter contagem municípios UF id=${ufId}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{ count: number }>(`${this.baseUrl}/${ufId}/municipios/count`).pipe(
+        map(response => response.count)
+      ),
+      `obter contagem municípios UF id=${ufId}`,
+      'UF'
     );
   }
 
@@ -67,8 +86,10 @@ export class UfService extends ReferenceCrudService<UfDto, CriarUfDto, Atualizar
    * Get Municípios by UF ID
    */
   obterMunicipios(ufId: number): Observable<MunicipioDto[]> {
-    return this.http.get<MunicipioDto[]>(`${this.baseUrl}/${ufId}/municipios`).pipe(
-      catchError(error => this.handleError(`obter municípios UF id=${ufId}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<MunicipioDto[]>(`${this.baseUrl}/${ufId}/municipios`),
+      `obter municípios UF id=${ufId}`,
+      'UF'
     );
   }
 
@@ -84,9 +105,12 @@ export class UfService extends ReferenceCrudService<UfDto, CriarUfDto, Atualizar
       params = params.set('excludeId', ufId.toString());
     }
 
-    return this.http.get<{ isUnique: boolean }>(`${this.baseUrl}/validar-codigo`, { params }).pipe(
-      map(response => response.isUnique),
-      catchError(error => this.handleError('validar código UF único', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{ isUnique: boolean }>(`${this.baseUrl}/validar-codigo`, { params }).pipe(
+        map(response => response.isUnique)
+      ),
+      'validar código UF único',
+      'UF'
     );
   }
 }

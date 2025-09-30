@@ -1,0 +1,108 @@
+<!-- Filter Summary Component -->
+<div [class]="containerClasses()" [style]="getAnimationStyle()">
+  <!-- Empty State -->
+  <div *ngIf="isEmpty()" class="empty-state">
+    <span class="empty-message">{{ emptyMessage }}</span>
+  </div>
+
+  <!-- Filters Content -->
+  <div *ngIf="hasFilters()" class="filters-content">
+    <!-- Summary Header -->
+    <div *ngIf="showCount && !compactMode" class="summary-header">
+      <span class="filter-count">{{ getFilterCountText() }}</span>
+      
+      <!-- Clear All Button -->
+      <p-button
+        *ngIf="canClearAll()"
+        [label]="clearAllLabel"
+        [icon]="clearAllIcon"
+        (onClick)="clearAllFilters()"
+        (keydown)="onClearAllKeyDown($event)"
+        class="p-button-text p-button-sm clear-all-btn"
+        [pTooltip]="'Remover todos os filtros ativos'"
+        tooltipPosition="top"
+        severity="secondary">
+      </p-button>
+    </div>
+
+    <!-- Filter Tags Container -->
+    <div class="filter-tags-container" [class.vertical]="verticalLayout">
+      <!-- Visible Filter Tags -->
+      <div class="visible-filters" [class.vertical]="verticalLayout">
+        <p-tag
+          *ngFor="let filter of visibleFilters(); trackBy: trackByFilter"
+          [value]="filter.label"
+          [severity]="getFilterTagSeverity(filter)"
+          [class]="getFilterTagClasses(filter)"
+          [pTooltip]="getFilterTooltip(filter)"
+          tooltipPosition="top"
+          [removable]="canRemoveFilter(filter)"
+          (onRemove)="removeFilter(filter.key)"
+          (click)="onFilterTagClick(filter)"
+          (mouseenter)="onFilterHoverStart(filter)"
+          (mouseleave)="onFilterHoverEnd()"
+          (keydown)="onKeyDown($event, filter)"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="'Filtro: ' + filter.label + (canRemoveFilter(filter) ? '. Pressione Enter para remover.' : '')">
+          <!-- Default Content -->
+          <ng-container *ngIf="!customTemplate">
+            <i *ngIf="icon" [class]="icon + ' tag-icon'"></i>
+            <span class="tag-text">{{ filter.label }}</span>
+          </ng-container>
+          
+          <!-- Custom Template -->
+          <ng-container *ngIf="customTemplate">
+            <ng-content 
+              select="[slot=filter-template]"
+              [ngTemplateOutletContext]="{ $implicit: filter }">
+            </ng-content>
+          </ng-container>
+        </p-tag>
+      </div>
+
+      <!-- Expand/Collapse Button -->
+      <div *ngIf="showExpandButton()" class="expand-collapse-controls">
+        <p-button
+          [label]="getExpandButtonLabel()"
+          [icon]="isExpanded() ? collapseIcon : expandIcon"
+          (onClick)="toggleExpanded()"
+          class="p-button-text p-button-sm expand-btn"
+          [pTooltip]="isExpanded() ? 'Mostrar menos filtros' : 'Mostrar todos os ' + hiddenFilterCount() + ' filtros'"
+          tooltipPosition="top"
+          severity="secondary"
+          [attr.aria-expanded]="isExpanded()"
+          [attr.aria-controls]="'hidden-filters'"
+          role="button">
+        </p-button>
+      </div>
+
+      <!-- Compact Mode Clear All -->
+      <div *ngIf="compactMode && canClearAll()" class="compact-clear-all">
+        <p-button
+          [icon]="clearAllIcon"
+          (onClick)="clearAllFilters()"
+          class="p-button-text p-button-sm"
+          [pTooltip]="'Remover todos os filtros'"
+          tooltipPosition="top"
+          severity="secondary">
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Filter Statistics (Optional) -->
+    <div *ngIf="showCount && compactMode" class="filter-stats">
+      <small class="stats-text">{{ getFilterCountText() }}</small>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isAnimating()" class="animation-overlay">
+    <div class="animation-indicator"></div>
+  </div>
+</div>
+
+<!-- Custom Content Slots -->
+<ng-content select="[slot=header]"></ng-content>
+<ng-content select="[slot=footer]"></ng-content>
+<ng-content select="[slot=custom-actions]"></ng-content>

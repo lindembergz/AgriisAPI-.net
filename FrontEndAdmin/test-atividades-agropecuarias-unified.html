@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Atividades Agropecuárias Unificado</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeng@17.0.0/resources/themes/lara-light-blue/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeng@17.0.0/resources/primeng.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeicons@6.0.1/primeicons.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .demo-section {
+            margin-bottom: 3rem;
+        }
+        
+        .demo-section h2 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            background: #fafafa;
+        }
+        
+        .feature-card h3 {
+            color: #667eea;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-implemented {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-enhanced {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-new {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .code-preview {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 1rem;
+            border-left: 4px solid #ffc107;
+            margin: 1rem 0;
+        }
+        
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        .api-table th,
+        .api-table td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        .api-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .api-table code {
+            background: #f8f9fa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.875rem;
+        }
+        
+        .type-demo {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .type-item {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .type-agricultura {
+            background: linear-gradient(135deg, #ff9800, #f57f17);
+        }
+        
+        .type-pecuaria {
+            background: linear-gradient(135deg, #2196f3, #1565c0);
+        }
+        
+        .type-mista {
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .content {
+                padding: 1rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .type-demo {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚜 Componente Atividades Agropecuárias Unificado</h1>
+            <p>Sistema de gerenciamento de atividades agropecuárias com visualização agrupada por tipo</p>
+        </div>
+        
+        <div class="content">
+            <!-- Visão Geral -->
+            <div class="demo-section">
+                <h2>📋 Visão Geral</h2>
+                <p>O componente de Atividades Agropecuárias implementa o padrão unificado com funcionalidades específicas para gerenciamento de atividades do setor agropecuário, incluindo visualização agrupada por tipo e filtros especializados.</p>
+                
+                <div class="highlight">
+                    <strong>🎯 Objetivo:</strong> Fornecer uma interface consistente para gerenciar atividades agropecuárias com agrupamento por tipo (Agricultura, Pecuária, Mista) e funcionalidades específicas do setor.
+                </div>
+            </div>
+
+            <!-- Funcionalidades Implementadas -->
+            <div class="demo-section">
+                <h2>✅ Funcionalidades Implementadas</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class="pi pi-th-large"></i> Visualização Agrupada</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Agrupamento por tipo de atividade</li>
+                            <li><span class="status-badge status-implemented">✓</span> Alternância entre lista e grupos</li>
+                            <li><span class="status-badge status-implemented">✓</span> Contadores por grupo</li>
+                            <li><span class="status-badge status-implemented">✓</span> Ícones específicos por tipo</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-shield"></i> Validações</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Código único (2-10 caracteres)</li>
+                            <li><span class="status-badge status-implemented">✓</span> Formato alfanumérico maiúsculo</li>
+                            <li><span class="status-badge status-implemented">✓</span> Descrição obrigatória (5-200 chars)</li>
+                            <li><span class="status-badge status-implemented">✓</span> Tipo obrigatório</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-filter"></i> Filtros Customizados</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Filtro por tipo de atividade</li>
+                            <li><span class="status-badge status-implemented">✓</span> Busca por código e descrição</li>
+                            <li><span class="status-badge status-implemented">✓</span> Filtro por status (ativo/inativo)</li>
+                            <li><span class="status-badge status-implemented">✓</span> Integração com visualização agrupada</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-cog"></i> Ações Customizadas</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Alternância de visualização</li>
+                            <li><span class="status-badge status-implemented">✓</span> Ações por item no grupo</li>
+                            <li><span class="status-badge status-implemented">✓</span> Estados de loading individuais</li>
+                            <li><span class="status-badge status-implemented">✓</span> Tooltips informativos</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tipos de Atividades -->
+            <div class="demo-section">
+                <h2>🌾 Tipos de Atividades</h2>
+                
+                <div class="type-demo">
+                    <div class="type-item type-agricultura">
+                        <i class="pi pi-sun" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <div>Agricultura</div>
+                        <small>Cultivo de plantas</small>
+                    </div>
+                    <div class="type-item type-pecuaria">
+                        <i class="pi pi-heart" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <div>Pecuária</div>
+                        <small>Criação de animais</small>
+                    </div>
+                    <div class="type-item type-mista">
+                        <i class="pi pi-star" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <div>Mista</div>
+                        <small>Agricultura + Pecuária</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estrutura de Dados -->
+            <div class="demo-section">
+                <h2>🗂️ Estrutura de Dados</h2>
+                
+                <h3>AtividadeAgropecuariaDto</h3>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th>Validação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>id</code></td>
+                            <td>number</td>
+                            <td>Identificador único</td>
+                            <td>Auto-gerado</td>
+                        </tr>
+                        <tr>
+                            <td><code>codigo</code></td>
+                            <td>string</td>
+                            <td>Código da atividade</td>
+                            <td>Obrigatório, 2-10 chars, único, maiúsculo</td>
+                        </tr>
+                        <tr>
+                            <td><code>descricao</code></td>
+                            <td>string</td>
+                            <td>Descrição da atividade</td>
+                            <td>Obrigatório, 5-200 chars</td>
+                        </tr>
+                        <tr>
+                            <td><code>tipo</code></td>
+                            <td>TipoAtividadeAgropecuaria</td>
+                            <td>Tipo da atividade</td>
+                            <td>Obrigatório (Agricultura/Pecuaria/Mista)</td>
+                        </tr>
+                        <tr>
+                            <td><code>tipoDescricao</code></td>
+                            <td>string</td>
+                            <td>Descrição do tipo</td>
+                            <td>Calculado automaticamente</td>
+                        </tr>
+                        <tr>
+                            <td><code>ativo</code></td>
+                            <td>boolean</td>
+                            <td>Status da atividade</td>
+                            <td>Padrão: true</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Funcionalidades Específicas -->
+            <div class="demo-section">
+                <h2>🔧 Funcionalidades Específicas</h2>
+                
+                <div class="feature-card">
+                    <h3><i class="pi pi-th-large"></i> Visualização Agrupada</h3>
+                    <div class="code-preview">
+// Configuração da visualização agrupada
+private loadGroupedActivities(): void {
+  this.service.obterAgrupadasPorTipo().subscribe({
+    next: (grouped) => {
+      const groupedData = [
+        {
+          tipo: TipoAtividadeAgropecuaria.Agricultura,
+          tipoDescricao: 'Agricultura',
+          atividades: grouped[TipoAtividadeAgropecuaria.Agricultura] || []
+        },
+        {
+          tipo: TipoAtividadeAgropecuaria.Pecuaria,
+          tipoDescricao: 'Pecuária',
+          atividades: grouped[TipoAtividadeAgropecuaria.Pecuaria] || []
+        },
+        {
+          tipo: TipoAtividadeAgropecuaria.Mista,
+          tipoDescricao: 'Mista',
+          atividades: grouped[TipoAtividadeAgropecuaria.Mista] || []
+        }
+      ].filter(group => group.atividades.length > 0);
+      
+      this.groupedActivities.set(groupedData);
+    }
+  });
+}</div>
+                </div>
+                
+                <div class="feature-card">
+                    <h3><i class="pi pi-eye"></i> Alternância de Visualização</h3>
+                    <div class="code-preview">
+// Alternância entre visualização agrupada e lista
+toggleView(): void {
+  const newGroupedView = !this.showGroupedView();
+  this.showGroupedView.set(newGroupedView);
+  
+  if (newGroupedView) {
+    this.selectedTipoFilter.set(null);
+    this.componentStateService.setCustomFilterValue('tipo', null);
+    this.loadGroupedActivities();
+  }
+}</div>
+                </div>
+            </div>
+
+            <!-- Filtros Customizados -->
+            <div class="demo-section">
+                <h2>🔍 Filtros Customizados</h2>
+                
+                <div class="code-preview">
+protected getCustomFilters(): CustomFilter[] {
+  return [
+    {
+      key: 'tipo',
+      label: 'Tipo de Atividade',
+      placeholder: 'Selecione um tipo',
+      options: [
+        { label: 'Todos os tipos', value: null },
+        ...this.tipoOptions().map(tipo => ({
+          label: tipo.label,
+          value: tipo.value
+        }))
+      ]
+    }
+  ];
+}</div>
+            </div>
+
+            <!-- Ações Customizadas -->
+            <div class="demo-section">
+                <h2>⚡ Ações Customizadas</h2>
+                
+                <div class="code-preview">
+protected getCustomActions(): CustomAction[] {
+  return [
+    {
+      key: 'toggle-view',
+      label: this.showGroupedView() ? 'Visualização Lista' : 'Visualização Agrupada',
+      icon: this.showGroupedView() ? 'pi pi-list' : 'pi pi-th-large',
+      action: () => this.toggleView(),
+      tooltip: 'Alternar entre visualização agrupada e lista'
+    }
+  ];
+}</div>
+            </div>
+
+            <!-- Configuração da Tabela -->
+            <div class="demo-section">
+                <h2>📊 Configuração da Tabela</h2>
+                
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Coluna</th>
+                            <th>Tipo</th>
+                            <th>Largura</th>
+                            <th>Responsivo</th>
+                            <th>Ordenável</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Código</td>
+                            <td>text</td>
+                            <td>120px</td>
+                            <td>Sempre visível</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>Descrição</td>
+                            <td>text</td>
+                            <td>300px</td>
+                            <td>Sempre visível</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>Tipo</td>
+                            <td>custom</td>
+                            <td>120px</td>
+                            <td>Sempre visível</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>Status</td>
+                            <td>boolean</td>
+                            <td>100px</td>
+                            <td>Oculto no mobile</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>Data Criação</td>
+                            <td>date</td>
+                            <td>150px</td>
+                            <td>Oculto no mobile/tablet</td>
+                            <td>✓</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Integração com Backend -->
+            <div class="demo-section">
+                <h2>🔗 Integração com Backend</h2>
+                
+                <h3>Endpoints Utilizados</h3>
+                <div class="code-preview">
+// AtividadeAgropecuariaService
+- obterTodos(): Observable&lt;AtividadeAgropecuariaDto[]&gt;
+- obterAtivos(): Observable&lt;AtividadeAgropecuariaDto[]&gt;
+- obterPorTipo(tipo: TipoAtividadeAgropecuaria): Observable&lt;AtividadeAgropecuariaDto[]&gt;
+- obterAgrupadasPorTipo(): Observable&lt;Record&lt;TipoAtividadeAgropecuaria, AtividadeAgropecuariaDto[]&gt;&gt;
+- buscarPorDescricao(termo: string): Observable&lt;AtividadeAgropecuariaDto[]&gt;
+- getTipoOptions(): { label: string; value: TipoAtividadeAgropecuaria }[]</div>
+            </div>
+
+            <!-- Estados de Loading -->
+            <div class="demo-section">
+                <h2>⏳ Estados de Loading</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class="pi pi-spin pi-spinner"></i> Loading Principal</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Carregamento de atividades</li>
+                            <li><span class="status-badge status-implemented">✓</span> Spinner centralizado</li>
+                            <li><span class="status-badge status-implemented">✓</span> Mensagem contextual</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-spin pi-cog"></i> Loading de Ações</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Loading por ação individual</li>
+                            <li><span class="status-badge status-implemented">✓</span> Desabilitação durante loading</li>
+                            <li><span class="status-badge status-implemented">✓</span> Indicadores visuais</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tratamento de Erros -->
+            <div class="demo-section">
+                <h2>🚨 Tratamento de Erros</h2>
+                
+                <div class="code-preview">
+// Erros de validação
+- required: "Campo obrigatório"
+- minlength: "Mínimo de X caracteres"
+- maxlength: "Máximo de X caracteres"
+- pattern: "Formato inválido (apenas letras maiúsculas e números)"
+
+// Erros de carregamento
+- load: "Erro ao carregar atividades agropecuárias"
+- filter-tipo: "Erro ao filtrar por tipo"
+- load-grouped: "Erro ao carregar atividades agrupadas"</div>
+            </div>
+
+            <!-- Próximos Passos -->
+            <div class="demo-section">
+                <h2>🚀 Próximos Passos</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class="pi pi-cog"></i> Melhorias Técnicas</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-new">📋</span> Cache de dados agrupados</li>
+                            <li><span class="status-badge status-new">📋</span> Lazy loading para grupos grandes</li>
+                            <li><span class="status-badge status-new">📋</span> Testes unitários</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-plus"></i> Funcionalidades</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-new">📋</span> Drag & drop entre grupos</li>
+                            <li><span class="status-badge status-new">📋</span> Exportação por tipo</li>
+                            <li><span class="status-badge status-new">📋</span> Relatórios por atividade</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

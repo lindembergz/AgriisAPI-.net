@@ -161,6 +161,94 @@ public class PaisesController : ReferenciaControllerBase<PaisDto, CriarPaisDto, 
     }
 
     /// <summary>
+    /// Obtém países com contadores de UFs
+    /// </summary>
+    [HttpGet("com-contadores")]
+    public async Task<IActionResult> ObterComContadores()
+    {
+        try
+        {
+            Logger.LogDebug("Obtendo países com contadores de UFs");
+            
+            var paises = await _paisService.ObterTodosAsync();
+            var paisesComContadores = new List<object>();
+            
+            foreach (var pais in paises)
+            {
+                var ufs = await _ufService.ObterPorPaisAsync(pais.Id);
+                paisesComContadores.Add(new
+                {
+                    pais.Id,
+                    pais.Codigo,
+                    pais.Nome,
+                    pais.Ativo,
+                    pais.DataCriacao,
+                    pais.DataAtualizacao,
+                    UfsCount = ufs.Count()
+                });
+            }
+            
+            Logger.LogDebug("Encontrados {Count} países com contadores", paisesComContadores.Count);
+            
+            return Ok(paisesComContadores);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erro ao obter países com contadores");
+            return StatusCode(500, new { 
+                ErrorCode = "INTERNAL_ERROR", 
+                ErrorDescription = "Erro interno do servidor",
+                TraceId = HttpContext.TraceIdentifier,
+                Timestamp = DateTime.UtcNow
+            });
+        }
+    }
+
+    /// <summary>
+    /// Obtém países ativos com contadores de UFs
+    /// </summary>
+    [HttpGet("ativos/com-contadores")]
+    public async Task<IActionResult> ObterAtivosComContadores()
+    {
+        try
+        {
+            Logger.LogDebug("Obtendo países ativos com contadores de UFs");
+            
+            var paises = await _paisService.ObterAtivosAsync();
+            var paisesComContadores = new List<object>();
+            
+            foreach (var pais in paises)
+            {
+                var ufs = await _ufService.ObterPorPaisAsync(pais.Id);
+                paisesComContadores.Add(new
+                {
+                    pais.Id,
+                    pais.Codigo,
+                    pais.Nome,
+                    pais.Ativo,
+                    pais.DataCriacao,
+                    pais.DataAtualizacao,
+                    UfsCount = ufs.Count()
+                });
+            }
+            
+            Logger.LogDebug("Encontrados {Count} países ativos com contadores", paisesComContadores.Count);
+            
+            return Ok(paisesComContadores);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erro ao obter países ativos com contadores");
+            return StatusCode(500, new { 
+                ErrorCode = "INTERNAL_ERROR", 
+                ErrorDescription = "Erro interno do servidor",
+                TraceId = HttpContext.TraceIdentifier,
+                Timestamp = DateTime.UtcNow
+            });
+        }
+    }
+
+    /// <summary>
     /// Obtém as UFs ativas de um país específico (otimizado para dropdowns)
     /// </summary>
     /// <param name="paisId">ID do país</param>

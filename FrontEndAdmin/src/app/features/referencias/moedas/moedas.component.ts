@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -12,25 +12,32 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CheckboxModule } from 'primeng/checkbox';
+
 import { ReferenceCrudBaseComponent } from '../../../shared/components/reference-crud-base/reference-crud-base.component';
 import { MoedaDto, CriarMoedaDto, AtualizarMoedaDto } from '../../../shared/models/reference.model';
 import { MoedaService } from './services/moeda.service';
 import { FieldValidatorsUtil } from '../../../shared/utils/field-validators.util';
 
-interface TableColumn {
-  field: string;
-  header: string;
-  sortable?: boolean;
-  width?: string;
-  type?: 'text' | 'boolean' | 'date' | 'custom';
-  hideOnMobile?: boolean;
-  hideOnTablet?: boolean;
-}
+import { 
+  ComponentTemplate, 
+  CustomAction, 
+  TableColumn, 
+  EmptyStateConfig, 
+  LoadingStateConfig, 
+  ResponsiveConfig,
+  DialogConfig,
+  DisplayMode
+} from '../../../shared/interfaces/unified-component.interfaces';
+import { CustomFilter } from '../../../shared/interfaces/component-template.interface';
+
+
 
 /**
- * Component for managing Moedas (Currencies) with CRUD operations
- * Extends ReferenceCrudBaseComponent for consistent behavior
+ * Component for managing Moedas (Currencies) with ISO 4217 compliance
+ * Shows currency symbols and validates currency codes
  */
+import { FieldErrorComponent } from '../../../shared/components/field-error/field-error.component';
+
 @Component({
   selector: 'app-moedas',
   standalone: true,
@@ -39,262 +46,29 @@ interface TableColumn {
     ReactiveFormsModule,
     FormsModule,
     InputTextModule,
-    TableModule,
-    ButtonModule,
     SelectModule,
+    ButtonModule,
+    TableModule,
     ConfirmDialogModule,
     ToastModule,
     ProgressSpinnerModule,
     TagModule,
     TooltipModule,
     DialogModule,
-    CheckboxModule
+    CheckboxModule,
+    FieldErrorComponent
   ],
-  template: `
-    <div class="reference-crud-container">
-      <!-- Header with title and actions -->
-      <div class="header-section">
-        <div class="title-section">
-          <h2>{{ entityDisplayName() }}</h2>
-          <p class="subtitle">{{ entityDescription() }}</p>
-        </div>
-        
-        <div class="actions-section">
-          <!-- Status Filter -->
-          <p-select
-            [options]="statusFilterOptions"
-            [ngModel]="selectedStatusFilter()"
-            (onChange)="onStatusFilterChange($event)"
-            placeholder="Filtrar por status"
-            optionLabel="label"
-            optionValue="value"
-            class="status-filter">
-          </p-select>
-          
-          <!-- New Entity Button -->
-          <p-button
-            [label]="'Nova ' + entityDisplayName()"
-            icon="pi pi-plus"
-            (onClick)="novoItem()"
-            class="p-button-primary new-item-btn">
-          </p-button>
-        </div>
-      </div>
-
-      <!-- Loading Spinner -->
-      <div *ngIf="loading()" class="loading-container">
-        <p-progressSpinner></p-progressSpinner>
-        <p>Carregando {{ entityDisplayName().toLowerCase() }}...</p>
-      </div>
-
-      <!-- Items Table -->
-      <div *ngIf="!loading()" class="table-container">
-        <p-table
-          [value]="items()"
-          [paginator]="true"
-          [rows]="pageSize()"
-          [totalRecords]="items().length"
-          [loading]="tableLoading()"
-          [sortMode]="'multiple'"
-          [multiSortMeta]="multiSortMeta()"
-          (onSort)="onSort($event)"
-          responsiveLayout="scroll"
-          class="p-datatable-sm">
-          
-          <ng-template pTemplate="header">
-            <tr>
-              <th *ngFor="let col of displayColumns()" 
-                  [pSortableColumn]="col.sortable ? col.field : null"
-                  [style.width]="col.width"
-                  [class.hide-on-mobile]="col.hideOnMobile"
-                  [class.hide-on-tablet]="col.hideOnTablet">
-                {{ col.header }}
-                <p-sortIcon *ngIf="col.sortable" [field]="col.field"></p-sortIcon>
-              </th>
-              <th style="width: 120px">Ações</th>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
-            <tr [class.highlighted-row]="highlightedRowIndex() === rowIndex">
-              <td *ngFor="let col of displayColumns()" 
-                  [class.hide-on-mobile]="col.hideOnMobile"
-                  [class.hide-on-tablet]="col.hideOnTablet">
-                <ng-container [ngSwitch]="col.type">
-                  <span *ngSwitchCase="'boolean'">
-                    <p-tag 
-                      [value]="item[col.field] ? 'Ativo' : 'Inativo'"
-                      [severity]="item[col.field] ? 'success' : 'danger'">
-                    </p-tag>
-                  </span>
-                  <span *ngSwitchDefault>{{ item[col.field] }}</span>
-                </ng-container>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <p-button
-                    icon="pi pi-pencil"
-                    [pTooltip]="'Editar ' + entityDisplayName().toLowerCase()"
-                    tooltipPosition="top"
-                    (onClick)="editarItem(item)"
-                    [loading]="isActionLoading('edit', item.id)"
-                    class="p-button-rounded p-button-text p-button-sm">
-                  </p-button>
-                  <p-button
-                    icon="pi pi-trash"
-                    [pTooltip]="'Excluir ' + entityDisplayName().toLowerCase()"
-                    tooltipPosition="top"
-                    (onClick)="confirmarExclusao(item)"
-                    [loading]="isActionLoading('delete', item.id)"
-                    class="p-button-rounded p-button-text p-button-sm p-button-danger">
-                  </p-button>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td [attr.colspan]="displayColumns().length + 1" class="text-center">
-                <div class="empty-state">
-                  <i class="pi pi-info-circle" style="font-size: 2rem; color: var(--text-color-secondary);"></i>
-                  <p>Nenhuma {{ entityDisplayName().toLowerCase() }} encontrada.</p>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </div>
-
-      <!-- Form Dialog -->
-      <p-dialog
-        [header]="selectedItem() ? 'Editar ' + entityDisplayName() : 'Nova ' + entityDisplayName()"
-        [visible]="showForm()"
-        (onHide)="cancelarEdicao()"
-        [modal]="true"
-        [closable]="true"
-        [draggable]="false"
-        [resizable]="false"
-        styleClass="form-dialog"
-        [style]="{ width: '500px' }">
-        
-        <form [formGroup]="form" (ngSubmit)="salvarItem()">
-          <div class="form-fields">
-            <!-- Código field -->
-            <div class="field">
-              <label for="codigo" class="required">Código</label>
-              <input
-                pInputText
-                id="codigo"
-                formControlName="codigo"
-                placeholder="Ex: BRL, USD, EUR"
-                maxlength="3"
-                [class.ng-invalid]="shouldShowError('codigo')"
-                [disabled]="isEditMode()"
-                class="w-full" />
-              <small 
-                *ngIf="shouldShowError('codigo')" 
-                class="p-error">
-                {{ getErrorMessage('codigo') }}
-              </small>
-              <small class="field-help">
-                Código da moeda com 3 caracteres (ISO 4217)
-              </small>
-            </div>
-
-            <!-- Nome field -->
-            <div class="field">
-              <label for="nome" class="required">Nome</label>
-              <input
-                pInputText
-                id="nome"
-                formControlName="nome"
-                placeholder="Ex: Real Brasileiro, Dólar Americano"
-                maxlength="100"
-                [class.ng-invalid]="shouldShowError('nome')"
-                class="w-full" />
-              <small 
-                *ngIf="shouldShowError('nome')" 
-                class="p-error">
-                {{ getErrorMessage('nome') }}
-              </small>
-            </div>
-
-            <!-- Símbolo field -->
-            <div class="field">
-              <label for="simbolo" class="required">Símbolo</label>
-              <input
-                pInputText
-                id="simbolo"
-                formControlName="simbolo"
-                placeholder="Ex: R$, US$, €"
-                maxlength="5"
-                [class.ng-invalid]="shouldShowError('simbolo')"
-                class="w-full" />
-              <small 
-                *ngIf="shouldShowError('simbolo')" 
-                class="p-error">
-                {{ getErrorMessage('simbolo') }}
-              </small>
-              <small class="field-help">
-                Símbolo da moeda para exibição
-              </small>
-            </div>
-
-            <!-- Ativo field -->
-            <div class="field">
-              <div class="flex align-items-center">
-                <p-checkbox
-                  id="ativo"
-                  formControlName="ativo"
-                  [binary]="true">
-                </p-checkbox>
-                <label for="ativo" class="ml-2">Ativo</label>
-              </div>
-              <small class="field-help">
-                Indica se a moeda está ativa no sistema
-              </small>
-            </div>
-          </div>
-        </form>
-        
-        <ng-template pTemplate="footer">
-          <div class="flex justify-content-end gap-2">
-            <p-button
-              label="Cancelar"
-              icon="pi pi-times"
-              (onClick)="cancelarEdicao()"
-              class="p-button-text">
-            </p-button>
-            <p-button
-              [label]="selectedItem() ? 'Atualizar' : 'Criar'"
-              icon="pi pi-check"
-              (onClick)="salvarItem()"
-              [loading]="formLoading()"
-              [disabled]="form.invalid"
-              class="p-button-primary">
-            </p-button>
-          </div>
-        </ng-template>
-      </p-dialog>
-
-      <!-- Confirmation Dialog -->
-      <p-confirmDialog></p-confirmDialog>
-      
-      <!-- Toast Messages -->
-      <p-toast></p-toast>
-    </div>
-  `,
+  providers: [],
+  templateUrl: './moedas.component.html',
   styleUrls: ['./moedas.component.scss']
 })
 export class MoedasComponent extends ReferenceCrudBaseComponent<
   MoedaDto,
   CriarMoedaDto,
   AtualizarMoedaDto
-> {
-  
+> implements OnInit {
+
   protected service = inject(MoedaService);
-  private fieldValidators = inject(FieldValidatorsUtil);
 
   // Entity configuration
   protected entityDisplayName = () => 'Moeda';
@@ -302,44 +76,70 @@ export class MoedasComponent extends ReferenceCrudBaseComponent<
   protected defaultSortField = () => 'codigo';
   protected searchFields = () => ['codigo', 'nome', 'simbolo'];
 
-  // Table columns configuration
-  protected displayColumns = (): TableColumn[] => [
-    {
-      field: 'codigo',
+  // =============================================================================
+  // UNIFIED FRAMEWORK IMPLEMENTATION
+  // =============================================================================
+
+  displayColumns: () => TableColumn[] = () => [
+        {
+      field: 'id',
       header: 'Código',
       sortable: true,
-      width: '120px'
+      width: '120px',
+      align: 'center',
+      type: 'text'
     },
+
     {
       field: 'nome',
       header: 'Nome',
       sortable: true,
-      width: '300px'
+      width: '300px',
+      type: 'text'
     },
     {
       field: 'simbolo',
       header: 'Símbolo',
       sortable: true,
-      width: '100px'
-    },
-    {
-      field: 'ativo',
-      header: 'Status',
-      sortable: true,
       width: '100px',
-      type: 'boolean',
-      hideOnMobile: true
+      type: 'custom',
+      align: 'center'
     },
     {
-      field: 'dataCriacao',
-      header: 'Criado em',
+      field: 'codigo',
+      header: 'Cód Transação comercial da moeda',
       sortable: true,
-      width: '150px',
-      type: 'date',
-      hideOnMobile: true,
-      hideOnTablet: true
-    }
+      width: '120px',
+      align: 'center',
+      type: 'text'
+    },
   ];
+
+  /**
+   * Get custom filters configuration
+   */
+  protected getCustomFilters(): CustomFilter[] {
+    return [];
+  }
+
+  /**
+   * Get custom actions configuration
+   */
+  protected getCustomActions(): CustomAction[] {
+    return [];
+  }
+
+  ngOnInit(): void {
+    try {
+      super.ngOnInit();
+    } catch (error) {
+      console.error('Error initializing MoedasComponent:', error);
+    }
+  }
+
+  // =============================================================================
+  // UTILITY METHODS FOR TEMPLATE
+  // =============================================================================
 
   /**
    * Create reactive form with validation
@@ -400,5 +200,204 @@ export class MoedasComponent extends ReferenceCrudBaseComponent<
       simbolo: item.simbolo,
       ativo: item.ativo
     });
+  }
+
+  // Additional methods needed by template
+
+  /**
+   * Get dialog title
+   */
+  dialogTitle(): string {
+    return this.selectedItem() ? `Editar ${this.entityDisplayName()}` : `Nova ${this.entityDisplayName()}`;
+  }
+
+  /**
+   * Check if is edit mode
+   */
+  isEditMode(): boolean {
+    return this.selectedItem() !== null;
+  }
+
+  /**
+   * Get dialog style
+   */
+  getDialogStyle(): any {
+    return { width: '450px' };
+  }
+
+  /**
+   * Get page report template
+   */
+  getPageReportTemplate(): string {
+    return 'Mostrando {first} a {last} de {totalRecords} moedas';
+  }
+
+  /**
+   * Check if mobile
+   */
+  isMobile(): boolean {
+    return window.innerWidth < 768;
+  }
+
+  /**
+   * Check if tablet
+   */
+  isTablet(): boolean {
+    return window.innerWidth >= 768 && window.innerWidth < 1024;
+  }
+
+  /**
+   * Check if row is highlighted
+   */
+  isRowHighlighted(rowIndex: number): boolean {
+    return this.highlightedRowIndex() === rowIndex;
+  }
+
+  /**
+   * Get status label
+   */
+  getStatusLabel(ativo: boolean): string {
+    return ativo ? 'Ativo' : 'Inativo';
+  }
+
+  /**
+   * Get status severity
+   */
+  getStatusSeverity(ativo: boolean): string {
+    return ativo ? 'success' : 'danger';
+  }
+
+  /**
+   * Format date
+   */
+  formatarData(data: string | Date): string {
+    if (!data) return '-';
+    const date = new Date(data);
+    return date.toLocaleDateString('pt-BR');
+  }
+
+  /**
+   * Get field value
+   */
+  getFieldValue(item: any, field: string): string {
+    const value = field.split('.').reduce((obj, key) => obj?.[key], item);
+    return value || '-';
+  }
+
+  /**
+   * Check if action is loading
+   */
+  isActionLoading(action: string, itemId: number): boolean {
+    return this.actionLoadingStates().get(`${action}-${itemId}`) !== undefined;
+  }
+
+  /**
+   * Check if any action is loading
+   */
+  hasAnyActionLoading(): boolean {
+    return this.actionLoadingStates().size > 0;
+  }
+
+  /**
+   * Get active filters summary
+   */
+  getActiveFiltersSummary(): any[] {
+    const filters = [];
+    
+    if (this.searchTerm()) {
+      filters.push({
+        key: 'search',
+        label: `Busca: "${this.searchTerm()}"`,
+        removable: true
+      });
+    }
+    
+    if (this.selectedStatusFilter() !== 'todas') {
+      const statusLabel = this.statusFilterOptions.find(s => s.value === this.selectedStatusFilter())?.label;
+      filters.push({
+        key: 'status',
+        label: `Status: ${statusLabel}`,
+        removable: true
+      });
+    }
+    
+    return filters;
+  }
+
+  /**
+   * Remove specific filter
+   */
+  removeFilter(filterKey: string): void {
+    switch (filterKey) {
+      case 'search':
+        this.clearSearch();
+        break;
+      case 'status':
+        this.selectedStatusFilter.set('todas');
+        break;
+    }
+  }
+
+  /**
+   * Handle search change
+   */
+  onSearchChange(event: any): void {
+    this.searchTerm.set(event.target.value);
+  }
+
+  /**
+   * Clear search
+   */
+  clearSearch(): void {
+    this.searchTerm.set('');
+  }
+
+  /**
+   * Handle status filter change
+   */
+  onStatusFilterChange(event: any): void {
+    this.selectedStatusFilter.set(event.value);
+  }
+
+  /**
+   * Get currency symbol display
+   */
+  getCurrencySymbolDisplay(simbolo: string): string {
+    return simbolo || '-';
+  }
+
+  /**
+   * Get currency symbol class
+   */
+  getCurrencySymbolClass(codigo: string): string {
+    return `currency-${codigo?.toLowerCase() || 'default'}`;
+  }
+
+  // Additional signals needed by template (these should be in base component)
+  pageSize = signal<number>(10);
+  multiSortMeta = signal<any[]>([]);
+  actionLoadingStates = signal<Map<string, number>>(new Map());
+  highlightedRowIndex = signal<number>(-1);
+  currentLoadingMessage = signal<string>('Carregando moedas...');
+
+  /**
+   * Handle sort event
+   */
+  onSort(event: any): void {
+    this.multiSortMeta.set(event.multiSortMeta || []);
+  }
+
+  /**
+   * Handle page change event
+   */
+  onPageChange(event: any): void {
+    this.pageSize.set(event.rows);
+  }
+
+  /**
+   * Get visible columns
+   */
+  getVisibleColumns() {
+    return this.displayColumns();
   }
 }

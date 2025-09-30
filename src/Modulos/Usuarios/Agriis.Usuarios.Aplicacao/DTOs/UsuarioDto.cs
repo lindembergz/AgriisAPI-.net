@@ -38,9 +38,9 @@ public class UsuarioDto
     public bool Ativo { get; set; }
     
     /// <summary>
-    /// Data do último login
+    /// Data do último login (UTC com timezone)
     /// </summary>
-    public DateTime? UltimoLogin { get; set; }
+    public DateTimeOffset? UltimoLogin { get; set; }
     
     /// <summary>
     /// URL da logo/avatar do usuário
@@ -48,14 +48,14 @@ public class UsuarioDto
     public string? LogoUrl { get; set; }
     
     /// <summary>
-    /// Data de criação
+    /// Data de criação (UTC com timezone)
     /// </summary>
-    public DateTime DataCriacao { get; set; }
+    public DateTimeOffset DataCriacao { get; set; }
     
     /// <summary>
-    /// Data da última atualização
+    /// Data da última atualização (UTC com timezone)
     /// </summary>
-    public DateTime? DataAtualizacao { get; set; }
+    public DateTimeOffset? DataAtualizacao { get; set; }
     
     /// <summary>
     /// Roles do usuário

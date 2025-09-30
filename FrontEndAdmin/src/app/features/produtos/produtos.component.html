@@ -1,0 +1,319 @@
+<div class="produtos-container">
+  <!-- Header with title and primary actions -->
+  <div class="header-section">
+    <div class="title-section">
+      <h2 class="entity-title">{{ entityDisplayName() }}</h2>
+      <p class="entity-subtitle">{{ entityDescription() }}</p>
+    </div>
+    <div class="actions-section">
+      <p-button
+        [label]="'Novo ' + entityDisplayName()"
+        icon="pi pi-plus"
+        (onClick)="novoItem()"
+        class="p-button-primary new-item-btn"
+        [disabled]="loading()">
+      </p-button>
+    </div>
+  </div>
+  <!-- Filters Section -->
+  <div class="filters-section" *ngIf="!loading()">
+    <div class="filters-header">
+      <h3>Filtros</h3>
+      <p-button
+        label="Limpar Filtros"
+        icon="pi pi-times"
+        (onClick)="limparFiltros()"
+        class="p-button-text p-button-sm"
+        [disabled]="!temFiltrosAtivos()">
+      </p-button>
+    </div>
+    
+    <div class="filters-grid">
+      <!-- Categoria Filter -->
+      <div class="filter-field">
+        <label for="filtroCategoria">Categoria</label>
+        <p-select
+          id="filtroCategoria"
+          [(ngModel)]="filtroCategoria"
+          [options]="categoriasParaFiltro()"
+          optionLabel="nome"
+          optionValue="id"
+          placeholder="Todas as categorias"
+          (onChange)="aplicarFiltros()"
+          [showClear]="true"
+          [filter]="true"
+          filterBy="nome">
+        </p-select>
+      </div>
+
+      <!-- Unidade de Medida Filter -->
+      <div class="filter-field">
+        <label for="filtroUnidade">Unidade de Medida</label>
+        <p-select
+          id="filtroUnidade"
+          [(ngModel)]="filtroUnidadeMedida"
+          [options]="unidadesParaFiltro()"
+          optionLabel="nome"
+          optionValue="id"
+          placeholder="Todas as unidades"
+          (onChange)="aplicarFiltros()"
+          [showClear]="true"
+          [filter]="true"
+          filterBy="nome">
+        </p-select>
+      </div>
+
+      <!-- Atividade Agropecuária Filter -->
+      <div class="filter-field">
+        <label for="filtroAtividade">Atividade Agropecuária</label>
+        <p-select
+          id="filtroAtividade"
+          [(ngModel)]="filtroAtividadeAgropecuaria"
+          [options]="atividadesParaFiltro()"
+          optionLabel="nome"
+          optionValue="id"
+          placeholder="Todas as atividades"
+          (onChange)="aplicarFiltros()"
+          [showClear]="true"
+          [filter]="true"
+          filterBy="nome">
+        </p-select>
+      </div>
+
+      <!-- Search Field -->
+      <div class="filter-field">
+        <label for="filtroTexto">Buscar</label>
+        <span class="p-input-icon-left">
+          <input
+            id="filtroTexto"
+            type="text"
+            pInputText
+            [(ngModel)]="filtroTexto"
+            (input)="onBuscaChange($event)"
+            placeholder="Buscar por código, nome..."
+            class="search-input">
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items Table -->
+  <div *ngIf="!loading()" class="table-container">
+    <p-table
+      [value]="items()"
+      [paginator]="true"
+      [rows]="pageSize()"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [sortMode]="'multiple'"
+      [multiSortMeta]="multiSortMeta()"
+      [loading]="tableLoading()"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-gridlines p-datatable-striped produtos-table"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+      [resizableColumns]="true"
+      columnResizeMode="expand"
+      [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template pTemplate="header">
+        <tr>
+          <th *ngFor="let col of displayColumns()" 
+              [pSortableColumn]="col.sortable ? col.field : null"
+              [style.width]="col.width"
+              [class.hide-on-mobile]="col.hideOnMobile"
+              [class.hide-on-tablet]="col.hideOnTablet">
+            <div class="header-content">
+              <span class="header-text">{{ col.header }}</span>
+              <p-sortIcon *ngIf="col.sortable" [field]="col.field"></p-sortIcon>
+            </div>
+          </th>
+          <th style="width: 120px"><span class="header-text">Ações</span></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+        <tr [class.highlighted-row]="highlightedRowIndex() === rowIndex">
+          <td *ngFor="let col of displayColumns()" 
+              [class.hide-on-mobile]="col.hideOnMobile"
+              [class.hide-on-tablet]="col.hideOnTablet">
+            <ng-container [ngSwitch]="col.type">
+              <span *ngSwitchCase="'boolean'">
+                <p-tag 
+                  [value]="item[col.field] ? 'Ativo' : 'Inativo'"
+                  [severity]="item[col.field] ? 'success' : 'danger'">
+                </p-tag>
+              </span>
+              <span *ngSwitchCase="'custom'" [ngSwitch]="col.field">
+                <span *ngSwitchCase="'preco'" [class]="getPrecoClass(item.preco)">
+                  {{ formatarPreco(item.preco) }}
+                </span>
+              </span>
+              <span *ngSwitchDefault>{{ item[col.field] }}</span>
+            </ng-container>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <p-button
+                icon="pi pi-pencil"
+                [pTooltip]="'Editar ' + entityDisplayName().toLowerCase()"
+                tooltipPosition="top"
+                (onClick)="editarItem(item)"
+                [loading]="isActionLoading('edit', item.id)"
+                class="p-button-rounded p-button-text p-button-info edit-btn">
+              </p-button>
+              <p-button
+                icon="pi pi-trash"
+                [pTooltip]="'Excluir ' + entityDisplayName().toLowerCase()"
+                tooltipPosition="top"
+                (onClick)="confirmarExclusao(item)"
+                [loading]="isActionLoading('delete', item.id)"
+                class="p-button-rounded p-button-text p-button-danger delete-btn">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="displayColumns().length + 1" class="text-center">
+            <div class="empty-state">
+              <i class="pi pi-info-circle" style="font-size: 2rem; color: var(--text-color-secondary);"></i>
+              <p>Nenhum {{ entityDisplayName().toLowerCase() }} encontrado.</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Dialog/Modal for form fields (use base component's showForm signal) -->
+  <p-dialog
+    [header]="dialogTitle()"
+    [visible]="showForm()"
+    (visibleChange)="showForm.set($event)"
+    [modal]="true"
+    [style]="{ width: '1000px' }"
+    styleClass="reference-dialog modern-dialog"
+    (onHide)="onDialogHide()">
+
+    <form [formGroup]="form" (ngSubmit)="salvarItem()" class="reference-form p-fluid">
+      <!-- Layout moderno com PrimeNG FlexGrid: As seções abaixo usam 'formgrid' e 'grid' para criar um layout responsivo.
+           Os campos são organizados em colunas com as classes 'field' e 'col-*'.
+           Ex: 'col-12 md:col-6' significa que o campo ocupará 100% da largura em telas pequenas e 50% em telas médias ou maiores. -->
+
+        <h3 class="section-title">Descrição do produto, Embalagem, peso e outras</h3>
+        <div class="formgrid grid" style="gap:1rem;">
+          <div class="field col-12 md:col-3">
+            <p-select id="tipo" formControlName="tipo" [options]="tiposProduto" placeholder="Tipo" optionLabel="label" optionValue="value"></p-select>
+          </div>
+          <div class="field col-12 md:col-3">
+            <input id="codigo" type="text" pInputText formControlName="codigo" placeholder="Código" maxlength="20">
+          </div>
+          <div class="field col-12 md:col-3">
+            <input id="nome" type="text" pInputText formControlName="nome" placeholder="Nome" maxlength="200">
+          </div> 
+        </div>
+
+
+
+       <h3 class="section-title">Embalagem, unidade e quantidade</h3>
+        <div class="formgrid grid" style="gap:1rem;">             
+          <div class="field ">
+            <p-select id="embalagem" formControlName="embalagemId" [options]="embalagensDisponiveis()" placeholder="Embalagem" optionLabel="nome" optionValue="id"></p-select>
+          </div>
+          <div class="field ">
+            <p-select id="unidadeMedida" formControlName="unidadeMedidaId" [options]="unidadesMedida()" placeholder="Unidade" optionLabel="nome" optionValue="id"></p-select>
+          </div>
+          <div class="field ">
+            <input id="cda" type="text" pInputText formControlName="codigoCda" placeholder="Cód. CDA" maxlength="30">
+          </div>
+        </div>
+ 
+      <div formGroupName="dimensoes">
+        <div class="form-section">
+          <h3 class="section-title">Dimensões da embalagem e peso</h3>
+          <div class="formgrid grid" style="gap:1rem;">
+            <div class="field">
+              <p-inputNumber id="quantidadeMinima" formControlName="quantidadeMinima" placeholder="Qtde na embalagem" [min]="1"></p-inputNumber>
+            </div>
+            <div class="field">
+              <p-inputNumber id="comprimento" formControlName="comprimento" placeholder="Comprimento (cm)" [min]="0"></p-inputNumber>
+            </div>
+            <div class="field">
+              <p-inputNumber id="largura" formControlName="largura" placeholder="Largura (cm)" [min]="0"></p-inputNumber>
+            </div>
+            <div class="field">
+              <p-inputNumber id="altura" formControlName="altura" placeholder="Altura (cm)" [min]="0"></p-inputNumber>
+            </div>
+            <div class="field">
+              <p-inputNumber id="pesoEmbalagem" formControlName="pesoEmbalagem" placeholder="Peso embal. (kg)" [min]="0"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">Faixa de densidades inicial e final (g/cm³)</h3>
+          <div class="formgrid grid" style="gap:1rem;">
+            <div class="field">
+              <p-inputNumber id="faixaDensidadeInicial" formControlName="faixaDensidadeInicial" placeholder="Densidade inicial" [min]="0" [max]="100"></p-inputNumber>
+            </div>
+            <div class="field">
+              <p-inputNumber id="faixaDensidadeFinal" formControlName="faixaDensidadeFinal" placeholder="Densidade final" [min]="0" [max]="100"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <h3 class="section-title">Peso para Frete</h3>
+          <div class="formgrid grid" style="gap:1rem;">
+            <div class="field">
+              <p-inputNumber id="pesoNominal" formControlName="pesoNominal" placeholder="Peso Nominal ou cubado" [min]="0"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-title">Cálculo Cubagem e Restrição</h3>
+        <div class="formgrid grid" style="gap:1rem;">
+          <div class="field">
+            <p-select id="tipoCalculoPeso" formControlName="tipoCalculoPeso" [options]="tiposCalculoPeso" placeholder="Cálculo Cubagem" optionLabel="label" optionValue="value"></p-select>
+          </div>
+           <div class="field-checkbox">
+              <p-checkbox formControlName="produtoRestrito" [binary]="true" inputId="produtoRestrito"></p-checkbox>
+              <label for="produtoRestrito">Produto restrito</label>
+            </div>
+        </div>
+      </div>
+
+
+
+      <div class="form-section">
+        <h3 class="section-title">Anexar arquivos do produto</h3>
+        <div class="formgrid grid" style="gap:1rem;">
+          <div class="field col-12 md:col-5">
+            <input type="file" id="bula" class="p-inputtext" placeholder="Bula" />
+          </div>
+          <div class="field col-12 md:col-5">
+            <input type="file" id="fichaEmergencia" class="p-inputtext" placeholder="Ficha de emergência" />
+          </div>
+
+        </div>
+       <div class="formgrid grid" style="gap:1rem;">
+                  <div class="field col-12 md:col-5">
+            <input type="file" id="fichaSeguranca" class="p-inputtext" placeholder="Ficha de Segurança" />
+          </div>
+         <div class="field col-12 md:col-5">
+            <input type="file" id="fichaSeguranca" class="p-inputtext" placeholder="Folder" />
+          </div>
+          </div>
+      </div>
+
+      <ng-template pTemplate="footer">
+        <div class="p-d-flex p-jc-between p-ai-center" style="width:100%;">
+          <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-text" (click)="cancelarEdicao()"></p-button>
+          <p-button type="submit" [label]="isEditMode() ? 'Salvar Alterações' : 'Criar Produto'" icon="pi pi-check" [loading]="formLoading()" styleClass="p-button-primary"></p-button>
+        </div>
+      </ng-template>
+    </form>
+  </p-dialog>
+
+</div>

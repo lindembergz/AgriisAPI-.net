@@ -115,6 +115,28 @@ public class UfService : ReferenciaServiceBase<Uf, UfDto, CriarUfDto, AtualizarU
     }
 
     /// <summary>
+    /// Obtém uma UF por código
+    /// </summary>
+    public async Task<UfDto?> ObterPorCodigoAsync(string codigo, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            Logger.LogDebug("Obtendo UF com código {Codigo}", codigo);
+            
+            var uf = await _ufRepository.ObterPorCodigoAsync(codigo, cancellationToken);
+            var dto = Mapper.Map<UfDto>(uf);
+            
+            Logger.LogDebug("UF com código {Codigo} {Encontrada}", codigo, dto != null ? "encontrada" : "não encontrada");
+            return dto;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erro ao obter UF com código {Codigo}", codigo);
+            throw;
+        }
+    }
+
+    /// <summary>
     /// Verifica se uma entidade pode ser removida
     /// </summary>
     public override async Task<bool> PodeRemoverAsync(int id, CancellationToken cancellationToken = default)

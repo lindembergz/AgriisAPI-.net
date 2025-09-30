@@ -10,15 +10,15 @@ public class CatalogoMappingProfile : Profile
     {
         CreateMap<Catalogo, CatalogoDto>();
         CreateMap<CriarCatalogoDto, Catalogo>()
-            .ConstructUsing(src => new Catalogo(
-                src.SafraId,
-                src.PontoDistribuicaoId,
-                src.CulturaId,
-                src.CategoriaId,
-                src.Moeda,
-                src.DataInicio,
-                src.DataFim));
-        
+     .ConstructUsing(src => new Catalogo(
+         src.SafraId,
+         src.PontoDistribuicaoId,
+         src.CulturaId,
+         src.CategoriaId,
+         src.Moeda,
+         src.DataInicio,
+         src.DataFim));
+
         CreateMap<CatalogoItem, CatalogoItemDto>();
         CreateMap<CriarCatalogoItemDto, CatalogoItem>()
             .ConstructUsing((src, context) => new CatalogoItem(

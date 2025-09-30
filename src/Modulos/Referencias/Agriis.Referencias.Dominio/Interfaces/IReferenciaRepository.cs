@@ -26,6 +26,14 @@ public interface IReferenciaRepository<T> : IRepository<T> where T : EntidadeBas
     Task<bool> ExisteCodigoAsync(string codigo, int? idExcluir = null, CancellationToken cancellationToken = default);
     
     /// <summary>
+    /// Obtém uma entidade por código
+    /// </summary>
+    /// <param name="codigo">Código da entidade</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Entidade encontrada ou null</returns>
+    Task<T?> ObterPorCodigoAsync(string codigo, CancellationToken cancellationToken = default);
+    
+    /// <summary>
     /// Verifica se existe uma entidade com o nome especificado
     /// </summary>
     /// <param name="nome">Nome a ser verificado</param>

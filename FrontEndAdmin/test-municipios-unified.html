@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Municípios Unificado</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeng@17.0.0/resources/themes/lara-light-blue/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeng@17.0.0/resources/primeng.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeicons@6.0.1/primeicons.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .demo-section {
+            margin-bottom: 3rem;
+        }
+        
+        .demo-section h2 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            background: #fafafa;
+        }
+        
+        .feature-card h3 {
+            color: #667eea;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-implemented {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-enhanced {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-new {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .code-preview {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 1rem;
+            border-left: 4px solid #ffc107;
+            margin: 1rem 0;
+        }
+        
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        .api-table th,
+        .api-table td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        .api-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .api-table code {
+            background: #f8f9fa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .content {
+                padding: 1rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏙️ Componente Municípios Unificado</h1>
+            <p>Sistema de gerenciamento de municípios com seleção cascateada de UF</p>
+        </div>
+        
+        <div class="content">
+            <!-- Visão Geral -->
+            <div class="demo-section">
+                <h2>📋 Visão Geral</h2>
+                <p>O componente de Municípios implementa o padrão unificado com funcionalidades específicas para gerenciamento de municípios brasileiros, incluindo seleção cascateada de País → UF → Município e validação de códigos IBGE.</p>
+                
+                <div class="highlight">
+                    <strong>🎯 Objetivo:</strong> Fornecer uma interface consistente para gerenciar municípios com relacionamentos hierárquicos e validações específicas do Brasil.
+                </div>
+            </div>
+
+            <!-- Funcionalidades Implementadas -->
+            <div class="demo-section">
+                <h2>✅ Funcionalidades Implementadas</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class="pi pi-sitemap"></i> Seleção Cascateada</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> País → UF → Município</li>
+                            <li><span class="status-badge status-implemented">✓</span> Auto-seleção do Brasil</li>
+                            <li><span class="status-badge status-implemented">✓</span> Carregamento dinâmico de UFs</li>
+                            <li><span class="status-badge status-implemented">✓</span> Filtros interdependentes</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-shield"></i> Validações</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Código IBGE único (7 dígitos)</li>
+                            <li><span class="status-badge status-implemented">✓</span> Nome único por UF</li>
+                            <li><span class="status-badge status-implemented">✓</span> Validação assíncrona</li>
+                            <li><span class="status-badge status-implemented">✓</span> Campos obrigatórios</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-search"></i> Busca e Filtros</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Busca por nome e código IBGE</li>
+                            <li><span class="status-badge status-implemented">✓</span> Filtro por país</li>
+                            <li><span class="status-badge status-implemented">✓</span> Filtro por UF</li>
+                            <li><span class="status-badge status-implemented">✓</span> Filtro por status (ativo/inativo)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-table"></i> Exibição de Dados</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Tabela responsiva</li>
+                            <li><span class="status-badge status-implemented">✓</span> Colunas customizadas</li>
+                            <li><span class="status-badge status-implemented">✓</span> Ordenação múltipla</li>
+                            <li><span class="status-badge status-implemented">✓</span> Paginação</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estrutura de Dados -->
+            <div class="demo-section">
+                <h2>🗂️ Estrutura de Dados</h2>
+                
+                <h3>MunicipioDto</h3>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th>Validação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>id</code></td>
+                            <td>number</td>
+                            <td>Identificador único</td>
+                            <td>Auto-gerado</td>
+                        </tr>
+                        <tr>
+                            <td><code>nome</code></td>
+                            <td>string</td>
+                            <td>Nome do município</td>
+                            <td>Obrigatório, 2-100 chars, único por UF</td>
+                        </tr>
+                        <tr>
+                            <td><code>codigoIbge</code></td>
+                            <td>string</td>
+                            <td>Código IBGE do município</td>
+                            <td>Obrigatório, 7 dígitos, único</td>
+                        </tr>
+                        <tr>
+                            <td><code>ufId</code></td>
+                            <td>number</td>
+                            <td>ID da UF</td>
+                            <td>Obrigatório</td>
+                        </tr>
+                        <tr>
+                            <td><code>uf</code></td>
+                            <td>UfDto</td>
+                            <td>Dados da UF</td>
+                            <td>Relacionamento</td>
+                        </tr>
+                        <tr>
+                            <td><code>ativo</code></td>
+                            <td>boolean</td>
+                            <td>Status do município</td>
+                            <td>Padrão: true</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Funcionalidades Específicas -->
+            <div class="demo-section">
+                <h2>🔧 Funcionalidades Específicas</h2>
+                
+                <div class="feature-card">
+                    <h3><i class="pi pi-link"></i> Seleção Cascateada</h3>
+                    <div class="code-preview">
+// Configuração da seleção cascateada
+setupCustomFilters(): void {
+  // País → UF
+  this.componentStateService.getCustomFilterValue('pais').subscribe(paisId => {
+    if (paisId) {
+      this.carregarUfsPorPais(paisId);
+    } else {
+      this.ufsOptions.set([]);
+    }
+  });
+  
+  // UF → Municípios
+  this.componentStateService.getCustomFilterValue('uf').subscribe(ufId => {
+    this.selectedUfFilter.set(ufId);
+    this.carregarItens();
+  });
+}</div>
+                </div>
+                
+                <div class="feature-card">
+                    <h3><i class="pi pi-check-circle"></i> Validações Assíncronas</h3>
+                    <div class="code-preview">
+// Validação de código IBGE único
+private validarCodigoIbgeUnico(control: any) {
+  const codigoIbge = control.value.trim();
+  const municipioId = this.getSelectedItem()?.id;
+  
+  return this.service.validarCodigoIbgeUnico(codigoIbge, municipioId).pipe(
+    map(isUnique => isUnique ? null : { codigoIbgeNaoUnico: true })
+  );
+}
+
+// Validação de nome único por UF
+private validarNomeUnico(control: any) {
+  const nome = control.value.trim();
+  const ufId = parseInt(this.form.get('ufId')?.value);
+  const municipioId = this.getSelectedItem()?.id;
+  
+  return this.service.validarNomeUnico(nome, ufId, municipioId).pipe(
+    map(isUnique => isUnique ? null : { nomeNaoUnico: true })
+  );
+}</div>
+                </div>
+            </div>
+
+            <!-- Filtros Customizados -->
+            <div class="demo-section">
+                <h2>🔍 Filtros Customizados</h2>
+                
+                <div class="code-preview">
+protected getCustomFilters(): CustomFilter[] {
+  return [
+    {
+      key: 'pais',
+      label: 'País',
+      placeholder: 'Selecione um país',
+      options: [
+        { label: 'Todos os países', value: null },
+        ...this.paisesOptions().map(pais => ({
+          label: pais.nome,
+          value: pais.id
+        }))
+      ]
+    },
+    {
+      key: 'uf',
+      label: 'UF',
+      placeholder: 'Selecione uma UF',
+      options: [
+        { label: 'Todas as UFs', value: null },
+        ...this.ufsOptions().map(uf => ({
+          label: `${uf.codigo} - ${uf.nome}`,
+          value: uf.id
+        }))
+      ]
+    }
+  ];
+}</div>
+            </div>
+
+            <!-- Colunas da Tabela -->
+            <div class="demo-section">
+                <h2>📊 Configuração da Tabela</h2>
+                
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Coluna</th>
+                            <th>Tipo</th>
+                            <th>Largura</th>
+                            <th>Responsivo</th>
+                            <th>Ordenável</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Nome</td>
+                            <td>text</td>
+                            <td>300px</td>
+                            <td>Sempre visível</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>Código IBGE</td>
+                            <td>text</td>
+                            <td>150px</td>
+                            <td>Oculto no mobile</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>UF</td>
+                            <td>custom</td>
+                            <td>100px</td>
+                            <td>Sempre visível</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>País</td>
+                            <td>custom</td>
+                            <td>150px</td>
+                            <td>Oculto no mobile/tablet</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>Status</td>
+                            <td>boolean</td>
+                            <td>100px</td>
+                            <td>Oculto no mobile</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>Data Criação</td>
+                            <td>date</td>
+                            <td>150px</td>
+                            <td>Oculto no mobile/tablet</td>
+                            <td>✓</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Integração com Backend -->
+            <div class="demo-section">
+                <h2>🔗 Integração com Backend</h2>
+                
+                <h3>Endpoints Utilizados</h3>
+                <div class="code-preview">
+// MunicipioService
+- obterAtivos(): Observable&lt;MunicipioDto[]&gt;
+- obterComUf(): Observable&lt;MunicipioDto[]&gt;
+- obterPorUf(ufId: number): Observable&lt;MunicipioDto[]&gt;
+- obterAtivosPorUf(ufId: number): Observable&lt;MunicipioDto[]&gt;
+- buscarPorNome(nome: string, ufId?: number): Observable&lt;MunicipioDto[]&gt;
+- validarCodigoIbgeUnico(codigo: string, id?: number): Observable&lt;boolean&gt;
+- validarNomeUnico(nome: string, ufId: number, id?: number): Observable&lt;boolean&gt;
+
+// UfService
+- obterAtivos(): Observable&lt;UfDto[]&gt;
+- obterAtivosPorPais(paisId: number): Observable&lt;UfDto[]&gt;
+
+// PaisService
+- obterAtivos(): Observable&lt;PaisDto[]&gt;</div>
+            </div>
+
+            <!-- Estados de Loading -->
+            <div class="demo-section">
+                <h2>⏳ Estados de Loading</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class="pi pi-spin pi-spinner"></i> Loading Principal</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Carregamento de municípios</li>
+                            <li><span class="status-badge status-implemented">✓</span> Spinner centralizado</li>
+                            <li><span class="status-badge status-implemented">✓</span> Mensagem contextual</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-spin pi-cog"></i> Loading de Relacionamentos</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Loading de países</li>
+                            <li><span class="status-badge status-implemented">✓</span> Loading de UFs</li>
+                            <li><span class="status-badge status-implemented">✓</span> Indicadores nos dropdowns</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tratamento de Erros -->
+            <div class="demo-section">
+                <h2>🚨 Tratamento de Erros</h2>
+                
+                <div class="code-preview">
+// Erros de validação
+- codigoIbgeNaoUnico: "Este código IBGE já está em uso"
+- nomeNaoUnico: "Já existe um município com este nome nesta UF"
+- required: "Campo obrigatório"
+- pattern: "Código IBGE deve ter 7 dígitos"
+
+// Erros de carregamento
+- load-paises: "Erro ao carregar países"
+- load-ufs: "Erro ao carregar UFs"
+- load: "Erro ao carregar municípios"</div>
+            </div>
+
+            <!-- Próximos Passos -->
+            <div class="demo-section">
+                <h2>🚀 Próximos Passos</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class="pi pi-cog"></i> Melhorias Técnicas</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-new">📋</span> Implementar cache de UFs</li>
+                            <li><span class="status-badge status-new">📋</span> Otimizar carregamento</li>
+                            <li><span class="status-badge status-new">📋</span> Adicionar testes unitários</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-plus"></i> Funcionalidades</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-new">📋</span> Importação em lote</li>
+                            <li><span class="status-badge status-new">📋</span> Exportação de dados</li>
+                            <li><span class="status-badge status-new">📋</span> Histórico de alterações</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

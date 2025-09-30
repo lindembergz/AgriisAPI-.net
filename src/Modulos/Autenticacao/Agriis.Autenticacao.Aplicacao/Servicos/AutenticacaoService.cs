@@ -76,7 +76,7 @@ public class AutenticacaoService : IAutenticacaoService
 
             // Configurar expiração do refresh token
             var refreshTokenExpirationDays = _configuration.GetValue<int>("JwtSettings:RefreshTokenExpirationInDays", 60);
-            var refreshTokenExpiration = DateTime.UtcNow.AddDays(refreshTokenExpirationDays);
+            var refreshTokenExpiration = DateTimeOffset.UtcNow.AddDays(refreshTokenExpirationDays);
 
             // Criar refresh token
             var refreshToken = new RefreshToken(refreshTokenValue, usuario.Id, refreshTokenExpiration, enderecoIp, userAgent);
@@ -150,7 +150,7 @@ public class AutenticacaoService : IAutenticacaoService
 
             // Configurar expiração do novo refresh token
             var refreshTokenExpirationDays = _configuration.GetValue<int>("JwtSettings:RefreshTokenExpirationInDays", 60);
-            var refreshTokenExpiration = DateTime.UtcNow.AddDays(refreshTokenExpirationDays);
+            var refreshTokenExpiration = DateTimeOffset.UtcNow.AddDays(refreshTokenExpirationDays);
 
             // Criar novo refresh token
             var newRefreshToken = new RefreshToken(newRefreshTokenValue, usuario.Id, refreshTokenExpiration, enderecoIp, userAgent);

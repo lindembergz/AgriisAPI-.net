@@ -83,12 +83,14 @@ public class AgriisDbContext : DbContext
     public DbSet<ComboCategoriaDesconto> ComboCategoriasDesconto { get; set; }
     
     // Módulo de Referências
+    public DbSet<Agriis.Referencias.Dominio.Entidades.Pais> PaisesReferencia { get; set; }
     public DbSet<Moeda> Moedas { get; set; }
     public DbSet<AtividadeAgropecuaria> AtividadesAgropecuarias { get; set; }
     public DbSet<UnidadeMedida> UnidadesMedida { get; set; }
     public DbSet<Embalagem> Embalagens { get; set; }
+    // Referencias module entities (different from Enderecos module)
     public DbSet<Agriis.Referencias.Dominio.Entidades.Uf> UfsReferencia { get; set; }
-    public DbSet<Agriis.Referencias.Dominio.Entidades.Municipio> MunicipiosReferencia { get; set; }
+    // Note: Municipio uses Enderecos module DbSet to avoid table conflicts
     
     // Módulo de Produtos
     public DbSet<Agriis.Produtos.Dominio.Entidades.Produto> Produtos { get; set; }
@@ -127,7 +129,15 @@ public class AgriisDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Pagamentos.Infraestrutura.Configuracoes.FormaPagamentoConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Pedidos.Infraestrutura.Configuracoes.PedidoConfiguration).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Combos.Infraestrutura.Configuracoes.ComboConfiguration).Assembly);
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Referencias.Infraestrutura.Configuracoes.MoedaConfiguration).Assembly);
+        // Aplicar configurações do módulo Referencias
+        modelBuilder.ApplyConfiguration(new Agriis.Referencias.Infraestrutura.Configuracoes.PaisConfiguration());
+        modelBuilder.ApplyConfiguration(new Agriis.Referencias.Infraestrutura.Configuracoes.MoedaConfiguration());
+        modelBuilder.ApplyConfiguration(new Agriis.Referencias.Infraestrutura.Configuracoes.AtividadeAgropecuariaConfiguration());
+        modelBuilder.ApplyConfiguration(new Agriis.Referencias.Infraestrutura.Configuracoes.UnidadeMedidaConfiguration());
+        modelBuilder.ApplyConfiguration(new Agriis.Referencias.Infraestrutura.Configuracoes.EmbalagemConfiguration());
+        // Apply Referencias module configurations for Uf only (Municipio uses Enderecos module configuration)
+        modelBuilder.ApplyConfiguration(new Agriis.Referencias.Infraestrutura.Configuracoes.UfConfiguration());
+        // Note: MunicipioConfiguration is handled by Enderecos module to avoid table conflicts
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Agriis.Produtos.Infraestrutura.Configuracoes.ProdutoConfiguration).Assembly);
     }
 
@@ -200,6 +210,11 @@ public class AgriisDbContext : DbContext
                 modelBuilder.Entity(entityType.ClrType)
                     .Property(nameof(EntidadeBase.DataAtualizacao))
                     .IsRequired(false);
+
+                // Ignorar RowVersion globalmente para todas as entidades que herdam de EntidadeBase
+                // pois a coluna não existe no banco de dados
+                modelBuilder.Entity(entityType.ClrType)
+                    .Ignore(nameof(EntidadeBase.RowVersion));
 
                 // Configurar índices para otimizar consultas por data
                 modelBuilder.Entity(entityType.ClrType)

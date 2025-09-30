@@ -10,7 +10,7 @@ public class PropriedadeCulturaDto
     public DateTime? DataPlantio { get; set; }
     public DateTime? DataColheitaPrevista { get; set; }
     public string? Observacoes { get; set; }
-    public DateTime DataCriacao { get; set; }
+    public DateTimeOffset DataCriacao { get; set; }
     public DateTime? DataAtualizacao { get; set; }
     public bool EstaEmPeriodoPlantio { get; set; }
 }

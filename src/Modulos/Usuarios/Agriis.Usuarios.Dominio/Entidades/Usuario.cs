@@ -40,9 +40,9 @@ public class Usuario : EntidadeRaizAgregada
     public bool Ativo { get; private set; }
     
     /// <summary>
-    /// Data do último login
+    /// Data do último login (UTC com timezone)
     /// </summary>
-    public DateTime? UltimoLogin { get; private set; }
+    public DateTimeOffset? UltimoLogin { get; private set; }
     
     /// <summary>
     /// URL da logo/avatar do usuário (AWS S3)
@@ -152,7 +152,7 @@ public class Usuario : EntidadeRaizAgregada
     /// </summary>
     public void RegistrarLogin()
     {
-        UltimoLogin = DateTime.UtcNow;
+        UltimoLogin = DateTimeOffset.UtcNow;
         AtualizarDataModificacao();
     }
     

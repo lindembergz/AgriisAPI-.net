@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, catchError, of, shareReplay } from 'rxjs';
+import { Observable, map, catchError, of, shareReplay, throwError } from 'rxjs';
 import { ReferenceCrudService } from '../../../../shared/services/reference-crud.service';
 import { UnidadeMedidaDto, CriarUnidadeMedidaDto, AtualizarUnidadeMedidaDto, TipoUnidadeMedida } from '../../../../shared/models/reference.model';
 
@@ -45,7 +45,7 @@ export class UnidadeMedidaService extends ReferenceCrudService<
 > {
   
   protected readonly entityName = 'Unidade de Medida';
-  protected readonly apiEndpoint = 'api/referencias/unidades-medida';
+  protected readonly apiEndpoint = 'referencias/unidades-medida';
 
   /**
    * Get unidades by simbolo pattern (for search/autocomplete)
@@ -94,8 +94,7 @@ export class UnidadeMedidaService extends ReferenceCrudService<
   obterPorTipo(tipo: TipoUnidadeMedida): Observable<UnidadeMedidaDto[]> {
     return this.http.get<UnidadeMedidaDto[]>(`${this.baseUrl}/tipo/${tipo}`)
       .pipe(
-        shareReplay(1),
-        catchError(error => this.handleError('obter unidades por tipo', error))
+        shareReplay(1)
       );
   }
 
@@ -105,20 +104,23 @@ export class UnidadeMedidaService extends ReferenceCrudService<
   obterDropdownPorTipo(tipo: TipoUnidadeMedida): Observable<UnidadeDropdownOption[]> {
     return this.http.get<UnidadeDropdownOption[]>(`${this.baseUrl}/tipo/${tipo}/dropdown`)
       .pipe(
-        shareReplay(1),
-        catchError(error => this.handleError('obter unidades para dropdown por tipo', error))
+        shareReplay(1)
       );
   }
 
   /**
-   * Get all available unit types
+   * Get all available unit types (using enum values directly)
    */
   obterTipos(): Observable<TipoUnidadeOption[]> {
-    return this.http.get<TipoUnidadeOption[]>(`${this.baseUrl}/tipos`)
-      .pipe(
-        shareReplay(1),
-        catchError(error => this.handleError('obter tipos de unidade', error))
-      );
+    // Return tipos directly from enum without making HTTP request
+    return of([
+      { valor: TipoUnidadeMedida.Peso, nome: 'Peso', descricao: 'Peso' },
+      { valor: TipoUnidadeMedida.Volume, nome: 'Volume', descricao: 'Volume' },
+      { valor: TipoUnidadeMedida.Area, nome: 'Area', descricao: 'Área' },
+      { valor: TipoUnidadeMedida.Unidade, nome: 'Unidade', descricao: 'Unidade' }
+    ]).pipe(
+      shareReplay(1)
+    );
   }
 
   /**
@@ -131,10 +133,11 @@ export class UnidadeMedidaService extends ReferenceCrudService<
       unidadeDestinoId: unidadeDestinoId.toString()
     };
 
-    return this.http.get<ConversaoResult>(`${this.baseUrl}/converter`, { params })
-      .pipe(
-        catchError(error => this.handleError('converter unidades', error))
-      );
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<ConversaoResult>(`${this.baseUrl}/converter`, { params }),
+      'converter unidades',
+      'unidade de medida'
+    );
   }
 
   /**
@@ -147,7 +150,7 @@ export class UnidadeMedidaService extends ReferenceCrudService<
           if (error.status === 404) {
             return of(null);
           }
-          return this.handleError('obter unidade por símbolo', error);
+          return throwError(() => error);
         })
       );
   }
@@ -162,8 +165,7 @@ export class UnidadeMedidaService extends ReferenceCrudService<
         simbolo: u.simbolo,
         nome: u.nome
       }))),
-      shareReplay(1),
-      catchError(error => this.handleError('obter unidades para dropdown', error))
+      shareReplay(1)
     );
   }
 

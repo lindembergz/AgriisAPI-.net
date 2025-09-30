@@ -1,444 +1,462 @@
-<!-- Municipios CRUD Interface -->
-<div class="municipios-container">
-  <!-- Header with title and actions -->
+<!-- Municipios Component using Unified Template -->
+<div class="reference-crud-container">
+  <!-- 1. HEADER SECTION -->
   <div class="header-section">
     <div class="title-section">
-      <h2>{{ entityDisplayName() }}</h2>
-      <p class="subtitle">{{ entityDescription() }}</p>
+      <h2 class="entity-title">{{ entityDisplayName() }}</h2>
+      <p class="entity-subtitle">{{ entityDescription() }}</p>
     </div>
     
     <div class="actions-section">
-      <!-- Status Filter -->
-      <p-select
-        [options]="statusFilterOptions"
-        [ngModel]="selectedStatusFilter()"
-        (onChange)="onStatusFilterChange($event)"
-        placeholder="Filtrar por status"
-        optionLabel="label"
-        optionValue="value"
-        class="status-filter">
-      </p-select>
-      
-      <!-- New Entity Button -->
-      <button
-        type="button"
-        pButton
+      <!-- Primary Action -->
+      <p-button
         [label]="'Novo ' + entityDisplayName()"
         icon="pi pi-plus"
-        (click)="novoItem()"
-        class="p-button-primary new-item-btn">
-      </button>
+        (onClick)="novoItem()"
+        class="p-button-primary new-item-btn"
+        [disabled]="loading()">
+      </p-button>
     </div>
   </div>
 
-  <!-- Custom filters -->
-  <div class="custom-filters">
-    <div class="filter-row">
-      <!-- País filter -->
-      <div class="filter-field">
-        <label for="paisFilter">País:</label>
+  <!-- 2. FILTERS SECTION -->
+  <div class="filters-section" *ngIf="!loading()">
+    <div class="filters-row">
+      <!-- Search Filter -->
+      <div class="filter-item search-filter">
+        <label for="search" class="filter-label">Buscar</label>
+        <span class="p-input-icon-left search-container">
+          <i class="pi pi-search"></i>
+          <input
+            #searchInput
+            id="search"
+            type="text"
+            pInputText
+            [value]="searchTerm()"
+            (input)="onSearchChange($event)"
+            placeholder="Buscar por nome ou código IBGE..."
+            class="search-input"
+            autocomplete="off">
+        </span>
+        <p-button
+          *ngIf="searchTerm()"
+          icon="pi pi-times"
+          (onClick)="clearSearch()"
+          class="p-button-text p-button-sm clear-search-btn"
+          pTooltip="Limpar busca"
+          tooltipPosition="bottom">
+        </p-button>
+      </div>
+
+      <!-- Status Filter 
+      <div class="filter-item status-filter">
+        <label for="statusFilter" class="filter-label">Status</label>
+        <p-select
+          id="statusFilter"
+          [options]="statusFilterOptions"
+          [ngModel]="selectedStatusFilter()"
+          (onChange)="onStatusFilterChange($event)"
+          placeholder="Filtrar por status"
+          optionLabel="label"
+          optionValue="value"
+          class="status-select">
+        </p-select>
+      </div>-->
+
+      <!-- País Filter 
+      <div class="filter-item custom-filter">
+        <label for="paisFilter" class="filter-label">País</label>
         <p-select
           id="paisFilter"
-          [options]="paisesOptions()"
-          optionLabel="nome"
-          optionValue="id"
-          placeholder="Selecione um país"
-          [loading]="loadingPaises()"
-          [ngModel]="selectedPaisFilter()"
-          (ngModelChange)="onPaisFilterChange($event)"
+          [options]="paisFilterOptions()"
+          [ngModel]="getCustomFilterValue('pais')"
+          (onChange)="onCustomFilterChange('pais', $event)"
+          placeholder="Filtrar por país"
+          optionLabel="label"
+          optionValue="value"
           [showClear]="true"
-          styleClass="w-full">
+          [loading]="loadingPaises()"
+          class="custom-filter-select">
         </p-select>
-      </div>
+      </div>-->
 
-      <!-- UF filter -->
-      <div class="filter-field">
-        <label for="ufFilter">UF:</label>
+      <!-- UF Filter 
+      <div class="filter-item custom-filter">
+        <label for="ufFilter" class="filter-label">UF</label>
         <p-select
           id="ufFilter"
-          [options]="ufsOptions()"
-          optionLabel="nome"
-          optionValue="id"
-          placeholder="Selecione uma UF"
-          [loading]="loadingUfs()"
-          [disabled]="!selectedPaisFilter()"
-          [ngModel]="selectedUfFilter()"
-          (ngModelChange)="onUfFilterChange($event)"
+          [options]="ufFilterOptions()"
+          [ngModel]="getCustomFilterValue('uf')"
+          (onChange)="onCustomFilterChange('uf', $event)"
+          placeholder="Filtrar por UF"
+          optionLabel="label"
+          optionValue="value"
           [showClear]="true"
-          styleClass="w-full">
-          <ng-template pTemplate="selectedItem" let-option>
-            {{ option.codigo }} - {{ option.nome }}
-          </ng-template>
-          <ng-template pTemplate="item" let-option>
-            {{ option.codigo }} - {{ option.nome }}
-          </ng-template>
+          [loading]="loadingUfs()"
+          class="custom-filter-select">
         </p-select>
-      </div>
+      </div>-->
 
-      <!-- Search field -->
-      <div class="filter-field">
-        <label for="searchInput">Buscar:</label>
-        <input
-          id="searchInput"
-          type="text"
-          pInputText
-          placeholder="Nome do município..."
-          [ngModel]="searchTerm()"
-          (ngModelChange)="onSearchChange($event)"
-          class="w-full" />
-      </div>
-
-      <!-- Clear filters button -->
-      <div class="filter-actions">
-        <button
-          type="button"
-          pButton
+      <!-- Clear All Filters -->
+      <div class="filter-item clear-filters" *ngIf="hasActiveFilters()">
+        <p-button
           label="Limpar Filtros"
           icon="pi pi-filter-slash"
-          severity="secondary"
-          size="small"
-          (click)="limparFiltros()"
-          [disabled]="!selectedPaisFilter() && !selectedUfFilter() && !searchTerm()">
-        </button>
+          (onClick)="clearAllFilters()"
+          class="p-button-outlined p-button-secondary clear-all-btn"
+          pTooltip="Limpar todos os filtros"
+          tooltipPosition="bottom">
+        </p-button>
       </div>
     </div>
 
-    <!-- Filter summary -->
-    <div class="filter-summary" *ngIf="getFilterSummary()">
-      <small class="text-muted">{{ getFilterSummary() }}</small>
+    <!-- Active Filters Summary -->
+    <div *ngIf="hasActiveFilters()" class="active-filters-summary">
+      <span class="summary-label">Filtros ativos:</span>
+      <div class="filter-tags">
+        <p-tag 
+          *ngFor="let filter of getActiveFiltersSummary()" 
+          [value]="filter.label" 
+          severity="info" 
+          class="filter-tag"
+          [removable]="filter.removable"
+          (onRemove)="removeFilter(filter.key)">
+        </p-tag>
+      </div>
     </div>
   </div>
 
-  <!-- Loading Spinner -->
-  <div *ngIf="loading()" class="loading-container">
-    <i class="pi pi-spinner pi-spin loading-icon"></i>
-    <p>Carregando {{ entityDisplayName().toLowerCase() }}...</p>
-  </div>
+  <!-- 3. CONTENT SECTION -->
+  <div class="content-section">
+    <!-- Loading State -->
+    <div *ngIf="loading()" class="loading-container">
+      <div class="loading-content">
+        <p-progressSpinner 
+          [style]="{ width: '50px', height: '50px' }"
+          strokeWidth="4"
+          animationDuration="1s">
+        </p-progressSpinner>
+        <div class="loading-text">
+          <p class="loading-message">{{ currentLoadingMessage() }}</p>
+        </div>
+      </div>
+    </div>
 
-  <!-- Items Table -->
-  <div *ngIf="!loading()" class="table-container">
-    <p-table
-      [value]="items()"
-      [paginator]="true"
-      [rows]="pageSize()"
-      [rowsPerPageOptions]="[5, 10, 20, 50]"
-      [sortField]="defaultSortField()"
-      [sortOrder]="1"
-      [globalFilterFields]="searchFields()"
-      responsiveLayout="scroll"
-      styleClass="p-datatable-gridlines p-datatable-striped"
-      [tableStyle]="{ 'min-width': '50rem' }"
-      [showCurrentPageReport]="true"
-      [currentPageReportTemplate]="'Mostrando {first} a {last} de {totalRecords} ' + entityDisplayName().toLowerCase()"
-      [loading]="tableLoading()"
-      loadingIcon="pi pi-spinner"
-      [sortMode]="'multiple'"
-      [scrollable]="true"
-      scrollHeight="60vh"
-      [resizableColumns]="true"
-      columnResizeMode="expand">
-      
-      <!-- Table Header -->
-      <ng-template pTemplate="header">
-        <tr>
-          <th *ngFor="let col of displayColumns()" 
-              [pSortableColumn]="col.sortable ? col.field : null"
-              [style.width]="col.width"
-              [class.hide-mobile]="col.hideOnMobile"
-              [class.hide-tablet]="col.hideOnTablet"
-              pResizableColumn>
-            <div class="header-content">
-              {{ col.header }}
-              <p-sortIcon *ngIf="col.sortable" [field]="col.field"></p-sortIcon>
-            </div>
-          </th>
-          <th style="width: 150px" class="actions-column">
-            <div class="header-content">Ações</div>
-          </th>
-        </tr>
-      </ng-template>
+    <!-- Table Display -->
+    <div *ngIf="!loading()" class="display-container">
+      <ng-container *ngIf="getVisibleColumns() as visibleCols">
+        <p-table
+        [value]="filteredItems()"
+        [paginator]="true"
+        [rows]="pageSize()"
+        [rowsPerPageOptions]="rowsPerPageOptions"
+        [sortField]="defaultSortField()"
+        [sortOrder]="1"        
+        styleClass="p-datatable-gridlines p-datatable-striped reference-table"
+        [showCurrentPageReport]="true"
+  [currentPageReportTemplate]="getPageReportTemplate()"
+        [loading]="tableLoading()"
+        loadingIcon="pi pi-spinner"
+        [sortMode]="'multiple'"
+        [multiSortMeta]="multiSortMeta()"
+        (onSort)="onSort($event)"
+        (onPage)="onPageChange($event)"
+        [lazy]="false"
+        [scrollable]="true"
+        scrollHeight="60vh"
+        [resizableColumns]="true"
+        columnResizeMode="expand"
+        [tableStyle]="{ 'min-width': '50rem' }">
+        
+        <!-- Table Header -->
+        <ng-template pTemplate="header">
+          <tr>
+            <th *ngFor="let col of visibleCols" 
+                [pSortableColumn]="col.sortable ? col.field : null"
+                [style.width]="col.width"
+                [class.hide-mobile]="col.hideOnMobile && isMobile()"
+                [class.hide-tablet]="col.hideOnTablet && isTablet()"
+                [class.text-center]="col.align === 'center'"
+                [class.text-right]="col.align === 'right'"
+                pResizableColumn>
+              <div class="header-content">
+                <span class="header-text">{{ col.header }}</span>
+                <p-sortIcon *ngIf="col.sortable" [field]="col.field"></p-sortIcon>
+                <i *ngIf="col.tooltip" 
+                   class="pi pi-info-circle header-info" 
+                   [pTooltip]="col.tooltip"
+                   tooltipPosition="top"></i>
+              </div>
+            </th>
+            <th class="actions-column" style="width: 150px">
+              <div class="header-content">
+                <span class="header-text">Ações</span>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
 
-      <!-- Table Body -->
-      <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
-        <tr>
-          <td *ngFor="let col of displayColumns()" 
-              [class.hide-mobile]="col.hideOnMobile"
-              [class.hide-tablet]="col.hideOnTablet">
-            <span class="mobile-label">{{ col.header }}:</span>
-            <ng-container [ngSwitch]="col.type">
-              <span *ngSwitchCase="'boolean'">
-                <p-tag
-                  [value]="getStatusLabel(item[col.field])"
-                  [severity]="getStatusSeverity(item[col.field])">
-                </p-tag>
-              </span>
-              <span *ngSwitchCase="'date'">
-                {{ formatarData(item[col.field]) }}
-              </span>
-              <ng-container *ngSwitchCase="'custom'">
-                <!-- Custom column content -->
-                <ng-container *ngIf="col.field === 'uf'">
-                  <span class="uf-display">
-                    {{ getUfDisplay(item) }}
-                  </span>
-                </ng-container>
-
-                <ng-container *ngIf="col.field === 'uf.pais'">
-                  <span class="pais-display">
-                    {{ getPaisDisplay(item) }}
-                  </span>
-                </ng-container>
+        <!-- Table Body -->
+        <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+          <tr [class.row-highlight]="isRowHighlighted(rowIndex)"
+              [class.inactive-row]="item.ativo === false">
+      <td *ngFor="let col of visibleCols" 
+        [class.hide-mobile]="col.hideOnMobile && isMobile()"
+        [class.hide-tablet]="col.hideOnTablet && isTablet()"
+                [class.text-center]="col.align === 'center'"
+                [class.text-right]="col.align === 'right'">
+              
+              <!-- Mobile Label -->
+              <span class="mobile-label" *ngIf="isMobile()">{{ col.header }}:</span>
+              
+              <!-- Field Content -->
+              <ng-container [ngSwitch]="col.field">
+                <!-- Nome Field -->
+                <span *ngSwitchCase="'nome'" class="nome-field">
+                  {{ item.nome }}
+                </span>
+                
+                <!-- Código IBGE Field -->
+                <span *ngSwitchCase="'codigoIbge'" class="codigo-field">
+                  {{ item.codigoIbge }}
+                </span>
+                
+                <!-- UF Field -->
+                <span *ngSwitchCase="'uf'" class="uf-field">
+                  {{ getUfDisplay(item) }}
+                </span>
+                
+                <!-- País Field -->
+                <span *ngSwitchCase="'uf.pais'" class="pais-field">
+                  {{ getPaisDisplay(item) }}
+                </span>
+                
+                <!-- Status Field -->
+                <span *ngSwitchCase="'ativo'" class="status-field">
+                  <p-tag
+                    [value]="getStatusLabel(item.ativo)"
+                    [severity]="getStatusSeverity(item.ativo)"
+                    class="status-tag">
+                  </p-tag>
+                </span>
+                
+                <!-- Data Criação Field -->
+                <span *ngSwitchCase="'dataCriacao'" class="date-field">
+                  {{ formatarData(item.dataCriacao) }}
+                </span>
+                
+                <!-- Default Field -->
+                <span *ngSwitchDefault class="text-field">
+                  {{ getFieldValue(item, col.field) }}
+                </span>
               </ng-container>
-              <span *ngSwitchDefault>
-                {{ getFieldValue(item, col.field) }}
-              </span>
-            </ng-container>
-          </td>
-          <td class="actions-column">
-            <div class="action-buttons">
-              <button
-                type="button"
-                pButton
-                icon="pi pi-pencil"
-                (click)="editarItem(item)"
-                class="p-button-rounded p-button-text p-button-info"
-                pTooltip="Editar"
-                tooltipPosition="top">
-              </button>
-              <button
-                *ngIf="item.ativo"
-                type="button"
-                pButton
-                icon="pi pi-times"
-                (click)="desativarItem(item)"
-                class="p-button-rounded p-button-text p-button-warning"
-                pTooltip="Desativar"
-                tooltipPosition="top">
-              </button>
-              <button
-                *ngIf="!item.ativo"
-                type="button"
-                pButton
-                icon="pi pi-check"
-                (click)="ativarItem(item)"
-                class="p-button-rounded p-button-text p-button-success"
-                pTooltip="Ativar"
-                tooltipPosition="top">
-              </button>
-              <button
-                type="button"
-                pButton
-                icon="pi pi-trash"
-                (click)="excluirItem(item)"
-                class="p-button-rounded p-button-text p-button-danger"
-                pTooltip="Excluir"
-                tooltipPosition="top">
-              </button>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
+            </td>
+            
+            <!-- Actions Column -->
+            <td class="actions-column">
+              <div class="action-buttons">
+                <!-- Edit Action -->
+                <p-button
+                  icon="pi pi-pencil"
+                  (onClick)="editarItem(item)"
+                  class="p-button-rounded p-button-text p-button-info edit-btn"
+                  pTooltip="Editar"
+                  tooltipPosition="top"
+                  [loading]="isActionLoading('edit', item.id)"
+                  [disabled]="hasAnyActionLoading()">
+                </p-button>
+                
+                <!-- Deactivate Action -->
+                <p-button
+                  *ngIf="item.ativo"
+                  icon="pi pi-times"
+                  (onClick)="desativarItem(item)"
+                  class="p-button-rounded p-button-text p-button-warning deactivate-btn"
+                  pTooltip="Desativar Município"
+                  tooltipPosition="top"
+                  [loading]="isActionLoading('deactivate', item.id)"
+                  [disabled]="hasAnyActionLoading()">
+                </p-button>
+                
+                <!-- Activate Action -->
+                <p-button
+                  *ngIf="!item.ativo"
+                  icon="pi pi-check"
+                  (onClick)="ativarItem(item)"
+                  class="p-button-rounded p-button-text p-button-success activate-btn"
+                  pTooltip="Ativar Município"
+                  tooltipPosition="top"
+                  [loading]="isActionLoading('activate', item.id)"
+                  [disabled]="hasAnyActionLoading()">
+                </p-button>
+                
+                <!-- Delete Action -->
+                <p-button
+                  icon="pi pi-trash"
+                  (onClick)="excluirItem(item)"
+                  class="p-button-rounded p-button-text p-button-danger delete-btn"
+                  pTooltip="Excluir"
+                  tooltipPosition="top"
+                  [loading]="isActionLoading('delete', item.id)"
+                  [disabled]="hasAnyActionLoading()">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
 
-      <!-- Empty State -->
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td [attr.colspan]="displayColumns().length + 1" class="empty-state">
-            <div class="empty-content">
-              <i class="pi pi-info-circle empty-icon"></i>
-              <h3>Nenhum {{ entityDisplayName().toLowerCase() }} encontrado</h3>
-              <p>
-                @if (selectedStatusFilter() === 'todas') {
-                  Não há {{ entityDisplayName().toLowerCase() }} cadastrados no sistema.
-                } @else if (selectedStatusFilter() === 'ativas') {
-                  Não há {{ entityDisplayName().toLowerCase() }} ativos no momento.
-                } @else {
-                  Não há {{ entityDisplayName().toLowerCase() }} inativos no momento.
-                }
-              </p>
-              <button
-                type="button"
-                pButton
-                [label]="'Cadastrar Novo ' + entityDisplayName()"
-                icon="pi pi-plus"
-                (click)="novoItem()"
-                class="p-button-primary">
-              </button>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+        <!-- Enhanced Empty State -->
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td [attr.colspan]="visibleCols.length + 1" class="empty-state-cell">
+              <div class="empty-state-container">
+                <div class="empty-illustration">
+                  <i class="pi pi-map empty-icon"></i>
+                </div>
+                
+                <div class="empty-content">
+                  <h3 class="empty-title">Nenhum município encontrado</h3>
+                  <p class="empty-description">
+                    Não há municípios cadastrados ou que atendam aos filtros aplicados.
+                  </p>
+                  
+                  <div class="empty-actions">
+                    <p-button
+                      label="Novo Município"
+                      icon="pi pi-plus"
+                      (onClick)="novoItem()"
+                      class="p-button-primary primary-empty-action">
+                    </p-button>
+                    
+                    <p-button
+                      *ngIf="hasActiveFilters()"
+                      label="Limpar Filtros"
+                      icon="pi pi-filter-slash"
+                      (onClick)="clearAllFilters()"
+                      class="p-button-outlined secondary-empty-action">
+                    </p-button>
+                  </div>
+                  
+                  <p class="empty-help">
+                    Os municípios são referências geográficas utilizadas no sistema.
+                  </p>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      </ng-container>
+    </div>
   </div>
 
-  <!-- Form Dialog -->
+  <!-- 4. FORM DIALOG -->
   <p-dialog
     [header]="dialogTitle()"
     [visible]="showForm()"
     (visibleChange)="showForm.set($event)"
     [modal]="true"
-    [style]="{ width: '50vw' }"
-    [draggable]="false"
-    [resizable]="false"
-    [closable]="!formLoading()"
-    (onHide)="onDialogHide()">
+    [closable]="true"
+    [draggable]="true"
+    [resizable]="true"
+    [style]="getDialogStyle()"
+    styleClass="reference-form-dialog"
+    (onHide)="cancelarEdicao()">
     
-    <form [formGroup]="form" (ngSubmit)="salvarItem()" class="form-container">
-      <!-- Form fields -->
-    <!-- Nome field -->
-    <div class="field">
-      <label for="nome" class="required">Nome do Município:</label>
-      <input
-        id="nome"
-        type="text"
-        pInputText
-        formControlName="nome"
-        placeholder="Digite o nome do município"
-        class="w-full"
-        [class.ng-invalid]="form.get('nome')?.invalid && form.get('nome')?.touched" />
+    <!-- Form Content -->
+    <div class="form-container">
+      <!-- Form Loading Overlay -->
+      <div *ngIf="formLoading()" class="form-loading-overlay">
+        <div class="form-loading-content">
+          <p-progressSpinner 
+            [style]="{ width: '30px', height: '30px' }"
+            strokeWidth="4">
+          </p-progressSpinner>
+          <span class="form-loading-text">Processando...</span>
+        </div>
+      </div>
       
-      <div class="field-errors" *ngIf="form.get('nome')?.invalid && form.get('nome')?.touched">
-        <small class="p-error" *ngIf="form.get('nome')?.errors?.['required']">
-          Nome é obrigatório
-        </small>
-        <small class="p-error" *ngIf="form.get('nome')?.errors?.['minlength']">
-          Nome deve ter pelo menos 2 caracteres
-        </small>
-        <small class="p-error" *ngIf="form.get('nome')?.errors?.['maxlength']">
-          Nome deve ter no máximo 100 caracteres
-        </small>
-        <small class="p-error" *ngIf="form.get('nome')?.errors?.['nomeNaoUnico']">
-          Este nome já existe para a UF selecionada
-        </small>
-      </div>
-    </div>
+      <!-- Form Fields -->
+      <form [formGroup]="form" (ngSubmit)="salvarItem()" class="reference-form">
+        <!-- País Selection -->
+        <div class="field">
+          <label for="paisId" class="field-label required">País</label>
+          <p-select id="paisId" formControlName="paisId" [options]="paisesOptions()" optionLabel="nome" optionValue="id"
+            placeholder="Selecione um país" [loading]="loadingPaises()" [showClear]="false" class="w-full">
+          </p-select>
+          <app-field-error controlName="paisId"></app-field-error>
+        </div>
 
-    <!-- Código IBGE field -->
-    <div class="field">
-      <label for="codigoIbge" class="required">Código IBGE:</label>
-      <input
-        id="codigoIbge"
-        type="text"
-        pInputText
-        formControlName="codigoIbge"
-        placeholder="Digite o código IBGE (7 dígitos)"
-        maxlength="7"
-        class="w-full"
-        [class.ng-invalid]="form.get('codigoIbge')?.invalid && form.get('codigoIbge')?.touched" />
-      
-      <div class="field-errors" *ngIf="form.get('codigoIbge')?.invalid && form.get('codigoIbge')?.touched">
-        <small class="p-error" *ngIf="form.get('codigoIbge')?.errors?.['required']">
-          Código IBGE é obrigatório
-        </small>
-        <small class="p-error" *ngIf="form.get('codigoIbge')?.errors?.['pattern']">
-          Código IBGE deve ter exatamente 7 dígitos
-        </small>
-        <small class="p-error" *ngIf="form.get('codigoIbge')?.errors?.['codigoIbgeNaoUnico']">
-          Este código IBGE já está em uso
-        </small>
-      </div>
-    </div>
+        <!-- UF Selection -->
+        <div class="field">
+          <label for="ufId" class="field-label required">UF</label>
+          <p-select id="ufId" formControlName="ufId" [options]="ufsOptions()" optionLabel="nome" optionValue="id"
+            placeholder="Selecione uma UF" [loading]="loadingUfs()" [disabled]="!form.get('paisId')?.value"
+            [showClear]="false" class="w-full">
+            <ng-template pTemplate="selectedItem" let-selectedOption>
+              <div *ngIf="selectedOption">
+                {{ selectedOption.codigo }} - {{ selectedOption.nome }}
+              </div>
+            </ng-template>
+            <ng-template pTemplate="item" let-uf>
+              <div>{{ uf.codigo }} - {{ uf.nome }}</div>
+            </ng-template>
+          </p-select>
+          <app-field-error controlName="ufId"></app-field-error>
+        </div>
 
-    <!-- País selection -->
-    <div class="field">
-      <label for="paisIdForm" class="required">País:</label>
-      <p-select
-        id="paisIdForm"
-        formControlName="paisId"
-        [options]="paisesOptions()"
-        optionLabel="nome"
-        optionValue="id"
-        placeholder="Selecione um país"
-        [loading]="loadingPaises()"
-        class="w-full"
-        [class.ng-invalid]="form.get('paisId')?.invalid && form.get('paisId')?.touched">
-      </p-select>
-      
-      <div class="field-errors" *ngIf="form.get('paisId')?.invalid && form.get('paisId')?.touched">
-        <small class="p-error" *ngIf="form.get('paisId')?.errors?.['required']">
-          País é obrigatório
-        </small>
-      </div>
-    </div>
+        <!-- Nome -->
+        <div class="field">
+          <label for="nome" class="field-label required">Nome</label>
+          <input id="nome" type="text" pInputText formControlName="nome" placeholder="Digite o nome do município"
+            class="w-full" maxlength="100">
+          <app-field-error controlName="nome"></app-field-error>
+        </div>
 
-    <!-- UF selection -->
-    <div class="field">
-      <label for="ufIdForm" class="required">UF:</label>
-      <p-select
-        id="ufIdForm"
-        formControlName="ufId"
-        [options]="ufsOptions()"
-        optionLabel="nome"
-        optionValue="id"
-        placeholder="Selecione uma UF"
-        [loading]="loadingUfs()"
-        [disabled]="!form.get('paisId')?.value"
-        class="w-full"
-        [class.ng-invalid]="form.get('ufId')?.invalid && form.get('ufId')?.touched">
-        <ng-template pTemplate="selectedItem" let-option>
-          {{ option.codigo }} - {{ option.nome }}
-        </ng-template>
-        <ng-template pTemplate="item" let-option>
-          {{ option.codigo }} - {{ option.nome }}
-        </ng-template>
-      </p-select>
-      
-      <div class="field-errors" *ngIf="form.get('ufId')?.invalid && form.get('ufId')?.touched">
-        <small class="p-error" *ngIf="form.get('ufId')?.errors?.['required']">
-          UF é obrigatória
-        </small>
-      </div>
+        <!-- Código IBGE -->
+        <div class="field">
+          <label for="codigoIbge" class="field-label required">Código IBGE</label>
+          <input id="codigoIbge" type="text" pInputText formControlName="codigoIbge"
+            placeholder="Digite o código IBGE (7 dígitos)" class="w-full" maxlength="7" pattern="[0-9]*">
+          <small class="field-help">Código de 7 dígitos do IBGE</small>
+          <app-field-error controlName="codigoIbge"></app-field-error>
+        </div>
+      </form>
     </div>
-
-    <!-- Status field (only for edit) -->
-    <div class="field" *ngIf="selectedItem()">
-      <label for="ativo">Status:</label>
-      <div class="status-toggle">
-        <input
-          id="ativo"
-          type="checkbox"
-          formControlName="ativo" />
-        <label for="ativo" class="checkbox-label">Ativo</label>
-      </div>
-    </div>
-    </form>
-
+    
+    <!-- Dialog Footer -->
     <ng-template pTemplate="footer">
       <div class="dialog-footer">
-        <button
-          type="button"
-          pButton
+        <p-button
           label="Cancelar"
           icon="pi pi-times"
-          (click)="cancelarEdicao()"
-          class="p-button-text"
+          (onClick)="cancelarEdicao()"
+          class="p-button-outlined p-button-secondary cancel-btn"
           [disabled]="formLoading()">
-        </button>
-        <button
-          type="button"
-          pButton
-          label="Salvar"
-          icon="pi pi-check"
-          (click)="salvarItem()"
-          class="p-button-primary"
+        </p-button>
+        
+        <p-button
+          [label]="isEditMode() ? 'Atualizar' : 'Salvar'"
+          [icon]="isEditMode() ? 'pi pi-check' : 'pi pi-save'"
+          (onClick)="salvarItem()"
+          class="p-button-primary save-btn"
           [loading]="formLoading()"
-          [disabled]="form.invalid">
-        </button>
+          [disabled]="!canSaveForm() || form.invalid">
+        </p-button>
       </div>
     </ng-template>
   </p-dialog>
 
-  <!-- Help text -->
-    <p><strong>Dicas:</strong></p>
-    <ul>
-      <li>O código IBGE deve ter exatamente 7 dígitos numéricos</li>
-      <li>O nome do município deve ser único dentro da UF selecionada</li>
-      <li>Use os filtros para encontrar municípios específicos por UF ou nome</li>
-      <li>A busca funciona com pelo menos 2 caracteres</li>
-    </ul>
-  </div>
+  <!-- 5. CONFIRMATION DIALOGS -->
+  <p-confirmDialog 
+    [style]="{ width: '450px' }"
+    [baseZIndex]="10000"
+    rejectButtonStyleClass="p-button-text">
+  </p-confirmDialog>
 
-  <!-- Toast Messages -->
-  <p-toast position="top-right"></p-toast>
-  
-  <!-- Confirmation Dialog -->
-  <p-confirmDialog></p-confirmDialog>
+  <!-- 6. TOAST MESSAGES -->
+  <p-toast 
+    position="top-right"
+    [baseZIndex]="20000">
+  </p-toast>
+</div>

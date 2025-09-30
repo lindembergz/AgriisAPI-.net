@@ -100,8 +100,8 @@ public class ReferenciasMappingProfile : Profile
     {
         // Entidade -> DTO de leitura
         CreateMap<Municipio, MunicipioDto>()
-            .ForMember(dest => dest.UfNome, opt => opt.MapFrom(src => src.Uf != null ? src.Uf.Nome : string.Empty))
-            .ForMember(dest => dest.UfCodigo, opt => opt.MapFrom(src => src.Uf != null ? src.Uf.Codigo : string.Empty));
+            .ForMember(dest => dest.UfNome, opt => opt.MapFrom(src => string.Empty)) // Relacionamento ignorado temporariamente
+            .ForMember(dest => dest.UfCodigo, opt => opt.MapFrom(src => string.Empty)); // Relacionamento ignorado temporariamente
 
         // DTO de criação -> Entidade
         CreateMap<CriarMunicipioDto, Municipio>()

@@ -1,171 +1,102 @@
-// Municipios Component Styles
-.custom-filters {
-  margin-bottom: 1rem;
-  
-  .filter-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 1rem;
-    align-items: end;
-    margin-bottom: 0.5rem;
-    
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-      gap: 0.75rem;
-    }
-    
-    @media (min-width: 769px) and (max-width: 1024px) {
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-    }
-  }
-  
-  .filter-field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    
-    label {
-      font-weight: 500;
-      font-size: 0.875rem;
-      color: var(--text-color-secondary);
-    }
-  }
-  
-  .filter-actions {
-    display: flex;
-    align-items: center;
-    
-    @media (max-width: 768px) {
-      justify-content: stretch;
-      
-      button {
-        width: 100%;
-      }
-    }
-  }
-  
-  .filter-summary {
-    padding: 0.5rem;
-    background-color: var(--surface-100);
-    border-radius: var(--border-radius);
-    border-left: 3px solid var(--primary-color);
-    
-    small {
-      font-style: italic;
-    }
-  }
-}
+@import '../../../shared/styles/design-tokens.scss';
+@import '../../../shared/styles/utility-classes.scss';
+@import '../../../shared/styles/unified-framework.scss';
 
-// Form specific styles
 .form-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
   
   .field {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--spacing-xs);
     
-    &:last-child {
-      grid-column: 1 / -1;
-    }
-    
-    label {
-      font-weight: 500;
-      font-size: 0.875rem;
-      color: var(--text-color-secondary);
+    .field-label {
+      font-weight: var(--font-weight-medium);
+      color: var(--text-color-primary);
+      font-size: var(--font-size-sm);
       
       &.required::after {
         content: ' *';
-        color: var(--red-500);
+        color: var(--color-danger);
       }
     }
     
-    .field-errors {
-      display: flex;
-      flex-direction: column;
-      gap: 0.125rem;
-      
-      small {
-        font-size: 0.75rem;
-      }
-    }
-    
-    .status-toggle {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      
-      .checkbox-label {
-        font-weight: normal;
-        cursor: pointer;
-        margin: 0;
-      }
-    }
-  }
-}
-
-// Table column styles
-.uf-display {
-  font-weight: 500;
-  color: var(--primary-color);
-}
-
-.pais-display {
-  color: var(--text-color-secondary);
-  font-size: 0.875rem;
-}
-
-// Help text styles
-.help-text {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: var(--surface-50);
-  border-radius: var(--border-radius);
-  border-left: 3px solid var(--blue-500);
-  
-  p {
-    margin: 0 0 0.5rem 0;
-    font-weight: 500;
-    color: var(--text-color);
-  }
-  
-  ul {
-    margin: 0;
-    padding-left: 1.25rem;
-    
-    li {
-      margin-bottom: 0.25rem;
-      font-size: 0.875rem;
+    .field-help {
       color: var(--text-color-secondary);
-      line-height: 1.4;
+      font-size: var(--font-size-xs);
+      margin-top: var(--spacing-xs);
+    }
+    
+    // PrimeNG component styling
+    ::ng-deep {
+      .p-select,
+      .p-inputtext {
+        width: 100%;
+        
+        &.p-invalid {
+          border-color: var(--color-danger);
+        }
+      }
+      
+      .p-select-panel {
+        .p-select-item {
+          padding: var(--spacing-sm);
+          
+          &:hover {
+            background-color: var(--surface-hover);
+          }
+          
+          &.p-selected {
+            background-color: var(--primary-color);
+            color: var(--primary-color-text);
+          }
+        }
+      }
     }
   }
 }
 
 // Responsive adjustments
 @media (max-width: 768px) {
-  .custom-filters {
-    .filter-row {
-      .filter-field {
-        label {
-          font-size: 0.8rem;
-        }
+  .form-fields {
+    gap: var(--spacing-sm);
+    
+    .field {
+      .field-label {
+        font-size: var(--font-size-xs);
       }
     }
   }
+}
+
+// Custom table cell styling
+::ng-deep {
+  .custom-uf-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    
+    .uf-code {
+      font-weight: var(--font-weight-bold);
+      color: var(--primary-color);
+    }
+    
+    .uf-name {
+      color: var(--text-color-secondary);
+    }
+  }
   
-  .form-fields {
-    .field {
-      label {
-        font-size: 0.8rem;
-      }
+  .custom-pais-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    
+    .pais-flag {
+      width: 20px;
+      height: 15px;
+      border-radius: 2px;
     }
   }
 }
@@ -181,74 +112,32 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.8);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1;
+    z-index: 10;
   }
 }
 
-// Validation states
-.ng-invalid.ng-touched {
-  border-color: var(--red-500) !important;
+// Validation styling
+.field-error {
+  margin-top: var(--spacing-xs);
+}
+
+// Cascading dropdown styling
+.cascading-dropdown {
+  position: relative;
   
-  &:focus {
-    box-shadow: 0 0 0 0.2rem rgba(var(--red-500-rgb), 0.25) !important;
-  }
-}
-
-// Custom select styling
-::ng-deep {
-  .p-select {
-    &.ng-invalid.ng-touched {
-      .p-select-label {
-        border-color: var(--red-500);
-      }
-      
-      &.p-focus .p-select-label {
-        box-shadow: 0 0 0 0.2rem rgba(var(--red-500-rgb), 0.25);
-      }
-    }
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
   }
   
-  // Dropdown item styling for UF options
-  .p-select-option {
-    .uf-option {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      
-      .uf-code {
-        font-weight: 600;
-        color: var(--primary-color);
-        min-width: 2rem;
-      }
-      
-      .uf-name {
-        color: var(--text-color);
-      }
-    }
-  }
-}
-
-// Accessibility improvements
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-    animation: none !important;
-  }
-}
-
-// High contrast mode support
-@media (prefers-contrast: high) {
-  .filter-summary {
-    border-left-width: 4px;
-    background-color: var(--surface-0);
-  }
-  
-  .help-text {
-    border-left-width: 4px;
-    background-color: var(--surface-0);
+  .dependency-info {
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
+    margin-top: var(--spacing-xs);
+    font-style: italic;
   }
 }

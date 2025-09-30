@@ -1,32 +1,34 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { ReferenceCrudService } from '../../../../shared/services/reference-crud.service';
+import { CachedReferenceService } from '../../../../shared/services/cached-reference.service';
 import { MoedaDto, CriarMoedaDto, AtualizarMoedaDto } from '../../../../shared/models/reference.model';
 
 /**
  * Service for managing Moedas (Currencies)
- * Extends ReferenceCrudService for standard CRUD operations with caching and error handling
+ * Extends CachedReferenceService for optimized CRUD operations with caching and performance monitoring
  */
 @Injectable({
   providedIn: 'root'
 })
-export class MoedaService extends ReferenceCrudService<
+export class MoedaService extends CachedReferenceService<
   MoedaDto,
   CriarMoedaDto,
   AtualizarMoedaDto
 > {
   
   protected readonly entityName = 'Moeda';
-  protected readonly apiEndpoint = 'api/referencias/moedas';
+  protected readonly apiEndpoint = 'referencias/moedas';
+  
+  constructor() {
+    super('/api/referencias/moedas');
+  }
 
   /**
    * Get moedas by codigo pattern (for search/autocomplete)
    */
   buscarPorCodigo(codigo: string): Observable<MoedaDto[]> {
-    return this.buscar({ termo: codigo }).pipe(
-      map((response: any) => response.items || [])
-    );
+    return this.buscarPorTermo(codigo);
   }
 
   /**
@@ -38,11 +40,16 @@ export class MoedaService extends ReferenceCrudService<
       params.idExcluir = idExcluir;
     }
     
-    return this.http.get<{ isUnique: boolean }>(`${this.baseUrl}/verificar-codigo`, { params })
-      .pipe(
-        map(response => response.isUnique),
-        catchError(() => of(false))
-      );
+    const cacheKey = `verificar-codigo/${codigo}/${idExcluir || 'new'}`;
+    
+    return this.performanceService.createCachedObservable(
+      cacheKey,
+      () => this.http.get<{ isUnique: boolean }>(`${this.baseUrl}/verificar-codigo`, { params })
+        .pipe(map(response => response.isUnique)),
+      'referencias'
+    ).pipe(
+      catchError(() => of(false))
+    );
   }
 
   /**
@@ -54,35 +61,28 @@ export class MoedaService extends ReferenceCrudService<
       params.idExcluir = idExcluir;
     }
     
-    return this.http.get<{ isUnique: boolean }>(`${this.baseUrl}/verificar-nome`, { params })
-      .pipe(
-        map(response => response.isUnique),
-        catchError(() => of(false))
-      );
+    const cacheKey = `verificar-nome/${nome}/${idExcluir || 'new'}`;
+    
+    return this.performanceService.createCachedObservable(
+      cacheKey,
+      () => this.http.get<{ isUnique: boolean }>(`${this.baseUrl}/verificar-nome`, { params })
+        .pipe(map(response => response.isUnique)),
+      'referencias'
+    ).pipe(
+      catchError(() => of(false))
+    );
   }
 
   /**
    * Get moedas for dropdown usage (only active, minimal data)
    */
   obterParaDropdown(): Observable<{ id: number; codigo: string; nome: string; simbolo: string }[]> {
-    return this.http.get<{ id: number; codigo: string; nome: string; simbolo: string }[]>(`${this.baseUrl}/dropdown`)
-      .pipe(
-        // shareReplay(1),
-        // catchError(error => this.handleError('obter moedas para dropdown', error))
-      );
-  }
-
-  /**
-   * Configure cache for moedas (they change infrequently)
-   */
-  constructor() {
-    super();
+    const cacheKey = 'dropdown';
     
-    // Moedas don't change frequently, so we can cache for longer
-    this.configurarCache({
-      enabled: true,
-      ttlMinutes: 30, // 30 minutes cache
-      maxSize: 50
-    });
+    return this.performanceService.createCachedObservable(
+      cacheKey,
+      () => this.http.get<{ id: number; codigo: string; nome: string; simbolo: string }[]>(`${this.baseUrl}/dropdown`),
+      'referencias'
+    );
   }
 }

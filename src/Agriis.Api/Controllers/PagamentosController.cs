@@ -10,7 +10,7 @@ namespace Agriis.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/pagamentos")]
-[Authorize]
+//[Authorize]
 public class PagamentosController : ControllerBase
 {
     private readonly IFormaPagamentoService _formaPagamentoService;

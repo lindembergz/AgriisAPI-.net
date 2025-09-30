@@ -1,12 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
@@ -15,19 +14,29 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CheckboxModule } from 'primeng/checkbox';
-import { ReferenceCrudBaseComponent } from '../../../shared/components/reference-crud-base/reference-crud-base.component';
-import { UnidadeMedidaDto, CriarUnidadeMedidaDto, AtualizarUnidadeMedidaDto, TipoUnidadeMedida } from '../../../shared/models/reference.model';
-import { UnidadeMedidaService, TipoUnidadeOption, UnidadeDropdownOption, ConversaoResult } from './services/unidade-medida.service';
+import { MessageService } from 'primeng/api';
 
-interface TableColumn {
-  field: string;
-  header: string;
-  sortable?: boolean;
-  width?: string;
-  type?: 'text' | 'boolean' | 'date' | 'custom';
-  hideOnMobile?: boolean;
-  hideOnTablet?: boolean;
-}
+import { ReferenceCrudBaseComponent } from '../../../shared/components/reference-crud-base/reference-crud-base.component';
+import { ResponsiveTableComponent } from '../../../shared/components/responsive-table/responsive-table.component';
+import { FilterSummaryComponent } from '../../../shared/components/filter-summary/filter-summary.component';
+import { FieldErrorComponent } from '../../../shared/components/field-error/field-error.component';
+
+import { UnidadeMedidaDto, CriarUnidadeMedidaDto, AtualizarUnidadeMedidaDto, TipoUnidadeMedida } from '../../../shared/models/reference.model';
+import { UnidadeMedidaService, TipoUnidadeOption, UnidadeDropdownOption } from './services/unidade-medida.service';
+
+import { 
+  ComponentTemplate, 
+  CustomAction, 
+  TableColumn, 
+  EmptyStateConfig, 
+  LoadingStateConfig, 
+  ResponsiveConfig,
+  DialogConfig,
+  DisplayMode
+} from '../../../shared/interfaces/unified-component.interfaces';
+import { CustomFilter } from '../../../shared/interfaces/component-template.interface';
+
+// Interface removed - now using unified TableColumn interface
 
 /**
  * Component for managing Unidades de Medida (Units of Measure) with CRUD operations
@@ -41,235 +50,25 @@ interface TableColumn {
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    InputTextModule,
-    SelectModule,
+  InputTextModule,
+  SelectModule,
+  MultiSelectModule,
     InputNumberModule,
     ButtonModule,
-    CardModule,
-    DividerModule,
     TableModule,
-    ButtonModule,
-    SelectModule,
     ConfirmDialogModule,
     ToastModule,
     ProgressSpinnerModule,
     TagModule,
     TooltipModule,
     DialogModule,
-    CheckboxModule
+    CheckboxModule,
+    ResponsiveTableComponent,
+    FilterSummaryComponent,
+    FieldErrorComponent
   ],
-  template: `
-    <div class="unidades-medida-container">
-      <!-- Custom toolbar slot -->
-      <div slot="custom-toolbar" class="custom-toolbar">
-        <!-- Type filter -->
-        <div class="filter-group">
-          <label for="tipoFilter">Filtrar por Tipo:</label>
-          <p-select
-            id="tipoFilter"
-            [options]="tiposDisponiveis"
-            [(ngModel)]="tipoSelecionado"
-            (onChange)="onTipoFilterChange()"
-            optionLabel="descricao"
-            optionValue="valor"
-            placeholder="Todos os tipos"
-            [showClear]="true"
-            class="filter-dropdown">
-          </p-select>
-        </div>
-
-        <!-- Conversion calculator toggle -->
-        <p-button
-          label="Calculadora de Conversão"
-          icon="pi pi-calculator"
-          [outlined]="true"
-          (onClick)="toggleConversionCalculator()"
-          class="ml-2">
-        </p-button>
-      </div>
-
-      <!-- Form fields slot -->
-      <div slot="form-fields" class="form-fields">
-        <!-- Símbolo field -->
-        <div class="field">
-          <label for="simbolo" class="required">Símbolo</label>
-          <input
-            pInputText
-            id="simbolo"
-            formControlName="simbolo"
-            placeholder="Ex: kg, L, m², un"
-            maxlength="10"
-            [class.ng-invalid]="shouldShowError('simbolo')"
-            [disabled]="isEditMode()"
-            class="w-full" />
-          <small 
-            *ngIf="shouldShowError('simbolo')" 
-            class="p-error">
-            {{ getErrorMessage('simbolo') }}
-          </small>
-          <small class="field-help">
-            Símbolo único da unidade de medida
-          </small>
-        </div>
-
-        <!-- Nome field -->
-        <div class="field">
-          <label for="nome" class="required">Nome</label>
-          <input
-            pInputText
-            id="nome"
-            formControlName="nome"
-            placeholder="Ex: Quilograma, Litro, Metro Quadrado"
-            maxlength="100"
-            [class.ng-invalid]="shouldShowError('nome')"
-            class="w-full" />
-          <small 
-            *ngIf="shouldShowError('nome')" 
-            class="p-error">
-            {{ getErrorMessage('nome') }}
-          </small>
-        </div>
-
-        <!-- Tipo field -->
-        <div class="field">
-          <label for="tipo" class="required">Tipo</label>
-          <p-select
-            id="tipo"
-            formControlName="tipo"
-            [options]="tiposDisponiveis"
-            optionLabel="descricao"
-            optionValue="valor"
-            placeholder="Selecione o tipo"
-            [class.ng-invalid]="shouldShowError('tipo')"
-            class="w-full">
-          </p-select>
-          <small 
-            *ngIf="shouldShowError('tipo')" 
-            class="p-error">
-            {{ getErrorMessage('tipo') }}
-          </small>
-          <small class="field-help">
-            Categoria da unidade de medida
-          </small>
-        </div>
-
-        <!-- Fator de Conversão field -->
-        <div class="field">
-          <label for="fatorConversao">Fator de Conversão</label>
-          <p-inputNumber
-            id="fatorConversao"
-            formControlName="fatorConversao"
-            placeholder="1.0"
-            [minFractionDigits]="0"
-            [maxFractionDigits]="6"
-            [min]="0.000001"
-            [class.ng-invalid]="shouldShowError('fatorConversao')"
-            class="w-full">
-          </p-inputNumber>
-          <small 
-            *ngIf="shouldShowError('fatorConversao')" 
-            class="p-error">
-            {{ getErrorMessage('fatorConversao') }}
-          </small>
-          <small class="field-help">
-            Fator para conversão entre unidades do mesmo tipo (padrão: 1.0)
-          </small>
-        </div>
-      </div>
-
-      <!-- Custom content slot for conversion calculator -->
-      <div slot="custom-content" *ngIf="showConversionCalculator" class="conversion-calculator">
-        <p-card header="Calculadora de Conversão" class="mt-4">
-          <div class="conversion-form">
-            <div class="p-grid p-align-center">
-              <!-- Quantidade origem -->
-              <div class="p-col-12 p-md-3">
-                <label for="quantidadeOrigem">Quantidade:</label>
-                <p-inputNumber
-                  id="quantidadeOrigem"
-                  [(ngModel)]="conversaoForm.quantidade"
-                  [minFractionDigits]="0"
-                  [maxFractionDigits]="6"
-                  [min]="0"
-                  placeholder="0"
-                  class="w-full">
-                </p-inputNumber>
-              </div>
-
-              <!-- Unidade origem -->
-              <div class="p-col-12 p-md-3">
-                <label for="unidadeOrigem">De:</label>
-                <p-select
-                  id="unidadeOrigem"
-                  [(ngModel)]="conversaoForm.unidadeOrigemId"
-                  [options]="unidadesParaConversao"
-                  optionLabel="nome"
-                  optionValue="id"
-                  placeholder="Selecione"
-                  [filter]="true"
-                  filterBy="nome,simbolo"
-                  class="w-full">
-                  <ng-template pTemplate="item" let-unidade>
-                    <div class="dropdown-item">
-                      <strong>{{ unidade.simbolo }}</strong> - {{ unidade.nome }}
-                    </div>
-                  </ng-template>
-                </p-select>
-              </div>
-
-              <!-- Unidade destino -->
-              <div class="p-col-12 p-md-3">
-                <label for="unidadeDestino">Para:</label>
-                <p-select
-                  id="unidadeDestino"
-                  [(ngModel)]="conversaoForm.unidadeDestinoId"
-                  [options]="unidadesParaConversao"
-                  optionLabel="nome"
-                  optionValue="id"
-                  placeholder="Selecione"
-                  [filter]="true"
-                  filterBy="nome,simbolo"
-                  class="w-full">
-                  <ng-template pTemplate="item" let-unidade>
-                    <div class="dropdown-item">
-                      <strong>{{ unidade.simbolo }}</strong> - {{ unidade.nome }}
-                    </div>
-                  </ng-template>
-                </p-select>
-              </div>
-
-              <!-- Botão converter -->
-              <div class="p-col-12 p-md-3">
-                <p-button
-                  label="Converter"
-                  icon="pi pi-arrow-right"
-                  (onClick)="calcularConversao()"
-                  [disabled]="!podeCalcularConversao()"
-                  [loading]="calculandoConversao"
-                  class="w-full">
-                </p-button>
-              </div>
-            </div>
-
-            <!-- Resultado da conversão -->
-            <div *ngIf="resultadoConversao" class="conversion-result mt-3">
-              <p-divider></p-divider>
-              <div class="result-display">
-                <h4>Resultado da Conversão:</h4>
-                <p class="result-text">
-                  <strong>{{ resultadoConversao.quantidadeOriginal | number:'1.0-6' }}</strong>
-                  {{ getUnidadeById(resultadoConversao.unidadeOrigemId)?.simbolo }}
-                  =
-                  <strong>{{ resultadoConversao.quantidadeConvertida | number:'1.0-6' }}</strong>
-                  {{ getUnidadeById(resultadoConversao.unidadeDestinoId)?.simbolo }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </p-card>
-      </div>
-    </div>
-  `,
+  providers: [MessageService],
+  templateUrl: './unidades-medida.component.html',
   styleUrls: ['./unidades-medida.component.scss']
 })
 export class UnidadesMedidaComponent extends ReferenceCrudBaseComponent<
@@ -277,25 +76,16 @@ export class UnidadesMedidaComponent extends ReferenceCrudBaseComponent<
   CriarUnidadeMedidaDto,
   AtualizarUnidadeMedidaDto
 > implements OnInit {
-  
+
   protected service = inject(UnidadeMedidaService);
+  protected messageService = inject(MessageService);
 
   // Type filtering
   tiposDisponiveis: TipoUnidadeOption[] = [];
-  tipoSelecionado: TipoUnidadeMedida | null = null;
-  filteredItems: UnidadeMedidaDto[] = [];
 
   // Conversion calculator
   showConversionCalculator = false;
   unidadesParaConversao: UnidadeDropdownOption[] = [];
-  calculandoConversao = false;
-  resultadoConversao: ConversaoResult | null = null;
-  
-  conversaoForm = {
-    quantidade: 0,
-    unidadeOrigemId: null as number | null,
-    unidadeDestinoId: null as number | null
-  };
 
   // Entity configuration
   protected entityDisplayName = () => 'Unidade de Medida';
@@ -303,42 +93,222 @@ export class UnidadesMedidaComponent extends ReferenceCrudBaseComponent<
   protected defaultSortField = () => 'simbolo';
   protected searchFields = () => ['simbolo', 'nome'];
 
+  public filteredData = signal<UnidadeMedidaDto[]>([]);
+  public actionsTemplate = null;
+  public typeOptions = signal<any[]>([]);
+  // helper used by templates (PrimeNG expects plain arrays)
+  public typeOptionsArray = () => this.typeOptions();
+  public saving = signal(false);
+  public showDialog = signal(false);
+
+  // Template-friendly aliases (some templates expect different names)
+  // Keep backwards compatibility with templates referencing Portuguese/English names
+  editItem = (ev: any) => this.editarItem ? this.editarItem(ev) : undefined;
+  deleteItem = (ev: any) => this.excluirItem ? this.excluirItem(ev) : undefined;
+  loadData = (force: boolean) => this.carregarItens ? this.carregarItens() : undefined;
+
+  constructor() {
+    super();
+    effect(() => {
+      this.items(); // Register dependency on items signal
+      this.applyFiltersLocal();
+    });
+  }
+
   override ngOnInit(): void {
-    super.ngOnInit();
-    this.carregarTipos();
-    this.carregarUnidadesParaConversao();
-    
-    // Initialize filtered items
-    this.filteredItems = [...this.items()];
+    try {
+      super.ngOnInit();
+      this.carregarTipos();
+      this.carregarUnidadesParaConversao();
+      this.setupFormValidation();
+    } catch (error) {
+      console.error('Error initializing UnidadesMedidaComponent:', error);
+      // Try to initialize with minimal setup
+      this.carregarTipos();
+    }
+  }
+
+  // =============================================================================
+  // UNIFIED FRAMEWORK IMPLEMENTATION
+  // =============================================================================
+
+
+
+  /**
+   * Get custom filters configuration
+   */
+  protected getCustomFilters(): CustomFilter[] {
+    return [
+      {
+        key: 'tipo',
+        label: 'Tipo',
+        placeholder: 'Filtrar por tipo',
+        type: 'select',
+        visible: true,
+        options: [
+          { label: 'Todos os tipos', value: null },
+          ...this.tiposDisponiveis.map(tipo => ({
+            label: tipo.descricao,
+            value: tipo.valor
+          }))
+        ]
+      }
+    ];
+  }
+
+  /**
+   * Get custom actions configuration
+   */
+  protected getCustomActions(): CustomAction[] {
+    return [
+      {
+        key: 'conversion-calculator',
+        label: 'Calculadora',
+        icon: 'pi pi-calculator',
+        styleClass: 'p-button-outlined p-button-info',
+        tooltip: 'Abrir calculadora de conversão'
+        , action: () => { this.showConversionCalculator = true; }
+      }
+    ];
+  }
+
+
+  /**
+   * Override to apply custom filters
+   */
+  protected override applyCustomFilter(items: UnidadeMedidaDto[], filterKey: string, filterValue: any): UnidadeMedidaDto[] {
+    if (filterKey === 'tipo' && filterValue !== null && filterValue !== undefined) {
+      return items.filter(item => item.tipo === filterValue);
+    }
+    return items;
+  }
+
+  /**
+   * Setup additional form validation
+   */
+  private setupFormValidation(): void {
+    try {
+      if (!this.form) {
+        console.warn('Form not available for validation setup');
+        return;
+      }
+
+      // Add blur validation for simbolo uniqueness
+      const simboloControl = this.form.get('simbolo');
+      if (simboloControl) {
+        simboloControl.valueChanges.subscribe(value => {
+          if (value && value.length >= 1 && !simboloControl.hasError('required')) {
+            this.validateSimboloUnique(value);
+          }
+        });
+      }
+
+      // Add blur validation for nome uniqueness
+      const nomeControl = this.form.get('nome');
+      if (nomeControl) {
+        nomeControl.valueChanges.subscribe(value => {
+          if (value && value.length >= 2 && !nomeControl.hasError('required')) {
+            this.validateNomeUnique(value);
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error setting up form validation:', error);
+    }
+  }
+
+  /**
+   * Validate simbolo uniqueness
+   */
+  private validateSimboloUnique(simbolo: string): void {
+    const currentId = this.selectedItem()?.id;
+    this.service.verificarSimboloUnico(simbolo, currentId).subscribe({
+      next: (isUnique) => {
+        const simboloControl = this.form.get('simbolo');
+        if (simboloControl) {
+          if (!isUnique) {
+            simboloControl.setErrors({ ...simboloControl.errors, unique: true });
+          } else {
+            const errors = simboloControl.errors;
+            if (errors) {
+              delete errors['unique'];
+              simboloControl.setErrors(Object.keys(errors).length ? errors : null);
+            }
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Erro ao validar símbolo único:', error);
+      }
+    });
+  }
+
+  /**
+   * Validate nome uniqueness
+   */
+  private validateNomeUnique(nome: string): void {
+    const currentId = this.selectedItem()?.id;
+    this.service.verificarNomeUnico(nome, currentId).subscribe({
+      next: (isUnique) => {
+        const nomeControl = this.form.get('nome');
+        if (nomeControl) {
+          if (!isUnique) {
+            nomeControl.setErrors({ ...nomeControl.errors, unique: true });
+          } else {
+            const errors = nomeControl.errors;
+            if (errors) {
+              delete errors['unique'];
+              nomeControl.setErrors(Object.keys(errors).length ? errors : null);
+            }
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Erro ao validar nome único:', error);
+      }
+    });
   }
 
   // Table columns configuration
   protected displayColumns = (): TableColumn[] => [
-    {
-      field: 'simbolo',
-      header: 'Símbolo',
+
+            {
+      field: 'id',
+      header: 'Código',
       sortable: true,
-      width: '120px'
+      width: '50px',
+      type: 'custom'
     },
-    {
-      field: 'nome',
-      header: 'Nome',
-      sortable: true,
-      width: '250px'
-    },
-    {
-      field: 'tipo',
-      header: 'Tipo',
+        {
+      field: 'tipoDescricao',
+      header: 'Grandeza',
       sortable: true,
       width: '150px',
       type: 'custom'
     },
     {
+      field: 'nome',
+      header: 'Unidade',
+      sortable: true,
+      width: '250px',
+      type: 'text'
+    },
+    {
+      field: 'simbolo',
+      header: 'Símbolo',
+      sortable: true,
+      width: '250px',
+      type: 'text'
+    },
+
+
+    /*{
       field: 'fatorConversao',
       header: 'Fator Conversão',
       sortable: true,
       width: '150px',
-      hideOnMobile: true
+      hideOnMobile: true,
+      type: 'text'
     },
     {
       field: 'ativo',
@@ -356,7 +326,7 @@ export class UnidadesMedidaComponent extends ReferenceCrudBaseComponent<
       type: 'date',
       hideOnMobile: true,
       hideOnTablet: true
-    }
+    }*/
   ];
 
   /**
@@ -367,7 +337,8 @@ export class UnidadesMedidaComponent extends ReferenceCrudBaseComponent<
       simbolo: ['', [
         Validators.required,
         Validators.minLength(1),
-        Validators.maxLength(10)
+        Validators.maxLength(10),
+        Validators.pattern(/^[A-Za-z0-9²³°]+$/) // Allow letters, numbers, and common unit symbols
       ]],
       nome: ['', [
         Validators.required,
@@ -378,7 +349,8 @@ export class UnidadesMedidaComponent extends ReferenceCrudBaseComponent<
         Validators.required
       ]],
       fatorConversao: [1, [
-        Validators.min(0.000001)
+        Validators.min(0.000001),
+        Validators.max(999999)
       ]],
       ativo: [true]
     });
@@ -428,14 +400,18 @@ export class UnidadesMedidaComponent extends ReferenceCrudBaseComponent<
     this.service.obterTipos().subscribe({
       next: (tipos) => {
         this.tiposDisponiveis = tipos;
+        this.typeOptions.set(tipos.map(t => ({ label: t.descricao, value: t.valor })));
       },
       error: (error) => {
         console.error('Erro ao carregar tipos de unidade:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao carregar tipos de unidade de medida'
-        });
+        // Use fallback types if service fails
+        this.tiposDisponiveis = [
+          { valor: 1, nome: 'Peso', descricao: 'Peso' },
+          { valor: 2, nome: 'Volume', descricao: 'Volume' },
+          { valor: 3, nome: 'Area', descricao: 'Área' },
+          { valor: 4, nome: 'Unidade', descricao: 'Unidade' }
+        ];
+        this.typeOptions.set(this.tiposDisponiveis.map(t => ({ label: t.descricao, value: t.valor })));
       }
     });
   }
@@ -454,114 +430,282 @@ export class UnidadesMedidaComponent extends ReferenceCrudBaseComponent<
     });
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // =============================================================================
+  // UTILITY METHODS FOR TEMPLATE
+  // =============================================================================
+
+  // Additional properties needed by template
+  statusOptions = [
+    { label: 'Todos os Status', value: 'todas' },
+    { label: 'Apenas Ativos', value: 'ativas' },
+    { label: 'Apenas Inativos', value: 'inativas' }
+  ];
+
   /**
-   * Handle type filter change
+   * Get dialog title
    */
-  onTipoFilterChange(): void {
-    if (this.tipoSelecionado) {
-      // Apply filter to the data
-      this.applyCustomFilter('tipo', this.tipoSelecionado);
-    } else {
-      // Clear filter
-      this.clearCustomFilter('tipo');
+  dialogTitle(): string {
+    return this.selectedItem() ? `Editar ${this.entityDisplayName()}` : `Nova ${this.entityDisplayName()}`;
+  }
+
+  /**
+   * Check if is edit mode
+   */
+  isEditMode(): boolean {
+    return this.selectedItem() !== null;
+  }
+
+  /**
+   * Handle status change
+   */
+  onStatusChange(value: any): void {
+    this.selectedStatusFilter.set(value);
+    this.applyFiltersLocal();
+  }
+
+  /**
+   * Get custom filter value
+   */
+  getCustomFilterValue(key: string): any {
+    return this.customFilters().get(key);
+  }
+
+  /**
+   * Handle custom filter change
+   */
+  onCustomFilterChange(key: string, value: any): void {
+    const filters = new Map(this.customFilters());
+    filters.set(key, value);
+    this.customFilters.set(filters);
+    this.applyFiltersLocal();
+  }
+
+  /**
+   * Get active filters summary
+   */
+  getActiveFiltersSummary(): any[] {
+    const filters = [];
+    
+    if (this.searchTerm()) {
+      filters.push({
+        key: 'search',
+        label: `Busca: "${this.searchTerm()}"`,
+        removable: true
+      });
+    }
+    
+    const statusFilter = this.selectedStatusFilter();
+    if (statusFilter !== 'todas' && statusFilter !== null) {
+      const statusLabel = statusFilter === 'ativas' ? 'Ativos' : 'Inativos';
+      filters.push({
+        key: 'status',
+        label: `Status: ${statusLabel}`,
+        removable: true
+      });
+    }
+    
+    const tipoFilter = this.getCustomFilterValue('tipo');
+    if (tipoFilter !== null && tipoFilter !== undefined) {
+      const tipoLabel = this.tiposDisponiveis.find(t => t.valor === tipoFilter)?.descricao;
+      filters.push({
+        key: 'tipo',
+        label: `Tipo: ${tipoLabel}`,
+        removable: true
+      });
+    }
+    
+    return filters;
+  }
+
+  /**
+   * Clear specific filter
+   */
+  clearFilter(filterKey: string): void {
+    switch (filterKey) {
+      case 'search':
+        this.clearSearch();
+        break;
+      case 'status':
+        this.selectedStatusFilter.set('todas');
+        this.applyFiltersLocal();
+        break;
+      case 'tipo':
+        this.onCustomFilterChange('tipo', null);
+        break;
     }
   }
 
   /**
-   * Toggle conversion calculator visibility
+   * Clear all filters
    */
-  toggleConversionCalculator(): void {
-    this.showConversionCalculator = !this.showConversionCalculator;
-    if (this.showConversionCalculator) {
-      this.resetConversaoForm();
+  clearAllFilters(): void {
+    this.searchTerm.set('');
+    this.selectedStatusFilter.set('todas');
+    this.customFilters.set(new Map());
+    this.applyFiltersLocal();
+  }
+
+  /**
+   * Handle search change
+   */
+  onSearchChange(event: any): void {
+    this.searchTerm.set(event.target.value);
+    this.applyFiltersLocal();
+  }
+
+  /**
+   * Clear search
+   */
+  clearSearch(): void {
+    this.searchTerm.set('');
+    this.applyFiltersLocal();
+  }
+
+  /**
+   * Apply all filters to data
+   */
+  private applyFiltersLocal(): void {
+    let filtered = [...this.items()];
+    
+    // Apply status filter
+    const statusFilter = this.selectedStatusFilter();
+    if (statusFilter === 'ativas') {
+      filtered = filtered.filter(item => item.ativo === true);
+    } else if (statusFilter === 'inativas') {
+      filtered = filtered.filter(item => item.ativo === false);
+    }
+    
+    // Apply search filter
+    const searchTerm = this.searchTerm().toLowerCase().trim();
+    if (searchTerm) {
+      const searchFields = this.searchFields();
+      filtered = filtered.filter(item => {
+        return searchFields.some(field => {
+          const value = this.getFieldValue(item, field).toLowerCase();
+          return value.includes(searchTerm);
+        });
+      });
+    }
+    
+    // Apply custom filters
+    const customFiltersMap = this.customFilters();
+    for (const [filterKey, filterValue] of customFiltersMap.entries()) {
+      if (filterValue !== null && filterValue !== undefined && filterValue !== '') {
+        filtered = this.applyCustomFilter(filtered, filterKey, filterValue);
+      }
+    }
+    
+    this.filteredData.set(filtered);
+  }
+
+  /**
+   * Get field value from object
+   */
+  public getFieldValue(item: any, field: string): string {
+    const value = field.split('.').reduce((obj, key) => obj?.[key], item);
+    return value?.toString() || '';
+  }
+
+
+
+  // Additional methods needed by template that may be missing from base
+
+  /**
+   * Execute custom action
+   */
+  executeCustomAction(actionKey: string): void {
+    const action = this.getCustomActions().find(a => a.key === actionKey);
+    if (action && action.action) {
+      action.action();
     }
   }
 
   /**
-   * Reset conversion form
+   * Override novoItem to ensure dialog opens
    */
-  private resetConversaoForm(): void {
-    this.conversaoForm = {
-      quantidade: 0,
-      unidadeOrigemId: null,
-      unidadeDestinoId: null
-    };
-    this.resultadoConversao = null;
+  override novoItem(): void {
+    super.novoItem();
+    this.showDialog.set(true);
   }
 
   /**
-   * Check if conversion can be calculated
+   * Override editarItem to ensure dialog opens
    */
-  podeCalcularConversao(): boolean {
-    return !!(
-      this.conversaoForm.quantidade > 0 &&
-      this.conversaoForm.unidadeOrigemId &&
-      this.conversaoForm.unidadeDestinoId
-    );
+  override editarItem(item: UnidadeMedidaDto): void {
+    super.editarItem(item);
+    this.showDialog.set(true);
   }
 
   /**
-   * Calculate unit conversion
+   * Override hideDialog to properly close
    */
-  calcularConversao(): void {
-    if (!this.podeCalcularConversao()) {
-      return;
+  hideDialog(): void {
+    this.showForm.set(false);
+    this.showDialog.set(false);
+    this.selectedItem.set(null);
+  }
+
+  /**
+   * Override save method
+   */
+  save(): void {
+    if (this.form.valid) {
+      this.saving.set(true);
+      this.salvarItem();
     }
+  }
 
-    this.calculandoConversao = true;
-    this.resultadoConversao = null;
+  /**
+   * Override salvarItem to handle dialog closing
+   */
+  override salvarItem(): void {
+    this.saving.set(true);
+    
+    const formValue = this.form.value;
+    const isEdit = this.isEditMode();
+    
+    const dto = isEdit ? this.mapToUpdateDto(formValue) : this.mapToCreateDto(formValue);
+    const request = isEdit 
+      ? this.service.atualizar(this.selectedItem()!.id, dto as AtualizarUnidadeMedidaDto)
+      : this.service.criar(dto as CriarUnidadeMedidaDto);
 
-    this.service.converter(
-      this.conversaoForm.quantidade,
-      this.conversaoForm.unidadeOrigemId!,
-      this.conversaoForm.unidadeDestinoId!
-    ).subscribe({
-      next: (resultado) => {
-        this.resultadoConversao = resultado;
-        this.calculandoConversao = false;
+    request.subscribe({
+      next: (result) => {
+        this.saving.set(false);
+        this.hideDialog();
+        this.carregarItens();
+        
+        const message = isEdit ? 'Unidade de medida atualizada com sucesso!' : 'Unidade de medida criada com sucesso!';
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: message
+        });
       },
       error: (error) => {
-        console.error('Erro ao calcular conversão:', error);
+        this.saving.set(false);
+        console.error('Erro ao salvar unidade de medida:', error);
+        
         this.messageService.add({
           severity: 'error',
-          summary: 'Erro na Conversão',
-          detail: error.error?.errorDescription || 'Erro ao calcular conversão entre unidades'
+          summary: 'Erro',
+          detail: 'Erro ao salvar unidade de medida. Tente novamente.'
         });
-        this.calculandoConversao = false;
       }
     });
-  }
-
-  /**
-   * Get unit by ID for display purposes
-   */
-  getUnidadeById(id: number): UnidadeDropdownOption | undefined {
-    return this.unidadesParaConversao.find(u => u.id === id);
-  }
-
-  /**
-   * Get tipo description for display
-   */
-  getTipoDescricao(tipo: TipoUnidadeMedida): string {
-    return this.service.getTipoDescricao(tipo);
-  }
-
-  /**
-   * Custom filter implementation
-   */
-  private applyCustomFilter(field: string, value: any): void {
-    if (field === 'tipo' && value !== null) {
-      this.filteredItems = this.items().filter(item => 
-        (item as UnidadeMedidaDto).tipo === value
-      );
-    }
-  }
-
-  /**
-   * Clear custom filter
-   */
-  private clearCustomFilter(_field: string): void {
-    // Reset to show all items
-    this.filteredItems = [...this.items()];
   }
 }

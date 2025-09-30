@@ -49,10 +49,12 @@ public class SegmentacaoConfiguration : IEntityTypeConfiguration<Segmentacao>
             
         builder.Property(s => s.DataCriacao)
             .HasColumnName("DataCriacao")
+            .HasColumnType("timestamptz")
             .IsRequired();
             
         builder.Property(s => s.DataAtualizacao)
-            .HasColumnName("DataAtualizacao");
+            .HasColumnName("DataAtualizacao")
+            .HasColumnType("timestamptz");
         
         // Relacionamentos
         builder.HasMany(s => s.Grupos)

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, input, output, forwardRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
@@ -18,6 +18,7 @@ import { PaisDto, UfDto, MunicipioDto, GeographicData } from '../../models/refer
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     SelectModule,
     ProgressSpinnerModule,
     MessageModule,

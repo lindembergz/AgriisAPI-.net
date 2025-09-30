@@ -1,34 +1,40 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { TagModule } from 'primeng/tag';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CheckboxModule } from 'primeng/checkbox';
+
 import { ReferenceCrudBaseComponent } from '../../../shared/components/reference-crud-base/reference-crud-base.component';
 import { PaisDto, CriarPaisDto, AtualizarPaisDto } from '../../../shared/models/reference.model';
 import { PaisService } from './services/pais.service';
 import { FieldValidatorsUtil } from '../../../shared/utils/field-validators.util';
 
-interface TableColumn {
-  field: string;
-  header: string;
-  sortable?: boolean;
-  width?: string;
-  type?: 'text' | 'boolean' | 'date' | 'custom';
-  hideOnMobile?: boolean;
-  hideOnTablet?: boolean;
-}
+import { 
+  ComponentTemplate, 
+  CustomAction, 
+  TableColumn, 
+  EmptyStateConfig, 
+  LoadingStateConfig, 
+  ResponsiveConfig,
+  DialogConfig,
+  DisplayMode
+} from '../../../shared/interfaces/unified-component.interfaces';
+import { CustomFilter } from '../../../shared/interfaces/component-template.interface';
+import { FieldErrorComponent } from '../../../shared/components/field-error/field-error.component';
+
+
 
 /**
- * Component for managing Países (Countries) with CRUD operations
+ * Component for managing Países (Countries) with ISO 3166 compliance
  * Shows UF dependency count and prevents deletion when UFs exist
  */
 @Component({
@@ -37,83 +43,34 @@ interface TableColumn {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     InputTextModule,
-    TagModule,
-    TableModule,
-    ButtonModule,
     SelectModule,
+    ButtonModule,
+    TableModule,
     ConfirmDialogModule,
     ToastModule,
     ProgressSpinnerModule,
+    TagModule,
     TooltipModule,
     DialogModule,
-    CheckboxModule
+    CheckboxModule,
+    FieldErrorComponent
   ],
-  template: `
-    <div class="paises-container">
-      <!-- Form fields slot -->
-      <div slot="form-fields" class="form-fields">
-        <!-- Código field -->
-        <div class="field">
-          <label for="codigo" class="required">Código</label>
-          <input
-            pInputText
-            id="codigo"
-            formControlName="codigo"
-            placeholder="Ex: BR, US, AR"
-            maxlength="3"
-            [class.ng-invalid]="shouldShowError('codigo')"
-            [disabled]="isEditMode()"
-            class="w-full" />
-          <small 
-            *ngIf="shouldShowError('codigo')" 
-            class="p-error">
-            {{ getErrorMessage('codigo') }}
-          </small>
-          <small class="field-help">
-            Código do país (ISO 3166-1 alpha-2 ou alpha-3)
-          </small>
-        </div>
-
-        <!-- Nome field -->
-        <div class="field">
-          <label for="nome" class="required">Nome</label>
-          <input
-            pInputText
-            id="nome"
-            formControlName="nome"
-            placeholder="Ex: Brasil, Estados Unidos, Argentina"
-            maxlength="100"
-            [class.ng-invalid]="shouldShowError('nome')"
-            class="w-full" />
-          <small 
-            *ngIf="shouldShowError('nome')" 
-            class="p-error">
-            {{ getErrorMessage('nome') }}
-          </small>
-        </div>
-      </div>
-
-      <!-- Custom UF count column -->
-      <ng-container slot="custom-ufsCount">
-        <p-tag 
-          value="0" 
-          severity="secondary"
-          class="uf-count-tag">
-        </p-tag>
-      </ng-container>
-    </div>
-  `,
+  providers: [],
+  templateUrl: './paises.component.html',
   styleUrls: ['./paises.component.scss']
 })
 export class PaisesComponent extends ReferenceCrudBaseComponent<
   PaisDto,
   CriarPaisDto,
   AtualizarPaisDto
-> {
+> implements OnInit {
   
   protected service = inject(PaisService);
-  private fieldValidators = inject(FieldValidatorsUtil);
+
+  // Signals for reactive data
+  ufsCountData = signal<Record<number, number>>({});
 
   // Entity configuration
   protected entityDisplayName = () => 'País';
@@ -121,35 +78,43 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
   protected defaultSortField = () => 'nome';
   protected searchFields = () => ['codigo', 'nome'];
 
-  // Table columns configuration
-  protected displayColumns = (): TableColumn[] => [
+  // =============================================================================
+  // UNIFIED FRAMEWORK IMPLEMENTATION
+  // =============================================================================
+
+  private readonly _displayColumns: TableColumn[] = [
     {
       field: 'codigo',
       header: 'Código',
       sortable: true,
-      width: '120px'
+      width: '120px',
+      align: 'center',
+      type: 'text'
     },
     {
       field: 'nome',
       header: 'Nome',
       sortable: true,
-      width: '300px'
+      width: '300px',
+      type: 'text'
     },
     {
       field: 'ufsCount',
       header: 'UFs',
-      sortable: true,
-      width: '100px',
+      sortable: false,
+      width: '120px',
       type: 'custom',
+      align: 'center',
       hideOnMobile: true
-    },
+    }/*,
     {
       field: 'ativo',
       header: 'Status',
       sortable: true,
       width: '100px',
       type: 'boolean',
-      hideOnMobile: true
+      hideOnMobile: true,
+      align: 'center'
     },
     {
       field: 'dataCriacao',
@@ -159,8 +124,157 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
       type: 'date',
       hideOnMobile: true,
       hideOnTablet: true
-    }
+    }*/
   ];
+
+  displayColumns = () => this._displayColumns;
+
+
+
+
+
+  /**
+   * Get custom filters configuration
+   */
+  protected getCustomFilters(): CustomFilter[] {
+    return [];
+  }
+
+  /**
+   * Get custom actions configuration
+   */
+  protected getCustomActions(): CustomAction[] {
+    return [];
+  }
+
+  ngOnInit(): void {
+    try {
+      super.ngOnInit();
+      this.carregarContagemUfs();
+    } catch (error) {
+      console.error('Error initializing PaisesComponent:', error);
+    }
+  }
+
+  // =============================================================================
+  // UTILITY METHODS FOR TEMPLATE
+  // =============================================================================
+
+
+
+
+
+  /**
+   * Load UFs count for each país
+   */
+  private carregarContagemUfs(): void {
+    this.items().forEach(pais => {
+      this.service.obterEstatisticas(pais.id).subscribe({
+        next: (stats) => {
+          const currentData = this.ufsCountData();
+          this.ufsCountData.set({
+            ...currentData,
+            [pais.id]: stats.ufsCount
+          });
+        },
+        error: (error) => {
+          console.error(`Erro ao carregar estatísticas do país ${pais.codigo}:`, error);
+        }
+      });
+    });
+  }
+
+  /**
+   * Get UFs count for a país
+   */
+  getUfsCount(paisId: number): number {
+    return this.ufsCountData()[paisId] || 0;
+  }
+
+  /**
+   * Get UFs count display text
+   */
+  getUfsCountDisplay(item: PaisDto): string {
+    const count = this.getUfsCount(item.id);
+    return count === 0 ? 'Nenhuma' : `${count}`;
+  }
+
+  /**
+   * Get UFs count severity for styling
+   */
+  getUfsCountSeverity(count: number): string {
+    if (count === 0) return 'secondary';
+    if (count <= 5) return 'info';
+    if (count <= 15) return 'success';
+    if (count <= 30) return 'warning';
+    return 'danger';
+  }
+
+  /**
+   * Get tooltip text for UFs count
+   */
+  getUfsTooltip(count: number): string {
+    if (count === 0) return 'Nenhuma UF cadastrada';
+    return `${count} UF${count > 1 ? 's' : ''} cadastrada${count > 1 ? 's' : ''}`;
+  }
+
+
+
+
+
+  /**
+   * Override excluir to check UF dependencies
+   */
+  override async excluirItem(item: PaisDto): Promise<void> {
+    try {
+      // Check if país has UFs before allowing deletion
+      const temUfs = await this.service.verificarDependenciasUf(item.id).toPromise();
+      const ufsCount = this.getUfsCount(item.id);
+      
+      if (temUfs && ufsCount > 0) {
+        this.feedbackService.showWarning(
+          `Este país possui ${ufsCount} UF${ufsCount > 1 ? 's' : ''} cadastrada${ufsCount > 1 ? 's' : ''}. Remova as UFs primeiro.`,
+          'Exclusão Não Permitida'
+        );
+        return;
+      }
+      
+      // Proceed with normal deletion flow
+      await super.excluirItem(item);
+    } catch (error) {
+      console.error('Erro ao verificar dependências:', error);
+      this.feedbackService.showError(
+        'Erro ao verificar dependências. Tente novamente.',
+        'Erro de Validação'
+      );
+    }
+  }
+
+  /**
+   * Override to check dependencies before deactivation
+   */
+  protected override async checkDeactivationDependencies(item: PaisDto): Promise<{
+    canDeactivate: boolean;
+    message?: string;
+    warningMessage?: string;
+  } | null> {
+    try {
+      const temUfs = await this.service.verificarDependenciasUf(item.id).toPromise();
+      const ufsCount = this.getUfsCount(item.id);
+      
+      if (temUfs && ufsCount > 0) {
+        return {
+          canDeactivate: false,
+          message: `Este país possui ${ufsCount} UF${ufsCount > 1 ? 's' : ''} cadastrada${ufsCount > 1 ? 's' : ''}. Desative as UFs primeiro.`
+        };
+      }
+      
+      return { canDeactivate: true };
+    } catch (error) {
+      console.error('Erro ao verificar dependências de UFs:', error);
+      return { canDeactivate: true };
+    }
+  }
 
   /**
    * Create reactive form with validation
@@ -215,47 +329,194 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
     });
   }
 
+  // Additional methods needed by template
+
   /**
-   * Get UFs count display text
+   * Get dialog title
    */
-  getUfsCountDisplay(item: any): string {
-    const count = item.ufsCount || 0;
-    return count === 0 ? 'Nenhuma UF' : `${count} UF${count > 1 ? 's' : ''}`;
+  dialogTitle(): string {
+    return this.selectedItem() ? `Editar ${this.entityDisplayName()}` : `Novo ${this.entityDisplayName()}`;
   }
 
   /**
-   * Get UFs count severity for styling
+   * Check if is edit mode
    */
-  getUfsCountSeverity(count: number): string {
-    if (count === 0) return 'secondary';
-    if (count <= 5) return 'info';
-    if (count <= 15) return 'success';
-    return 'warning';
+  isEditMode(): boolean {
+    return this.selectedItem() !== null;
   }
 
   /**
-   * Override excluir to check UF dependencies
+   * Get dialog style
    */
-  override excluirItem(item: PaisDto): void {
-    // Check if país has UFs before allowing deletion
-    this.service.verificarDependenciasUf(item.id).subscribe({
-      next: (temUfs) => {
-        if (temUfs) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Não é possível excluir',
-            detail: 'Este país possui UFs cadastradas. Remova as UFs primeiro.',
-            life: 5000
-          });
-          return;
-        }
-        
-        // Proceed with normal deletion flow
-        super.excluirItem(item);
-      },
-      error: (error) => {
-        console.error('Erro ao verificar dependências:', error);
-      }
-    });
+  private readonly _paisesDialogStyle = { width: '450px' };
+
+  override getDialogStyle(): any {
+    return this._paisesDialogStyle;
+  }
+
+  /**
+   * Get page report template
+   */
+  getPageReportTemplate(): string {
+    return 'Mostrando {first} a {last} de {totalRecords} países';
+  }
+
+  /**
+   * Check if mobile
+   */
+  isMobile(): boolean {
+    return window.innerWidth < 768;
+  }
+
+  /**
+   * Check if tablet
+   */
+  isTablet(): boolean {
+    return window.innerWidth >= 768 && window.innerWidth < 1024;
+  }
+
+  /**
+   * Check if row is highlighted
+   */
+  isRowHighlighted(rowIndex: number): boolean {
+    return this.highlightedRowIndex() === rowIndex;
+  }
+
+  /**
+   * Get status label
+   */
+  getStatusLabel(ativo: boolean): string {
+    return ativo ? 'Ativo' : 'Inativo';
+  }
+
+  /**
+   * Get status severity
+   */
+  getStatusSeverity(ativo: boolean): string {
+    return ativo ? 'success' : 'danger';
+  }
+
+  /**
+   * Format date
+   */
+  formatarData(data: string | Date): string {
+    if (!data) return '-';
+    const date = new Date(data);
+    return date.toLocaleDateString('pt-BR');
+  }
+
+  /**
+   * Get field value
+   */
+  getFieldValue(item: any, field: string): string {
+    const value = field.split('.').reduce((obj, key) => obj?.[key], item);
+    return value || '-';
+  }
+
+  /**
+   * Check if action is loading
+   */
+  isActionLoading(action: string, itemId: number): boolean {
+    return this.actionLoadingStates().get(`${action}-${itemId}`) !== undefined;
+  }
+
+  /**
+   * Check if any action is loading
+   */
+  hasAnyActionLoading(): boolean {
+    return this.actionLoadingStates().size > 0;
+  }
+
+  /**
+   * Get active filters summary
+   */
+  private _paisesActiveFilters = computed(() => {
+    const filters = [];
+    
+    if (this.searchTerm()) {
+      filters.push({
+        key: 'search',
+        label: `Busca: "${this.searchTerm()}"`,
+        removable: true
+      });
+    }
+    
+    if (this.selectedStatusFilter() !== 'todas') {
+      const statusLabel = this.statusFilterOptions.find(s => s.value === this.selectedStatusFilter())?.label;
+      filters.push({
+        key: 'status',
+        label: `Status: ${statusLabel}`,
+        removable: true
+      });
+    }
+    
+    return filters;
+  });
+
+  override getActiveFiltersSummary(): any[] {
+    return this._paisesActiveFilters();
+  }
+
+  /**
+   * Remove specific filter
+   */
+  removeFilter(filterKey: string): void {
+    switch (filterKey) {
+      case 'search':
+        this.clearSearch();
+        break;
+      case 'status':
+        this.selectedStatusFilter.set('todas');
+        break;
+    }
+  }
+
+  /**
+   * Handle search change
+   */
+  onSearchChange(event: any): void {
+    this.searchTerm.set(event.target.value);
+  }
+
+  /**
+   * Clear search
+   */
+  clearSearch(): void {
+    this.searchTerm.set('');
+  }
+
+  /**
+   * Handle status filter change
+   */
+  onStatusFilterChange(event: any): void {
+    this.selectedStatusFilter.set(event.value);
+  }
+
+  // Additional signals needed by template (these should be in base component)
+  pageSize = signal<number>(10);
+  multiSortMeta = signal<any[]>([]);
+  actionLoadingStates = signal<Map<string, number>>(new Map());
+  highlightedRowIndex = signal<number>(-1);
+  currentLoadingMessage = signal<string>('Carregando países...');
+
+  /**
+   * Handle sort event
+   */
+  onSort(event: any): void {
+    this.multiSortMeta.set(event.multiSortMeta || []);
+  }
+
+  /**
+   * Handle page change event
+   */
+  onPageChange(event: any): void {
+    this.pageSize.set(event.rows);
+  }
+
+  /**
+   * Get visible columns
+   */
+  getVisibleColumns() {
+    return this.displayColumns();
   }
 }

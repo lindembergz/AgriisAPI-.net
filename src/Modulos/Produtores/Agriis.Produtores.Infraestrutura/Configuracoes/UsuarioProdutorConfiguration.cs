@@ -40,10 +40,12 @@ public class UsuarioProdutorConfiguration : IEntityTypeConfiguration<UsuarioProd
 
         builder.Property(up => up.DataCriacao)
             .HasColumnName("DataCriacao")
+            .HasColumnType("timestamptz")
             .IsRequired();
 
         builder.Property(up => up.DataAtualizacao)
-            .HasColumnName("DataAtualizacao");
+            .HasColumnName("DataAtualizacao")
+            .HasColumnType("timestamptz");
 
         // Relacionamentos
         builder.HasOne(up => up.Usuario)

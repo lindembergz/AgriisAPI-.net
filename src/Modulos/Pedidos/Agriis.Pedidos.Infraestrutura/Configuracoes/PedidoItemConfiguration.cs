@@ -70,10 +70,12 @@ public class PedidoItemConfiguration : IEntityTypeConfiguration<PedidoItem>
             
         builder.Property(pi => pi.DataCriacao)
             .HasColumnName("DataCriacao")
+            .HasColumnType("timestamptz")
             .IsRequired();
             
         builder.Property(pi => pi.DataAtualizacao)
-            .HasColumnName("DataAtualizacao");
+            .HasColumnName("DataAtualizacao")
+            .HasColumnType("timestamptz");
         
         // Relacionamentos
         builder.HasOne(pi => pi.Pedido)

@@ -22,7 +22,7 @@
         <tr>
           <th pSortableColumn="id" style="width: 80px" pResizableColumn>
             <div class="header-content">
-              ID <p-sortIcon field="id"></p-sortIcon>
+              Código <p-sortIcon field="id"></p-sortIcon>
             </div>
           </th>
           <th pSortableColumn="anoColheita" style="width: 120px" pResizableColumn>
@@ -55,7 +55,6 @@
               Safra Formatada <p-sortIcon field="safraFormatada"></p-sortIcon>
             </div>
           </th>
-          <th style="width: 100px">Status</th>
           <th style="width: 120px" class="actions-column">Ações</th>
         </tr>
       </ng-template>
@@ -94,12 +93,6 @@
           </td>
           <td class="hide-mobile">
             <span class="safra-formatada">{{ safra.safraFormatada }}</span>
-          </td>
-          <td>
-            <span class="mobile-label">Status:</span>
-            <span [class]="getStatusClass(safra)" class="status-badge">
-              {{ getStatusSafra(safra) }}
-            </span>
           </td>
           <td class="actions-column">
             <div class="action-buttons">

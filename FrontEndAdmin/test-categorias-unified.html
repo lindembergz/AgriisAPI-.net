@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Categorias Unificado</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8fafc;
+            color: #1f2937;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+        
+        .test-header {
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .test-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #111827;
+            margin: 0 0 8px 0;
+        }
+        
+        .test-description {
+            color: #6b7280;
+            margin: 0;
+        }
+        
+        .test-section {
+            margin-bottom: 32px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+            margin: 0 0 16px 0;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            color: #10b981;
+        }
+        
+        .feature-text {
+            flex: 1;
+            color: #374151;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-in-progress {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .code-block {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            color: #374151;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background-color: #fef3c7;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .tree-example {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .tree-node {
+            margin: 2px 0;
+        }
+        
+        .tree-level-0 { margin-left: 0; }
+        .tree-level-1 { margin-left: 20px; }
+        .tree-level-2 { margin-left: 40px; }
+        .tree-level-3 { margin-left: 60px; }
+        
+        .tree-icon {
+            color: #6b7280;
+            margin-right: 8px;
+        }
+        
+        .tree-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .tree-type {
+            color: #3b82f6;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .tree-inactive {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1 class="test-title">🌳 Categorias Component - Framework Unificado</h1>
+            <p class="test-description">
+                Implementação completa do componente Categorias usando o framework unificado mantendo a funcionalidade de árvore hierárquica.
+            </p>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">✅ Funcionalidades Implementadas</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Template unificado adaptado para exibição em árvore</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">TreeTable do PrimeNG mantido para hierarquia</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Sistema de busca hierárquica (nome e descrição)</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Filtros por tipo de produto e status</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Formulário com validação de referência circular</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Seleção de categoria pai com filtros</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Validação assíncrona de nome único</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Estados de loading, empty e error unificados</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Design responsivo adaptado para árvore</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span class="feature-text">Componentes de erro de campo padronizados</span>
+                    <span class="status-badge status-completed">Completo</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🎯 Características Específicas das Categorias</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">🌳</span>
+                    <span class="feature-text">Exibição hierárquica em árvore com TreeTable</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🔗</span>
+                    <span class="feature-text">Relacionamento pai-filho com validação de referência circular</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">📝</span>
+                    <span class="feature-text">Campo descrição opcional com tooltip</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🏷️</span>
+                    <span class="feature-text">Tipos de produto (Semente, Defensivo, Fertilizante, etc.)</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🔢</span>
+                    <span class="feature-text">Ordem de exibição personalizável</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🔍</span>
+                    <span class="feature-text">Busca que mantém contexto hierárquico</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">⚠️</span>
+                    <span class="feature-text">Validação de dependências antes de exclusão</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🌳 Exemplo de Estrutura Hierárquica</h2>
+            <div class="tree-example">
+                <div class="tree-node tree-level-0">
+                    <span class="tree-icon">📁</span>
+                    <span class="tree-name">Sementes</span>
+                    <span class="tree-type">[SEMENTE]</span>
+                </div>
+                <div class="tree-node tree-level-1">
+                    <span class="tree-icon">├─ 📁</span>
+                    <span class="tree-name">Soja</span>
+                    <span class="tree-type">[SEMENTE]</span>
+                </div>
+                <div class="tree-node tree-level-2">
+                    <span class="tree-icon">│  ├─ 📄</span>
+                    <span class="tree-name">Soja Transgênica</span>
+                    <span class="tree-type">[SEMENTE]</span>
+                </div>
+                <div class="tree-node tree-level-2">
+                    <span class="tree-icon">│  └─ 📄</span>
+                    <span class="tree-name">Soja Convencional</span>
+                    <span class="tree-type">[SEMENTE]</span>
+                </div>
+                <div class="tree-node tree-level-1">
+                    <span class="tree-icon">├─ 📁</span>
+                    <span class="tree-name">Milho</span>
+                    <span class="tree-type">[SEMENTE]</span>
+                </div>
+                <div class="tree-node tree-level-2">
+                    <span class="tree-icon">│  ├─ 📄</span>
+                    <span class="tree-name">Milho Híbrido</span>
+                    <span class="tree-type">[SEMENTE]</span>
+                </div>
+                <div class="tree-node tree-level-2">
+                    <span class="tree-icon">│  └─ 📄</span>
+                    <span class="tree-name tree-inactive">Milho Crioulo</span>
+                    <span class="tree-type">[SEMENTE] (Inativo)</span>
+                </div>
+                <div class="tree-node tree-level-0">
+                    <span class="tree-icon">📁</span>
+                    <span class="tree-name">Defensivos</span>
+                    <span class="tree-type">[DEFENSIVO]</span>
+                </div>
+                <div class="tree-node tree-level-1">
+                    <span class="tree-icon">├─ 📁</span>
+                    <span class="tree-name">Herbicidas</span>
+                    <span class="tree-type">[DEFENSIVO]</span>
+                </div>
+                <div class="tree-node tree-level-1">
+                    <span class="tree-icon">├─ 📁</span>
+                    <span class="tree-name">Fungicidas</span>
+                    <span class="tree-type">[DEFENSIVO]</span>
+                </div>
+                <div class="tree-node tree-level-1">
+                    <span class="tree-icon">└─ 📁</span>
+                    <span class="tree-name">Inseticidas</span>
+                    <span class="tree-type">[DEFENSIVO]</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🎨 Melhorias de Design</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">🎯</span>
+                    <span class="feature-text">Indicadores visuais de hierarquia com indentação</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🏷️</span>
+                    <span class="feature-text">Tags coloridas para tipos de produto</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">📱</span>
+                    <span class="feature-text">Layout adaptativo mantendo funcionalidade de árvore</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🌙</span>
+                    <span class="feature-text">Suporte a modo escuro e alto contraste</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">♿</span>
+                    <span class="feature-text">Navegação por teclado na árvore</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🖨️</span>
+                    <span class="feature-text">Estilos otimizados para impressão da hierarquia</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🔧 Estrutura Técnica</h2>
+            <div class="code-block">
+<strong>Arquivos Principais:</strong>
+├── categorias.component.ts         # Lógica do componente com framework unificado
+├── categorias.component.html       # Template com TreeTable e componentes compartilhados
+├── categorias.component.scss       # Estilos específicos + framework unificado
+└── services/
+    └── categoria.service.ts        # Serviço para API de Categorias com hierarquia
+
+<strong>Componentes Utilizados:</strong>
+- TreeTableModule (PrimeNG)         # Exibição hierárquica
+- FilterSummaryComponent            # Resumo de filtros ativos
+- LoadingSpinnerComponent           # Estados de carregamento
+- FieldErrorComponent               # Erros de validação padronizados
+
+<strong>Interfaces Implementadas:</strong>
+- ComponentTemplate                 # Configuração do template (mode: 'tree')
+- CustomFilter                      # Filtros personalizados (tipo)
+- TableColumn                       # Configuração de colunas da árvore
+- EmptyStateConfig                  # Estado vazio
+- LoadingStateConfig                # Estado de carregamento
+- ResponsiveConfig                  # Configuração responsiva
+- DialogConfig                      # Configuração de diálogos
+
+<strong>Funcionalidades Específicas:</strong>
+- TreeNode interface                # Estrutura de nós da árvore
+- Validação circular                # Previne referências circulares
+- Busca hierárquica                 # Mantém contexto pai-filho
+- Filtros por tipo                  # Tipos de produto específicos
+- Ordem personalizada               # Controle de ordenação
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🚀 Próximos Passos</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">📋</span>
+                    <span class="feature-text">Testar integração com API real</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🧪</span>
+                    <span class="feature-text">Implementar testes unitários</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🔄</span>
+                    <span class="feature-text">Validar fluxos de CRUD hierárquicos</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">🌳</span>
+                    <span class="feature-text">Testar com diferentes níveis de hierarquia</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">♿</span>
+                    <span class="feature-text">Validar navegação por teclado na árvore</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">📝 Notas de Implementação</h2>
+            <p>
+                O componente Categorias foi adaptado para usar o <span class="highlight">framework unificado</span> 
+                mantendo sua funcionalidade única de exibição hierárquica em árvore. A implementação preserva 
+                o TreeTable do PrimeNG enquanto integra os componentes compartilhados do framework.
+            </p>
+            <p>
+                As principais adaptações incluem a configuração de <code>displayMode: 'tree'</code> no template, 
+                manutenção da validação de referência circular, e integração dos filtros personalizados 
+                mantendo a funcionalidade de busca hierárquica que preserva o contexto pai-filho.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

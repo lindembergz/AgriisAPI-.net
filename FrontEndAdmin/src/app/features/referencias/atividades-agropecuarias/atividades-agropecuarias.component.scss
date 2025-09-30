@@ -1,88 +1,135 @@
-// Import shared styles - adjust path as needed
-@import '../../../../styles/variables';
-@import '../../../../styles/mixins';
+@import '../../../shared/styles/design-tokens.scss';
+@import '../../../shared/styles/utility-classes.scss';
+@import '../../../shared/styles/unified-framework.scss';
 
-.custom-toolbar {
+// Form fields styling
+.form-fields {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding: 1rem;
-  background: var(--surface-50);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--surface-200);
-
-  .filter-section {
+  flex-direction: column;
+  gap: var(--spacing-md);
+  
+  .field {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    label {
-      font-weight: 600;
-      color: var(--text-color);
-      white-space: nowrap;
-    }
-
-    .tipo-filter-dropdown {
-      min-width: 200px;
-    }
-  }
-
-  @include mobile {
     flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-
-    .filter-section {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.5rem;
-
-      .tipo-filter-dropdown {
-        min-width: auto;
+    gap: var(--spacing-xs);
+    
+    .field-label {
+      font-weight: var(--font-weight-medium);
+      color: var(--text-color-primary);
+      font-size: var(--font-size-sm);
+      
+      &.required::after {
+        content: ' *';
+        color: var(--color-danger);
+      }
+    }
+    
+    .field-help {
+      color: var(--text-color-secondary);
+      font-size: var(--font-size-xs);
+      margin-top: var(--spacing-xs);
+    }
+    
+    // PrimeNG component styling
+    ::ng-deep {
+      .p-select,
+      .p-inputtext {
         width: 100%;
+        
+        &.p-invalid {
+          border-color: var(--color-danger);
+        }
+      }
+      
+      .p-select-panel {
+        .p-select-item {
+          padding: var(--spacing-sm);
+          
+          &:hover {
+            background-color: var(--surface-hover);
+          }
+          
+          &.p-selected {
+            background-color: var(--primary-color);
+            color: var(--primary-color-text);
+          }
+        }
       }
     }
   }
 }
 
-.grouped-list {
+// Grouped view styling
+.grouped-view {
+  .grouped-header {
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    
+    h3 {
+      margin: 0 0 var(--spacing-xs) 0;
+      color: var(--text-color-primary);
+      font-size: var(--font-size-xl);
+    }
+    
+    .subtitle {
+      margin: 0;
+      color: var(--text-color-secondary);
+      font-size: var(--font-size-sm);
+    }
+  }
+  
+  .activity-groups {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+  }
+
   .activity-group {
-    margin-bottom: 2rem;
+    border: 1px solid var(--surface-border);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    background: var(--surface-card);
+    box-shadow: var(--shadow-sm);
 
     .group-header {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      padding: 0.75rem 1rem;
-      background: var(--primary-50);
-      color: var(--primary-700);
-      border-radius: var(--border-radius);
-      border-left: 4px solid var(--primary-500);
-      font-size: 1.1rem;
-      font-weight: 600;
+      justify-content: space-between;
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--surface-100);
+      border-bottom: 1px solid var(--surface-border);
 
-      i {
-        font-size: 1.2rem;
+      .group-title {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-lg);
+        color: var(--text-color-primary);
+
+        i {
+          font-size: var(--font-size-xl);
+        }
       }
 
       .count-badge {
-        margin-left: auto;
-        background: var(--primary-500);
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.875rem;
-        font-weight: 500;
+        background: var(--primary-color);
+        color: var(--primary-color-text);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        border-radius: var(--border-radius-full);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
+        min-width: 24px;
+        text-align: center;
       }
     }
 
     .group-items {
+      padding: var(--spacing-md);
       display: grid;
-      gap: 0.75rem;
+      gap: var(--spacing-md);
       
-      @include tablet-up {
+      @media (min-width: 768px) {
         grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
       }
     }
@@ -91,16 +138,16 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1rem;
+      padding: var(--spacing-md);
       background: var(--surface-0);
-      border: 1px solid var(--surface-200);
-      border-radius: var(--border-radius);
-      cursor: pointer;
+      border: 1px solid var(--surface-border);
+      border-radius: var(--border-radius-md);
       transition: all 0.2s ease;
+      cursor: pointer;
 
       &:hover {
-        border-color: var(--primary-300);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-color: var(--primary-color);
+        box-shadow: var(--shadow-md);
         transform: translateY(-1px);
       }
 
@@ -121,63 +168,57 @@
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 0.5rem;
+          margin-bottom: var(--spacing-sm);
 
           .codigo {
-            font-weight: 600;
-            color: var(--primary-600);
+            font-weight: var(--font-weight-bold);
+            color: var(--primary-color);
             font-family: 'Courier New', monospace;
-          }
-
-          .status-badge {
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            background: var(--red-100);
-            color: var(--red-700);
-
-            &.active {
-              background: var(--green-100);
-              color: var(--green-700);
-            }
+            font-size: var(--font-size-sm);
           }
         }
 
         .item-description {
-          font-weight: 500;
-          margin-bottom: 0.25rem;
+          font-weight: var(--font-weight-medium);
+          margin-bottom: var(--spacing-xs);
           line-height: 1.4;
+          color: var(--text-color-primary);
           
-          @include line-clamp(2);
+          // Limit to 2 lines
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
 
         .item-meta {
-          font-size: 0.875rem;
+          font-size: var(--font-size-xs);
           color: var(--text-color-secondary);
         }
       }
 
       .item-actions {
         display: flex;
-        gap: 0.25rem;
-        margin-left: 1rem;
+        gap: var(--spacing-xs);
+        margin-left: var(--spacing-md);
+        flex-shrink: 0;
 
-        button {
-          width: 2rem;
-          height: 2rem;
-          border-radius: 50%;
-          
-          &:hover {
-            transform: scale(1.1);
+        ::ng-deep {
+          .p-button {
+            width: 2rem;
+            height: 2rem;
+            
+            &:hover {
+              transform: scale(1.1);
+            }
           }
         }
       }
 
-      @include mobile {
+      @media (max-width: 767px) {
         flex-direction: column;
         align-items: stretch;
-        gap: 0.75rem;
+        gap: var(--spacing-md);
 
         .item-actions {
           margin-left: 0;
@@ -186,117 +227,153 @@
       }
     }
   }
-}
 
-// Form specific styles
-.form-fields {
-  .field {
-    margin-bottom: 1.5rem;
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      color: var(--text-color);
-
-      &.required::after {
-        content: ' *';
-        color: var(--red-500);
+  .empty-grouped-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    
+    .empty-content {
+      text-align: center;
+      
+      .empty-icon {
+        font-size: 4rem;
+        color: var(--text-color-secondary);
+        margin-bottom: var(--spacing-md);
       }
-    }
-
-    .field-help {
-      display: block;
-      margin-top: 0.25rem;
-      font-size: 0.875rem;
-      color: var(--text-color-secondary);
-      font-style: italic;
-    }
-
-    .p-error {
-      display: block;
-      margin-top: 0.25rem;
-      font-size: 0.875rem;
-      color: var(--red-500);
-    }
-
-    // Input validation styles
-    input.ng-invalid.ng-touched,
-    .p-dropdown.ng-invalid.ng-touched {
-      border-color: var(--red-500);
-    }
-
-    input.ng-valid.ng-touched,
-    .p-dropdown.ng-valid.ng-touched {
-      border-color: var(--green-500);
+      
+      h3 {
+        margin: 0 0 var(--spacing-sm) 0;
+        color: var(--text-color-primary);
+      }
+      
+      p {
+        margin: 0 0 var(--spacing-lg) 0;
+        color: var(--text-color-secondary);
+      }
     }
   }
 }
 
-// Type-specific styling
+// Type-specific colors
 .tipo-agricultura {
   .group-header {
-    background: var(--yellow-50);
-    color: var(--yellow-700);
-    border-left-color: var(--yellow-500);
-
+    background: #fff8e1;
+    border-bottom-color: #ffcc02;
+    
+    .group-title {
+      color: #f57f17;
+      
+      i {
+        color: #ff9800;
+      }
+    }
+    
     .count-badge {
-      background: var(--yellow-500);
+      background: #ff9800;
+      color: white;
     }
   }
 }
 
 .tipo-pecuaria {
   .group-header {
-    background: var(--blue-50);
-    color: var(--blue-700);
-    border-left-color: var(--blue-500);
-
+    background: #e3f2fd;
+    border-bottom-color: #2196f3;
+    
+    .group-title {
+      color: #1565c0;
+      
+      i {
+        color: #2196f3;
+      }
+    }
+    
     .count-badge {
-      background: var(--blue-500);
+      background: #2196f3;
+      color: white;
     }
   }
 }
 
 .tipo-mista {
   .group-header {
-    background: var(--purple-50);
-    color: var(--purple-700);
-    border-left-color: var(--purple-500);
-
+    background: #f3e5f5;
+    border-bottom-color: #9c27b0;
+    
+    .group-title {
+      color: #7b1fa2;
+      
+      i {
+        color: #9c27b0;
+      }
+    }
+    
     .count-badge {
-      background: var(--purple-500);
+      background: #9c27b0;
+      color: white;
+    }
+  }
+}
+
+// Custom table cell styling
+::ng-deep {
+  .custom-tipo-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    
+    i {
+      font-size: var(--font-size-lg);
     }
   }
 }
 
 // Responsive adjustments
-@include mobile {
-  .custom-toolbar {
-    padding: 0.75rem;
+@media (max-width: 768px) {
+  .form-fields {
+    gap: var(--spacing-sm);
+    
+    .field {
+      .field-label {
+        font-size: var(--font-size-xs);
+      }
+    }
   }
-
-  .grouped-list {
+  
+  .grouped-view {
+    .activity-groups {
+      gap: var(--spacing-lg);
+    }
+    
     .activity-group {
-      margin-bottom: 1.5rem;
-
       .group-header {
-        padding: 0.5rem 0.75rem;
-        font-size: 1rem;
-
+        padding: var(--spacing-sm) var(--spacing-md);
+        
+        .group-title {
+          font-size: var(--font-size-md);
+        }
+        
         .count-badge {
-          font-size: 0.75rem;
+          font-size: var(--font-size-xs);
         }
       }
-
+      
+      .group-items {
+        padding: var(--spacing-sm);
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+      }
+      
       .activity-item {
-        padding: 0.75rem;
-
+        padding: var(--spacing-sm);
+        
         .item-content {
           .item-header {
             flex-direction: column;
             align-items: flex-start;
-            gap: 0.25rem;
+            gap: var(--spacing-xs);
           }
         }
       }
@@ -304,12 +381,26 @@
   }
 }
 
-@include tablet {
-  .grouped-list {
-    .activity-group {
-      .group-items {
-        grid-template-columns: 1fr;
-      }
-    }
+// Loading states
+.loading-overlay {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
   }
+}
+
+// Validation styling
+.field-error {
+  margin-top: var(--spacing-xs);
 }

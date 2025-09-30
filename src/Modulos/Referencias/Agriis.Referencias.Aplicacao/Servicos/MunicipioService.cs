@@ -134,7 +134,7 @@ public class MunicipioService : ReferenciaServiceBase<Municipio, MunicipioDto, C
         }
 
         // Validar se código IBGE já existe
-        if (!string.IsNullOrEmpty(dto.CodigoIbge) && await ExisteCodigoIbgeAsync(dto.CodigoIbge, null, cancellationToken))
+        if (dto.CodigoIbge > 0 && await ExisteCodigoIbgeAsync(dto.CodigoIbge.ToString(), null, cancellationToken))
         {
             Logger.LogWarning("Tentativa de criar município com código IBGE {CodigoIbge} que já existe", dto.CodigoIbge);
             throw new ArgumentException($"Já existe um município com o código IBGE '{dto.CodigoIbge}'", nameof(dto.CodigoIbge));

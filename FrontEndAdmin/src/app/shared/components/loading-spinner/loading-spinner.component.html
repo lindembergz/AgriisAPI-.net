@@ -1,0 +1,77 @@
+<!-- Loading Spinner Component -->
+<div 
+  *ngIf="visible"
+  [class]="containerClasses()"
+  [style]="containerStyle()"
+  (click)="onOverlayClick($event)"
+  (keydown)="onKeyDown($event)"
+  [attr.aria-label]="getAriaLabel()"
+  [attr.aria-live]="'polite'"
+  [attr.aria-busy]="'true'"
+  role="status">
+  
+  <!-- Loading Content -->
+  <div class="loading-content">
+    <!-- Spinner Type -->
+    <div *ngIf="type === 'spinner'" class="spinner-container">
+      <p-progressSpinner
+        [style]="spinnerStyle()"
+        [strokeWidth]="strokeWidth"
+        [animationDuration]="animationDuration">
+      </p-progressSpinner>
+    </div>
+
+    <!-- Progress Bar Type -->
+    <div *ngIf="type === 'bar'" class="progress-container">
+      <p-progressBar
+        [value]="progressValue()"
+        [mode]="getProgressMode()"
+        [showValue]="showProgress && !indeterminate"
+        [style]="{ width: '100%' }">
+      </p-progressBar>
+      
+      <div *ngIf="showProgress && !indeterminate" class="progress-text">
+        {{ getProgressText() }}
+      </div>
+    </div>
+
+    <!-- Skeleton Type -->
+    <div *ngIf="type === 'skeleton'" class="skeleton-container">
+      <p-skeleton
+        *ngFor="let row of getSkeletonRows(); trackBy: trackByIndex"
+        [style]="getSkeletonRowStyle(row)"
+        [animation]="skeleton.animation">
+      </p-skeleton>
+    </div>
+
+    <!-- Dots Type -->
+    <div *ngIf="type === 'dots'" class="dots-container">
+      <div 
+        *ngFor="let dot of getDotsArray(); trackBy: trackByIndex"
+        class="loading-dot"
+        [style]="getDotStyle(dot)">
+      </div>
+    </div>
+
+    <!-- Pulse Type -->
+    <div *ngIf="type === 'pulse'" class="pulse-container" [style]="getPulseStyle()">
+      <div class="pulse-circle"></div>
+      <div class="pulse-circle pulse-delay-1"></div>
+      <div class="pulse-circle pulse-delay-2"></div>
+    </div>
+
+    <!-- Custom Icon Type -->
+    <div *ngIf="type === 'custom' && customIcon" class="custom-icon-container">
+      <i [class]="customIcon + ' custom-icon'" [style]="getCustomIconStyle()"></i>
+    </div>
+
+    <!-- Message and Sub-message -->
+    <div *ngIf="message || subMessage" class="message-container">
+      <div *ngIf="message" class="loading-message">{{ message }}</div>
+      <div *ngIf="subMessage" class="loading-submessage">{{ subMessage }}</div>
+    </div>
+  </div>
+
+  <!-- Backdrop -->
+  <div *ngIf="overlay" class="loading-backdrop" [style.z-index]="zIndex - 1"></div>
+</div>

@@ -11,7 +11,7 @@ namespace Agriis.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class CombosController : ControllerBase
 {
     private readonly IComboService _comboService;

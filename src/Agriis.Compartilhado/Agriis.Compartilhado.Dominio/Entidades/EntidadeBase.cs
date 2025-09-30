@@ -11,14 +11,16 @@ public abstract class EntidadeBase
     public int Id { get; protected set; }
     
     /// <summary>
-    /// Data de criação da entidade
+    /// Data de criação da entidade (UTC com timezone)
+    /// Mapeado para timestamptz no PostgreSQL
     /// </summary>
-    public DateTime DataCriacao { get; protected set; }
+    public DateTimeOffset DataCriacao { get; protected set; }
     
     /// <summary>
-    /// Data da última atualização da entidade
+    /// Data da última atualização da entidade (UTC com timezone)
+    /// Mapeado para timestamptz no PostgreSQL
     /// </summary>
-    public DateTime? DataAtualizacao { get; protected set; }
+    public DateTimeOffset? DataAtualizacao { get; protected set; }
     
     /// <summary>
     /// Token de concorrência otimista
@@ -30,7 +32,7 @@ public abstract class EntidadeBase
     /// </summary>
     protected EntidadeBase()
     {
-        DataCriacao = DateTime.UtcNow;
+        DataCriacao = DateTimeOffset.UtcNow;
     }
     
     /// <summary>
@@ -38,10 +40,10 @@ public abstract class EntidadeBase
     /// </summary>
     public void AtualizarDataModificacao()
     {
-        DataAtualizacao = DateTime.UtcNow;
+        DataAtualizacao = DateTimeOffset.UtcNow;
     }
 
-    public void SetDataCriacao(DateTime dataCriacao)
+    public void SetDataCriacao(DateTimeOffset dataCriacao)
     {
         DataCriacao = dataCriacao;
     }

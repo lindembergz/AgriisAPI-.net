@@ -11,6 +11,7 @@
     <ProjectReference Include="..\..\..\Agriis.Compartilhado\Agriis.Compartilhado.Dominio\Agriis.Compartilhado.Dominio.csproj" />
     <ProjectReference Include="..\..\Usuarios\Agriis.Usuarios.Dominio\Agriis.Usuarios.Dominio.csproj" />
     <ProjectReference Include="..\..\Referencias\Agriis.Referencias.Dominio\Agriis.Referencias.Dominio.csproj" />
+    <ProjectReference Include="..\..\Enderecos\Agriis.Enderecos.Dominio\Agriis.Enderecos.Dominio.csproj" />
   </ItemGroup>
 
 </Project>

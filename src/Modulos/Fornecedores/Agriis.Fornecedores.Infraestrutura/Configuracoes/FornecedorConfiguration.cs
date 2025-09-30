@@ -89,10 +89,12 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
 
         builder.Property(f => f.DataCriacao)
             .HasColumnName("DataCriacao")
+            .HasColumnType("timestamptz")
             .IsRequired();
 
         builder.Property(f => f.DataAtualizacao)
-            .HasColumnName("DataAtualizacao");
+            .HasColumnName("DataAtualizacao")
+            .HasColumnType("timestamptz");
             
         // Objeto de valor CNPJ
         builder.Property(f => f.Cnpj)
@@ -114,19 +116,19 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
             .HasForeignKey(uf => uf.FornecedorId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Relacionamento com UF (tabela estados)
-        builder.HasOne(f => f.Uf)
+        // Relacionamento com Estado (tabela estados)
+        builder.HasOne(f => f.Estado)
             .WithMany()
             .HasForeignKey(f => f.UfId)
             .OnDelete(DeleteBehavior.Restrict)
             .HasConstraintName("FK_Fornecedor_Estados_UfId");
 
-        // Relacionamento com Municipio (tabela municipios_referencia)
+        // Relacionamento com Municipio (tabela municipios)
         builder.HasOne(f => f.Municipio)
             .WithMany()
             .HasForeignKey(f => f.MunicipioId)
             .OnDelete(DeleteBehavior.Restrict)
-            .HasConstraintName("FK_Fornecedor_MunicipiosReferencia_MunicipioId");
+            .HasConstraintName("FK_Fornecedor_Municipios_MunicipioId");
 
         // Índices
         builder.HasIndex("Cnpj")

@@ -29,10 +29,12 @@ public class PropostaConfiguration : IEntityTypeConfiguration<Proposta>
             
         builder.Property(p => p.DataCriacao)
             .HasColumnName("DataCriacao")
+            .HasColumnType("timestamptz")
             .IsRequired();
             
         builder.Property(p => p.DataAtualizacao)
-            .HasColumnName("DataAtualizacao");
+            .HasColumnName("DataAtualizacao")
+            .HasColumnType("timestamptz");
             
         builder.Property(p => p.PedidoId)
             .HasColumnName("PedidoId")

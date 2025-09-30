@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Agriis.Referencias.Dominio.Entidades;
+using Agriis.Compartilhado.Infraestrutura.Configuracoes;
 
 namespace Agriis.Referencias.Infraestrutura.Configuracoes;
 
@@ -11,16 +12,15 @@ public class UfConfiguration : IEntityTypeConfiguration<Uf>
 {
     public void Configure(EntityTypeBuilder<Uf> builder)
     {
-        // Tabela - mapear para a tabela estados existente
-        builder.ToTable("estados", "public");
+        // Tabela - mapear para a tabela estados_referencia (diferente da tabela estados do módulo Enderecos)
+        builder.ToTable("estados_referencia", "public");
 
-        // Chave primária
-        builder.HasKey(u => u.Id);
-
-        // Propriedades básicas
+        // Configuração base de auditoria
+        EntidadeBaseConfiguration.ConfigurarAuditoriaSnakeCase(builder);
+        
+        // Override do ID para usar nome específico
         builder.Property(u => u.Id)
-            .HasColumnName("id")
-            .ValueGeneratedOnAdd();
+            .HasColumnName("id");
 
         builder.Property(u => u.Codigo)
             .HasColumnName("uf")
@@ -42,21 +42,13 @@ public class UfConfiguration : IEntityTypeConfiguration<Uf>
             .IsRequired()
             .HasDefaultValue(true);
 
-        // Propriedades de auditoria
-        builder.Property(u => u.DataCriacao)
-            .HasColumnName("data_criacao")
-            .IsRequired()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-        builder.Property(u => u.DataAtualizacao)
-            .HasColumnName("data_atualizacao");
 
         // Relacionamentos
-        builder.HasOne(u => u.Pais)
-            .WithMany()
-            .HasForeignKey(u => u.PaisId)
-            .OnDelete(DeleteBehavior.Restrict);
-
+        // Ignorando Pais por enquanto (pode ser configurado depois se necessário)
+        builder.Ignore(u => u.Pais);
+        
+        // Configurando relacionamento com Municipios
         builder.HasMany(u => u.Municipios)
             .WithOne(m => m.Uf)
             .HasForeignKey(m => m.UfId)
@@ -65,19 +57,17 @@ public class UfConfiguration : IEntityTypeConfiguration<Uf>
         // Índices
         builder.HasIndex(u => u.Codigo)
             .IsUnique()
-            .HasDatabaseName("IX_estados_uf");
+            .HasDatabaseName("IX_estados_referencia_uf");
 
         builder.HasIndex(u => u.Nome)
-            .HasDatabaseName("IX_estados_nome");
+            .HasDatabaseName("IX_estados_referencia_nome");
 
         builder.HasIndex(u => u.Ativo)
-            .HasDatabaseName("IX_estados_ativo");
+            .HasDatabaseName("IX_estados_referencia_ativo");
 
         builder.HasIndex(u => u.DataCriacao)
-            .HasDatabaseName("IX_Estados_DataCriacao");
+            .HasDatabaseName("IX_estados_referencia_data_criacao");
 
-        // Configurações adicionais
-        builder.Navigation(u => u.Municipios)
-            .EnableLazyLoading(false);
+        // Configurações adicionais removidas devido aos ignores das navegações
     }
 }

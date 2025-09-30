@@ -25,7 +25,7 @@ public class RefreshTokenRepository : RepositoryBase<RefreshToken, DbContext>, I
         return await DbSet
             .Where(rt => rt.UsuarioId == usuarioId && 
                         !rt.Revogado && 
-                        rt.DataExpiracao > DateTime.UtcNow)
+                        rt.DataExpiracao > DateTimeOffset.UtcNow)
             .OrderByDescending(rt => rt.DataCriacao)
             .ToListAsync();
     }
@@ -47,7 +47,7 @@ public class RefreshTokenRepository : RepositoryBase<RefreshToken, DbContext>, I
     public async Task<int> RemoverTokensExpiradosAsync()
     {
         var tokensExpirados = await DbSet
-            .Where(rt => rt.DataExpiracao <= DateTime.UtcNow || rt.Revogado)
+            .Where(rt => rt.DataExpiracao <= DateTimeOffset.UtcNow || rt.Revogado)
             .ToListAsync();
 
         if (tokensExpirados.Any())
@@ -63,6 +63,6 @@ public class RefreshTokenRepository : RepositoryBase<RefreshToken, DbContext>, I
         return await DbSet
             .AnyAsync(rt => rt.UsuarioId == usuarioId && 
                            !rt.Revogado && 
-                           rt.DataExpiracao > DateTime.UtcNow);
+                           rt.DataExpiracao > DateTimeOffset.UtcNow);
     }
 }

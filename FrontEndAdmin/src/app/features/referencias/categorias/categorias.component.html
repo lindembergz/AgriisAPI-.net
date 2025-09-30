@@ -1,0 +1,170 @@
+<div class="reference-crud-container">
+
+	
+	<!-- HEADER -->
+  <div class="header-section">
+    <div class="title-section">
+      <h2 class="entity-title">{{ entityDisplayName() }}</h2>
+      <p class="entity-subtitle">{{ entityDescription() }}</p>
+    </div>
+    
+    <div class="actions-section">
+      <!-- Primary Action -->
+      <p-button
+        [label]="'Nova ' + entityDisplayName()"
+        icon="pi pi-plus"
+        (onClick)="novoItem()"
+        class="p-button-primary new-item-btn"
+        [disabled]="loading()">
+      </p-button>
+      
+      <!-- Custom Actions 
+      <p-button
+        label="Calculadora"
+        icon="pi pi-calculator"
+        (onClick)="executeCustomAction('conversion-calculator')"
+        class="p-button-outlined p-button-info"
+        pTooltip="Abrir calculadora de conversão"
+        [disabled]="loading()">
+      </p-button>-->
+    </div>
+  </div>
+
+	<!-- FILTERS -->
+	<div class="filters-section" *ngIf="!loading()">
+		<div class="filters-row">
+			<div class="filter-item search-filter">
+				<p></p>
+				<span class="p-input-icon-left search-container">
+					
+					<input type="text" pInputText [value]="searchText()" (input)="onSearchTextChange($event)"
+								 placeholder="Buscar por nome ou descrição..." class="search-input w-full" autocomplete="off" />
+				</span>
+				
+				<p-button *ngIf="searchText()" icon="pi pi-times" (onClick)="limparFiltros()" class="p-button-text p-button-sm"
+									pTooltip="Limpar busca" tooltipPosition="bottom"></p-button>
+				<p></p>
+			</div>
+
+			<!--<div class="filter-item status-filter">
+				<label class="filter-label">Status</label>
+				<p-select [options]="statusFilterOptions" [ngModel]="selectedStatusFilter()" (onChange)="onStatusFilterChange($event)"
+									optionLabel="label" optionValue="value" placeholder="Filtrar por status" class="status-select">
+				</p-select>
+			</div>
+
+			<div class="filter-item custom-filter">
+				<label class="filter-label">Tipo</label>
+				<p-select [options]="tipoFilterOptions" [ngModel]="selectedTipoFilter()" (onChange)="onTipoFilterChange($event)"
+									optionLabel="label" optionValue="value" placeholder="Filtrar por tipo" class="custom-filter-select">
+				</p-select>
+			</div>
+
+			<div class="filter-item clear-filters" *ngIf="temFiltrosAtivos()">
+				<p-button label="Limpar Filtros" icon="pi pi-filter-slash" (onClick)="limparFiltros()"
+									class="p-button-outlined p-button-secondary clear-all-btn"></p-button>
+			</div>-->
+		</div>
+	</div>
+
+	<!-- CONTENT: TreeTable -->
+	<div class="content-section">
+		<div *ngIf="loading()" class="loading-container">
+			<div class="loading-content">
+				<p-progressSpinner [style]="{ width: '50px', height: '50px' }" strokeWidth="4"></p-progressSpinner>
+				<div class="loading-text"><p class="loading-message">{{ currentLoadingMessage() }}</p></div>
+			</div>
+		</div>
+
+			<div *ngIf="!loading()" class="display-container">
+				<ng-container *ngIf="getVisibleColumns() as cols">
+					<app-responsive-table
+						[columns]="cols"
+						[data]="filteredItems()"
+						[loading]="loading()"
+						[paginator]="true"
+						[rows]="15"
+						[rowsPerPageOptions]="[15, 30, 50]"
+						(edit)="editarItem($event)"
+						(delete)="excluirItem($event)"
+						(refresh)="carregarItens()"
+						(clearFilters)="limparFiltros()"
+						[actionsTemplate]="actionsTemplate"
+						[stateKey]="'categorias-table-state'"
+						[stateStorage]="'session'">
+					</app-responsive-table>
+				</ng-container>
+			</div>
+	</div>
+
+	<!-- FORM DIALOG -->
+	<p-dialog [header]="dialogTitle()" [visible]="showForm()" (visibleChange)="showForm.set($event)" [modal]="true"
+						[closable]="true" [draggable]="true" [resizable]="true" [style]="getDialogStyle()" styleClass="reference-form-dialog" (onHide)="cancelarEdicao()">
+		<div class="form-container">
+			<div *ngIf="formLoading()" class="form-loading-overlay">
+				<div class="form-loading-content">
+					<p-progressSpinner [style]="{ width: '30px', height: '30px' }" strokeWidth="4"></p-progressSpinner>
+					<span class="form-loading-text">Processando...</span>
+				</div>
+			</div>
+
+			<form [formGroup]="form" (ngSubmit)="salvarItem()" class="reference-form">
+				<div class="field">
+					<label for="nome" class="field-label required">Nome</label>
+					<input id="nome" pInputText formControlName="nome" maxlength="100" class="w-full" />
+					<app-field-error [control]="form.get('nome')" fieldName="nome"></app-field-error>
+				</div>
+
+				<div class="field">
+					<label for="descricao" class="field-label">Descrição</label>
+					<textarea id="descricao" pInputTextarea formControlName="descricao" rows="3" class="w-full"></textarea>
+					<app-field-error [control]="form.get('descricao')" fieldName="descricao"></app-field-error>
+				</div>
+
+				<div class="field">
+					<label for="tipo" class="field-label required">Tipo</label>
+					<p-select id="tipo" formControlName="tipo" [options]="tiposDisponiveis" optionLabel="label" optionValue="value" class="w-full"></p-select>
+					<app-field-error [control]="form.get('tipo')" fieldName="tipo"></app-field-error>
+				</div>
+
+				<div class="field">
+					<label for="categoriaPaiId" class="field-label">Categoria Pai</label>
+					<p-select id="categoriaPaiId" formControlName="categoriaPaiId" [options]="getCategoriasParaDropdownFiltradas()" optionLabel="nome" optionValue="id" class="w-full" [showClear]="true"></p-select>
+					<app-field-error [control]="form.get('categoriaPaiId')" fieldName="categoriaPaiId"></app-field-error>
+				</div>
+
+				<div class="field">
+					<label for="ordem" class="field-label required">Ordem</label>
+					<input id="ordem" pInputText formControlName="ordem" type="number" class="w-full" />
+					<app-field-error [control]="form.get('ordem')" fieldName="ordem"></app-field-error>
+				</div>
+
+				<div class="field ativo-field">
+					<p-checkbox formControlName="ativo" [binary]="true" inputId="ativo"></p-checkbox>
+					<label for="ativo" class="checkbox-label">Ativo</label>
+				</div>
+			</form>
+		</div>
+
+		<ng-template pTemplate="footer">
+			<div class="dialog-footer">
+				<p-button label="Cancelar" icon="pi pi-times" (onClick)="cancelarEdicao()" class="p-button-outlined p-button-secondary"></p-button>
+				<p-button [label]="isEditMode() ? 'Atualizar' : 'Salvar'" [icon]="isEditMode() ? 'pi pi-check' : 'pi pi-save'" (onClick)="salvarItem()" class="p-button-primary" [loading]="formLoading()" [disabled]="isSaveDisabled()"></p-button>
+			</div>
+		</ng-template>
+	</p-dialog>
+
+		<!-- Actions Template for the table -->
+		<ng-template #actionsTemplate let-item>
+			<div class="table-actions">
+				<p-button icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editarItem(item)" pTooltip="Editar" tooltipPosition="top"></p-button>
+				<p-button *ngIf="item.ativo" icon="pi pi-times" class="p-button-rounded p-button-text p-button-warning" (click)="desativarItem(item)" pTooltip="Desativar" tooltipPosition="top"></p-button>
+				<p-button *ngIf="!item.ativo" icon="pi pi-check" class="p-button-rounded p-button-text p-button-success" (click)="ativarItem(item)" pTooltip="Ativar" tooltipPosition="top"></p-button>
+				<p-button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="excluirItem(item)" pTooltip="Excluir" tooltipPosition="top"></p-button>
+			</div>
+		</ng-template>
+
+		<!-- CONFIRMATION DIALOG e TOAST -->
+	<p-confirmDialog [style]="{ width: '450px' }" [baseZIndex]="10000" rejectButtonStyleClass="p-button-text"></p-confirmDialog>
+	<p-toast position="top-right" [baseZIndex]="20000"></p-toast>
+</div>

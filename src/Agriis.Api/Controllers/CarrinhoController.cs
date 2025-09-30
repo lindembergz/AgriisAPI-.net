@@ -10,7 +10,7 @@ namespace Agriis.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class CarrinhoController : ControllerBase
 {
     private readonly IPedidoService _pedidoService;

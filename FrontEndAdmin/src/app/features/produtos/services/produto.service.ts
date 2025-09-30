@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, combineLatest, map, switchMap, catchError } from 'rxjs';
+import { Observable, combineLatest, map, switchMap } from 'rxjs';
 import { ReferenceCrudService } from '../../../shared/services/reference-crud.service';
 import { 
   ProdutoDto, 
@@ -66,13 +66,15 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Get all reference data needed for produto form
    */
   obterDadosReferencia(): Observable<ProdutoReferenceData> {
-    return combineLatest({
-      unidadesMedida: this.http.get<UnidadeMedidaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/unidades-medida')}/ativos`),
-      embalagens: this.http.get<EmbalagemDto[]>(`${this.baseUrl.replace('produtos', 'referencias/embalagens')}/ativos`),
-      categorias: this.http.get<CategoriaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/categorias')}/ativos`),
-      atividadesAgropecuarias: this.http.get<AtividadeAgropecuariaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/atividades-agropecuarias')}/ativos`)
-    }).pipe(
-      catchError(error => this.handleError('obter dados de referência', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      combineLatest({
+        unidadesMedida: this.http.get<UnidadeMedidaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/unidades-medida')}/ativos`),
+        embalagens: this.http.get<EmbalagemDto[]>(`${this.baseUrl.replace('produtos', 'referencias/embalagens')}/ativos`),
+        categorias: this.http.get<CategoriaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/Categorias')}/ativas`),
+        atividadesAgropecuarias: this.http.get<AtividadeAgropecuariaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/atividades-agropecuarias')}/ativos`)
+      }),
+      'obter dados de referência',
+      'Produto'
     );
   }
 
@@ -80,14 +82,17 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Get unidades de medida for dropdown
    */
   obterUnidadesMedida(): Observable<DropdownOption[]> {
-    return this.http.get<UnidadeMedidaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/unidades-medida')}/ativos`).pipe(
-      map(unidades => unidades.map(u => ({
-        id: u.id,
-        nome: u.nome,
-        codigo: u.simbolo,
-        ativo: u.ativo
-      }))),
-      catchError(error => this.handleError('obter unidades de medida', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<UnidadeMedidaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/unidades-medida')}/ativos`).pipe(
+        map(unidades => unidades.map(u => ({
+          id: u.id,
+          nome: u.nome,
+          codigo: u.simbolo,
+          ativo: u.ativo
+        })))
+      ),
+      'obter unidades de medida',
+      'Produto'
     );
   }
 
@@ -101,13 +106,16 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
       url = `${this.baseUrl.replace('produtos', 'referencias/embalagens')}/unidade/${unidadeMedidaId}`;
     }
     
-    return this.http.get<EmbalagemDto[]>(url).pipe(
-      map(embalagens => embalagens.map(e => ({
-        id: e.id,
-        nome: e.nome,
-        ativo: e.ativo
-      }))),
-      catchError(error => this.handleError('obter embalagens', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<EmbalagemDto[]>(url).pipe(
+        map(embalagens => embalagens.map(e => ({
+          id: e.id,
+          nome: e.nome,
+          ativo: e.ativo
+        })))
+      ),
+      'obter embalagens',
+      'Produto'
     );
   }
 
@@ -115,8 +123,10 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Get categorias for hierarchical selector
    */
   obterCategorias(): Observable<CategoriaDto[]> {
-    return this.http.get<CategoriaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/categorias')}/ativos`).pipe(
-      catchError(error => this.handleError('obter categorias', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<CategoriaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/Categorias')}/ativas`),
+      'obter categorias',
+      'Produto'
     );
   }
 
@@ -124,14 +134,17 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Get atividades agropecuarias for dropdown
    */
   obterAtividadesAgropecuarias(): Observable<DropdownOption[]> {
-    return this.http.get<AtividadeAgropecuariaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/atividades-agropecuarias')}/ativos`).pipe(
-      map(atividades => atividades.map(a => ({
-        id: a.id,
-        nome: a.descricao,
-        codigo: a.codigo,
-        ativo: a.ativo
-      }))),
-      catchError(error => this.handleError('obter atividades agropecuárias', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<AtividadeAgropecuariaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/atividades-agropecuarias')}/ativos`).pipe(
+        map(atividades => atividades.map(a => ({
+          id: a.id,
+          nome: a.descricao,
+          codigo: a.codigo,
+          ativo: a.ativo
+        })))
+      ),
+      'obter atividades agropecuárias',
+      'Produto'
     );
   }
 
@@ -188,9 +201,12 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
     if (idExcluir) {
       url += `&idExcluir=${idExcluir}`;
     }
-    return this.http.get<{ isUnique: boolean }>(url).pipe(
-      map(response => response.isUnique),
-      catchError(error => this.handleError('validar nome único', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<{ isUnique: boolean }>(url).pipe(
+        map(response => response.isUnique)
+      ),
+      'validar nome único',
+      'Produto'
     );
   }
 
@@ -198,8 +214,10 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Validate reference entity existence
    */
   validarReferencias(dto: CriarProdutoDto | AtualizarProdutoDto): Observable<{ isValid: boolean; errors: string[] }> {
-    return this.http.post<{ isValid: boolean; errors: string[] }>(`${this.baseUrl}/validar-referencias`, dto).pipe(
-      catchError(error => this.handleError('validar referências', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.post<{ isValid: boolean; errors: string[] }>(`${this.baseUrl}/validar-referencias`, dto),
+      'validar referências',
+      'Produto'
     );
   }
 
@@ -207,13 +225,16 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Get fornecedores for dropdown
    */
   obterFornecedores(): Observable<DropdownOption[]> {
-    return this.http.get<any[]>(`${this.baseUrl.replace('produtos', 'fornecedores')}/ativos`).pipe(
-      map(fornecedores => fornecedores.map(f => ({
-        id: f.id,
-        nome: f.nome,
-        ativo: f.ativo
-      }))),
-      catchError(error => this.handleError('obter fornecedores', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<any[]>(`${this.baseUrl.replace('produtos', 'fornecedores')}/ativos`).pipe(
+        map(fornecedores => fornecedores.map(f => ({
+          id: f.id,
+          nome: f.nome,
+          ativo: f.ativo
+        })))
+      ),
+      'obter fornecedores',
+      'Produto'
     );
   }
 
@@ -221,13 +242,18 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Get culturas for multi-select
    */
   obterCulturas(): Observable<DropdownOption[]> {
-    return this.http.get<any[]>(`${this.baseUrl.replace('produtos', 'referencias/culturas')}/ativos`).pipe(
-      map(culturas => culturas.map(c => ({
-        id: c.id,
-        nome: c.nome,
-        ativo: c.ativo
-      }))),
-      catchError(error => this.handleError('obter culturas', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+
+      
+      this.http.get<any[]>(`${this.baseUrl.replace('produtos', 'Culturas')}/ativas`).pipe(
+        map(culturas => culturas.map(c => ({
+          id: c.id,
+          nome: c.nome,
+          ativo: c.ativo
+        })))
+      ),
+      'obter culturas',
+      'Produto'
     );
   }
 
@@ -235,14 +261,17 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Get produtos pais for dropdown (produtos que podem ter filhos)
    */
   obterProdutosPais(): Observable<DropdownOption[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/fabricantes`).pipe(
-      map(produtos => produtos.map(p => ({
-        id: p.id,
-        nome: p.nome,
-        codigo: p.codigo,
-        ativo: p.status === 0 // StatusProduto.Ativo
-      }))),
-      catchError(error => this.handleError('obter produtos pais', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<any[]>(`${this.baseUrl}/fabricantes`).pipe(
+        map(produtos => produtos.map(p => ({
+          id: p.id,
+          nome: p.nome,
+          codigo: p.codigo,
+          ativo: p.status === 0 // StatusProduto.Ativo
+        })))
+      ),
+      'obter produtos pais',
+      'Produto'
     );
   }
 
@@ -250,8 +279,10 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Get produto with full reference data for display
    */
   obterComReferenciasCompletas(id: number): Observable<ProdutoDto> {
-    return this.http.get<ProdutoDto>(`${this.baseUrl}/${id}?includeReferences=true&includeInactive=false`).pipe(
-      catchError(error => this.handleError(`obter produto com referências id=${id}`, error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<ProdutoDto>(`${this.baseUrl}/${id}?includeReferences=true&includeInactive=false`),
+      `obter produto com referências id=${id}`,
+      'Produto'
     );
   }
 
@@ -259,14 +290,17 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Override criar to include reference validation
    */
   override criar(dto: CriarProdutoDto): Observable<ProdutoDto> {
-    return this.validarReferencias(dto).pipe(
-      switchMap(validation => {
-        if (!validation.isValid) {
-          throw new Error(`Referências inválidas: ${validation.errors.join(', ')}`);
-        }
-        return this.http.post<ProdutoDto>(this.baseUrl, dto);
-      }),
-      catchError(error => this.handleError('criar produto', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.validarReferencias(dto).pipe(
+        switchMap(validation => {
+          if (!validation.isValid) {
+            throw new Error(`Referências inválidas: ${validation.errors.join(', ')}`);
+          }
+          return this.http.post<ProdutoDto>(this.baseUrl, dto);
+        })
+      ),
+      'criar produto',
+      'Produto'
     );
   }
 
@@ -274,14 +308,17 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Override atualizar to include reference validation
    */
   override atualizar(id: number, dto: AtualizarProdutoDto, rowVersion?: string): Observable<ProdutoDto> {
-    return this.validarReferencias(dto).pipe(
-      switchMap(validation => {
-        if (!validation.isValid) {
-          throw new Error(`Referências inválidas: ${validation.errors.join(', ')}`);
-        }
-        return this.http.put<ProdutoDto>(`${this.baseUrl}/${id}`, dto);
-      }),
-      catchError(error => this.handleError('atualizar produto', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.validarReferencias(dto).pipe(
+        switchMap(validation => {
+          if (!validation.isValid) {
+            throw new Error(`Referências inválidas: ${validation.errors.join(', ')}`);
+          }
+          return this.http.put<ProdutoDto>(`${this.baseUrl}/${id}`, dto);
+        })
+      ),
+      'atualizar produto',
+      'Produto'
     );
   }
 
@@ -313,9 +350,12 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Get active produtos with display-friendly data
    */
   obterAtivosParaExibicao(): Observable<ProdutoDisplayDto[]> {
-    return this.http.get<ProdutoDto[]>(`${this.baseUrl}/ativos?includeReferences=true`).pipe(
-      map(produtos => produtos.map(produto => this.transformToDisplayDto(produto))),
-      catchError(error => this.handleError('obter produtos ativos para exibição', error))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<ProdutoDto[]>(`${this.baseUrl}/ativos?includeReferences=true`).pipe(
+        map(produtos => produtos.map(produto => this.transformToDisplayDto(produto)))
+      ),
+      'obter produtos ativos para exibição',
+      'Produto'
     );
   }
 }

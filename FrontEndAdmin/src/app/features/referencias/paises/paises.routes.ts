@@ -1,10 +1,9 @@
 import { Routes } from '@angular/router';
-import { PaisesComponent } from './paises.component';
 
 export const PAISES_ROUTES: Routes = [
   {
     path: '',
-    component: PaisesComponent,
+    loadComponent: () => import('./paises.component').then(m => m.PaisesComponent),
     data: {
       title: 'Países',
       breadcrumb: 'Países'

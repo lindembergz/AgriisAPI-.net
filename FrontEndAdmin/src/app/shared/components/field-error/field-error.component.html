@@ -1,0 +1,118 @@
+<!-- Field Error Component -->
+<div 
+  *ngIf="shouldShow()"
+  [class]="containerClasses()"
+  [attr.aria-live]="ariaLive"
+  [attr.aria-atomic]="'true'"
+  [attr.role]="'alert'"
+  [attr.id]="fieldName + '-error'">
+  
+  <!-- Text Display Mode -->
+  <div *ngIf="displayMode === 'text'" class="error-text-container">
+    <div class="error-content" (click)="onErrorClick()">
+      <!-- Error Icon -->
+      <i *ngIf="showIcon" [class]="iconClass()" class="error-icon"></i>
+      
+      <!-- Field Name (if enabled) -->
+      <span *ngIf="showFieldName" class="field-name">{{ getFieldDisplayName() }}:</span>
+      
+      <!-- Error Message -->
+      <span class="error-message">{{ displayText() }}</span>
+      
+      <!-- Error Count Badge -->
+      <span *ngIf="hasMultipleErrors() && !showMultiple" class="error-count-badge">
+        +{{ errorCount() - 1 }}
+      </span>
+      
+      <!-- Error Code -->
+      <span *ngIf="showErrorCode && control?.errors" class="error-code">
+        [{{ Object.keys(control.errors)[0] }}]
+      </span>
+    </div>
+    
+    <!-- Multiple Errors List -->
+    <ul *ngIf="showMultiple && hasMultipleErrors()" class="error-list">
+      <li *ngFor="let error of getAllErrors(); trackBy: trackByError" class="error-item">
+        <i *ngIf="showIcon" [class]="iconClass()" class="error-icon-small"></i>
+        <span>{{ error }}</span>
+      </li>
+    </ul>
+  </div>
+  
+  <!-- Tooltip Display Mode -->
+  <div *ngIf="displayMode === 'tooltip'" 
+       class="error-tooltip-container"
+       [attr.title]="displayText()">
+    <i [class]="iconClass()" class="error-tooltip-icon"></i>
+    
+    <!-- Tooltip Content -->
+    <div class="tooltip-content">
+      <div class="tooltip-header" *ngIf="showFieldName">
+        <strong>{{ getFieldDisplayName() }}</strong>
+      </div>
+      
+      <div class="tooltip-body">
+        <div *ngIf="!showMultiple" class="single-error-message">
+          {{ getFirstError() }}
+        </div>
+        
+        <ul *ngIf="showMultiple" class="tooltip-error-list">
+          <li *ngFor="let error of getAllErrors(); trackBy: trackByError" class="tooltip-error-item">
+            {{ error }}
+          </li>
+        </ul>
+      </div>
+      
+      <div *ngIf="hasMultipleErrors()" class="tooltip-footer">
+        <small>{{ getErrorCountText() }}</small>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Inline Display Mode -->
+  <div *ngIf="displayMode === 'inline'" class="error-inline-container">
+    <span class="inline-content">
+      <i *ngIf="showIcon" [class]="iconClass()" class="error-icon-inline"></i>
+      <span class="inline-message">{{ displayText() }}</span>
+    </span>
+  </div>
+  
+  <!-- Badge Display Mode -->
+  <div *ngIf="displayMode === 'badge'" class="error-badge-container">
+    <div class="error-badge" (click)="onErrorClick()">
+      <i *ngIf="showIcon" [class]="iconClass()" class="badge-icon"></i>
+      
+      <span *ngIf="!hasMultipleErrors()" class="badge-message">
+        {{ getFirstError() }}
+      </span>
+      
+      <span *ngIf="hasMultipleErrors()" class="badge-count">
+        {{ errorCount() }}
+      </span>
+    </div>
+    
+    <!-- Badge Dropdown (for multiple errors) -->
+    <div *ngIf="hasMultipleErrors()" class="badge-dropdown" [@fadeInOut]>
+      <div class="dropdown-header">
+        <strong>{{ getErrorCountText() }}</strong>
+      </div>
+      
+      <ul class="dropdown-error-list">
+        <li *ngFor="let error of getAllErrors(); trackBy: trackByError" class="dropdown-error-item">
+          <i [class]="iconClass()" class="dropdown-icon"></i>
+          <span>{{ error }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  
+  <!-- Custom Template Slot -->
+  <div *ngIf="displayMode === 'custom'" class="custom-template-container">
+    <ng-content></ng-content>
+  </div>
+</div>
+
+<!-- Screen Reader Only Content -->
+<div class="sr-only" [attr.aria-describedby]="fieldName + '-error'">
+  <span *ngIf="shouldShow()">{{ displayText() }}</span>
+</div>

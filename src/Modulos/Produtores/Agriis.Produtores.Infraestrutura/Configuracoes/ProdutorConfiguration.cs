@@ -56,6 +56,7 @@ public class ProdutorConfiguration : IEntityTypeConfiguration<Produtor>
 
         builder.Property(p => p.DataAutorizacao)
             .HasColumnName("DataAutorizacao")
+            .HasColumnType("timestamptz")
             .IsRequired();
 
         builder.Property(p => p.Status)
@@ -68,10 +69,12 @@ public class ProdutorConfiguration : IEntityTypeConfiguration<Produtor>
 
         builder.Property(p => p.DataCriacao)
             .HasColumnName("DataCriacao")
+            .HasColumnType("timestamptz")
             .IsRequired();
 
         builder.Property(p => p.DataAtualizacao)
-            .HasColumnName("DataAtualizacao");
+            .HasColumnName("DataAtualizacao")
+            .HasColumnType("timestamptz");
 
         // Objetos de valor - configuração simplificada
         builder.Property(p => p.Cpf)

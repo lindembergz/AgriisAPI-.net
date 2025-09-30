@@ -42,6 +42,16 @@ public abstract class ReferenciaRepositoryBase<T, TContext> : RepositoryBase<T, 
     }
 
     /// <summary>
+    /// Obtém uma entidade por código
+    /// </summary>
+    public virtual async Task<T?> ObterPorCodigoAsync(string codigo, CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<T>()
+            .Where(GetCodigoExpression(codigo))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <summary>
     /// Verifica se existe uma entidade com o nome especificado
     /// </summary>
     public virtual async Task<bool> ExisteNomeAsync(string nome, int? idExcluir = null, CancellationToken cancellationToken = default)

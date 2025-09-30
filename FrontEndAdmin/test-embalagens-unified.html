@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Embalagens Unificado</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeng@17.0.0/resources/themes/lara-light-blue/theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeng@17.0.0/resources/primeng.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeicons@6.0.1/primeicons.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .demo-section {
+            margin-bottom: 3rem;
+        }
+        
+        .demo-section h2 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            background: #fafafa;
+        }
+        
+        .feature-card h3 {
+            color: #667eea;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-implemented {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-enhanced {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-new {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .code-preview {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 1rem;
+            border-left: 4px solid #ffc107;
+            margin: 1rem 0;
+        }
+        
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        .api-table th,
+        .api-table td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        .api-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .api-table code {
+            background: #f8f9fa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.875rem;
+        }
+        
+        .unit-type-demo {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .unit-type-item {
+            flex: 1;
+            min-width: 200px;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .type-peso {
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+        }
+        
+        .type-volume {
+            background: linear-gradient(135deg, #2196f3, #1565c0);
+        }
+        
+        .type-comprimento {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+        }
+        
+        .type-area {
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+        }
+        
+        .type-quantidade {
+            background: linear-gradient(135deg, #607d8b, #455a64);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .content {
+                padding: 1rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .unit-type-demo {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Componente Embalagens Unificado</h1>
+            <p>Sistema de gerenciamento de embalagens com unidades de medida associadas</p>
+        </div>
+        
+        <div class="content">
+            <!-- Visão Geral -->
+            <div class="demo-section">
+                <h2>📋 Visão Geral</h2>
+                <p>O componente de Embalagens implementa o padrão unificado com funcionalidades específicas para gerenciamento de tipos de embalagem, incluindo associação com unidades de medida e filtros por tipo de unidade.</p>
+                
+                <div class="highlight">
+                    <strong>🎯 Objetivo:</strong> Fornecer uma interface consistente para gerenciar embalagens com relacionamentos de unidades de medida e filtros especializados por tipo de unidade.
+                </div>
+            </div>
+
+            <!-- Funcionalidades Implementadas -->
+            <div class="demo-section">
+                <h2>✅ Funcionalidades Implementadas</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class="pi pi-link"></i> Relacionamentos</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Associação com unidades de medida</li>
+                            <li><span class="status-badge status-implemented">✓</span> Filtro cascateado por tipo de unidade</li>
+                            <li><span class="status-badge status-implemented">✓</span> Exibição de símbolos e tipos</li>
+                            <li><span class="status-badge status-implemented">✓</span> Validação de relacionamentos</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-shield"></i> Validações</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Nome obrigatório (2-100 chars)</li>
+                            <li><span class="status-badge status-implemented">✓</span> Unidade de medida obrigatória</li>
+                            <li><span class="status-badge status-implemented">✓</span> Descrição opcional (máx 500 chars)</li>
+                            <li><span class="status-badge status-implemented">✓</span> Validação de relacionamentos</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-filter"></i> Filtros Customizados</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Filtro por tipo de unidade</li>
+                            <li><span class="status-badge status-implemented">✓</span> Filtro por unidade específica</li>
+                            <li><span class="status-badge status-implemented">✓</span> Busca por nome e descrição</li>
+                            <li><span class="status-badge status-implemented">✓</span> Filtro por status (ativo/inativo)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-table"></i> Exibição de Dados</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Tabela responsiva</li>
+                            <li><span class="status-badge status-implemented">✓</span> Exibição de unidade com símbolo</li>
+                            <li><span class="status-badge status-implemented">✓</span> Informações de tipo de unidade</li>
+                            <li><span class="status-badge status-implemented">✓</span> Ordenação múltipla</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tipos de Unidades -->
+            <div class="demo-section">
+                <h2>⚖️ Tipos de Unidades de Medida</h2>
+                
+                <div class="unit-type-demo">
+                    <div class="unit-type-item type-peso">
+                        <i class="pi pi-circle" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                        <div>Peso</div>
+                        <small>kg, g, t</small>
+                    </div>
+                    <div class="unit-type-item type-volume">
+                        <i class="pi pi-box" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                        <div>Volume</div>
+                        <small>L, mL, m³</small>
+                    </div>
+                    <div class="unit-type-item type-comprimento">
+                        <i class="pi pi-arrows-h" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                        <div>Comprimento</div>
+                        <small>m, cm, mm</small>
+                    </div>
+                    <div class="unit-type-item type-area">
+                        <i class="pi pi-th-large" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                        <div>Área</div>
+                        <small>m², ha, cm²</small>
+                    </div>
+                    <div class="unit-type-item type-quantidade">
+                        <i class="pi pi-hashtag" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                        <div>Quantidade</div>
+                        <small>un, dz, cx</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estrutura de Dados -->
+            <div class="demo-section">
+                <h2>🗂️ Estrutura de Dados</h2>
+                
+                <h3>EmbalagemDto</h3>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th>Validação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>id</code></td>
+                            <td>number</td>
+                            <td>Identificador único</td>
+                            <td>Auto-gerado</td>
+                        </tr>
+                        <tr>
+                            <td><code>nome</code></td>
+                            <td>string</td>
+                            <td>Nome da embalagem</td>
+                            <td>Obrigatório, 2-100 chars</td>
+                        </tr>
+                        <tr>
+                            <td><code>descricao</code></td>
+                            <td>string</td>
+                            <td>Descrição da embalagem</td>
+                            <td>Opcional, máx 500 chars</td>
+                        </tr>
+                        <tr>
+                            <td><code>unidadeMedidaId</code></td>
+                            <td>number</td>
+                            <td>ID da unidade de medida</td>
+                            <td>Obrigatório</td>
+                        </tr>
+                        <tr>
+                            <td><code>unidadeMedida</code></td>
+                            <td>UnidadeMedidaDto</td>
+                            <td>Dados da unidade de medida</td>
+                            <td>Relacionamento</td>
+                        </tr>
+                        <tr>
+                            <td><code>ativo</code></td>
+                            <td>boolean</td>
+                            <td>Status da embalagem</td>
+                            <td>Padrão: true</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Funcionalidades Específicas -->
+            <div class="demo-section">
+                <h2>🔧 Funcionalidades Específicas</h2>
+                
+                <div class="feature-card">
+                    <h3><i class="pi pi-filter"></i> Filtros Cascateados</h3>
+                    <div class="code-preview">
+// Configuração de filtros cascateados
+onTipoUnidadeFilterChange(): void {
+  const tipoSelecionado = this.tipoUnidadeSelecionado();
+  
+  if (tipoSelecionado) {
+    const unidadesFiltradas = this.unidadesDisponiveis().filter(
+      unidade => unidade.tipo === tipoSelecionado
+    );
+    this.unidadesFiltradas.set(unidadesFiltradas);
+  } else {
+    this.unidadesFiltradas.set([...this.unidadesDisponiveis()]);
+  }
+  
+  // Clear unidade selection if it doesn't match the type filter
+  const unidadeSelecionada = this.unidadeMedidaSelecionada();
+  if (unidadeSelecionada && tipoSelecionado) {
+    const selectedUnidade = this.unidadesDisponiveis().find(u => u.id === unidadeSelecionada);
+    if (selectedUnidade && selectedUnidade.tipo !== tipoSelecionado) {
+      this.unidadeMedidaSelecionada.set(null);
+      this.componentStateService.setCustomFilterValue('unidadeMedida', null);
+    }
+  }
+}</div>
+                </div>
+                
+                <div class="feature-card">
+                    <h3><i class="pi pi-eye"></i> Exibição de Relacionamentos</h3>
+                    <div class="code-preview">
+// Exibição customizada de unidade de medida na tabela
+&lt;div *ngIf="currentItem.unidadeMedida" class="unidade-medida-display"&gt;
+  &lt;div class="selected-item"&gt;
+    &lt;strong&gt;{{ currentItem.unidadeMedida.simbolo }}&lt;/strong&gt; - {{ currentItem.unidadeMedida.nome }}
+  &lt;/div&gt;
+  &lt;div class="tipo-info"&gt;{{ getTipoUnidadeDescricao(currentItem.unidadeMedida.tipo) }}&lt;/div&gt;
+&lt;/div&gt;</div>
+                </div>
+            </div>
+
+            <!-- Filtros Customizados -->
+            <div class="demo-section">
+                <h2>🔍 Filtros Customizados</h2>
+                
+                <div class="code-preview">
+protected getCustomFilters(): CustomFilter[] {
+  return [
+    {
+      key: 'tipoUnidade',
+      label: 'Tipo de Unidade',
+      placeholder: 'Selecione um tipo',
+      options: [
+        { label: 'Todos os tipos', value: null },
+        ...this.tiposUnidadeDisponiveis().map(tipo => ({
+          label: tipo.descricao,
+          value: tipo.valor
+        }))
+      ]
+    },
+    {
+      key: 'unidadeMedida',
+      label: 'Unidade de Medida',
+      placeholder: 'Selecione uma unidade',
+      options: [
+        { label: 'Todas as unidades', value: null },
+        ...this.unidadesFiltradas().map(unidade => ({
+          label: `${unidade.simbolo} - ${unidade.nome}`,
+          value: unidade.id
+        }))
+      ]
+    }
+  ];
+}</div>
+            </div>
+
+            <!-- Configuração da Tabela -->
+            <div class="demo-section">
+                <h2>📊 Configuração da Tabela</h2>
+                
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Coluna</th>
+                            <th>Tipo</th>
+                            <th>Largura</th>
+                            <th>Responsivo</th>
+                            <th>Ordenável</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Nome</td>
+                            <td>text</td>
+                            <td>25%</td>
+                            <td>Sempre visível</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>Descrição</td>
+                            <td>text</td>
+                            <td>30%</td>
+                            <td>Oculto no mobile</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>Unidade de Medida</td>
+                            <td>custom</td>
+                            <td>25%</td>
+                            <td>Sempre visível</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Status</td>
+                            <td>boolean</td>
+                            <td>15%</td>
+                            <td>Oculto no mobile</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>Data Criação</td>
+                            <td>date</td>
+                            <td>150px</td>
+                            <td>Oculto no mobile/tablet</td>
+                            <td>✓</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Integração com Backend -->
+            <div class="demo-section">
+                <h2>🔗 Integração com Backend</h2>
+                
+                <h3>Endpoints Utilizados</h3>
+                <div class="code-preview">
+// EmbalagemService
+- obterTodos(): Observable&lt;EmbalagemDto[]&gt;
+- obterAtivos(): Observable&lt;EmbalagemDto[]&gt;
+- obterPorUnidadeMedida(unidadeId: number): Observable&lt;EmbalagemDto[]&gt;
+- buscarPorNome(termo: string): Observable&lt;EmbalagemDto[]&gt;
+- obterUnidadesMedidaParaDropdown(): Observable&lt;UnidadeDropdownOption[]&gt;
+- obterTiposUnidade(): Observable&lt;TipoUnidadeOption[]&gt;
+- getTipoUnidadeDescricao(tipo: TipoUnidadeMedida): string</div>
+            </div>
+
+            <!-- Estados de Loading -->
+            <div class="demo-section">
+                <h2>⏳ Estados de Loading</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class="pi pi-spin pi-spinner"></i> Loading Principal</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Carregamento de embalagens</li>
+                            <li><span class="status-badge status-implemented">✓</span> Spinner centralizado</li>
+                            <li><span class="status-badge status-implemented">✓</span> Mensagem contextual</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-spin pi-cog"></i> Loading de Relacionamentos</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-implemented">✓</span> Loading de unidades de medida</li>
+                            <li><span class="status-badge status-implemented">✓</span> Loading de tipos de unidade</li>
+                            <li><span class="status-badge status-implemented">✓</span> Estados de erro para relacionamentos</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tratamento de Erros -->
+            <div class="demo-section">
+                <h2>🚨 Tratamento de Erros</h2>
+                
+                <div class="code-preview">
+// Erros de validação
+- required: "Campo obrigatório"
+- minlength: "Mínimo de X caracteres"
+- maxlength: "Máximo de X caracteres"
+
+// Erros de carregamento
+- load: "Erro ao carregar embalagens"
+- load-unidades: "Erro ao carregar unidades de medida"
+- load-tipos: "Erro ao carregar tipos de unidade"</div>
+            </div>
+
+            <!-- Próximos Passos -->
+            <div class="demo-section">
+                <h2>🚀 Próximos Passos</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class="pi pi-cog"></i> Melhorias Técnicas</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-new">📋</span> Cache de unidades de medida</li>
+                            <li><span class="status-badge status-new">📋</span> Validação de compatibilidade</li>
+                            <li><span class="status-badge status-new">📋</span> Testes unitários</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3><i class="pi pi-plus"></i> Funcionalidades</h3>
+                        <ul class="feature-list">
+                            <li><span class="status-badge status-new">📋</span> Calculadora de conversões</li>
+                            <li><span class="status-badge status-new">📋</span> Histórico de uso</li>
+                            <li><span class="status-badge status-new">📋</span> Relatórios por tipo</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
