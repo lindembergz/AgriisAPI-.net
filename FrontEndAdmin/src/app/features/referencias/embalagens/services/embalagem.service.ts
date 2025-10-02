@@ -38,7 +38,7 @@ export class EmbalagemService extends ReferenceCrudService<
 > {
   
   protected readonly entityName = 'Embalagem';
-  protected readonly apiEndpoint = 'referencias/embalagens';
+  protected readonly apiEndpoint = 'embalagens';
 
   /**
    * Get embalagens by nome pattern (for search/autocomplete)
@@ -109,7 +109,7 @@ export class EmbalagemService extends ReferenceCrudService<
    * Get all UnidadesMedida for dropdown usage (with type information)
    */
   obterUnidadesMedidaParaDropdown(): Observable<UnidadeDropdownOption[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/referencias/unidades-medida/ativos`)
+    return this.http.get<any[]>(`${environment.apiUrl}/unidades-medida/ativos`)
       .pipe(
         map(unidades => unidades.map(u => ({
           id: u.id,

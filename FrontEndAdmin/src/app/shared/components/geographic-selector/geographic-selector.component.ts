@@ -292,9 +292,9 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
     setTimeout(() => {
       // Simulated data - in real implementation, this would come from the service
       const mockUfs: UfDto[] = [
-        { id: 1, nome: 'São Paulo', codigo: 'SP', paisId: 1, ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() },
-        { id: 2, nome: 'Rio de Janeiro', codigo: 'RJ', paisId: 1, ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() },
-        { id: 3, nome: 'Minas Gerais', codigo: 'MG', paisId: 1, ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() }
+        { id: 1, nome: 'São Paulo', uf: 'SP', paisId: 1, ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() },
+        { id: 2, nome: 'Rio de Janeiro', uf: 'RJ', paisId: 1, ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() },
+        { id: 3, nome: 'Minas Gerais', uf: 'MG', paisId: 1, ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() }
       ];
       
       this.ufs.set(mockUfs);
@@ -430,7 +430,7 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
    */
   getUfNome(ufId: number): string {
     const uf = this.ufs().find(u => u.id === ufId);
-    return uf ? `${uf.nome} (${uf.codigo})` : '';
+    return uf ? `${uf.nome} (${uf.uf})` : '';
   }
 
   /**

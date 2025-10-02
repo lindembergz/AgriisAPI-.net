@@ -9,7 +9,7 @@ using Agriis.Fornecedores.Dominio.Servicos;
 using Agriis.Compartilhado.Aplicacao.Resultados;
 using Agriis.Usuarios.Aplicacao.Interfaces;
 using Agriis.Usuarios.Aplicacao.DTOs;
-using Agriis.Referencias.Aplicacao.Interfaces;
+using Agriis.Enderecos.Aplicacao.Interfaces;
 
 namespace Agriis.Fornecedores.Aplicacao.Servicos;
 
@@ -374,7 +374,7 @@ public class FornecedorService : IFornecedorService
         if (municipio == null)
             throw new InvalidOperationException("Município não encontrado");
 
-        if (municipio.UfId != ufId.Value)
+        if (municipio.EstadoId != ufId.Value)
             throw new InvalidOperationException("O município selecionado não pertence à UF informada");
     }
 }

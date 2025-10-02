@@ -28,6 +28,16 @@ public class Estado : EntidadeBase
     public string Regiao { get; private set; } = string.Empty;
     
     /// <summary>
+    /// ID do país ao qual o estado pertence
+    /// </summary>
+    public int PaisId { get; private set; } = 1; // Default para Brasil
+    
+    /// <summary>
+    /// País ao qual o estado pertence
+    /// </summary>
+    public virtual Pais Pais { get; private set; } = null!;
+    
+    /// <summary>
     /// Municípios do estado
     /// </summary>
     public virtual ICollection<Municipio> Municipios { get; private set; } = new List<Municipio>();
@@ -49,14 +59,16 @@ public class Estado : EntidadeBase
     /// <param name="uf">Sigla do estado</param>
     /// <param name="codigoIbge">Código IBGE do estado</param>
     /// <param name="regiao">Região do estado</param>
-    public Estado(string nome, string uf, int codigoIbge, string regiao)
+    /// <param name="paisId">ID do país (padrão: 1 para Brasil)</param>
+    public Estado(string nome, string uf, int codigoIbge, string regiao, int paisId = 1)
     {
-        ValidarParametros(nome, uf, codigoIbge, regiao);
+        ValidarParametros(nome, uf, codigoIbge, regiao, paisId);
         
         Nome = nome;
         Uf = uf.ToUpperInvariant();
         CodigoIbge = codigoIbge;
         Regiao = regiao;
+        PaisId = paisId;
     }
     
     /// <summary>
@@ -66,19 +78,23 @@ public class Estado : EntidadeBase
     /// <param name="uf">Sigla do estado</param>
     /// <param name="codigoIbge">Código IBGE do estado</param>
     /// <param name="regiao">Região do estado</param>
-    public void Atualizar(string nome, string uf, int codigoIbge, string regiao)
+    /// <param name="paisId">ID do país</param>
+    public void Atualizar(string nome, string uf, int codigoIbge, string regiao, int? paisId = null)
     {
-        ValidarParametros(nome, uf, codigoIbge, regiao);
+        ValidarParametros(nome, uf, codigoIbge, regiao, paisId ?? PaisId);
         
         Nome = nome;
         Uf = uf.ToUpperInvariant();
         CodigoIbge = codigoIbge;
         Regiao = regiao;
         
+        if (paisId.HasValue)
+            PaisId = paisId.Value;
+        
         AtualizarDataModificacao();
     }
     
-    private static void ValidarParametros(string nome, string uf, int codigoIbge, string regiao)
+    private static void ValidarParametros(string nome, string uf, int codigoIbge, string regiao, int paisId)
     {
         if (string.IsNullOrWhiteSpace(nome))
             throw new ArgumentException("Nome do estado é obrigatório", nameof(nome));
@@ -91,5 +107,8 @@ public class Estado : EntidadeBase
             
         if (string.IsNullOrWhiteSpace(regiao))
             throw new ArgumentException("Região é obrigatória", nameof(regiao));
+            
+        if (paisId <= 0)
+            throw new ArgumentException("ID do país deve ser maior que zero", nameof(paisId));
     }
 }

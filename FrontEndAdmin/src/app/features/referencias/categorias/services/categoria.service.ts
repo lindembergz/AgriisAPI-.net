@@ -52,7 +52,7 @@ export class CategoriaService extends ReferenceCrudService<
 > {
   
   protected readonly entityName = 'Categoria';
-  protected readonly apiEndpoint = 'referencias/categorias';
+  protected readonly apiEndpoint = 'categorias';
   
   protected http = inject(HttpClient);
 

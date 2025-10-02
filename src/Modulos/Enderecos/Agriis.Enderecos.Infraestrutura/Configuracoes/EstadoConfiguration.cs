@@ -39,6 +39,11 @@ public class EstadoConfiguration : IEntityTypeConfiguration<Estado>
             .HasColumnName("regiao")
             .HasMaxLength(50)
             .IsRequired();
+            
+        builder.Property(e => e.PaisId)
+            .HasColumnName("pais_id")
+            .IsRequired()
+            .HasDefaultValue(1);
         
         // Propriedades de auditoria
         builder.Property(e => e.DataCriacao)
@@ -64,6 +69,9 @@ public class EstadoConfiguration : IEntityTypeConfiguration<Estado>
             
         builder.HasIndex(e => e.Regiao)
             .HasDatabaseName("IX_estados_regiao");
+            
+        builder.HasIndex(e => e.PaisId)
+            .HasDatabaseName("IX_estados_pais_id");
         
         // Relacionamentos
         builder.HasMany(e => e.Municipios)

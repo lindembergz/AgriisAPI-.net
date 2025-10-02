@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Correção Embalagens</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .test-title {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .data-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .field-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .field-value {
+            margin-left: 10px;
+            color: #6c757d;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .unidade-display {
+            display: flex;
+            flex-direction: column;
+        }
+        .selected-item {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Teste - Correção Exibição Unidade de Medida em Embalagens</h1>
+        
+        <div class="test-section">
+            <div class="test-title">1. Dados da API (Estrutura Real)</div>
+            <div class="data-display">
+                <div><span class="field-label">Estrutura retornada pela API:</span></div>
+                <pre id="api-data"></pre>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">2. Teste de Exibição Corrigida</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Descrição</th>
+                        <th>Unidade de Medida</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="embalagens-table">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">3. Validação da Correção</div>
+            <div id="validation-results"></div>
+        </div>
+    </div>
+
+    <script>
+        // Dados de exemplo baseados na resposta da API
+        const embalagensMockData = [
+            {
+                "id": 3,
+                "nome": "Caixa",
+                "descricao": "Caixa unitária",
+                "unidadeMedidaId": 9,
+                "unidadeMedidaNome": "Unidade",
+                "unidadeMedidaSimbolo": "un",
+                "ativo": true,
+                "dataCriacao": "2025-09-25T21:28:35.87884",
+                "dataAtualizacao": null,
+                "rowVersion": ""
+            },
+            {
+                "id": 1,
+                "nome": "Saco 50kg",
+                "descricao": "Saco de 50 quilogramas",
+                "unidadeMedidaId": 1,
+                "unidadeMedidaNome": "Quilograma",
+                "unidadeMedidaSimbolo": "kg",
+                "ativo": true,
+                "dataCriacao": "2025-09-25T21:28:25.000452",
+                "dataAtualizacao": null,
+                "rowVersion": ""
+            },
+            {
+                "id": 2,
+                "nome": "Tambor 200L",
+                "descricao": "Tambor de 200 litros",
+                "unidadeMedidaId": 4,
+                "unidadeMedidaNome": "Litro",
+                "unidadeMedidaSimbolo": "L",
+                "ativo": true,
+                "dataCriacao": "2025-09-25T21:28:31.160323",
+                "dataAtualizacao": null,
+                "rowVersion": ""
+            }
+        ];
+
+        // Função para exibir unidade de medida (simulando a correção)
+        function getUnidadeMedidaDisplay(item) {
+            if (!item.unidadeMedidaNome) return '-';
+            return `${item.unidadeMedidaSimbolo} - ${item.unidadeMedidaNome}`;
+        }
+
+        // Função para obter status
+        function getStatusLabel(ativo) {
+            return ativo ? 'Ativo' : 'Inativo';
+        }
+
+        // Renderizar dados da API
+        document.getElementById('api-data').textContent = JSON.stringify(embalagensMockData[0], null, 2);
+
+        // Renderizar tabela
+        const tableBody = document.getElementById('embalagens-table');
+        embalagensMockData.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${item.nome}</strong></td>
+                <td>${item.descricao || '-'}</td>
+                <td>
+                    <div class="unidade-display">
+                        <div class="selected-item">
+                            <strong>${item.unidadeMedidaSimbolo}</strong> - ${item.unidadeMedidaNome}
+                        </div>
+                    </div>
+                </td>
+                <td>${getStatusLabel(item.ativo)}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Validação
+        const validationDiv = document.getElementById('validation-results');
+        let allValid = true;
+        let validationMessages = [];
+
+        embalagensMockData.forEach((item, index) => {
+            const display = getUnidadeMedidaDisplay(item);
+            if (display === '-') {
+                allValid = false;
+                validationMessages.push(`❌ Item ${index + 1}: Unidade não exibida`);
+            } else {
+                validationMessages.push(`✅ Item ${index + 1}: ${display}`);
+            }
+        });
+
+        validationDiv.innerHTML = `
+            <div class="${allValid ? 'success' : 'error'}">
+                ${allValid ? '✅ Correção aplicada com sucesso!' : '❌ Ainda há problemas na exibição'}
+            </div>
+            <ul>
+                ${validationMessages.map(msg => `<li>${msg}</li>`).join('')}
+            </ul>
+        `;
+    </script>
+</body>
+</html>

@@ -4,11 +4,8 @@ using Agriis.Referencias.Aplicacao.Interfaces;
 
 namespace Agriis.Api.Controllers;
 
-/// <summary>
-/// Controlador para gerenciamento de embalagens
-/// </summary>
 [ApiController]
-[Route("api/referencias/embalagens")]
+[Route("api/embalagens")]
 public class EmbalagensController : ReferenciaControllerBase<EmbalagemDto, CriarEmbalagemDto, AtualizarEmbalagemDto>
 {
     private readonly IEmbalagemService _embalagemService;

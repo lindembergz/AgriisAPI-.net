@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -27,25 +27,27 @@ import { SafraDto, SafraAtualDto } from '../../models/safra.interface';
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './safras-list.component.html',
-  styleUrl: './safras-list.component.scss'
+  styleUrl: './safras-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SafrasListComponent implements OnInit {
   private safraService = inject(SafraService);
   private router = inject(Router);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
+  private cdr = inject(ChangeDetectorRef);
 
-  // Signals para gerenciar estado
-  safras = signal<SafraDto[]>([]);
-  safraAtual = signal<SafraAtualDto | null>(null);
-  loading = signal(false);
-  tableLoading = signal(false);
-  anosFiltro = signal<{ label: string; value: number | null }[]>([]);
-  anoSelecionado = signal<number | null>(null);
-  pageSize = signal<number>(10);
-  multiSortMeta = signal<any[]>([]);
-  actionLoadingStates = signal<Map<string, number>>(new Map());
-  highlightedRowIndex = signal<number>(-1);
+  // Estado do componente
+  safras: SafraDto[] = [];
+  safraAtual: SafraAtualDto | null = null;
+  loading = false;
+  tableLoading = false;
+  anosFiltro: { label: string; value: number | null }[] = [];
+  anoSelecionado: number | null = null;
+  pageSize = 10;
+  multiSortMeta: any[] = [];
+  actionLoadingStates: Map<string, number> = new Map();
+  highlightedRowIndex = -1;
 
   ngOnInit(): void {
     this.carregarSafras();
@@ -54,26 +56,26 @@ export class SafrasListComponent implements OnInit {
   }
 
   private carregarSafras(): void {
-    this.loading.set(true);
-    this.tableLoading.set(true);
+    this.loading = true;
+    this.tableLoading = true;
     
-    const observable = this.anoSelecionado() 
-      ? this.safraService.obterPorAnoColheita(this.anoSelecionado()!)
+    const observable = this.anoSelecionado 
+      ? this.safraService.obterPorAnoColheita(this.anoSelecionado!)
       : this.safraService.obterTodas();
 
     observable.subscribe({
       next: (safras) => {
-        this.safras.set(safras);
-        this.loading.set(false);
-        this.tableLoading.set(false);
+        this.safras = safras;
+        this.loading = false;
+        this.tableLoading = false;
         
-        // Show success message for data load
         this.messageService.add({
           severity: 'success',
           summary: 'Dados carregados',
           detail: `${safras.length} safra(s) encontrada(s)`,
           life: 2000
         });
+        this.cdr.markForCheck();
       },
       error: () => {
         this.messageService.add({
@@ -82,8 +84,9 @@ export class SafrasListComponent implements OnInit {
           detail: 'Não foi possível carregar as safras. Tente novamente.',
           life: 5000
         });
-        this.loading.set(false);
-        this.tableLoading.set(false);
+        this.loading = false;
+        this.tableLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -91,10 +94,10 @@ export class SafrasListComponent implements OnInit {
   private carregarSafraAtual(): void {
     this.safraService.obterAtual().subscribe({
       next: (safraAtual) => {
-        this.safraAtual.set(safraAtual);
+        this.safraAtual = safraAtual;
+        this.cdr.markForCheck();
       },
       error: (error) => {
-        // Não exibir erro se não houver safra atual
         console.warn('Nenhuma safra atual encontrada');
       }
     });
@@ -106,16 +109,15 @@ export class SafrasListComponent implements OnInit {
       { label: 'Todos os anos', value: null }
     ];
 
-    // Gerar anos de 5 anos atrás até 2 anos no futuro
     for (let ano = anoAtual - 5; ano <= anoAtual + 2; ano++) {
       anos.push({ label: ano.toString(), value: ano });
     }
 
-    this.anosFiltro.set(anos);
+    this.anosFiltro = anos;
   }
 
   onFiltroAnoChange(ano: number | null): void {
-    this.anoSelecionado.set(ano);
+    this.anoSelecionado = ano;
     this.carregarSafras();
   }
 
@@ -126,7 +128,6 @@ export class SafrasListComponent implements OnInit {
   editarSafra(safra: SafraDto): void {
     this.setActionLoading('edit', safra.id, true);
     
-    // Simulate loading for better UX
     setTimeout(() => {
       this.router.navigate(['/safras', safra.id]);
       this.setActionLoading('edit', safra.id, false);
@@ -169,7 +170,7 @@ export class SafrasListComponent implements OnInit {
   }
 
   isSafraAtual(safra: SafraDto): boolean {
-    return this.safraAtual()?.id === safra.id;
+    return this.safraAtual?.id === safra.id;
   }
 
   formatarData(data: Date): string {
@@ -184,65 +185,44 @@ export class SafrasListComponent implements OnInit {
     return this.isSafraAtual(safra) ? 'status-atual' : 'status-inativa';
   }
 
-  /**
-   * Handle table sorting
-   */
   onSort(event: any): void {
-    this.multiSortMeta.set(event.multiSortMeta || []);
+    this.multiSortMeta = event.multiSortMeta || [];
   }
 
-  /**
-   * Handle page change
-   */
   onPageChange(event: any): void {
-    this.pageSize.set(event.rows);
+    this.pageSize = event.rows;
   }
 
-  /**
-   * Set action loading state
-   */
   private setActionLoading(action: string, id: number, loading: boolean): void {
     const key = `${action}-${id}`;
-    const currentStates = new Map(this.actionLoadingStates());
     
     if (loading) {
-      currentStates.set(key, id);
+      this.actionLoadingStates.set(key, id);
     } else {
-      currentStates.delete(key);
+      this.actionLoadingStates.delete(key);
     }
-    
-    this.actionLoadingStates.set(currentStates);
+    this.cdr.markForCheck();
   }
 
-  /**
-   * Check if specific action is loading
-   */
   isActionLoading(action: string, id: number): boolean {
     const key = `${action}-${id}`;
-    return this.actionLoadingStates().has(key);
+    return this.actionLoadingStates.has(key);
   }
 
-  /**
-   * Check if any action is loading
-   */
   hasAnyActionLoading(): boolean {
-    return this.actionLoadingStates().size > 0;
+    return this.actionLoadingStates.size > 0;
   }
 
-  /**
-   * Check if row should be highlighted
-   */
   isRowHighlighted(rowIndex: number): boolean {
-    return this.highlightedRowIndex() === rowIndex;
+    return this.highlightedRowIndex === rowIndex;
   }
 
-  /**
-   * Highlight row temporarily for visual feedback
-   */
   private highlightRow(rowIndex: number): void {
-    this.highlightedRowIndex.set(rowIndex);
+    this.highlightedRowIndex = rowIndex;
+    this.cdr.markForCheck();
     setTimeout(() => {
-      this.highlightedRowIndex.set(-1);
+      this.highlightedRowIndex = -1;
+      this.cdr.markForCheck();
     }, 2000);
   }
 }

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Logo Agriis</title>
+</head>
+<body>
+    <h1>Teste de Logo</h1>
+    
+    <h2>Caminho 1: assets/images/logo/Logo_Agriis.png</h2>
+    <img src="assets/images/logo/Logo_Agriis.png" alt="Logo Agriis 1" style="max-width: 200px; border: 1px solid red;">
+    
+    <h2>Caminho 2: ./assets/images/logo/Logo_Agriis.png</h2>
+    <img src="./assets/images/logo/Logo_Agriis.png" alt="Logo Agriis 2" style="max-width: 200px; border: 1px solid blue;">
+    
+    <h2>Caminho 3: /assets/images/logo/Logo_Agriis.png</h2>
+    <img src="/assets/images/logo/Logo_Agriis.png" alt="Logo Agriis 3" style="max-width: 200px; border: 1px solid green;">
+    
+    <h2>Caminho 4: src/assets/images/logo/Logo_Agriis.png</h2>
+    <img src="src/assets/images/logo/Logo_Agriis.png" alt="Logo Agriis 4" style="max-width: 200px; border: 1px solid orange;">
+    
+    <script>
+        // Verificar se as imagens carregaram
+        window.addEventListener('load', function() {
+            const images = document.querySelectorAll('img');
+            images.forEach((img, index) => {
+                img.onload = function() {
+                    console.log(`Imagem ${index + 1} carregou com sucesso`);
+                };
+                img.onerror = function() {
+                    console.log(`Erro ao carregar imagem ${index + 1}: ${img.src}`);
+                    img.style.border = '2px solid red';
+                    img.alt = 'ERRO: ' + img.alt;
+                };
+            });
+        });
+    </script>
+</body>
+</html>

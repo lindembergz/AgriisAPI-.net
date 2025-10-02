@@ -19,7 +19,7 @@ export class PaisService extends ReferenceCrudService<
 > {
   
   protected readonly entityName = 'País';
-  protected readonly apiEndpoint = 'referencias/paises';
+  protected readonly apiEndpoint = 'enderecos/paises'; // Usando controller temporário de compatibilidade
 
   /**
    * Get países with UF count for dependency display

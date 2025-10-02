@@ -44,8 +44,8 @@ public static class DatabaseConfiguration
             // Configurar timeout para comandos
             npgsqlOptions.CommandTimeout(30);
 
-            // TODO: Habilitar NetTopologySuite para dados geoespaciais (PostGIS) quando a extensão estiver instalada
-            // npgsqlOptions.UseNetTopologySuite();
+            // Habilitar NetTopologySuite para dados geoespaciais (PostGIS)
+            npgsqlOptions.UseNetTopologySuite();
 
             // Configurações específicas para produção
             if (environment.IsProduction())

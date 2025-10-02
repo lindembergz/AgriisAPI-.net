@@ -12,6 +12,7 @@ CREATE TABLE public."AtividadesAgropecuarias" (
 	"Ativo" bool DEFAULT true NOT NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "AtividadesAgropecuarias_pkey" PRIMARY KEY ("Id")
 );
 CREATE UNIQUE INDEX "IX_AtividadesAgropecuarias_Codigo_Unique" ON public."AtividadesAgropecuarias" USING btree ("Codigo");
@@ -36,8 +37,9 @@ CREATE TABLE public."Catalogo" (
 	"DataInicio" timestamp NOT NULL,
 	"DataFim" timestamp NULL,
 	"Ativo" bool DEFAULT true NOT NULL,
-	"DataCriacao" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"DataAtualizacao" timestamp NULL,
+	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_Catalogo" PRIMARY KEY ("Id")
 );
 CREATE INDEX "IX_Catalogo_CategoriaId" ON public."Catalogo" USING btree ("CategoriaId");
@@ -72,6 +74,7 @@ CREATE TABLE public."Combo" (
 	"SafraId" int4 NOT NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_Combo" PRIMARY KEY ("Id")
 );
 CREATE INDEX "IX_Combo_FornecedorId" ON public."Combo" USING btree ("FornecedorId");
@@ -95,6 +98,7 @@ CREATE TABLE public."Cultura" (
 	"Ativo" bool DEFAULT true NOT NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_Cultura" PRIMARY KEY ("Id")
 );
 CREATE INDEX "IX_Cultura_Ativo" ON public."Cultura" USING btree ("Ativo");
@@ -116,6 +120,7 @@ CREATE TABLE public."Moedas" (
 	"Ativo" bool DEFAULT true NOT NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "Moedas_pkey" PRIMARY KEY ("Id")
 );
 CREATE UNIQUE INDEX "IX_Moedas_Codigo_Unique" ON public."Moedas" USING btree ("Codigo");
@@ -143,6 +148,7 @@ CREATE TABLE public."Pedido" (
 	"ProdutorId" int4 NOT NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_Pedido" PRIMARY KEY ("Id")
 );
 CREATE INDEX "IX_Pedido_DataLimiteInteracao" ON public."Pedido" USING btree ("DataLimiteInteracao");
@@ -170,6 +176,7 @@ CREATE TABLE public."Propriedade" (
 	"DadosAdicionais" jsonb NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_Propriedade" PRIMARY KEY ("Id")
 );
 CREATE INDEX "IX_Propriedade_EnderecoId" ON public."Propriedade" USING btree ("EnderecoId");
@@ -193,6 +200,7 @@ CREATE TABLE public."Safra" (
 	"AnoColheita" int4 NOT NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	"Ativo" bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_Safra" PRIMARY KEY ("Id")
 );
 CREATE INDEX "IX_Safra_AnoColheita" ON public."Safra" USING btree ("AnoColheita");
@@ -216,25 +224,13 @@ CREATE TABLE public."UnidadesMedida" (
 	"Ativo" bool DEFAULT true NOT NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "UnidadesMedida_pkey" PRIMARY KEY ("Id")
 );
 CREATE INDEX "IX_UnidadesMedida_DataCriacao" ON public."UnidadesMedida" USING btree ("DataCriacao");
 CREATE INDEX "IX_UnidadesMedida_Nome" ON public."UnidadesMedida" USING btree ("Nome");
 CREATE UNIQUE INDEX "IX_UnidadesMedida_Simbolo_Unique" ON public."UnidadesMedida" USING btree ("Simbolo");
 CREATE INDEX "IX_UnidadesMedida_Tipo" ON public."UnidadesMedida" USING btree ("Tipo");
-
-
--- public."__EFMigrationsHistory" definição
-
--- Drop table
-
--- DROP TABLE public."__EFMigrationsHistory";
-
-CREATE TABLE public."__EFMigrationsHistory" (
-	"MigrationId" varchar(150) NOT NULL,
-	"ProductVersion" varchar(32) NOT NULL,
-	CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
-);
 
 
 -- public.estados definição
@@ -251,6 +247,7 @@ CREATE TABLE public.estados (
 	regiao varchar(50) NOT NULL,
 	data_criacao timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	data_atualizacao timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_estados" PRIMARY KEY (id)
 );
 CREATE INDEX "IX_Estados_DataCriacao" ON public.estados USING btree (data_criacao);
@@ -279,6 +276,24 @@ CREATE INDEX ix_forma_pagamento_ativo ON public.forma_pagamento USING btree (ati
 CREATE INDEX ix_forma_pagamento_descricao ON public.forma_pagamento USING btree (descricao);
 
 
+-- public.paises definição
+
+-- Drop table
+
+-- DROP TABLE public.paises;
+
+CREATE TABLE public.paises (
+	id serial4 NOT NULL,
+	codigo varchar(3) NOT NULL,
+	nome varchar(100) NOT NULL,
+	ativo bool DEFAULT true NOT NULL,
+	data_criacao timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	data_atualizacao timestamptz NULL,
+	CONSTRAINT paises_pkey PRIMARY KEY (id),
+	CONSTRAINT uk_paises_codigo UNIQUE (codigo)
+);
+
+
 -- public.refresh_tokens definição
 
 -- Drop table
@@ -296,6 +311,7 @@ CREATE TABLE public.refresh_tokens (
 	user_agent varchar(1000) NULL,
 	data_criacao timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	data_atualizacao timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_refresh_tokens" PRIMARY KEY (id)
 );
 CREATE INDEX "IX_RefreshTokens_DataCriacao" ON public.refresh_tokens USING btree (data_criacao);
@@ -344,8 +360,9 @@ CREATE TABLE public."CatalogoItem" (
 	"EstruturaPrecosJson" jsonb NOT NULL,
 	"PrecoBase" numeric(18, 2) NULL,
 	"Ativo" bool DEFAULT true NOT NULL,
-	"DataCriacao" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"DataAtualizacao" timestamp NULL,
+	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_CatalogoItem" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_CatalogoItem_Catalogo_CatalogoId" FOREIGN KEY ("CatalogoId") REFERENCES public."Catalogo"("Id") ON DELETE CASCADE
 );
@@ -398,6 +415,7 @@ CREATE TABLE public."ComboCategoriaDesconto" (
 	"Ativo" bool NOT NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_ComboCategoriaDesconto" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_ComboCategoriaDesconto_Combo_ComboId" FOREIGN KEY ("ComboId") REFERENCES public."Combo"("Id") ON DELETE CASCADE
 );
@@ -425,6 +443,7 @@ CREATE TABLE public."ComboItem" (
 	"Ordem" int4 NOT NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_ComboItem" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_ComboItem_Combo_ComboId" FOREIGN KEY ("ComboId") REFERENCES public."Combo"("Id") ON DELETE CASCADE
 );
@@ -450,6 +469,7 @@ CREATE TABLE public."ComboLocalRecebimento" (
 	"Observacoes" varchar(500) NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_ComboLocalRecebimento" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_ComboLocalRecebimento_Combo_ComboId" FOREIGN KEY ("ComboId") REFERENCES public."Combo"("Id") ON DELETE CASCADE
 );
@@ -473,6 +493,7 @@ CREATE TABLE public."Embalagens" (
 	"Ativo" bool DEFAULT true NOT NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "Embalagens_pkey" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_Embalagens_UnidadesMedida_UnidadeMedidaId" FOREIGN KEY ("UnidadeMedidaId") REFERENCES public."UnidadesMedida"("Id") ON DELETE RESTRICT
 );
@@ -514,6 +535,11 @@ CREATE TABLE public."Produto" (
 	"UnidadeMedidaId" int4 DEFAULT 1 NOT NULL,
 	"AtividadeAgropecuariaId" int4 NULL,
 	"EmbalagemId" int4 NULL,
+	"Altura" numeric(10, 2) DEFAULT 0 NOT NULL,
+	"Largura" numeric(10, 2) DEFAULT 0 NOT NULL,
+	"Comprimento" numeric(10, 2) DEFAULT 0 NOT NULL,
+	"PesoNominal" numeric(10, 3) DEFAULT 0 NOT NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_Produto" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_Produto_AtividadeAgropecuaria_AtividadeAgropecuariaId" FOREIGN KEY ("AtividadeAgropecuariaId") REFERENCES public."AtividadesAgropecuarias"("Id") ON DELETE RESTRICT,
 	CONSTRAINT "FK_Produto_Categoria_CategoriaId" FOREIGN KEY ("CategoriaId") REFERENCES public."Categoria"("Id") ON DELETE RESTRICT,
@@ -523,8 +549,24 @@ CREATE TABLE public."Produto" (
 );
 CREATE INDEX "IX_Produto_CategoriaId" ON public."Produto" USING btree ("CategoriaId");
 CREATE INDEX "IX_Produto_DataCriacao" ON public."Produto" USING btree ("DataCriacao");
+CREATE INDEX "IX_Produto_Dimensoes" ON public."Produto" USING btree ("Altura", "Largura", "Comprimento");
+CREATE INDEX "IX_Produto_PesoNominal" ON public."Produto" USING btree ("PesoNominal");
 CREATE INDEX "IX_Produto_ProdutoPaiId" ON public."Produto" USING btree ("ProdutoPaiId");
 CREATE INDEX "IX_Produto_UnidadesMedidaId" ON public."Produto" USING btree ("UnidadeMedidaId");
+CREATE INDEX "IX_Produtos_AtividadeAgropecuariaId" ON public."Produto" USING btree ("AtividadeAgropecuariaId");
+CREATE INDEX "IX_Produtos_Codigo" ON public."Produto" USING btree ("Codigo");
+COMMENT ON INDEX public."IX_Produtos_Codigo" IS 'Índice para otimizar consultas por código do produto';
+CREATE UNIQUE INDEX "IX_Produtos_Codigo_Unique" ON public."Produto" USING btree ("Codigo");
+CREATE INDEX "IX_Produtos_EmbalagemId" ON public."Produto" USING btree ("EmbalagemId");
+CREATE INDEX "IX_Produtos_FornecedorId" ON public."Produto" USING btree ("FornecedorId");
+COMMENT ON INDEX public."IX_Produtos_FornecedorId" IS 'Índice para otimizar consultas por fornecedor';
+CREATE INDEX "IX_Produtos_Nome" ON public."Produto" USING btree ("Nome");
+COMMENT ON INDEX public."IX_Produtos_Nome" IS 'Índice para otimizar consultas por nome do produto';
+CREATE INDEX "IX_Produtos_ProdutoRestrito" ON public."Produto" USING btree ("ProdutoRestrito");
+CREATE INDEX "IX_Produtos_Status" ON public."Produto" USING btree ("Status");
+COMMENT ON INDEX public."IX_Produtos_Status" IS 'Índice para otimizar consultas por status do produto';
+CREATE INDEX "IX_Produtos_Tipo" ON public."Produto" USING btree ("Tipo");
+COMMENT ON INDEX public."IX_Produtos_Tipo" IS 'Índice para otimizar consultas por tipo do produto';
 
 
 -- public."ProdutoCultura" definição
@@ -573,6 +615,7 @@ CREATE TABLE public."Produtor" (
 	"Telefone2" varchar(20) NULL,
 	"Telefone3" varchar(20) NULL,
 	"Email" varchar(100) NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_Produtor" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_Produtor_usuarios_UsuarioAutorizacaoId" FOREIGN KEY ("UsuarioAutorizacaoId") REFERENCES public.usuarios(id) ON DELETE SET NULL
 );
@@ -582,6 +625,30 @@ CREATE UNIQUE INDEX "IX_Produtor_Cpf" ON public."Produtor" USING btree ("Cpf") W
 CREATE INDEX "IX_Produtor_DataCriacao" ON public."Produtor" USING btree ("DataCriacao");
 CREATE INDEX "IX_Produtor_Status" ON public."Produtor" USING btree ("Status");
 CREATE INDEX "IX_Produtor_UsuarioAutorizacaoId" ON public."Produtor" USING btree ("UsuarioAutorizacaoId");
+
+
+-- public."ProdutosCulturas" definição
+
+-- Drop table
+
+-- DROP TABLE public."ProdutosCulturas";
+
+CREATE TABLE public."ProdutosCulturas" (
+	"Id" int4 GENERATED BY DEFAULT AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE) NOT NULL,
+	"ProdutoId" int4 NOT NULL,
+	"CulturaId" int4 NOT NULL,
+	"Ativo" bool DEFAULT true NOT NULL,
+	"Observacoes" varchar(500) NULL,
+	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"DataAtualizacao" timestamptz NULL,
+	CONSTRAINT "PK_ProdutosCulturas" PRIMARY KEY ("Id"),
+	CONSTRAINT "FK_ProdutosCulturas_Cultura_CulturaId" FOREIGN KEY ("CulturaId") REFERENCES public."Cultura"("Id") ON DELETE CASCADE,
+	CONSTRAINT "FK_ProdutosCulturas_Produto_ProdutoId" FOREIGN KEY ("ProdutoId") REFERENCES public."Produto"("Id") ON DELETE CASCADE
+);
+CREATE INDEX "IX_ProdutosCulturas_Ativo" ON public."ProdutosCulturas" USING btree ("Ativo");
+CREATE INDEX "IX_ProdutosCulturas_CulturaId" ON public."ProdutosCulturas" USING btree ("CulturaId");
+CREATE INDEX "IX_ProdutosCulturas_ProdutoId" ON public."ProdutosCulturas" USING btree ("ProdutoId");
+CREATE UNIQUE INDEX "IX_ProdutosCulturas_ProdutoId_CulturaId" ON public."ProdutosCulturas" USING btree ("ProdutoId", "CulturaId");
 
 
 -- public."Proposta" definição
@@ -599,6 +666,7 @@ CREATE TABLE public."Proposta" (
 	"UsuarioFornecedorId" int4 NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_Proposta" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_Proposta_Pedido_PedidoId" FOREIGN KEY ("PedidoId") REFERENCES public."Pedido"("Id") ON DELETE CASCADE
 );
@@ -625,6 +693,7 @@ CREATE TABLE public."PropriedadeCultura" (
 	"Observacoes" varchar(1000) NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_PropriedadeCultura" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_PropriedadeCultura_Propriedade_PropriedadeId" FOREIGN KEY ("PropriedadeId") REFERENCES public."Propriedade"("Id") ON DELETE CASCADE
 );
@@ -647,8 +716,9 @@ CREATE TABLE public."Talhao" (
 	"Nome" varchar(200) NOT NULL,
 	"Area" numeric(18, 4) NOT NULL,
 	"PropriedadeId" int4 NOT NULL,
-	"DataCriacao" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"DataAtualizacao" timestamp NULL,
+	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_Talhao" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_Talhao_Propriedade_PropriedadeId" FOREIGN KEY ("PropriedadeId") REFERENCES public."Propriedade"("Id") ON DELETE CASCADE
 );
@@ -671,6 +741,7 @@ CREATE TABLE public."UsuarioProdutor" (
 	"Ativo" bool NOT NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_UsuarioProdutor" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_UsuarioProdutor_Produtor_ProdutorId" FOREIGN KEY ("ProdutorId") REFERENCES public."Produtor"("Id") ON DELETE CASCADE,
 	CONSTRAINT "FK_UsuarioProdutor_usuarios_UsuarioId" FOREIGN KEY ("UsuarioId") REFERENCES public.usuarios(id) ON DELETE CASCADE
@@ -708,6 +779,26 @@ CREATE INDEX ix_cultura_forma_pagamento_fornecedor_id ON public.cultura_forma_pa
 CREATE UNIQUE INDEX ix_cultura_forma_pagamento_unique ON public.cultura_forma_pagamento USING btree (fornecedor_id, cultura_id, forma_pagamento_id);
 
 
+-- public.estados_referencia definição
+
+-- Drop table
+
+-- DROP TABLE public.estados_referencia;
+
+CREATE TABLE public.estados_referencia (
+	id serial4 NOT NULL,
+	uf varchar(2) NOT NULL,
+	nome varchar(100) NOT NULL,
+	pais_id int4 DEFAULT 1 NOT NULL,
+	ativo bool DEFAULT true NOT NULL,
+	data_criacao timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	data_atualizacao timestamptz NULL,
+	CONSTRAINT estados_referencia_pkey PRIMARY KEY (id),
+	CONSTRAINT uk_estados_referencia_uf UNIQUE (uf),
+	CONSTRAINT fk_estados_referencia_pais FOREIGN KEY (pais_id) REFERENCES public.paises(id)
+);
+
+
 -- public.municipios definição
 
 -- Drop table
@@ -724,6 +815,7 @@ CREATE TABLE public.municipios (
 	estado_id int4 NOT NULL,
 	data_criacao timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	data_atualizacao timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_municipios" PRIMARY KEY (id),
 	CONSTRAINT "FK_municipios_estados_estado_id" FOREIGN KEY (estado_id) REFERENCES public.estados(id) ON DELETE RESTRICT
 );
@@ -732,6 +824,30 @@ CREATE INDEX "IX_municipios_cep_principal" ON public.municipios USING btree (cep
 CREATE UNIQUE INDEX "IX_municipios_codigo_ibge" ON public.municipios USING btree (codigo_ibge);
 CREATE INDEX "IX_municipios_estado_id" ON public.municipios USING btree (estado_id);
 CREATE INDEX "IX_municipios_nome" ON public.municipios USING btree (nome);
+
+
+-- public.municipios_referencia definição
+
+-- Drop table
+
+-- DROP TABLE public.municipios_referencia;
+
+CREATE TABLE public.municipios_referencia (
+	id serial4 NOT NULL,
+	nome varchar(100) NOT NULL,
+	codigo_ibge varchar(10) NOT NULL,
+	uf_id int4 NOT NULL,
+	ativo bool DEFAULT true NOT NULL,
+	data_criacao timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	data_atualizacao timestamptz NULL,
+	CONSTRAINT municipios_referencia_pkey PRIMARY KEY (id),
+	CONSTRAINT uk_municipios_referencia_codigo_ibge UNIQUE (codigo_ibge),
+	CONSTRAINT fk_municipios_referencia_uf FOREIGN KEY (uf_id) REFERENCES public.estados_referencia(id)
+);
+CREATE INDEX ix_municipios_referencia_ativo ON public.municipios_referencia USING btree (ativo);
+CREATE INDEX ix_municipios_referencia_codigo_ibge ON public.municipios_referencia USING btree (codigo_ibge);
+CREATE INDEX ix_municipios_referencia_nome ON public.municipios_referencia USING btree (nome);
+CREATE INDEX ix_municipios_referencia_uf_id ON public.municipios_referencia USING btree (uf_id);
 
 
 -- public.usuario_roles definição
@@ -747,6 +863,7 @@ CREATE TABLE public.usuario_roles (
 	data_atribuicao timestamptz NOT NULL,
 	data_criacao timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	data_atualizacao timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_usuario_roles" PRIMARY KEY (id),
 	CONSTRAINT "FK_usuario_roles_usuarios_usuario_id" FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id) ON DELETE CASCADE
 );
@@ -784,6 +901,7 @@ CREATE TABLE public."Fornecedor" (
 	"Longitude" numeric(11, 8) NULL,
 	"UfId" int4 NULL,
 	"MunicipioId" int4 NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_Fornecedor" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_Fornecedor_Estados_UfId" FOREIGN KEY ("UfId") REFERENCES public.estados(id),
 	CONSTRAINT "FK_Fornecedor_Municipios_MunicipioId" FOREIGN KEY ("MunicipioId") REFERENCES public.municipios(id)
@@ -793,7 +911,9 @@ CREATE UNIQUE INDEX "IX_Fornecedor_Cnpj" ON public."Fornecedor" USING btree ("Cn
 CREATE INDEX "IX_Fornecedor_DataCriacao" ON public."Fornecedor" USING btree ("DataCriacao");
 CREATE INDEX "IX_Fornecedor_Email" ON public."Fornecedor" USING btree ("Email") WHERE ("Email" IS NOT NULL);
 CREATE INDEX "IX_Fornecedor_MoedaPadrao" ON public."Fornecedor" USING btree ("MoedaPadrao");
+CREATE INDEX "IX_Fornecedor_MunicipioId" ON public."Fornecedor" USING btree ("MunicipioId");
 CREATE INDEX "IX_Fornecedor_Nome" ON public."Fornecedor" USING btree ("Nome");
+CREATE INDEX "IX_Fornecedor_UfId" ON public."Fornecedor" USING btree ("UfId");
 
 
 -- public."PedidoItem" definição
@@ -816,6 +936,7 @@ CREATE TABLE public."PedidoItem" (
 	"Observacoes" varchar(1000) NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_PedidoItem" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_PedidoItem_Pedido_PedidoId" FOREIGN KEY ("PedidoId") REFERENCES public."Pedido"("Id") ON DELETE CASCADE,
 	CONSTRAINT "FK_PedidoItem_Produto_ProdutoId" FOREIGN KEY ("ProdutoId") REFERENCES public."Produto"("Id") ON DELETE CASCADE
@@ -847,6 +968,7 @@ CREATE TABLE public."PedidoItemTransporte" (
 	"PedidoItemId1" int4 NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_PedidoItemTransporte" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_PedidoItemTransporte_PedidoItem_PedidoItemId" FOREIGN KEY ("PedidoItemId") REFERENCES public."PedidoItem"("Id") ON DELETE CASCADE,
 	CONSTRAINT "FK_PedidoItemTransporte_PedidoItem_PedidoItemId1" FOREIGN KEY ("PedidoItemId1") REFERENCES public."PedidoItem"("Id")
@@ -875,8 +997,9 @@ CREATE TABLE public."PontoDistribuicao" (
 	"Longitude" numeric(11, 8) NULL,
 	"FornecedorId" int4 NOT NULL,
 	"Ativo" bool DEFAULT true NOT NULL,
-	"DataCriacao" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"DataAtualizacao" timestamp NULL,
+	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_PontoDistribuicao" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_PontoDistribuicao_Fornecedor_FornecedorId" FOREIGN KEY ("FornecedorId") REFERENCES public."Fornecedor"("Id") ON DELETE CASCADE
 );
@@ -903,6 +1026,7 @@ CREATE TABLE public."UsuarioFornecedor" (
 	"DataFim" timestamptz NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_UsuarioFornecedor" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_UsuarioFornecedor_Fornecedor_FornecedorId" FOREIGN KEY ("FornecedorId") REFERENCES public."Fornecedor"("Id") ON DELETE CASCADE,
 	CONSTRAINT "FK_UsuarioFornecedor_usuarios_UsuarioId" FOREIGN KEY ("UsuarioId") REFERENCES public.usuarios(id) ON DELETE CASCADE
@@ -931,6 +1055,7 @@ CREATE TABLE public."UsuarioFornecedorTerritorio" (
 	"Ativo" bool NOT NULL,
 	"DataCriacao" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"DataAtualizacao" timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_UsuarioFornecedorTerritorio" PRIMARY KEY ("Id"),
 	CONSTRAINT "FK_UsuarioFornecedorTerritorio_UsuarioFornecedor_UsuarioFornec~" FOREIGN KEY ("UsuarioFornecedorId") REFERENCES public."UsuarioFornecedor"("Id") ON DELETE CASCADE
 );
@@ -961,6 +1086,7 @@ CREATE TABLE public.enderecos (
 	estado_id int4 NOT NULL,
 	data_criacao timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	data_atualizacao timestamptz NULL,
+	ativo bool DEFAULT true NOT NULL,
 	CONSTRAINT "PK_enderecos" PRIMARY KEY (id),
 	CONSTRAINT "FK_enderecos_estados_estado_id" FOREIGN KEY (estado_id) REFERENCES public.estados(id) ON DELETE RESTRICT,
 	CONSTRAINT "FK_enderecos_municipios_municipio_id" FOREIGN KEY (municipio_id) REFERENCES public.municipios(id) ON DELETE RESTRICT

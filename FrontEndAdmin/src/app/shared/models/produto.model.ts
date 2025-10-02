@@ -103,6 +103,7 @@ export interface ProdutoDto extends BaseEntity {
   
   atividadeAgropecuariaId?: number;
   atividadeAgropecuariaNome?: string;
+  atividadeAgropecuariaCodigo?: string;
   atividadeAgropecuaria?: AtividadeAgropecuariaDto;
   
   tipoCalculoPeso: TipoCalculoPeso;

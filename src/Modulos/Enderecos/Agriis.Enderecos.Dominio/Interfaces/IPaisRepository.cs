@@ -1,0 +1,51 @@
+using Agriis.Compartilhado.Dominio.Interfaces;
+using Agriis.Enderecos.Dominio.Entidades;
+
+namespace Agriis.Enderecos.Dominio.Interfaces;
+
+/// <summary>
+/// Interface do repositório de Países
+/// </summary>
+public interface IPaisRepository : IRepository<Pais>
+{
+    /// <summary>
+    /// Obtém um país por código
+    /// </summary>
+    /// <param name="codigo">Código do país</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>País encontrado</returns>
+    Task<Pais?> ObterPorCodigoAsync(string codigo, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Verifica se existe um país com o código especificado
+    /// </summary>
+    /// <param name="codigo">Código do país</param>
+    /// <param name="idExcluir">ID do país a ser excluído da verificação (opcional)</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>True se existe</returns>
+    Task<bool> ExisteCodigoAsync(string codigo, int? idExcluir = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Verifica se existe um país com o nome especificado
+    /// </summary>
+    /// <param name="nome">Nome do país</param>
+    /// <param name="idExcluir">ID do país a ser excluído da verificação (opcional)</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>True se existe</returns>
+    Task<bool> ExisteNomeAsync(string nome, int? idExcluir = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Obtém países ativos
+    /// </summary>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de países ativos</returns>
+    Task<IEnumerable<Pais>> ObterAtivosAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Busca países por nome (busca parcial)
+    /// </summary>
+    /// <param name="nome">Nome ou parte do nome</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de países encontrados</returns>
+    Task<IEnumerable<Pais>> BuscarPorNomeAsync(string nome, CancellationToken cancellationToken = default);
+}

@@ -189,3 +189,24 @@ public class MunicipioProximoDto
     /// </summary>
     public double? DistanciaKm { get; set; }
 }
+
+/// <summary>
+/// DTO otimizado para dropdown de municípios
+/// </summary>
+public class DropdownMunicipioDto
+{
+    /// <summary>
+    /// ID do município
+    /// </summary>
+    public int Id { get; set; }
+    
+    /// <summary>
+    /// Nome do município
+    /// </summary>
+    public string Nome { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Código IBGE do município
+    /// </summary>
+    public int CodigoIbge { get; set; }
+}

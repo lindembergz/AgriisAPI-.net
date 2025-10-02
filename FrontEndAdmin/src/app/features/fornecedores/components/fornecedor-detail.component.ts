@@ -537,7 +537,7 @@ export class FornecedorDetailComponent implements OnInit {
     if (geographicData.uf) {
       this.enderecoFormGroup.patchValue({
         ufId: geographicData.uf.id,
-        uf: geographicData.uf.codigo // Keep the old field for backward compatibility
+        uf: geographicData.uf.uf // Keep the old field for backward compatibility
       });
     } else {
       this.enderecoFormGroup.patchValue({

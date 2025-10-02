@@ -2,13 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError, forkJoin } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { 
-  Fornecedor, 
-  FornecedorForm, 
-  CriarFornecedorDto, 
-  AtualizarFornecedorDto, 
-  FiltrosFornecedorDto, 
-  FornecedorListResponse 
+import {
+  Fornecedor,
+  FornecedorForm,
+  CriarFornecedorDto,
+  AtualizarFornecedorDto,
+  FiltrosFornecedorDto,
+  FornecedorListResponse
 } from '../../../shared/models/fornecedor.model';
 import { UfDto, MunicipioDto } from '../../../shared/models/reference.model';
 import { UfService } from '../../referencias/ufs/services/uf.service';
@@ -134,7 +134,7 @@ export class FornecedorService {
    */
   search(term: string): Observable<Fornecedor[]> {
     const params = new HttpParams().set('search', term);
-    
+
     return this.http.get<FornecedorListResponse>(`${this.apiUrl}/search`, { params })
       .pipe(
         map(response => response.items),
@@ -147,7 +147,7 @@ export class FornecedorService {
    */
   getByUf(uf: string): Observable<Fornecedor[]> {
     const params = new HttpParams().set('uf', uf);
-    
+
     return this.http.get<FornecedorListResponse>(this.apiUrl, { params })
       .pipe(
         map(response => response.items),
@@ -163,7 +163,7 @@ export class FornecedorService {
     if (fornecedorIdExcluir) {
       params = params.set('fornecedorIdExcluir', fornecedorIdExcluir.toString());
     }
-    
+
     return this.http.get<{ disponivel: boolean }>(`${this.apiUrl}/cnpj/${cnpj}/disponivel`, { params })
       .pipe(
         catchError(error => this.handleError(`validate CNPJ=${cnpj}`, error))
@@ -383,9 +383,9 @@ export class FornecedorService {
    */
   private handleError(operation: string, error: any): Observable<never> {
     console.error(`FornecedorService: ${operation} failed:`, error);
-    
+
     let errorMessage = 'Ocorreu um erro inesperado';
-    
+
     if (error.error?.message) {
       errorMessage = error.error.message;
     } else if (error.message) {

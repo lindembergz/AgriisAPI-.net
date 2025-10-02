@@ -77,20 +77,6 @@
       </div>
     </div>
 
-    <!-- Active Filters Summary -->
-    <div *ngIf="hasActiveFilters()" class="active-filters-summary">
-      <span class="summary-label">Filtros ativos:</span>
-      <div class="filter-tags">
-        <p-tag 
-          *ngFor="let filter of getActiveFiltersSummary()" 
-          [value]="filter.label" 
-          severity="info" 
-          class="filter-tag"
-          [removable]="filter.removable"
-          (onRemove)="removeFilter(filter.key)">
-        </p-tag>
-      </div>
-    </div>
   </div>
 
   <!-- 3. CONTENT SECTION -->
@@ -191,14 +177,16 @@
                 
                   <!-- Unidade de Medida Field -->
                   <span *ngSwitchCase="'unidadeMedida'" class="unidade-medida-field">
-                    <div *ngIf="item.unidadeMedida" class="unidade-medida-display">
+                    <div *ngIf="item.unidadeMedidaNome" class="unidade-medida-display">
                       <div class="selected-item">
-                        <strong>{{ item.unidadeMedida.simbolo }}</strong> - {{ item.unidadeMedida.nome }}
+                        <strong>{{ item.unidadeMedidaSimbolo }}</strong> - {{ item.unidadeMedidaNome }}
                       </div>
-                      <div class="tipo-info">{{ getTipoUnidadeDescricao(item.unidadeMedida.tipo) }}</div>
                     </div>
-                    <span *ngIf="!item.unidadeMedida">-</span>
+                    <span *ngIf="!item.unidadeMedidaNome">-</span>
                   </span>
+
+                  
+
                 
                   <!-- Status Field -->
                   <span *ngSwitchCase="'ativo'" class="status-field">

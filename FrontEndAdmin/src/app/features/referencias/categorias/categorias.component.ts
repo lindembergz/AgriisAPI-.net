@@ -129,7 +129,7 @@ export class CategoriasComponent extends ReferenceCrudBaseComponent<
     const form = this.fb.group({
       nome: ['', 
         [Validators.required, Validators.minLength(2), Validators.maxLength(100)],
-        [this.createNomeUniqueValidator()]
+        //[this.createNomeUniqueValidator()]
       ],
       descricao: ['', [Validators.maxLength(500)]],
       tipo: [null, [Validators.required]],

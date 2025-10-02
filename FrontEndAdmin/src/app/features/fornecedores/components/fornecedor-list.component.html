@@ -18,7 +18,7 @@
       <div class="grid mb-3">
         <div class="col-12 md:col-4">
           <span class="p-input-icon-left w-full">
-            <i class="pi pi-search"></i>
+           <!-- <i class="pi pi-search"></i>-->
             <input 
               pInputText 
               type="text" 
@@ -29,8 +29,8 @@
             />
           </span>
         </div>
-
-        <div class="col-12 md:col-2">
+ <!-- 
+        <div class="col-12 md:col-4">
           <p-select
             [options]="tipoClienteOptions"
             [(ngModel)]="selectedTipoCliente"
@@ -43,7 +43,7 @@
           </p-select>
         </div>
 
-        <div class="col-12 md:col-2">
+      <div class="col-12 md:col-2">
           <p-select
             [options]="availableUfs()"
             [(ngModel)]="selectedUf"
@@ -87,7 +87,7 @@
             (onClick)="clearFilters()"
             class="w-full">
           </p-button>
-        </div>
+        </div>-->
       </div>
 
       <!-- Data Table -->

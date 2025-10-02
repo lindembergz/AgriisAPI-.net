@@ -142,6 +142,53 @@ public class MunicipioRepository : RepositoryBase<Municipio, DbContext>, IMunici
     }
 
     /// <summary>
+    /// Verifica se existe um município com o código IBGE especificado, excluindo um ID específico
+    /// </summary>
+    public async Task<bool> ExisteCodigoIbgeAsync(int codigoIbge, int? excludeId = null)
+    {
+        var query = DbSet.Where(m => m.CodigoIbge == codigoIbge);
+        
+        if (excludeId.HasValue)
+        {
+            query = query.Where(m => m.Id != excludeId.Value);
+        }
+        
+        return await query.AnyAsync();
+    }
+
+    /// <summary>
+    /// Obtém municípios com paginação
+    /// </summary>
+    public async Task<(IEnumerable<Municipio> Items, int TotalCount)> ObterPaginadoAsync(int page, int size, int? ufId = null, string? search = null)
+    {
+        var query = DbSet.Include(m => m.Estado).AsQueryable();
+
+        // Filtrar por UF se especificado
+        if (ufId.HasValue)
+        {
+            query = query.Where(m => m.EstadoId == ufId.Value);
+        }
+
+        // Filtrar por termo de busca se especificado
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(m => EF.Functions.ILike(m.Nome, $"%{search}%"));
+        }
+
+        // Contar total de itens
+        var totalCount = await query.CountAsync();
+
+        // Aplicar paginação
+        var items = await query
+            .OrderBy(m => m.Nome)
+            .Skip((page - 1) * size)
+            .Take(size)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
+    /// <summary>
     /// Sobrescreve o método base para incluir ordenação por nome
     /// </summary>
     public override async Task<IEnumerable<Municipio>> ObterTodosAsync(CancellationToken cancellationToken = default)

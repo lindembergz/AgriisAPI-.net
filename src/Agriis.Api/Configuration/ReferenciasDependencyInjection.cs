@@ -17,24 +17,6 @@ public static class ReferenciasDependencyInjection
     /// <returns>Coleção de serviços</returns>
     public static IServiceCollection AddReferenciasModule(this IServiceCollection services)
     {
-        // Repositórios
-        services.AddScoped<IMoedaRepository, MoedaRepository>();
-        services.AddScoped<IPaisRepository, PaisRepository>();
-        services.AddScoped<IUfRepository, UfRepository>();
-        services.AddScoped<IMunicipioRepository, MunicipioRepository>();
-        services.AddScoped<IAtividadeAgropecuariaRepository, AtividadeAgropecuariaRepository>();
-        services.AddScoped<IUnidadeMedidaRepository, UnidadeMedidaRepository>();
-        services.AddScoped<IEmbalagemRepository, EmbalagemRepository>();
-        
-        // Serviços de aplicação
-        services.AddScoped<IMoedaService, MoedaService>();
-        services.AddScoped<IPaisService, PaisService>();
-        services.AddScoped<IUfService, UfService>();
-        services.AddScoped<IMunicipioService, MunicipioService>();
-        services.AddScoped<IAtividadeAgropecuariaService, AtividadeAgropecuariaService>();
-        services.AddScoped<IUnidadeMedidaService, UnidadeMedidaService>();
-        services.AddScoped<IEmbalagemService, EmbalagemService>();
-        
         return services;
     }
 }

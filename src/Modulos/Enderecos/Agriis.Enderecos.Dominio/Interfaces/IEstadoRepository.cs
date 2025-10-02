@@ -48,4 +48,19 @@ public interface IEstadoRepository : IRepository<Estado>
     /// <param name="codigoIbge">Código IBGE</param>
     /// <returns>True se existe</returns>
     Task<bool> ExistePorCodigoIbgeAsync(int codigoIbge);
+    
+    /// <summary>
+    /// Obtém estados por país
+    /// </summary>
+    /// <param name="paisId">ID do país</param>
+    /// <returns>Lista de estados do país</returns>
+    Task<IEnumerable<Estado>> ObterPorPaisAsync(int paisId);
+    
+    /// <summary>
+    /// Verifica se existe um estado com o código especificado, excluindo um ID específico
+    /// </summary>
+    /// <param name="codigo">Código/UF do estado</param>
+    /// <param name="excludeId">ID a ser excluído da verificação</param>
+    /// <returns>True se existe outro estado com o mesmo código</returns>
+    Task<bool> ExisteCodigoAsync(string codigo, int? excludeId = null);
 }

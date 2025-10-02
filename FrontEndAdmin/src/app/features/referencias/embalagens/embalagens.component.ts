@@ -288,6 +288,7 @@ export class EmbalagensComponent extends ReferenceCrudBaseComponent<
 
     this.service.obterTodos().subscribe({
       next: (items: EmbalagemDto[]) => {
+        console.log( items)
         this.items.set(items);
         this.applyItemFilters();
         this.loading.set(false);
@@ -334,16 +335,17 @@ export class EmbalagensComponent extends ReferenceCrudBaseComponent<
    * Get unidade medida display for table
    */
   getUnidadeMedidaDisplay(item: EmbalagemDto): string {
-    if (!item.unidadeMedida) return '-';
-    return `${item.unidadeMedida.simbolo} - ${item.unidadeMedida.nome}`;
+    if (!item.unidadeMedidaNome) return '-';
+    return `${item.unidadeMedidaSimbolo} - ${item.unidadeMedidaNome}`;
   }
 
   /**
    * Get tipo info for unidade medida
    */
   getTipoInfo(item: EmbalagemDto): string {
-    if (!item.unidadeMedida) return '';
-    return this.getTipoUnidadeDescricao(item.unidadeMedida.tipo);
+    // Como não temos o tipo na resposta da API, retornamos string vazia
+    // Se necessário, pode ser adicionado ao DTO da API
+    return '';
   }
 
   // Additional methods needed by the template

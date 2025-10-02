@@ -5,7 +5,9 @@ namespace Agriis.Api.Controllers;
 
 /// <summary>
 /// Controlador para endpoints cascateados de referências (otimizado para dropdowns)
+/// Temporariamente desabilitado devido à unificação das tabelas geográficas
 /// </summary>
+/*
 [ApiController]
 [Route("api/referencias")]
 public class ReferenciasCascataController : ControllerBase
@@ -232,4 +234,4 @@ public class ReferenciasCascataController : ControllerBase
             });
         }
     }
-}
+}*/

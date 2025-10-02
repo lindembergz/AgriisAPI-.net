@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Correção Produtos Unidade e Atividade</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .test-title {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .data-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .field-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .field-value {
+            margin-left: 10px;
+            color: #6c757d;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .na-value {
+            color: #dc3545;
+            font-style: italic;
+        }
+        .valid-value {
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Teste - Correção Exibição Unidade e Atividade em Produtos</h1>
+        
+        <div class="test-section">
+            <div class="test-title">1. Dados da API (Estrutura Esperada)</div>
+            <div class="data-display">
+                <div><span class="field-label">Estrutura que deveria vir da API:</span></div>
+                <pre id="api-data"></pre>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">2. Teste de Exibição Corrigida</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nome</th>
+                        <th>Categoria</th>
+                        <th>Unidade</th>
+                        <th>Atividade</th>
+                    </tr>
+                </thead>
+                <tbody id="produtos-table">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">3. Validação da Correção</div>
+            <div id="validation-results"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">4. Teste dos Filtros</div>
+            <div>
+                <h4>Unidades para Filtro:</h4>
+                <ul id="unidades-filtro"></ul>
+                
+                <h4>Atividades para Filtro:</h4>
+                <ul id="atividades-filtro"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados de exemplo baseados na resposta da API (com correção)
+        const produtosMockData = [
+            {
+                "id": 1,
+                "codigo": "TZ345",
+                "nome": "PRODUTO X",
+                "categoriaNome": "Sementes",
+                "unidadeMedidaId": 1,
+                "unidadeMedidaNome": "Quilograma",
+                "unidadeMedidaSimbolo": "kg",
+                "atividadeAgropecuariaId": 1,
+                "atividadeAgropecuariaNome": "Cultivo de Soja",
+                "atividadeAgropecuariaCodigo": "SOJA",
+                "ativo": true
+            }
+        ];
+
+        // Função para transformar dados (simulando a correção)
+        function transformToDisplayDto(produto) {
+            return {
+                ...produto,
+                categoriaNome: produto.categoriaNome || 'N/A',
+                unidadeMedidaNome: produto.unidadeMedidaNome || 'N/A',
+                unidadeMedidaSimbolo: produto.unidadeMedidaSimbolo || 'N/A',
+                atividadeAgropecuariaNome: produto.atividadeAgropecuariaNome || 'N/A'
+            };
+        }
+
+        // Função para extrair opções de filtro
+        function extrairOpcoesParaFiltros(items) {
+            // Unidades
+            const unidades = Array.from(
+                new Map(
+                    items
+                        .filter(item => item.unidadeMedidaId && item.unidadeMedidaNome)
+                        .map(item => [item.unidadeMedidaId, { 
+                            id: item.unidadeMedidaId, 
+                            nome: `${item.unidadeMedidaSimbolo} - ${item.unidadeMedidaNome}` 
+                        }])
+                ).values()
+            );
+
+            // Atividades
+            const atividades = Array.from(
+                new Map(
+                    items
+                        .filter(item => item.atividadeAgropecuariaId && item.atividadeAgropecuariaNome)
+                        .map(item => [item.atividadeAgropecuariaId, { 
+                            id: item.atividadeAgropecuariaId, 
+                            nome: item.atividadeAgropecuariaCodigo 
+                                ? `${item.atividadeAgropecuariaCodigo} - ${item.atividadeAgropecuariaNome}`
+                                : item.atividadeAgropecuariaNome
+                        }])
+                ).values()
+            );
+
+            return { unidades, atividades };
+        }
+
+        // Renderizar dados da API
+        document.getElementById('api-data').textContent = JSON.stringify(produtosMockData[0], null, 2);
+
+        // Renderizar tabela
+        const tableBody = document.getElementById('produtos-table');
+        produtosMockData.forEach(item => {
+            const transformedItem = transformToDisplayDto(item);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${transformedItem.codigo}</td>
+                <td><strong>${transformedItem.nome}</strong></td>
+                <td>${transformedItem.categoriaNome}</td>
+                <td class="${transformedItem.unidadeMedidaSimbolo === 'N/A' ? 'na-value' : 'valid-value'}">
+                    ${transformedItem.unidadeMedidaSimbolo}
+                </td>
+                <td class="${transformedItem.atividadeAgropecuariaNome === 'N/A' ? 'na-value' : 'valid-value'}">
+                    ${transformedItem.atividadeAgropecuariaNome}
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Validação
+        const validationDiv = document.getElementById('validation-results');
+        let allValid = true;
+        let validationMessages = [];
+
+        produtosMockData.forEach((item, index) => {
+            const transformed = transformToDisplayDto(item);
+            
+            if (transformed.unidadeMedidaSimbolo === 'N/A') {
+                allValid = false;
+                validationMessages.push(`❌ Item ${index + 1}: Unidade não exibida`);
+            } else {
+                validationMessages.push(`✅ Item ${index + 1}: Unidade: ${transformed.unidadeMedidaSimbolo}`);
+            }
+
+            if (transformed.atividadeAgropecuariaNome === 'N/A') {
+                allValid = false;
+                validationMessages.push(`❌ Item ${index + 1}: Atividade não exibida`);
+            } else {
+                validationMessages.push(`✅ Item ${index + 1}: Atividade: ${transformed.atividadeAgropecuariaNome}`);
+            }
+        });
+
+        validationDiv.innerHTML = `
+            <div class="${allValid ? 'success' : 'error'}">
+                ${allValid ? '✅ Correção aplicada com sucesso!' : '❌ Ainda há problemas na exibição'}
+            </div>
+            <ul>
+                ${validationMessages.map(msg => `<li>${msg}</li>`).join('')}
+            </ul>
+        `;
+
+        // Teste dos filtros
+        const { unidades, atividades } = extrairOpcoesParaFiltros(produtosMockData);
+        
+        const unidadesList = document.getElementById('unidades-filtro');
+        unidades.forEach(unidade => {
+            const li = document.createElement('li');
+            li.textContent = `ID: ${unidade.id} - ${unidade.nome}`;
+            unidadesList.appendChild(li);
+        });
+
+        const atividadesList = document.getElementById('atividades-filtro');
+        atividades.forEach(atividade => {
+            const li = document.createElement('li');
+            li.textContent = `ID: ${atividade.id} - ${atividade.nome}`;
+            atividadesList.appendChild(li);
+        });
+    </script>
+</body>
+</html>

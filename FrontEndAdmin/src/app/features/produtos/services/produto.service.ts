@@ -68,10 +68,10 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
   obterDadosReferencia(): Observable<ProdutoReferenceData> {
     return this.errorHandlingService.wrapWithErrorHandling(
       combineLatest({
-        unidadesMedida: this.http.get<UnidadeMedidaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/unidades-medida')}/ativos`),
-        embalagens: this.http.get<EmbalagemDto[]>(`${this.baseUrl.replace('produtos', 'referencias/embalagens')}/ativos`),
-        categorias: this.http.get<CategoriaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/Categorias')}/ativas`),
-        atividadesAgropecuarias: this.http.get<AtividadeAgropecuariaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/atividades-agropecuarias')}/ativos`)
+        unidadesMedida: this.http.get<UnidadeMedidaDto[]>(`${this.baseUrl.replace('produtos', 'unidades-medida')}/ativos`),
+        embalagens: this.http.get<EmbalagemDto[]>(`${this.baseUrl.replace('produtos', 'embalagens')}/ativos`),
+        categorias: this.http.get<CategoriaDto[]>(`${this.baseUrl.replace('produtos', 'Categorias')}/ativas`),
+        atividadesAgropecuarias: this.http.get<AtividadeAgropecuariaDto[]>(`${this.baseUrl.replace('produtos', 'atividades-agropecuarias')}/ativos`)
       }),
       'obter dados de referência',
       'Produto'
@@ -83,7 +83,7 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    */
   obterUnidadesMedida(): Observable<DropdownOption[]> {
     return this.errorHandlingService.wrapWithErrorHandling(
-      this.http.get<UnidadeMedidaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/unidades-medida')}/ativos`).pipe(
+      this.http.get<UnidadeMedidaDto[]>(`${this.baseUrl.replace('produtos', 'unidades-medida')}/ativos`).pipe(
         map(unidades => unidades.map(u => ({
           id: u.id,
           nome: u.nome,
@@ -100,10 +100,10 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Get embalagens filtered by unidade de medida
    */
   obterEmbalagensPorUnidade(unidadeMedidaId?: number): Observable<DropdownOption[]> {
-    let url = `${this.baseUrl.replace('produtos', 'referencias/embalagens')}/ativos`;
+    let url = `${this.baseUrl.replace('produtos', 'embalagens')}/ativos`;
     
     if (unidadeMedidaId) {
-      url = `${this.baseUrl.replace('produtos', 'referencias/embalagens')}/unidade/${unidadeMedidaId}`;
+      url = `${this.baseUrl.replace('produtos', 'embalagens')}/unidade/${unidadeMedidaId}`;
     }
     
     return this.errorHandlingService.wrapWithErrorHandling(
@@ -124,7 +124,7 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    */
   obterCategorias(): Observable<CategoriaDto[]> {
     return this.errorHandlingService.wrapWithErrorHandling(
-      this.http.get<CategoriaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/Categorias')}/ativas`),
+      this.http.get<CategoriaDto[]>(`${this.baseUrl.replace('produtos', 'Categorias')}/ativas`),
       'obter categorias',
       'Produto'
     );
@@ -135,7 +135,7 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    */
   obterAtividadesAgropecuarias(): Observable<DropdownOption[]> {
     return this.errorHandlingService.wrapWithErrorHandling(
-      this.http.get<AtividadeAgropecuariaDto[]>(`${this.baseUrl.replace('produtos', 'referencias/atividades-agropecuarias')}/ativos`).pipe(
+      this.http.get<AtividadeAgropecuariaDto[]>(`${this.baseUrl.replace('produtos', 'atividades-agropecuarias')}/ativos`).pipe(
         map(atividades => atividades.map(a => ({
           id: a.id,
           nome: a.descricao,
@@ -328,12 +328,12 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
   transformToDisplayDto(produto: ProdutoDto): ProdutoDisplayDto {
     return {
       ...produto,
-      categoriaNome: produto.categoria?.nome || 'N/A',
-      unidadeMedidaNome: produto.unidadeMedida?.nome || 'N/A',
-      unidadeMedidaSimbolo: produto.unidadeMedida?.simbolo || 'N/A',
-      embalagemNome: produto.embalagem?.nome,
-      atividadeAgropecuariaNome: produto.atividadeAgropecuaria?.descricao,
-      atividadeAgropecuariaCodigo: produto.atividadeAgropecuaria?.codigo
+      categoriaNome: produto.categoriaNome || produto.categoria?.nome || 'N/A',
+      unidadeMedidaNome: produto.unidadeMedidaNome || produto.unidadeMedida?.nome || 'N/A',
+      unidadeMedidaSimbolo: produto.unidadeMedidaSimbolo || produto.unidadeMedida?.simbolo || 'N/A',
+      embalagemNome: produto.embalagemNome || produto.embalagem?.nome,
+      atividadeAgropecuariaNome: produto.atividadeAgropecuariaNome || produto.atividadeAgropecuaria?.descricao,
+      atividadeAgropecuariaCodigo: produto.atividadeAgropecuariaCodigo || produto.atividadeAgropecuaria?.codigo
     };
   }
 
@@ -341,8 +341,12 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    * Get all produtos with display-friendly data
    */
   obterTodosParaExibicao(): Observable<ProdutoDisplayDto[]> {
-    return this.obterTodosComReferencias().pipe(
-      map(produtos => produtos.map(produto => this.transformToDisplayDto(produto)))
+    return this.errorHandlingService.wrapWithErrorHandling(
+      this.http.get<ProdutoDto[]>(`${this.baseUrl}`).pipe(
+        map(produtos => produtos.map(produto => this.transformToDisplayDto(produto)))
+      ),
+      'obter produtos para exibição',
+      'Produto'
     );
   }
 

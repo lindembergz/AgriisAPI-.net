@@ -137,6 +137,7 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
     { field: 'nome', header: 'Nome', sortable: true, type: 'text' },
     { field: 'categoriaNome', header: 'Categoria', sortable: true, hideOnMobile: true, type: 'text' },
     { field: 'unidadeMedidaSimbolo', header: 'Unidade', sortable: true, width: '100px', hideOnMobile: true, type: 'text' },
+    { field: 'atividadeAgropecuariaNome', header: 'Atividade', sortable: true, width: '120px', hideOnTablet: true, type: 'text' },
     //{ field: 'preco', header: 'Preço', sortable: true, width: '120px', type: 'custom', hideOnTablet: true },
     //{ field: 'ativo', header: 'Status', sortable: true, width: '100px', type: 'boolean' }
   ]);
@@ -486,6 +487,7 @@ export class ProdutosComponent extends ReferenceCrudBaseComponent<ProdutoDisplay
 
     request.subscribe({
       next: (items) => {
+        console.log(items);
         let filteredItems = items;
         
         if (filter === 'inativas') {

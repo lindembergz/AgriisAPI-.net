@@ -66,10 +66,10 @@
 // =============================================================================
 
 :root {
-  // Primary color palette (Agriis Green)
-  --color-primary-light: #E6F4EA;
-  --color-primary: #00A859;
-  --color-primary-dark: #007B43;
+  // Primary color palette (Azul Institucional)
+  --color-primary-light: #E6EAF7;
+  --color-primary: #002060;
+  --color-primary-dark: #001744;
   --color-primary-contrast: #FFFFFF;
 
   // Secondary color palette (Neutral Grays)
@@ -190,10 +190,10 @@
     --color-text-muted: var(--color-gray-500);
     --color-text-disabled: var(--color-gray-600);
 
-    // Primary Palette
-    --color-primary-light: #004D2B;
-    --color-primary: #00C46A;
-    --color-primary-dark: #33DDA3;
+    // Primary Palette (Dark Mode)
+    --color-primary-light: #4D70C8;
+    --color-primary: #2651BC;
+    --color-primary-dark: #001D58;
 
     // Semantic Colors
     --color-success-light: #053826;

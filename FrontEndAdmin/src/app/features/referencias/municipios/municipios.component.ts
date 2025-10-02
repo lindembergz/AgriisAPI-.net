@@ -101,7 +101,7 @@ export class MunicipiosComponent extends ReferenceCrudBaseComponent<MunicipioDto
         options: [
           { label: 'Todas as UFs', value: null },
           ...this.ufsOptions().map(uf => ({
-            label: `${uf.codigo} - ${uf.nome}`,
+            label: `${uf.uf} - ${uf.nome}`,
             value: uf.id
           }))
         ]
@@ -112,7 +112,7 @@ export class MunicipiosComponent extends ReferenceCrudBaseComponent<MunicipioDto
   // Template-friendly option providers to avoid complex expressions in HTML
   paisFilterOptions = computed(() => [{ label: 'Todos os países', value: null }, ...this.paisesOptions().map(pais => ({ label: pais.nome, value: pais.id }))]);
 
-  ufFilterOptions = computed(() => [{ label: 'Todas as UFs', value: null }, ...this.ufsOptions().map(uf => ({ label: `${uf.codigo} - ${uf.nome}`, value: uf.id }))]);
+  ufFilterOptions = computed(() => [{ label: 'Todas as UFs', value: null }, ...this.ufsOptions().map(uf => ({ label: `${uf.uf} - ${uf.nome}`, value: uf.id }))]);
 
   protected getCustomActions(): CustomAction[] {
     return [];
@@ -235,10 +235,12 @@ export class MunicipiosComponent extends ReferenceCrudBaseComponent<MunicipioDto
    * Load países for cascading dropdown
    */
   private carregarPaises(): void {
+
     this.loadingPaises.set(true);
-    
-    this.paisService.obterAtivos().subscribe({
+
+    this.paisService.obterTodos().subscribe({
       next: (paises) => {
+        
         this.paisesOptions.set(paises);
         this.loadingPaises.set(false);
         
@@ -248,6 +250,7 @@ export class MunicipiosComponent extends ReferenceCrudBaseComponent<MunicipioDto
           // this.componentStateService.setCustomFilterValue('pais', brasil.id);
           this.carregarUfsPorPais(brasil.id);
         }
+         
       },
       error: (error) => {
         this.unifiedErrorHandlingService.handleComponentError('municipios', 'load-paises', error);
@@ -348,8 +351,8 @@ export class MunicipiosComponent extends ReferenceCrudBaseComponent<MunicipioDto
     });
 
     // Add async validators
-    form.get('codigoIbge')?.setAsyncValidators([this.validarCodigoIbgeUnico.bind(this)]);
-    form.get('nome')?.setAsyncValidators([this.validarNomeUnico.bind(this)]);
+    //form.get('codigoIbge')?.setAsyncValidators([this.validarCodigoIbgeUnico.bind(this)]);
+    //form.get('nome')?.setAsyncValidators([this.validarNomeUnico.bind(this)]);
 
     // Setup cascading dropdown behavior
     form.get('paisId')?.valueChanges.subscribe(paisId => {
@@ -389,7 +392,7 @@ export class MunicipiosComponent extends ReferenceCrudBaseComponent<MunicipioDto
     return {
       nome: formValue.nome?.trim(),
       codigoIbge: formValue.codigoIbge?.trim(),
-      ufId: parseInt(formValue.ufId)
+      estadoId: parseInt(formValue.ufId)
     };
   }
 
@@ -472,7 +475,7 @@ export class MunicipiosComponent extends ReferenceCrudBaseComponent<MunicipioDto
    * Get UF display text
    */
   getUfDisplay(item: MunicipioDto): string {
-    return item.uf ? `${item.uf.codigo} - ${item.uf.nome}` : 'N/A';
+    return item.uf ? `${item.uf.uf} - ${item.uf.nome}` : 'N/A';
   }
 
   /**

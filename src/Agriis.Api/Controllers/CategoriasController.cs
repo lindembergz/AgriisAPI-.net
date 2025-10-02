@@ -9,7 +9,7 @@ namespace Agriis.Api.Controllers;
 /// Controller para gerenciamento de categorias de produtos
 /// </summary>
 [ApiController]
-[Route("api/referencias/[controller]")]
+[Route("api/[controller]")]
 public class CategoriasController : ControllerBase
 {
     private readonly ICategoriaService _categoriaService;
@@ -335,6 +335,31 @@ public class CategoriasController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao verificar se categoria {CategoriaId} pode ser removida", id);
+            return StatusCode(500, "Erro interno do servidor");
+        }
+    }
+
+    /// <summary>
+    /// Verifica se já existe uma categoria com o nome especificado
+    /// </summary>
+    /// <param name="nome">Nome da categoria</param>
+    /// <param name="idExcluir">ID da categoria a ser excluída da verificação (opcional)</param>
+    [HttpGet("existe-nome")]
+    public async Task<ActionResult<bool>> ExisteNome([FromQuery] string nome, [FromQuery] int? idExcluir = null, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(nome))
+            {
+                return BadRequest("Nome é obrigatório");
+            }
+
+            var existe = await _categoriaService.ExisteComNomeAsync(nome, idExcluir, cancellationToken);
+            return Ok(existe);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao verificar se categoria com nome {Nome} existe", nome);
             return StatusCode(500, "Erro interno do servidor");
         }
     }

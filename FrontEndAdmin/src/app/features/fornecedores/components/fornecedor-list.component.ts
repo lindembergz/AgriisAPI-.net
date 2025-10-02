@@ -425,6 +425,6 @@ export class FornecedorListComponent implements OnInit {
    */
   getUfDisplayName(ufId: string): string {
     const uf = this.availableUfs().find(u => u.id.toString() === ufId);
-    return uf ? `${uf.nome} (${uf.codigo})` : '';
+    return uf ? `${uf.nome} (${uf.uf})` : '';
   }
 }

@@ -63,7 +63,7 @@
         </p-select>
       </div>-->
 
-      <!-- País Filter 
+      <!-- País Filter -->
       <div class="filter-item custom-filter">
         <label for="paisFilter" class="filter-label">País</label>
         <p-select
@@ -78,9 +78,9 @@
           [loading]="loadingPaises()"
           class="custom-filter-select">
         </p-select>
-      </div>-->
+      </div>
 
-      <!-- UF Filter 
+      <!-- UF Filter -->
       <div class="filter-item custom-filter">
         <label for="ufFilter" class="filter-label">UF</label>
         <p-select
@@ -95,7 +95,7 @@
           [loading]="loadingUfs()"
           class="custom-filter-select">
         </p-select>
-      </div>-->
+      </div>
 
       <!-- Clear All Filters -->
       <div class="filter-item clear-filters" *ngIf="hasActiveFilters()">
@@ -395,11 +395,11 @@
             [showClear]="false" class="w-full">
             <ng-template pTemplate="selectedItem" let-selectedOption>
               <div *ngIf="selectedOption">
-                {{ selectedOption.codigo }} - {{ selectedOption.nome }}
+                {{ selectedOption.uf }} - {{ selectedOption.nome }}
               </div>
             </ng-template>
             <ng-template pTemplate="item" let-uf>
-              <div>{{ uf.codigo }} - {{ uf.nome }}</div>
+              <div>{{ uf.uf }} - {{ uf.nome }}</div>
             </ng-template>
           </p-select>
           <app-field-error controlName="ufId"></app-field-error>

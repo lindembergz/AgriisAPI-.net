@@ -18,10 +18,10 @@ export class MoedaService extends CachedReferenceService<
 > {
   
   protected readonly entityName = 'Moeda';
-  protected readonly apiEndpoint = 'referencias/moedas';
+  protected readonly apiEndpoint = 'moedas';
   
   constructor() {
-    super('/api/referencias/moedas');
+    super('/api/moedas');
   }
 
   /**

@@ -31,6 +31,11 @@ public class EstadoDto
     public string Regiao { get; set; } = string.Empty;
     
     /// <summary>
+    /// ID do país ao qual o estado pertence
+    /// </summary>
+    public int PaisId { get; set; } = 1;
+    
+    /// <summary>
     /// Data de criação
     /// </summary>
     public DateTime DataCriacao { get; set; }
@@ -65,6 +70,11 @@ public class CriarEstadoDto
     /// Região do estado
     /// </summary>
     public string Regiao { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// ID do país ao qual o estado pertence (padrão: 1 para Brasil)
+    /// </summary>
+    public int PaisId { get; set; } = 1;
 }
 
 /// <summary>
@@ -91,6 +101,11 @@ public class AtualizarEstadoDto
     /// Região do estado
     /// </summary>
     public string Regiao { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// ID do país ao qual o estado pertence
+    /// </summary>
+    public int PaisId { get; set; } = 1;
 }
 
 /// <summary>

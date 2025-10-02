@@ -5,11 +5,8 @@ using Agriis.Referencias.Dominio.Enums;
 
 namespace Agriis.Api.Controllers;
 
-/// <summary>
-/// Controlador para gerenciamento de atividades agropecuárias
-/// </summary>
 [ApiController]
-[Route("api/referencias/atividades-agropecuarias")]
+[Route("api/atividades-agropecuarias")]
 public class AtividadesAgropecuariasController : ReferenciaControllerBase<AtividadeAgropecuariaDto, CriarAtividadeAgropecuariaDto, AtualizarAtividadeAgropecuariaDto>
 {
     private readonly IAtividadeAgropecuariaService _atividadeService;

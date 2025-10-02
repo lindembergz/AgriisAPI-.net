@@ -14,7 +14,9 @@ import { UfDto, CriarUfDto, AtualizarUfDto, PaisDto, MunicipioDto } from '../../
 export class UfService extends ReferenceCrudService<UfDto, CriarUfDto, AtualizarUfDto> {
   
   protected readonly entityName = 'UF';
-  protected readonly apiEndpoint = 'referencias/ufs';
+  protected readonly apiEndpoint = 'enderecos/estados';
+
+
 
   /**
    * Get UFs by País ID
@@ -32,7 +34,7 @@ export class UfService extends ReferenceCrudService<UfDto, CriarUfDto, Atualizar
    */
   obterComPais(): Observable<UfDto[]> {
     return this.errorHandlingService.wrapWithErrorHandling(
-      this.http.get<UfDto[]>(`${this.baseUrl}?include=pais`),
+      this.http.get<UfDto[]>(`${this.baseUrl}`),
       'obter UFs com país',
       'UF'
     );
@@ -50,7 +52,7 @@ export class UfService extends ReferenceCrudService<UfDto, CriarUfDto, Atualizar
    */
   obterAtivosPorPais(paisId: number): Observable<UfDto[]> {
     return this.errorHandlingService.wrapWithErrorHandling(
-      this.http.get<UfDto[]>(`${this.baseUrl}/pais/${paisId}`),
+      this.http.get<UfDto[]>(`${this.baseUrl}`),
       `obter UFs ativas por país id=${paisId}`,
       'UF'
     );

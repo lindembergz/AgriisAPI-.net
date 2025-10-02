@@ -12,12 +12,11 @@ public class ReferenciasMappingProfile : Profile
     public ReferenciasMappingProfile()
     {
         ConfigurarMapeamentoMoeda();
-        ConfigurarMapeamentoPais();
-        ConfigurarMapeamentoUf();
-        ConfigurarMapeamentoMunicipio();
         ConfigurarMapeamentoAtividadeAgropecuaria();
         ConfigurarMapeamentoUnidadeMedida();
         ConfigurarMapeamentoEmbalagem();
+        // REMOVIDO: ConfigurarMapeamentoUf() - migrado para EnderecoMappingProfile
+        // REMOVIDO: ConfigurarMapeamentoMunicipio() - migrado para EnderecoMappingProfile
     }
 
     private void ConfigurarMapeamentoMoeda()
@@ -42,86 +41,9 @@ public class ReferenciasMappingProfile : Profile
             .ForMember(dest => dest.RowVersion, opt => opt.Ignore()); // RowVersion é gerenciado pelo EF
     }
 
-    private void ConfigurarMapeamentoPais()
-    {
-        // Entidade -> DTO de leitura
-        CreateMap<Pais, PaisDto>()
-            .ForMember(dest => dest.QuantidadeUfs, opt => opt.MapFrom(src => src.Ufs != null ? src.Ufs.Count : 0));
 
-        // DTO de criação -> Entidade
-        CreateMap<CriarPaisDto, Pais>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.DataCriacao, opt => opt.Ignore())
-            .ForMember(dest => dest.DataAtualizacao, opt => opt.Ignore())
-            .ForMember(dest => dest.RowVersion, opt => opt.Ignore())
-            .ForMember(dest => dest.Ativo, opt => opt.MapFrom(src => true))
-            .ForMember(dest => dest.Ufs, opt => opt.Ignore());
 
-        // DTO de atualização -> Entidade
-        CreateMap<AtualizarPaisDto, Pais>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Codigo, opt => opt.Ignore())
-            .ForMember(dest => dest.DataCriacao, opt => opt.Ignore())
-            .ForMember(dest => dest.DataAtualizacao, opt => opt.Ignore())
-            .ForMember(dest => dest.RowVersion, opt => opt.Ignore())
-            .ForMember(dest => dest.Ufs, opt => opt.Ignore());
-    }
 
-    private void ConfigurarMapeamentoUf()
-    {
-        // Entidade -> DTO de leitura
-        CreateMap<Uf, UfDto>()
-            .ForMember(dest => dest.PaisNome, opt => opt.MapFrom(src => src.Pais != null ? src.Pais.Nome : string.Empty))
-            .ForMember(dest => dest.QuantidadeMunicipios, opt => opt.MapFrom(src => src.Municipios != null ? src.Municipios.Count : 0));
-
-        // DTO de criação -> Entidade
-        CreateMap<CriarUfDto, Uf>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.DataCriacao, opt => opt.Ignore())
-            .ForMember(dest => dest.DataAtualizacao, opt => opt.Ignore())
-            .ForMember(dest => dest.RowVersion, opt => opt.Ignore())
-            .ForMember(dest => dest.Ativo, opt => opt.MapFrom(src => true))
-            .ForMember(dest => dest.Pais, opt => opt.Ignore())
-            .ForMember(dest => dest.Municipios, opt => opt.Ignore());
-
-        // DTO de atualização -> Entidade
-        CreateMap<AtualizarUfDto, Uf>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Codigo, opt => opt.Ignore())
-            .ForMember(dest => dest.PaisId, opt => opt.Ignore())
-            .ForMember(dest => dest.DataCriacao, opt => opt.Ignore())
-            .ForMember(dest => dest.DataAtualizacao, opt => opt.Ignore())
-            .ForMember(dest => dest.RowVersion, opt => opt.Ignore())
-            .ForMember(dest => dest.Pais, opt => opt.Ignore())
-            .ForMember(dest => dest.Municipios, opt => opt.Ignore());
-    }
-
-    private void ConfigurarMapeamentoMunicipio()
-    {
-        // Entidade -> DTO de leitura
-        CreateMap<Municipio, MunicipioDto>()
-            .ForMember(dest => dest.UfNome, opt => opt.MapFrom(src => string.Empty)) // Relacionamento ignorado temporariamente
-            .ForMember(dest => dest.UfCodigo, opt => opt.MapFrom(src => string.Empty)); // Relacionamento ignorado temporariamente
-
-        // DTO de criação -> Entidade
-        CreateMap<CriarMunicipioDto, Municipio>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.DataCriacao, opt => opt.Ignore())
-            .ForMember(dest => dest.DataAtualizacao, opt => opt.Ignore())
-            .ForMember(dest => dest.RowVersion, opt => opt.Ignore())
-            .ForMember(dest => dest.Ativo, opt => opt.MapFrom(src => true))
-            .ForMember(dest => dest.Uf, opt => opt.Ignore());
-
-        // DTO de atualização -> Entidade
-        CreateMap<AtualizarMunicipioDto, Municipio>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.CodigoIbge, opt => opt.Ignore())
-            .ForMember(dest => dest.UfId, opt => opt.Ignore())
-            .ForMember(dest => dest.DataCriacao, opt => opt.Ignore())
-            .ForMember(dest => dest.DataAtualizacao, opt => opt.Ignore())
-            .ForMember(dest => dest.RowVersion, opt => opt.Ignore())
-            .ForMember(dest => dest.Uf, opt => opt.Ignore());
-    }
 
     private void ConfigurarMapeamentoAtividadeAgropecuaria()
     {

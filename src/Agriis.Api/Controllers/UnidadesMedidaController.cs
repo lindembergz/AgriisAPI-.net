@@ -5,11 +5,9 @@ using Agriis.Referencias.Dominio.Enums;
 
 namespace Agriis.Api.Controllers;
 
-/// <summary>
-/// Controlador para gerenciamento de unidades de medida
-/// </summary>
+
 [ApiController]
-[Route("api/referencias/unidades-medida")]
+[Route("api/unidades-medida")]
 public class UnidadesMedidaController : ReferenciaControllerBase<UnidadeMedidaDto, CriarUnidadeMedidaDto, AtualizarUnidadeMedidaDto>
 {
     private readonly IUnidadeMedidaService _unidadeService;

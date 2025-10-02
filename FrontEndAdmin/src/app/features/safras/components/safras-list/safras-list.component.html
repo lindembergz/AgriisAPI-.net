@@ -2,7 +2,7 @@
   <div class="header-section">
     <h2>Gerenciar Safras</h2>
     <div class="header-actions">
-      <p-select [options]="anosFiltro()" [ngModel]="anoSelecionado()" (ngModelChange)="onFiltroAnoChange($event)"
+      <p-select [options]="anosFiltro" [ngModel]="anoSelecionado" (ngModelChange)="onFiltroAnoChange($event)"
         optionLabel="label" optionValue="value" placeholder="Filtrar por ano" class="filter-dropdown">
       </p-select>
 
@@ -12,10 +12,10 @@
   </div>
 
   <div class="table-container">
-    <p-table [value]="safras()" [loading]="tableLoading()" [paginator]="true" [rows]="pageSize()" [showCurrentPageReport]="true"
+    <p-table [value]="safras" [loading]="tableLoading" [paginator]="true" [rows]="pageSize" [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} safras"
-      [rowsPerPageOptions]="[5, 10, 25, 50]" responsiveLayout="scroll" styleClass="p-datatable-striped p-datatable-gridlines"
-      [sortMode]="'multiple'" [multiSortMeta]="multiSortMeta()" (onSort)="onSort($event)" (onPage)="onPageChange($event)"
+      [rowsPerPageOptions]="[5, 10, 25, 50]"  styleClass="p-datatable-striped p-datatable-gridlines"
+      [sortMode]="'multiple'" [multiSortMeta]="multiSortMeta" (onSort)="onSort($event)" (onPage)="onPageChange($event)"
       [scrollable]="true" scrollHeight="60vh" [resizableColumns]="true" columnResizeMode="expand">
 
       <ng-template pTemplate="header">

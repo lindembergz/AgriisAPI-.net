@@ -68,4 +68,22 @@ public interface IMunicipioRepository : IRepository<Municipio>
     /// <param name="codigoIbge">Código IBGE</param>
     /// <returns>True se existe</returns>
     Task<bool> ExistePorCodigoIbgeAsync(int codigoIbge);
+    
+    /// <summary>
+    /// Verifica se existe um município com o código IBGE especificado, excluindo um ID específico
+    /// </summary>
+    /// <param name="codigoIbge">Código IBGE</param>
+    /// <param name="excludeId">ID a ser excluído da verificação</param>
+    /// <returns>True se existe outro município com o mesmo código IBGE</returns>
+    Task<bool> ExisteCodigoIbgeAsync(int codigoIbge, int? excludeId = null);
+    
+    /// <summary>
+    /// Obtém municípios com paginação
+    /// </summary>
+    /// <param name="page">Número da página (1-based)</param>
+    /// <param name="size">Tamanho da página</param>
+    /// <param name="ufId">ID da UF para filtrar (opcional)</param>
+    /// <param name="search">Termo de busca no nome (opcional)</param>
+    /// <returns>Resultado paginado de municípios</returns>
+    Task<(IEnumerable<Municipio> Items, int TotalCount)> ObterPaginadoAsync(int page, int size, int? ufId = null, string? search = null);
 }

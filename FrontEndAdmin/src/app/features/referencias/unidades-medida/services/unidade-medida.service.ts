@@ -45,7 +45,7 @@ export class UnidadeMedidaService extends ReferenceCrudService<
 > {
   
   protected readonly entityName = 'Unidade de Medida';
-  protected readonly apiEndpoint = 'referencias/unidades-medida';
+  protected readonly apiEndpoint = 'unidades-medida';
 
   /**
    * Get unidades by simbolo pattern (for search/autocomplete)

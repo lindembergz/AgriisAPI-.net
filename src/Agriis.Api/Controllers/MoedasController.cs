@@ -1,14 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Agriis.Referencias.Aplicacao.DTOs;
 using Agriis.Referencias.Aplicacao.Interfaces;
+using Agriis.Api.Controllers;
 
 namespace Agriis.Api.Controllers;
 
 /// <summary>
 /// Controlador para gerenciamento de moedas
 /// </summary>
+// Temporariamente desabilitado devido à unificação das tabelas geográficas
+
 [ApiController]
-[Route("api/referencias/moedas")]
+[Route("api/moedas")]
 public class MoedasController : ReferenciaControllerBase<MoedaDto, CriarMoedaDto, AtualizarMoedaDto>
 {
     private readonly IMoedaService _moedaService;

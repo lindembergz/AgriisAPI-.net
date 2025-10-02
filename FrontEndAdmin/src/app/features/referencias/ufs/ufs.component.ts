@@ -98,7 +98,7 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
       type: 'text'
     },
     {
-      field: 'codigo',
+      field: 'uf',
       header: 'UF',
       sortable: true,
       width: '100px',
@@ -261,7 +261,7 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
           (uf as any).municipiosCount = count;
         },
         error: (error) => {
-          console.error(`Erro ao carregar contagem de municípios para UF ${uf.codigo}:`, error);
+          console.error(`Erro ao carregar contagem de municípios para UF ${uf.uf}:`, error);
           (uf as any).municipiosCount = 0;
         }
       });
@@ -296,7 +296,7 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
    */
   protected populateForm(item: UfDto): void {
     this.form.patchValue({
-      codigo: item.codigo,
+      codigo: item.uf,
       nome: item.nome,
       paisId: item.paisId,
       ativo: item.ativo
@@ -636,7 +636,7 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
     const search = this.searchTerm().toLowerCase();
     if (search) {
       items = items.filter(item => 
-        item.codigo.toLowerCase().includes(search) ||
+        item.uf.toLowerCase().includes(search) ||
         item.nome.toLowerCase().includes(search) ||
         this.getPaisNome(item.paisId).toLowerCase().includes(search)
       );

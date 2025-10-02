@@ -1,6 +1,10 @@
 using Serilog;
 using Agriis.Api.Configuration;
 using Agriis.Api.Middleware;
+using Agriis.Referencias.Aplicacao.Interfaces;
+using Agriis.Referencias.Aplicacao.Servicos;
+using Agriis.Referencias.Dominio.Interfaces;
+using Agriis.Referencias.Infraestrutura.Repositorios;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,21 +22,37 @@ builder.Services.AddAuthorizationPolicies();
 builder.Services.AddAutenticacaoServices();
 builder.Services.AddUsuariosModule();
 
+builder.Services.AddScoped<IMoedaRepository, MoedaRepository>();
+builder.Services.AddScoped<IMoedaService, MoedaService>();
+
+builder.Services.AddScoped<IAtividadeAgropecuariaService, AtividadeAgropecuariaService>();
+builder.Services.AddScoped<IAtividadeAgropecuariaRepository, AtividadeAgropecuariaRepository>();
+
+builder.Services.AddScoped<IUnidadeMedidaService, UnidadeMedidaService>();
+builder.Services.AddScoped<IUnidadeMedidaRepository, UnidadeMedidaRepository>();
+
+builder.Services.AddScoped<IEmbalagemService, EmbalagemService>();
+builder.Services.AddScoped<IEmbalagemRepository, EmbalagemRepository>();
+
 // Outros módulos - Reabilitar gradualmente conforme necessário
- builder.Services.AddEnderecosModule();
- builder.Services.AddReferenciasModule();
- builder.Services.AddCulturasModule();
- builder.Services.AddProdutoresModule();
- builder.Services.AddPropriedadesModule();
+builder.Services.AddEnderecosModule();
+ builder.Services.AddReferenciasModule(); // Reabilitado para resolver dependências críticas
+builder.Services.AddCulturasModule();
+builder.Services.AddProdutoresModule();
+builder.Services.AddPropriedadesModule();
+
+
+
+// Módulos temporariamente desabilitados devido à dependência do módulo Referencias
  builder.Services.AddFornecedoresModule();
- builder.Services.AddPontosDistribuicaoModule();
- builder.Services.AddSafrasModule();
- builder.Services.AddCatalogosModule();
- builder.Services.AddPagamentosModule();
+// builder.Services.AddPontosDistribuicaoModule();
+builder.Services.AddSafrasModule();
+builder.Services.AddCatalogosModule();
+// builder.Services.AddPagamentosModule();
  builder.Services.AddProdutosModule();
- builder.Services.AddSegmentacoesModule();
- builder.Services.AddPedidosModule();
- builder.Services.AddCombosModule();
+// builder.Services.AddSegmentacoesModule();
+// builder.Services.AddPedidosModule();
+// builder.Services.AddCombosModule();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapperConfiguration();

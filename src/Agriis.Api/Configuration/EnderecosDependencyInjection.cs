@@ -1,3 +1,5 @@
+using Agriis.Enderecos.Aplicacao.Interfaces;
+using Agriis.Enderecos.Aplicacao.Servicos;
 using Agriis.Enderecos.Dominio.Interfaces;
 using Agriis.Enderecos.Infraestrutura.Repositorios;
 
@@ -19,7 +21,12 @@ public static class EnderecosDependencyInjection
         services.AddScoped<IEstadoRepository, EstadoRepository>();
         services.AddScoped<IMunicipioRepository, MunicipioRepository>();
         services.AddScoped<IEnderecoRepository, EnderecoRepository>();
+        services.AddScoped<IPaisRepository, PaisRepository>();
 
+        // Serviços de Aplicação
+        services.AddScoped<IMunicipioService, MunicipioService>();
+        services.AddScoped<IPaisService, PaisService>();
+     
         return services;
     }
 }

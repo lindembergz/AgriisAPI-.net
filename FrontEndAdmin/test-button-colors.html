@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Cores dos Botões</title>
+    <link rel="stylesheet" href="src/styles.scss">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .test-button {
+            padding: 10px 20px;
+            border: 1px solid;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .primary { background: #002060; border-color: #002060; color: white; }
+        .success { background: #28a745; border-color: #28a745; color: white; }
+        .info { background: #17a2b8; border-color: #17a2b8; color: white; }
+        .expected { background: #002060; border-color: #002060; color: white; }
+        
+        .primary:hover, .expected:hover { background: #001d58; border-color: #001d58; }
+        .success:hover { background: #218838; border-color: #1e7e34; }
+        .info:hover { background: #138496; border-color: #117a8b; }
+        
+        h3 { color: #002060; }
+        .status { 
+            padding: 5px 10px; 
+            border-radius: 4px; 
+            font-size: 12px; 
+            font-weight: bold;
+        }
+        .status.success { background: #28a745; color: white; }
+        .status.expected { background: #002060; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Teste de Padronização de Cores - Azul Institucional #002060</h1>
+    
+    <div class="test-section">
+        <h3>Estado Atual vs Estado Esperado</h3>
+        <div class="button-grid">
+            <button class="test-button primary">Botão Primary (Correto)</button>
+            <button class="test-button success">Botão Success (Problema)</button>
+            <button class="test-button info">Botão Info (Problema)</button>
+            <button class="test-button expected">Resultado Esperado</button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Tags de Status</h3>
+        <div class="button-grid">
+            <span class="status success">Status Success (Verde)</span>
+            <span class="status expected">Status Esperado (Azul)</span>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Instruções para Teste</h3>
+        <ol>
+            <li>Todos os botões devem ter a cor azul institucional <strong>#002060</strong></li>
+            <li>Ao passar o mouse, devem ficar com a cor <strong>#001d58</strong></li>
+            <li>Tags de status "success" devem usar azul ao invés de verde</li>
+            <li>Verificar nas telas de referências (moedas, fornecedores, etc.)</li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h3>Cores de Referência</h3>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div style="background: #002060; color: white; padding: 10px; border-radius: 4px;">
+                #002060 - Azul Principal
+            </div>
+            <div style="background: #001d58; color: white; padding: 10px; border-radius: 4px;">
+                #001d58 - Azul Hover
+            </div>
+            <div style="background: #001744; color: white; padding: 10px; border-radius: 4px;">
+                #001744 - Azul Active
+            </div>
+        </div>
+    </div>
+</body>
+</html>

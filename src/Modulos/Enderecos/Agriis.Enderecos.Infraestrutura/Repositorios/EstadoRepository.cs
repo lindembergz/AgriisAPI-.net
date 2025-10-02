@@ -73,6 +73,32 @@ public class EstadoRepository : RepositoryBase<Estado, DbContext>, IEstadoReposi
     }
 
     /// <summary>
+    /// Obtém estados por país
+    /// </summary>
+    public async Task<IEnumerable<Estado>> ObterPorPaisAsync(int paisId)
+    {
+        return await DbSet
+            .Where(e => e.PaisId == paisId)
+            .OrderBy(e => e.Nome)
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Verifica se existe um estado com o código especificado, excluindo um ID específico
+    /// </summary>
+    public async Task<bool> ExisteCodigoAsync(string codigo, int? excludeId = null)
+    {
+        var query = DbSet.Where(e => e.Uf == codigo.ToUpperInvariant());
+        
+        if (excludeId.HasValue)
+        {
+            query = query.Where(e => e.Id != excludeId.Value);
+        }
+        
+        return await query.AnyAsync();
+    }
+
+    /// <summary>
     /// Sobrescreve o método base para incluir ordenação por nome
     /// </summary>
     public override async Task<IEnumerable<Estado>> ObterTodosAsync(CancellationToken cancellationToken = default)

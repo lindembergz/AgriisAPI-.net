@@ -14,7 +14,7 @@ import { MunicipioDto, CriarMunicipioDto, AtualizarMunicipioDto, UfDto } from '.
 export class MunicipioService extends ReferenceCrudService<MunicipioDto, CriarMunicipioDto, AtualizarMunicipioDto> {
   
   protected readonly entityName = 'Município';
-  protected readonly apiEndpoint = 'referencias/municipios';
+  protected readonly apiEndpoint = 'enderecos/municipios'; // Usando controller temporário de compatibilidade
 
   /**
    * Get Municípios by UF ID
@@ -102,19 +102,21 @@ export class MunicipioService extends ReferenceCrudService<MunicipioDto, CriarMu
    * Validate município name uniqueness within UF
    */
   validarNomeUnico(nome: string, ufId: number, municipioId?: number): Observable<boolean> {
-    let params = new HttpParams();
-    
-    if (municipioId) {
-      params = params.set('idExcluir', municipioId.toString());
-    }
 
-    return this.errorHandlingService.wrapWithErrorHandling(
-      this.http.get<{ existe: boolean }>(`${this.baseUrl}/existe-nome/${nome}/uf/${ufId}`, { params }).pipe(
-        map(response => !response.existe) // Return true if unique (not exists)
-      ),
-      'validar nome município único',
-      'Município'
-    );
+      let params = new HttpParams().set('nome', nome)
+      
+      if (municipioId) {
+        params = params.set('idExcluir', municipioId.toString());
+      }
+      const url = `${this.baseUrl}/buscar?nome=${nome}`;
+
+      return this.errorHandlingService.wrapWithErrorHandling(
+        this.http.get<any[]>(url, { params }).pipe(
+          map(municipios => municipios.length === 0) // Retorna true se o nome não existe (é único)
+        ),
+        'validar nome município único',
+        'Município'
+      );
   }
 
   /**

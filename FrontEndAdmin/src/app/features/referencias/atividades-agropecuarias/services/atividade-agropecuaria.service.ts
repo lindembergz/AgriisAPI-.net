@@ -23,7 +23,7 @@ export class AtividadeAgropecuariaService extends ReferenceCrudService<
 > {
   
   protected readonly entityName = 'Atividade Agropecuária';
-  protected readonly apiEndpoint = 'referencias/atividades-agropecuarias';
+  protected readonly apiEndpoint = 'atividades-agropecuarias';
 
   /**
    * Get atividades by tipo (type filtering)

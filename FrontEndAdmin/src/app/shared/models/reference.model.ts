@@ -49,7 +49,7 @@ export interface AtualizarPaisDto {
  * UF interfaces
  */
 export interface UfDto extends BaseReferenceEntity {
-  codigo: string;
+  uf: string;
   paisId: number;
   pais?: PaisDto;
 }
@@ -79,7 +79,7 @@ export interface MunicipioDto extends BaseReferenceEntity {
 export interface CriarMunicipioDto {
   nome: string;
   codigoIbge: number;
-  ufId: number;
+  estadoId: number;
 }
 
 export interface AtualizarMunicipioDto {
@@ -152,7 +152,9 @@ export interface AtualizarUnidadeMedidaDto {
 export interface EmbalagemDto extends BaseReferenceEntity {
   descricao?: string;
   unidadeMedidaId: number;
-  unidadeMedida?: UnidadeMedidaDto;
+  unidadeMedidaNome: string;
+  unidadeMedidaSimbolo: string;
+  unidadeMedida?: UnidadeMedidaDto; // Mantido para compatibilidade com dropdown
 }
 
 export interface CriarEmbalagemDto {
