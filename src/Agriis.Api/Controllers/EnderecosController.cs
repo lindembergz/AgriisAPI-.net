@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using Agriis.Enderecos.Dominio.Interfaces;
 using Agriis.Enderecos.Aplicacao.DTOs;
+using Agriis.Enderecos.Aplicacao.Interfaces;
 using Agriis.Enderecos.Dominio.Entidades;
 using Agriis.Compartilhado.Aplicacao.Resultados;
 using System.ComponentModel.DataAnnotations;
@@ -16,6 +17,7 @@ namespace Agriis.Api.Controllers;
 [Produces("application/json")]
 public class EnderecosController : ControllerBase
 {
+    private readonly IPaisService _paisService;
     private readonly IEstadoRepository _estadoRepository;
     private readonly IMunicipioRepository _municipioRepository;
     private readonly IEnderecoRepository _enderecoRepository;
@@ -23,12 +25,14 @@ public class EnderecosController : ControllerBase
     private readonly ILogger<EnderecosController> _logger;
 
     public EnderecosController(
+        IPaisService paisService,
         IEstadoRepository estadoRepository,
         IMunicipioRepository municipioRepository,
         IEnderecoRepository enderecoRepository,
         IMapper mapper,
         ILogger<EnderecosController> logger)
     {
+        _paisService = paisService;
         _estadoRepository = estadoRepository;
         _municipioRepository = municipioRepository;
         _enderecoRepository = enderecoRepository;
@@ -39,26 +43,14 @@ public class EnderecosController : ControllerBase
     #region Países
 
     /// <summary>
-    /// Obtém todos os países (mock - apenas Brasil)
+    /// Obtém todos os países com seus estados
     /// </summary>
     [HttpGet("paises")]
-    public ActionResult<IEnumerable<object>> ObterPaises()
+    public async Task<ActionResult<IEnumerable<PaisDto>>> ObterPaises()
     {
         try
         {
-            var paises = new[]
-            {
-                new
-                {
-                    Id = 1,
-                    Nome = "Brasil",
-                    Codigo = "BR",
-                    Ativo = true,
-                    DataCriacao = DateTime.UtcNow,
-                    DataAtualizacao = (DateTime?)null
-                }
-            };
-            
+            var paises = await _paisService.ObterTodosComEstadosAsync();
             return Ok(paises);
         }
         catch (Exception ex)
@@ -99,26 +91,14 @@ public class EnderecosController : ControllerBase
     }
 
     /// <summary>
-    /// Obtém países ativos
+    /// Obtém países ativos com seus estados
     /// </summary>
     [HttpGet("paises/ativos")]
-    public ActionResult<IEnumerable<object>> ObterPaisesAtivos()
+    public async Task<ActionResult<IEnumerable<PaisDto>>> ObterPaisesAtivos()
     {
         try
         {
-            var paises = new[]
-            {
-                new
-                {
-                    Id = 1,
-                    Nome = "Brasil",
-                    Codigo = "BR",
-                    Ativo = true,
-                    DataCriacao = DateTime.UtcNow,
-                    DataAtualizacao = (DateTime?)null
-                }
-            };
-            
+            var paises = await _paisService.ObterAtivosComEstadosAsync();
             return Ok(paises);
         }
         catch (Exception ex)

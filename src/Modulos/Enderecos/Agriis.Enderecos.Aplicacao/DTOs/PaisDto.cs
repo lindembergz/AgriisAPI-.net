@@ -34,4 +34,14 @@ public class PaisDto
     /// Data da última modificação
     /// </summary>
     public DateTime? DataModificacao { get; set; }
+
+    /// <summary>
+    /// Lista de estados/UFs do país
+    /// </summary>
+    public List<EstadoResumoDto> Estados { get; set; } = new();
+
+    /// <summary>
+    /// Quantidade total de estados/UFs
+    /// </summary>
+    public int TotalEstados => Estados.Count;
 }

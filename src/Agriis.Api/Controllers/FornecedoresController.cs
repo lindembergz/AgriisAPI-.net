@@ -49,7 +49,13 @@ public class FornecedoresController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("Iniciando consulta paginada de fornecedores. Página: {Pagina}, Tamanho: {TamanhoPagina}, Filtro: {Filtro}", 
+                filtros.Pagina, filtros.TamanhoPagina, filtros.Filtro);
+
             var resultado = await _fornecedorService.ObterPaginadoAsync(filtros);
+
+            _logger.LogInformation("Consulta concluída. Total de itens: {Total}, Página: {Pagina}", 
+                resultado.TotalCount, resultado.PageNumber);
 
             return Ok(new
             {
@@ -62,8 +68,12 @@ public class FornecedoresController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erro ao obter fornecedores paginados");
-            return StatusCode(500, new { error_code = "ERRO_INTERNO", error_description = "Erro interno do servidor" });
+            _logger.LogError(ex, "Erro ao obter fornecedores paginados. Filtros: {@Filtros}", filtros);
+            return StatusCode(500, new { 
+                error_code = "ERRO_INTERNO", 
+                error_description = "Erro interno do servidor",
+                details = ex.Message 
+            });
         }
     }
 
@@ -404,6 +414,103 @@ public class FornecedoresController : ControllerBase
         {
             _logger.LogError(ex, "Erro ao obter fornecedores por município: {MunicipioId}", municipioId);
             return StatusCode(500, new { error_code = "ERRO_INTERNO", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Endpoint de teste para verificar dados geográficos
+    /// </summary>
+    /// <returns>Dados de teste</returns>
+    [HttpGet("teste-dados-geograficos")]
+    public async Task<ActionResult> TestarDadosGeograficos()
+    {
+        try
+        {
+            _logger.LogInformation("Iniciando teste de dados geográficos");
+            
+            // Buscar um fornecedor específico para teste
+            var fornecedores = await _fornecedorService.ObterPaginadoAsync(new FiltrosFornecedorDto 
+            { 
+                Pagina = 1, 
+                TamanhoPagina = 5 
+            });
+
+            var resultado = new
+            {
+                TotalFornecedores = fornecedores.TotalCount,
+                Fornecedores = fornecedores.Items.Select(f => new
+                {
+                    f.Id,
+                    f.Nome,
+                    f.Bairro,
+                    f.UfId,
+                    f.UfNome,
+                    f.UfCodigo,
+                    f.MunicipioId,
+                    f.MunicipioNome,
+                    f.Logradouro,
+                    f.Cep,
+                    DadosGeograficosCompletos = !string.IsNullOrEmpty(f.UfNome) && !string.IsNullOrEmpty(f.MunicipioNome),
+                    BairroPreenchido = !string.IsNullOrEmpty(f.Bairro)
+                })
+            };
+
+            _logger.LogInformation("Teste concluído. Total de fornecedores: {Total}", resultado.TotalFornecedores);
+            
+            return Ok(resultado);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro no teste de dados geográficos");
+            return StatusCode(500, new { error_code = "ERRO_TESTE", error_description = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Endpoint de debug para verificar dados de bairro
+    /// </summary>
+    /// <param name="id">ID do fornecedor</param>
+    /// <returns>Dados de debug</returns>
+    [HttpGet("debug-bairro/{id:int}")]
+    public async Task<ActionResult> DebugBairro(int id)
+    {
+        try
+        {
+            _logger.LogInformation("Iniciando debug de bairro para fornecedor ID: {Id}", id);
+            
+            var fornecedor = await _fornecedorService.ObterPorIdAsync(id);
+            
+            if (fornecedor == null)
+                return NotFound(new { error_code = "FORNECEDOR_NAO_ENCONTRADO", error_description = "Fornecedor não encontrado" });
+
+            var resultado = new
+            {
+                FornecedorId = fornecedor.Id,
+                Nome = fornecedor.Nome,
+                Bairro = fornecedor.Bairro,
+                BairroIsNull = fornecedor.Bairro == null,
+                BairroIsEmpty = string.IsNullOrEmpty(fornecedor.Bairro),
+                BairroLength = fornecedor.Bairro?.Length ?? 0,
+                Logradouro = fornecedor.Logradouro,
+                UfId = fornecedor.UfId,
+                UfNome = fornecedor.UfNome,
+                UfCodigo = fornecedor.UfCodigo,
+                MunicipioId = fornecedor.MunicipioId,
+                MunicipioNome = fornecedor.MunicipioNome,
+                Cep = fornecedor.Cep,
+                Complemento = fornecedor.Complemento,
+                DataCriacao = fornecedor.DataCriacao,
+                DataAtualizacao = fornecedor.DataAtualizacao
+            };
+
+            _logger.LogInformation("Debug concluído para fornecedor ID: {Id}", id);
+            
+            return Ok(resultado);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro no debug de bairro para fornecedor ID: {Id}", id);
+            return StatusCode(500, new { error_code = "ERRO_DEBUG", error_description = ex.Message });
         }
     }
 }

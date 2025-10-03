@@ -20,6 +20,12 @@ public class AtualizarFornecedorCompletoRequest
     public string Nome { get; set; } = string.Empty;
     
     /// <summary>
+    /// Nome fantasia do fornecedor
+    /// </summary>
+    [StringLength(200, ErrorMessage = "Nome fantasia deve ter no máximo 200 caracteres")]
+    public string? NomeFantasia { get; set; }
+    
+    /// <summary>
     /// CPF/CNPJ do fornecedor
     /// </summary>
     [Required(ErrorMessage = "CPF/CNPJ é obrigatório")]
@@ -66,4 +72,15 @@ public class AtualizarFornecedorCompletoRequest
     /// </summary>
     [Required(ErrorMessage = "Usuário master é obrigatório")]
     public UsuarioMasterRequest UsuarioMaster { get; set; } = null!;
+    
+    /// <summary>
+    /// Lista de ramos de atividade do fornecedor
+    /// </summary>
+    public List<string> RamosAtividade { get; set; } = new();
+    
+    /// <summary>
+    /// Configuração do endereço de correspondência
+    /// </summary>
+    [Required(ErrorMessage = "Endereço de correspondência é obrigatório")]
+    public string EnderecoCorrespondencia { get; set; } = "MesmoFaturamento";
 }

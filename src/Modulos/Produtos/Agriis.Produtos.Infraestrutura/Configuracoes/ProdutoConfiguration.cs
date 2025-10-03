@@ -76,6 +76,13 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
         builder.Property(p => p.EmbalagemId)
             .HasColumnName("EmbalagemId");
 
+        builder.Property(p => p.QuantidadeEmbalagem)
+            .HasColumnName("QuantidadeEmbalagem")
+            .HasColumnType("decimal(18,4)")
+            .HasPrecision(18, 4)
+            .HasDefaultValue(1.0m)
+            .IsRequired();
+
         builder.Property(p => p.AtividadeAgropecuariaId)
             .HasColumnName("AtividadeAgropecuariaId");
 
@@ -212,5 +219,8 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
 
         builder.HasIndex(p => p.AtividadeAgropecuariaId)
             .HasDatabaseName("IX_Produtos_AtividadeAgropecuariaId");
+
+        builder.HasIndex(p => p.QuantidadeEmbalagem)
+            .HasDatabaseName("IX_Produto_QuantidadeEmbalagem");
     }
 }

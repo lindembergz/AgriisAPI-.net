@@ -176,6 +176,7 @@ public class ProdutoService : IProdutoService
             dto.ObservacoesRestricao,
             dto.ProdutoPaiId,
             dto.EmbalagemId,
+            dto.QuantidadeEmbalagem,
             dto.AtividadeAgropecuariaId);
 
         // Adicionar culturas
@@ -211,7 +212,7 @@ public class ProdutoService : IProdutoService
         produto.AtualizarCodigo(dto.Codigo);
         produto.AtualizarCategoria(dto.CategoriaId);
         produto.AtualizarUnidadeMedida(dto.UnidadeMedidaId);
-        produto.AtualizarEmbalagem(dto.EmbalagemId);
+        produto.AtualizarEmbalagem(dto.EmbalagemId, dto.QuantidadeEmbalagem);
         produto.AtualizarAtividadeAgropecuaria(dto.AtividadeAgropecuariaId);
         produto.AtualizarTipoCalculoPeso(dto.TipoCalculoPeso);
         produto.DefinirRestricao(dto.ProdutoRestrito, dto.ObservacoesRestricao);

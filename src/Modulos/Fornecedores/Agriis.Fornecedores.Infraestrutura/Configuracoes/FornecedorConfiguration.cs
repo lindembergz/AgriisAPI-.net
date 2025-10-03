@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Agriis.Compartilhado.Dominio.Enums;
 using Agriis.Fornecedores.Dominio.Entidades;
+using Agriis.Fornecedores.Dominio.Enums;
 
 namespace Agriis.Fornecedores.Infraestrutura.Configuracoes;
 
@@ -28,6 +29,11 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
             .HasMaxLength(200)
             .IsRequired();
 
+        builder.Property(f => f.NomeFantasia)
+            .HasColumnName("NomeFantasia")
+            .HasMaxLength(200)
+            .IsRequired(false);
+
         builder.Property(f => f.InscricaoEstadual)
             .HasColumnName("InscricaoEstadual")
             .HasMaxLength(50);
@@ -35,6 +41,10 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
         builder.Property(f => f.Logradouro)
             .HasColumnName("Logradouro")
             .HasMaxLength(500);
+
+        builder.Property(f => f.Bairro)
+            .HasColumnName("Bairro")
+            .HasMaxLength(100);
 
         builder.Property(f => f.UfId)
             .HasColumnName("UfId");
@@ -110,6 +120,20 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
             .HasColumnName("DadosAdicionais")
             .HasColumnType("jsonb");
 
+        // Novos campos adicionais
+        builder.Property(f => f.RamosAtividade)
+            .HasColumnName("RamosAtividade")
+            .HasColumnType("text[]")
+            .IsRequired()
+            .HasDefaultValueSql("'{}'::text[]");
+
+        builder.Property(f => f.EnderecoCorrespondencia)
+            .HasColumnName("EnderecoCorrespondencia")
+            .HasMaxLength(20)
+            .IsRequired()
+            .HasConversion<string>()
+            .HasDefaultValue(EnderecoCorrespondenciaEnum.MesmoFaturamento);
+
         // Relacionamentos
         builder.HasMany(f => f.UsuariosFornecedores)
             .WithOne(uf => uf.Fornecedor)
@@ -156,6 +180,14 @@ public class FornecedorConfiguration : IEntityTypeConfiguration<Fornecedor>
 
         builder.HasIndex(f => f.MunicipioId)
             .HasDatabaseName("IX_Fornecedor_MunicipioId");
+
+        // Índices para novos campos
+        builder.HasIndex(f => f.NomeFantasia)
+            .HasDatabaseName("IX_Fornecedor_NomeFantasia")
+            .HasFilter("\"NomeFantasia\" IS NOT NULL");
+
+        builder.HasIndex(f => f.EnderecoCorrespondencia)
+            .HasDatabaseName("IX_Fornecedor_EnderecoCorrespondencia");
 
         // Configurações adicionais
         builder.Navigation(f => f.UsuariosFornecedores)

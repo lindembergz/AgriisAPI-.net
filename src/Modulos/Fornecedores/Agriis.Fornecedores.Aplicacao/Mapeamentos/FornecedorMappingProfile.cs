@@ -2,6 +2,7 @@ using AutoMapper;
 using Agriis.Compartilhado.Dominio.Enums;
 using Agriis.Fornecedores.Aplicacao.DTOs;
 using Agriis.Fornecedores.Dominio.Entidades;
+using Agriis.Fornecedores.Dominio.Enums;
 
 namespace Agriis.Fornecedores.Aplicacao.Mapeamentos;
 
@@ -18,10 +19,27 @@ public class FornecedorMappingProfile : Profile
             .ForMember(dest => dest.CnpjFormatado, opt => opt.MapFrom(src => src.Cnpj.ValorFormatado))
             .ForMember(dest => dest.MoedaPadrao, opt => opt.MapFrom(src => (int)src.Moeda))
             .ForMember(dest => dest.MoedaPadraoNome, opt => opt.MapFrom(src => ObterNomeMoeda(src.Moeda)))
+            .ForMember(dest => dest.Bairro, opt => opt.MapFrom(src => src.Bairro))
             .ForMember(dest => dest.UfNome, opt => opt.MapFrom(src => src.Estado != null ? src.Estado.Nome : null))
             .ForMember(dest => dest.UfCodigo, opt => opt.MapFrom(src => src.Estado != null ? src.Estado.Uf : null))
             .ForMember(dest => dest.MunicipioNome, opt => opt.MapFrom(src => src.Municipio != null ? src.Municipio.Nome : null))
-            .ForMember(dest => dest.Usuarios, opt => opt.MapFrom(src => src.UsuariosFornecedores));
+            .ForMember(dest => dest.Usuarios, opt => opt.MapFrom(src => src.UsuariosFornecedores))
+            .ForMember(dest => dest.NomeFantasia, opt => opt.MapFrom(src => src.NomeFantasia))
+            .ForMember(dest => dest.RamosAtividade, opt => opt.MapFrom(src => src.RamosAtividade))
+            .ForMember(dest => dest.EnderecoCorrespondencia, opt => opt.MapFrom(src => src.EnderecoCorrespondencia.ToString()))
+            .AfterMap((src, dest) => {
+                // Garantir que os dados de UF e Município sejam preenchidos mesmo se as navigation properties não estiverem carregadas
+                if (dest.UfNome == null && src.UfId.HasValue)
+                {
+                    // Se não temos a navigation property carregada, vamos buscar os dados diretamente
+                    // Isso será tratado no repositório
+                }
+                if (dest.MunicipioNome == null && src.MunicipioId.HasValue)
+                {
+                    // Se não temos a navigation property carregada, vamos buscar os dados diretamente
+                    // Isso será tratado no repositório
+                }
+            });
 
         // Mapeamento UsuarioFornecedor -> UsuarioFornecedorDto
         CreateMap<UsuarioFornecedor, UsuarioFornecedorDto>()
@@ -98,7 +116,8 @@ public class FornecedorMappingProfile : Profile
                         var municipios = municipiosElement.EnumerateArray()
                             .Select(m => m.GetString())
                             .Where(m => !string.IsNullOrEmpty(m))
-                            .ToList()!;
+                            .Cast<string>()
+                            .ToList();
 
                         resultado[estado] = municipios;
                     }

@@ -80,4 +80,32 @@ public class PaisService : IPaisService
             throw;
         }
     }
+
+    public async Task<IEnumerable<PaisDto>> ObterTodosComEstadosAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var paises = await _paisRepository.ObterTodosComEstadosAsync(cancellationToken);
+            return _mapper.Map<IEnumerable<PaisDto>>(paises);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter todos os países com estados");
+            throw;
+        }
+    }
+
+    public async Task<IEnumerable<PaisDto>> ObterAtivosComEstadosAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var paises = await _paisRepository.ObterAtivosComEstadosAsync(cancellationToken);
+            return _mapper.Map<IEnumerable<PaisDto>>(paises);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter países ativos com estados");
+            throw;
+        }
+    }
 }

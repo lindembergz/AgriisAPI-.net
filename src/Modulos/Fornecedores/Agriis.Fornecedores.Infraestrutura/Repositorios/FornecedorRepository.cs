@@ -22,35 +22,67 @@ public class FornecedorRepository : RepositoryBase<Fornecedor, DbContext>, IForn
     int tamanhoPagina,
     string? filtro = null)
     {
-        var query = Context.Set<Fornecedor>()
-            .Include(f => f.Estado)
-            .Include(f => f.Municipio)
-            .Include(p => p.UsuariosFornecedores)
-            .ThenInclude(up => up.Usuario)
-            .AsQueryable();
-
-        // Aplicar filtros
-        if (!string.IsNullOrWhiteSpace(filtro))
+        try
         {
-            var filtroLimpo = filtro.Trim().ToLower();
-            query = query.Where(p =>
-                p.Nome.ToLower().Contains(filtroLimpo));
-            // Nota: Filtros por CPF/CNPJ foram removidos para evitar problemas de tradução LINQ
-            // Estes filtros podem ser implementados em memória após a consulta se necessário
+            Console.WriteLine($"🔍 DEBUG - Iniciando consulta paginada. Página: {pagina}, Tamanho: {tamanhoPagina}, Filtro: '{filtro}'");
+
+            // Primeira consulta: buscar os fornecedores com paginação
+            var queryBase = Context.Set<Fornecedor>().AsQueryable();
+
+            // Aplicar filtros
+            if (!string.IsNullOrWhiteSpace(filtro))
+            {
+                var filtroLimpo = filtro.Trim().ToLower();
+                queryBase = queryBase.Where(p =>
+                    p.Nome.ToLower().Contains(filtroLimpo));
+                Console.WriteLine($"🔍 DEBUG - Filtro aplicado: '{filtroLimpo}'");
+            }
+
+            // Ordenação
+            queryBase = queryBase.OrderByDescending(p => p.DataCriacao);
+
+            // Contar total
+            Console.WriteLine($"🔍 DEBUG - Contando total de registros...");
+            var totalItems = await queryBase.CountAsync();
+            Console.WriteLine($"🔍 DEBUG - Total de registros encontrados: {totalItems}");
+
+            if (totalItems == 0)
+            {
+                Console.WriteLine($"🔍 DEBUG - Nenhum fornecedor encontrado, retornando resultado vazio");
+                return new PagedResult<Fornecedor>(new List<Fornecedor>(), pagina, tamanhoPagina, 0);
+            }
+
+            // Buscar IDs dos fornecedores da página atual
+            Console.WriteLine($"🔍 DEBUG - Buscando IDs da página {pagina}...");
+            var fornecedorIds = await queryBase
+                .Skip((pagina - 1) * tamanhoPagina)
+                .Take(tamanhoPagina)
+                .Select(f => f.Id)
+                .ToListAsync();
+
+            Console.WriteLine($"🔍 DEBUG - IDs encontrados: [{string.Join(", ", fornecedorIds)}]");
+
+            // Segunda consulta: buscar os fornecedores completos com todos os relacionamentos
+            Console.WriteLine($"🔍 DEBUG - Buscando fornecedores completos...");
+            var fornecedores = await Context.Set<Fornecedor>()
+                .Where(f => fornecedorIds.Contains(f.Id))
+                .Include(f => f.Estado)
+                .Include(f => f.Municipio)
+                .Include(f => f.UsuariosFornecedores)
+                    .ThenInclude(uf => uf.Usuario)
+                .OrderByDescending(f => f.DataCriacao)
+                .ToListAsync();
+
+            Console.WriteLine($"🔍 DEBUG - Fornecedores carregados: {fornecedores.Count}");
+
+            return new PagedResult<Fornecedor>(fornecedores, pagina, tamanhoPagina, totalItems);
         }
-
-
-        // Ordenação
-        query = query.OrderByDescending(p => p.DataCriacao);
-
-        // Paginação
-        var totalItems = await query.CountAsync();
-        var items = await query
-            .Skip((pagina - 1) * tamanhoPagina)
-            .Take(tamanhoPagina)
-            .ToListAsync();
-
-        return new PagedResult<Fornecedor>(items, pagina, tamanhoPagina, totalItems);
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ ERRO - Falha na consulta paginada: {ex.Message}");
+            Console.WriteLine($"❌ ERRO - Stack trace: {ex.StackTrace}");
+            throw;
+        }
     }
 
 
@@ -192,5 +224,49 @@ public class FornecedorRepository : RepositoryBase<Fornecedor, DbContext>, IForn
                 .ThenInclude(uf => uf.Usuario)
             .OrderBy(f => f.Nome)
             .ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Obtém dados geográficos para enriquecer os fornecedores
+    /// </summary>
+    public async Task<Dictionary<string, object>> ObterDadosGeograficosAsync(IEnumerable<int> ufIds, IEnumerable<int> municipioIds, CancellationToken cancellationToken = default)
+    {
+        var resultado = new Dictionary<string, object>
+        {
+            ["estados"] = new Dictionary<int, object>(),
+            ["municipios"] = new Dictionary<int, object>()
+        };
+
+        // Buscar Estados
+        if (ufIds.Any())
+        {
+            var estados = await Context.Set<Agriis.Enderecos.Dominio.Entidades.Estado>()
+                .Where(e => ufIds.Contains(e.Id))
+                .Select(e => new { e.Id, e.Nome, e.Uf })
+                .ToListAsync(cancellationToken);
+
+            var estadosDict = (Dictionary<int, object>)resultado["estados"];
+            foreach (var estado in estados)
+            {
+                estadosDict[estado.Id] = new { estado.Nome, estado.Uf };
+            }
+        }
+
+        // Buscar Municípios
+        if (municipioIds.Any())
+        {
+            var municipios = await Context.Set<Agriis.Enderecos.Dominio.Entidades.Municipio>()
+                .Where(m => municipioIds.Contains(m.Id))
+                .Select(m => new { m.Id, m.Nome })
+                .ToListAsync(cancellationToken);
+
+            var municipiosDict = (Dictionary<int, object>)resultado["municipios"];
+            foreach (var municipio in municipios)
+            {
+                municipiosDict[municipio.Id] = new { municipio.Nome };
+            }
+        }
+
+        return resultado;
     }
 }

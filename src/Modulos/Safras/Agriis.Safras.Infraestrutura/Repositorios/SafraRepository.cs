@@ -18,7 +18,8 @@ public class SafraRepository : RepositoryBase<Safra, DbContext>, ISafraRepositor
     {
         var agora = DateTime.Now;
         return await DbSet
-            .Where(s => agora >= s.PlantioInicial && agora <= s.PlantioFinal && s.PlantioNome == "S1")
+            .Where(s => agora >= s.PlantioInicial && agora <= s.PlantioFinal //&& s.PlantioNome == "S1"
+            )
             .FirstOrDefaultAsync();
     }
 

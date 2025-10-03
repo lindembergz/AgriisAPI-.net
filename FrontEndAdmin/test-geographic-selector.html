@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste GeographicSelector</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>Teste do GeographicSelector</h1>
+    
+    <div class="test-section">
+        <h2>Instruções de Teste</h2>
+        <ol>
+            <li>Abra o DevTools (F12)</li>
+            <li>Vá para a aba Console</li>
+            <li>Acesse: <a href="http://localhost:4200/fornecedores/editar/6" target="_blank">http://localhost:4200/fornecedores/editar/6</a></li>
+            <li>Clique na aba "Endereço do fornecedor"</li>
+            <li>Observe os logs no console</li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h2>Logs Esperados</h2>
+        <div class="log">
+🌍 GeographicSelector ngOnInit - configurações: {showPais: false, showUf: true, showMunicipio: true, initialData: {...}}
+📥 Processando dados iniciais: {pais: {...}, uf: {...}, municipio: {...}}
+🏛️ UFs carregadas: [...]
+🏘️ Municípios carregados para UF X: [...]
+✅ UF inicial selecionada: Nome da UF
+✅ Município inicial selecionado: Nome do Município
+📤 Emitindo mudança de seleção: {...}
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Verificações</h2>
+        <ul>
+            <li>✅ O select de UF deve mostrar opções carregadas</li>
+            <li>✅ O select de UF deve ter uma opção selecionada (não "Selecione um estado")</li>
+            <li>✅ O select de Município deve mostrar opções carregadas</li>
+            <li>✅ O select de Município deve ter uma opção selecionada (não "Selecione um município")</li>
+            <li>✅ O campo Bairro deve mostrar o valor do banco</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>Troubleshooting</h2>
+        <h3>Se os selects ainda estão vazios:</h3>
+        <ol>
+            <li>Verifique se a API está retornando ufId e municipioId</li>
+            <li>Verifique se os serviços UfService e MunicipioService estão funcionando</li>
+            <li>Verifique se há erros no console</li>
+            <li>Teste os endpoints manualmente:
+                <ul>
+                    <li>GET /api/referencias/ufs/ativos</li>
+                    <li>GET /api/referencias/municipios/uf/{ufId}</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h3>Se o campo Bairro está vazio:</h3>
+        <ol>
+            <li>Verifique se a API está retornando o campo bairro</li>
+            <li>Execute o script: <code>.\nova_api\scripts\test_api_fornecedor_6.ps1</code></li>
+            <li>Verifique se a migração do banco foi executada</li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h2>Comandos Úteis</h2>
+        <h3>Backend:</h3>
+        <pre>
+# Compilar e executar API
+dotnet run --project nova_api/src/Agriis.Api
+
+# Testar API
+.\nova_api\scripts\test_api_fornecedor_6.ps1
+        </pre>
+        
+        <h3>Frontend:</h3>
+        <pre>
+# Compilar frontend
+ng build
+
+# Executar frontend
+ng serve
+
+# Verificar erros
+ng lint
+        </pre>
+    </div>
+</body>
+</html>

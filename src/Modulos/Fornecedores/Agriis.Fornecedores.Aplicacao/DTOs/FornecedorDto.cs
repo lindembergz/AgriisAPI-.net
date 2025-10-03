@@ -18,6 +18,11 @@ public class FornecedorDto
     public string Nome { get; set; } = string.Empty;
     
     /// <summary>
+    /// Nome fantasia do fornecedor
+    /// </summary>
+    public string? NomeFantasia { get; set; }
+    
+    /// <summary>
     /// CNPJ do fornecedor
     /// </summary>
     public string Cnpj { get; set; } = string.Empty;
@@ -61,6 +66,11 @@ public class FornecedorDto
     /// Nome do município do fornecedor
     /// </summary>
     public string? MunicipioNome { get; set; }
+    
+    /// <summary>
+    /// Bairro do fornecedor
+    /// </summary>
+    public string? Bairro { get; set; }
     
     /// <summary>
     /// CEP do fornecedor
@@ -141,12 +151,15 @@ public class FornecedorDto
     /// Lista de usuários associados ao fornecedor
     /// </summary>
     public List<UsuarioFornecedorDto> Usuarios { get; set; } = new();
+    
+    /// <summary>
+    /// Lista de ramos de atividade do fornecedor
+    /// </summary>
+    public List<string> RamosAtividade { get; set; } = new();
+    
+    /// <summary>
+    /// Configuração do endereço de correspondência
+    /// </summary>
+    public string EnderecoCorrespondencia { get; set; } = "MesmoFaturamento";
 }
 
-
-public class FiltrosFornecedorDto
-{
-    public string? Filtro { get; set; }
-    public int Pagina { get; set; } = 1;
-    public int TamanhoPagina { get; set; } = 20;
-}

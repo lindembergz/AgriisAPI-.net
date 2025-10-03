@@ -21,7 +21,9 @@ public class EnderecoMappingProfile : Profile
     private void ConfigurarMapeamentosPais()
     {
         // Pais -> PaisDto
-        CreateMap<Pais, PaisDto>();
+        CreateMap<Pais, PaisDto>()
+            .ForMember(dest => dest.Estados, opt => opt.MapFrom(src => src.Estados))
+            .ForMember(dest => dest.TotalEstados, opt => opt.MapFrom(src => src.Estados.Count));
     }
 
     private void ConfigurarMapeamentosEstado()

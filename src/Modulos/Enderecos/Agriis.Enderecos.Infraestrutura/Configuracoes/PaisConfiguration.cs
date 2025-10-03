@@ -43,6 +43,9 @@ public class PaisConfiguration : IEntityTypeConfiguration<Pais>
             .HasColumnName("data_criacao")
             .IsRequired();
 
+        builder.Property(p => p.DataAtualizacao)
+            .HasColumnName("data_atualizacao");
+
 
 
         // Índices
@@ -58,6 +61,9 @@ public class PaisConfiguration : IEntityTypeConfiguration<Pais>
 
         builder.HasIndex(p => p.DataCriacao)
             .HasDatabaseName("IX_paises_data_criacao");
+
+        builder.HasIndex(p => p.DataAtualizacao)
+            .HasDatabaseName("IX_paises_data_atualizacao");
 
         // Relacionamentos
         builder.HasMany(p => p.Estados)

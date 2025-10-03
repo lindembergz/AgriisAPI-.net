@@ -20,6 +20,7 @@ public class ProdutoDto
     public string? UnidadeMedidaSimbolo { get; set; }
     public int? EmbalagemId { get; set; }
     public string? EmbalagemNome { get; set; }
+    public decimal QuantidadeEmbalagem { get; set; }
     public int? AtividadeAgropecuariaId { get; set; }
     public string? AtividadeAgropecuariaNome { get; set; }
     public TipoCalculoPeso TipoCalculoPeso { get; set; }
@@ -50,6 +51,7 @@ public class CriarProdutoDto
     public TipoProduto Tipo { get; set; }
     public int UnidadeMedidaId { get; set; }
     public int? EmbalagemId { get; set; }
+    public decimal QuantidadeEmbalagem { get; set; } = 1.0m;
     public int? AtividadeAgropecuariaId { get; set; }
     public TipoCalculoPeso TipoCalculoPeso { get; set; } = TipoCalculoPeso.PesoNominal;
     public bool ProdutoRestrito { get; set; }
@@ -72,6 +74,7 @@ public class AtualizarProdutoDto
     public string? Marca { get; set; }
     public int UnidadeMedidaId { get; set; }
     public int? EmbalagemId { get; set; }
+    public decimal QuantidadeEmbalagem { get; set; } = 1.0m;
     public int? AtividadeAgropecuariaId { get; set; }
     public TipoCalculoPeso TipoCalculoPeso { get; set; }
     public bool ProdutoRestrito { get; set; }

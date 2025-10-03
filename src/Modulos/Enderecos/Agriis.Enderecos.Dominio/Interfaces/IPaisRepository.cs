@@ -48,4 +48,18 @@ public interface IPaisRepository : IRepository<Pais>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de países encontrados</returns>
     Task<IEnumerable<Pais>> BuscarPorNomeAsync(string nome, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Obtém todos os países com seus estados incluídos
+    /// </summary>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de países com estados</returns>
+    Task<IEnumerable<Pais>> ObterTodosComEstadosAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Obtém países ativos com seus estados incluídos
+    /// </summary>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de países ativos com estados</returns>
+    Task<IEnumerable<Pais>> ObterAtivosComEstadosAsync(CancellationToken cancellationToken = default);
 }

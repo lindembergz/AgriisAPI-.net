@@ -3,6 +3,8 @@ using Agriis.Compartilhado.Dominio.Entidades;
 using Agriis.Compartilhado.Dominio.ObjetosValor;
 using Agriis.Compartilhado.Dominio.Enums;
 using Agriis.Enderecos.Dominio.Entidades;
+using Agriis.Fornecedores.Dominio.Enums;
+using Agriis.Fornecedores.Dominio.Constantes;
 
 namespace Agriis.Fornecedores.Dominio.Entidades;
 
@@ -15,6 +17,11 @@ public class Fornecedor : EntidadeRaizAgregada
     /// Nome/Razão social do fornecedor
     /// </summary>
     public string Nome { get; private set; } = string.Empty;
+    
+    /// <summary>
+    /// Nome fantasia do fornecedor
+    /// </summary>
+    public string? NomeFantasia { get; private set; }
     
     /// <summary>
     /// CNPJ do fornecedor
@@ -30,7 +37,7 @@ public class Fornecedor : EntidadeRaizAgregada
     /// Logradouro do fornecedor
     /// </summary>
     public string? Logradouro { get; private set; }
-    
+
     /// <summary>
     /// ID da UF do fornecedor
     /// </summary>
@@ -50,6 +57,11 @@ public class Fornecedor : EntidadeRaizAgregada
     /// Município do fornecedor
     /// </summary>
     public virtual Municipio? Municipio { get; private set; }
+    
+    /// <summary>
+    /// Bairro do fornecedor
+    /// </summary>
+    public string? Bairro { get; private set; }
     
     /// <summary>
     /// CEP do fornecedor
@@ -111,6 +123,16 @@ public class Fornecedor : EntidadeRaizAgregada
     /// </summary>
     public JsonDocument? DadosAdicionais { get; private set; }
     
+    /// <summary>
+    /// Lista de ramos de atividade do fornecedor
+    /// </summary>
+    public List<string> RamosAtividade { get; private set; } = new();
+    
+    /// <summary>
+    /// Configuração do endereço de correspondência
+    /// </summary>
+    public EnderecoCorrespondenciaEnum EnderecoCorrespondencia { get; private set; } = EnderecoCorrespondenciaEnum.MesmoFaturamento;
+    
     // Navigation Properties
     /// <summary>
     /// Usuários associados ao fornecedor
@@ -127,8 +149,12 @@ public class Fornecedor : EntidadeRaizAgregada
     /// </summary>
     /// <param name="nome">Nome/Razão social</param>
     /// <param name="cnpj">CNPJ do fornecedor</param>
+    /// <param name="nomeFantasia">Nome fantasia</param>
+    /// <param name="ramosAtividade">Lista de ramos de atividade</param>
+    /// <param name="enderecoCorrespondencia">Configuração do endereço de correspondência</param>
     /// <param name="inscricaoEstadual">Inscrição estadual</param>
     /// <param name="logradouro">Logradouro</param>
+    /// <param name="bairro">Bairro</param>
     /// <param name="ufId">ID da UF</param>
     /// <param name="municipioId">ID do município</param>
     /// <param name="cep">CEP</param>
@@ -141,8 +167,12 @@ public class Fornecedor : EntidadeRaizAgregada
     public Fornecedor(
         string nome,
         Cnpj cnpj,
+        string? nomeFantasia = null,
+        List<string>? ramosAtividade = null,
+        EnderecoCorrespondenciaEnum enderecoCorrespondencia = EnderecoCorrespondenciaEnum.MesmoFaturamento,
         string? inscricaoEstadual = null,
         string? logradouro = null,
+        string? bairro = null,
         int? ufId = null,
         int? municipioId = null,
         string? cep = null,
@@ -156,10 +186,17 @@ public class Fornecedor : EntidadeRaizAgregada
         if (string.IsNullOrWhiteSpace(nome))
             throw new ArgumentException("Nome do fornecedor é obrigatório", nameof(nome));
             
+        if (ramosAtividade != null && !RamosAtividadeConstants.ValidarRamos(ramosAtividade))
+            throw new ArgumentException("Todos os ramos de atividade devem estar na lista pré-definida", nameof(ramosAtividade));
+            
         Nome = nome.Trim();
         Cnpj = cnpj ?? throw new ArgumentNullException(nameof(cnpj));
+        NomeFantasia = nomeFantasia?.Trim();
+        RamosAtividade = ramosAtividade ?? new List<string>();
+        EnderecoCorrespondencia = enderecoCorrespondencia;
         InscricaoEstadual = inscricaoEstadual?.Trim();
         Logradouro = logradouro?.Trim();
+        Bairro = bairro?.Trim();
         UfId = ufId;
         MunicipioId = municipioId;
         Cep = cep?.Trim();
@@ -177,8 +214,12 @@ public class Fornecedor : EntidadeRaizAgregada
     /// Atualiza os dados básicos do fornecedor
     /// </summary>
     /// <param name="nome">Nome/Razão social</param>
+    /// <param name="nomeFantasia">Nome fantasia</param>
+    /// <param name="ramosAtividade">Lista de ramos de atividade</param>
+    /// <param name="enderecoCorrespondencia">Configuração do endereço de correspondência</param>
     /// <param name="inscricaoEstadual">Inscrição estadual</param>
     /// <param name="logradouro">Logradouro</param>
+    /// <param name="bairro">Bairro</param>
     /// <param name="ufId">ID da UF</param>
     /// <param name="municipioId">ID do município</param>
     /// <param name="cep">CEP</param>
@@ -189,8 +230,12 @@ public class Fornecedor : EntidadeRaizAgregada
     /// <param name="email">Email</param>
     public void AtualizarDados(
         string nome,
+        string? nomeFantasia = null,
+        List<string>? ramosAtividade = null,
+        EnderecoCorrespondenciaEnum? enderecoCorrespondencia = null,
         string? inscricaoEstadual = null,
         string? logradouro = null,
+        string? bairro = null,
         int? ufId = null,
         int? municipioId = null,
         string? cep = null,
@@ -203,9 +248,21 @@ public class Fornecedor : EntidadeRaizAgregada
         if (string.IsNullOrWhiteSpace(nome))
             throw new ArgumentException("Nome do fornecedor é obrigatório", nameof(nome));
             
+        if (ramosAtividade != null && !RamosAtividadeConstants.ValidarRamos(ramosAtividade))
+            throw new ArgumentException("Todos os ramos de atividade devem estar na lista pré-definida", nameof(ramosAtividade));
+            
         Nome = nome.Trim();
+        NomeFantasia = nomeFantasia?.Trim();
+        
+        if (ramosAtividade != null)
+            RamosAtividade = ramosAtividade;
+            
+        if (enderecoCorrespondencia.HasValue)
+            EnderecoCorrespondencia = enderecoCorrespondencia.Value;
+            
         InscricaoEstadual = inscricaoEstadual?.Trim();
         Logradouro = logradouro?.Trim();
+        Bairro = bairro?.Trim();
         UfId = ufId;
         MunicipioId = municipioId;
         Cep = cep?.Trim();
@@ -291,6 +348,70 @@ public class Fornecedor : EntidadeRaizAgregada
     public void AlterarMoedaPadrao(MoedaFinanceira moedaPadrao)
     {
         Moeda = moedaPadrao;
+        AtualizarDataModificacao();
+    }
+    
+    /// <summary>
+    /// Define o nome fantasia do fornecedor
+    /// </summary>
+    /// <param name="nomeFantasia">Nome fantasia</param>
+    public void DefinirNomeFantasia(string? nomeFantasia)
+    {
+        if (!string.IsNullOrWhiteSpace(nomeFantasia) && nomeFantasia.Length > 200)
+            throw new ArgumentException("Nome fantasia não pode exceder 200 caracteres", nameof(nomeFantasia));
+            
+        NomeFantasia = nomeFantasia?.Trim();
+        AtualizarDataModificacao();
+    }
+    
+    /// <summary>
+    /// Define os ramos de atividade do fornecedor
+    /// </summary>
+    /// <param name="ramosAtividade">Lista de ramos de atividade</param>
+    public void DefinirRamosAtividade(List<string> ramosAtividade)
+    {
+        if (ramosAtividade != null && !RamosAtividadeConstants.ValidarRamos(ramosAtividade))
+            throw new ArgumentException("Todos os ramos de atividade devem estar na lista pré-definida", nameof(ramosAtividade));
+            
+        RamosAtividade = ramosAtividade ?? new List<string>();
+        AtualizarDataModificacao();
+    }
+    
+    /// <summary>
+    /// Adiciona um ramo de atividade ao fornecedor
+    /// </summary>
+    /// <param name="ramo">Ramo de atividade a ser adicionado</param>
+    public void AdicionarRamoAtividade(string ramo)
+    {
+        if (!RamosAtividadeConstants.IsRamoValido(ramo))
+            throw new ArgumentException("Ramo de atividade deve estar na lista pré-definida", nameof(ramo));
+            
+        if (!RamosAtividade.Contains(ramo))
+        {
+            RamosAtividade.Add(ramo);
+            AtualizarDataModificacao();
+        }
+    }
+    
+    /// <summary>
+    /// Remove um ramo de atividade do fornecedor
+    /// </summary>
+    /// <param name="ramo">Ramo de atividade a ser removido</param>
+    public void RemoverRamoAtividade(string ramo)
+    {
+        if (RamosAtividade.Remove(ramo))
+        {
+            AtualizarDataModificacao();
+        }
+    }
+    
+    /// <summary>
+    /// Define a configuração do endereço de correspondência
+    /// </summary>
+    /// <param name="enderecoCorrespondencia">Configuração do endereço</param>
+    public void DefinirEnderecoCorrespondencia(EnderecoCorrespondenciaEnum enderecoCorrespondencia)
+    {
+        EnderecoCorrespondencia = enderecoCorrespondencia;
         AtualizarDataModificacao();
     }
 }

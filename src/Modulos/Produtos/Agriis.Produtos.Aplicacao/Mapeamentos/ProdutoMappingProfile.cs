@@ -56,6 +56,7 @@ public class ProdutoMappingProfile : Profile
                 src.ObservacoesRestricao,
                 src.ProdutoPaiId,
                 src.EmbalagemId,
+                src.QuantidadeEmbalagem,
                 src.AtividadeAgropecuariaId))
             .ForAllMembers(opt => opt.Ignore());
 

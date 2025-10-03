@@ -46,6 +46,10 @@ public class CriarProdutoDtoValidator : AbstractValidator<CriarProdutoDto>
             .WithMessage("Embalagem deve ser válida")
             .When(x => x.EmbalagemId.HasValue);
 
+        RuleFor(x => x.QuantidadeEmbalagem)
+            .GreaterThan(0)
+            .WithMessage("Quantidade de embalagem deve ser maior que zero");
+
         RuleFor(x => x.AtividadeAgropecuariaId)
             .GreaterThan(0)
             .WithMessage("Atividade agropecuária deve ser válida")

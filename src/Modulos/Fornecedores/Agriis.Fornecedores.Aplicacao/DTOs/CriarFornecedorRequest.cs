@@ -16,6 +16,12 @@ public class CriarFornecedorRequest
     public string Nome { get; set; } = string.Empty;
     
     /// <summary>
+    /// Nome fantasia do fornecedor
+    /// </summary>
+    [StringLength(200, ErrorMessage = "Nome fantasia deve ter no máximo 200 caracteres")]
+    public string? NomeFantasia { get; set; }
+    
+    /// <summary>
     /// CNPJ do fornecedor
     /// </summary>
     [Required(ErrorMessage = "CNPJ é obrigatório")]
@@ -44,6 +50,12 @@ public class CriarFornecedorRequest
     /// </summary>
     [ValidarMunicipioUf(nameof(UfId))]
     public int? MunicipioId { get; set; }
+    
+    /// <summary>
+    /// Bairro do fornecedor
+    /// </summary>
+    [StringLength(100, ErrorMessage = "Bairro deve ter no máximo 100 caracteres")]
+    public string? Bairro { get; set; }
     
     /// <summary>
     /// CEP do fornecedor
@@ -97,4 +109,15 @@ public class CriarFornecedorRequest
     /// </summary>
     [StringLength(100, ErrorMessage = "Token Lincros deve ter no máximo 100 caracteres")]
     public string? TokenLincros { get; set; }
+    
+    /// <summary>
+    /// Lista de ramos de atividade do fornecedor
+    /// </summary>
+    public List<string> RamosAtividade { get; set; } = new();
+    
+    /// <summary>
+    /// Configuração do endereço de correspondência
+    /// </summary>
+    [Required(ErrorMessage = "Endereço de correspondência é obrigatório")]
+    public string EnderecoCorrespondencia { get; set; } = "MesmoFaturamento";
 }

@@ -6,6 +6,7 @@ using Agriis.Fornecedores.Aplicacao.Interfaces;
 using Agriis.Fornecedores.Dominio.Entidades;
 using Agriis.Fornecedores.Dominio.Interfaces;
 using Agriis.Fornecedores.Dominio.Servicos;
+using Agriis.Fornecedores.Dominio.Enums;
 using Agriis.Compartilhado.Aplicacao.Resultados;
 using Agriis.Usuarios.Aplicacao.Interfaces;
 using Agriis.Usuarios.Aplicacao.DTOs;
@@ -48,7 +49,24 @@ public class FornecedorService : IFornecedorService
             filtros.TamanhoPagina,
             filtros.Filtro);
 
+        // Debug: Log dos dados das entidades antes do mapeamento
+        Console.WriteLine($"🔍 DEBUG - Fornecedores da consulta ({resultado.Items.Count()} itens):");
+        foreach (var fornecedor in resultado.Items.Take(2)) // Log apenas os 2 primeiros
+        {
+            Console.WriteLine($"   ID: {fornecedor.Id}, Nome: {fornecedor.Nome}, Bairro: '{fornecedor.Bairro}'");
+        }
+
         var fornecedoresDto = _mapper.Map<IEnumerable<FornecedorDto>>(resultado.Items);
+
+        // Debug: Log dos dados dos DTOs após o mapeamento
+        Console.WriteLine($"🔍 DEBUG - FornecedorDtos após mapeamento:");
+        foreach (var dto in fornecedoresDto.Take(2)) // Log apenas os 2 primeiros
+        {
+            Console.WriteLine($"   ID: {dto.Id}, Nome: {dto.Nome}, Bairro: '{dto.Bairro}'");
+        }
+
+        // Enriquecer com dados geográficos se necessário
+        await EnriquecerComDadosGeograficosAsync(fornecedoresDto);
 
         return new PagedResult<FornecedorDto>(
             fornecedoresDto,
@@ -67,7 +85,34 @@ public class FornecedorService : IFornecedorService
     public async Task<FornecedorDto?> ObterPorIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var fornecedor = await _fornecedorRepository.ObterPorIdAsync(id, cancellationToken);
-        return fornecedor != null ? _mapper.Map<FornecedorDto>(fornecedor) : null;
+        if (fornecedor == null) return null;
+
+        // Debug: Log dos dados da entidade antes do mapeamento
+        Console.WriteLine($"🔍 DEBUG - Fornecedor da entidade (ID: {fornecedor.Id}):");
+        Console.WriteLine($"   Nome: {fornecedor.Nome}");
+        Console.WriteLine($"   CNPJ: '{fornecedor.Cnpj?.Valor}' (Formatado: '{fornecedor.Cnpj?.ValorFormatado}')");
+        Console.WriteLine($"   InscricaoEstadual: '{fornecedor.InscricaoEstadual}'");
+        Console.WriteLine($"   Bairro: '{fornecedor.Bairro}'");
+        Console.WriteLine($"   Logradouro: '{fornecedor.Logradouro}'");
+        Console.WriteLine($"   UfId: {fornecedor.UfId}");
+        Console.WriteLine($"   MunicipioId: {fornecedor.MunicipioId}");
+
+        var fornecedorDto = _mapper.Map<FornecedorDto>(fornecedor);
+        
+        // Debug: Log dos dados do DTO após o mapeamento
+        Console.WriteLine($"🔍 DEBUG - FornecedorDto após mapeamento:");
+        Console.WriteLine($"   Nome: {fornecedorDto.Nome}");
+        Console.WriteLine($"   CNPJ: '{fornecedorDto.Cnpj}' (Formatado: '{fornecedorDto.CnpjFormatado}')");
+        Console.WriteLine($"   InscricaoEstadual: '{fornecedorDto.InscricaoEstadual}'");
+        Console.WriteLine($"   Bairro: '{fornecedorDto.Bairro}'");
+        Console.WriteLine($"   Logradouro: '{fornecedorDto.Logradouro}'");
+        Console.WriteLine($"   UfId: {fornecedorDto.UfId}");
+        Console.WriteLine($"   MunicipioId: {fornecedorDto.MunicipioId}");
+        
+        // Enriquecer com dados geográficos se necessário
+        await EnriquecerComDadosGeograficosAsync(new[] { fornecedorDto }, cancellationToken);
+        
+        return fornecedorDto;
     }
 
     public async Task<FornecedorDto?> ObterPorCnpjAsync(string cnpj, CancellationToken cancellationToken = default)
@@ -120,8 +165,12 @@ public class FornecedorService : IFornecedorService
         var fornecedor = new Fornecedor(
             request.Nome,
             cnpj,
+            request.NomeFantasia,
+            request.RamosAtividade,
+            ConverterEnderecoCorrespondencia(request.EnderecoCorrespondencia),
             request.InscricaoEstadual,
             request.Logradouro,
+            request.Bairro,
             request.UfId,
             request.MunicipioId,
             request.Cep,
@@ -161,8 +210,12 @@ public class FornecedorService : IFornecedorService
             var fornecedor = new Fornecedor(
                 request.Nome,
                 cnpj,
+                request.NomeFantasia,
+                request.RamosAtividade,
+                ConverterEnderecoCorrespondencia(request.EnderecoCorrespondencia),
                 request.InscricaoEstadual,
                 request.Endereco?.Logradouro,
+                request.Endereco?.Bairro,
                 null, // UfId - será resolvido posteriormente
                 null, // MunicipioId - será resolvido posteriormente
                 request.Endereco?.Cep,
@@ -226,8 +279,12 @@ public class FornecedorService : IFornecedorService
         // Atualizar dados
         fornecedor.AtualizarDados(
             request.Nome,
+            request.NomeFantasia,
+            request.RamosAtividade,
+            ConverterEnderecoCorrespondenciaNullable(request.EnderecoCorrespondencia),
             request.InscricaoEstadual,
             request.Logradouro,
+            request.Bairro,
             null, // UfId - será resolvido posteriormente
             null, // MunicipioId - será resolvido posteriormente
             request.Cep,
@@ -272,8 +329,12 @@ public class FornecedorService : IFornecedorService
             // 3. Atualizar dados básicos do fornecedor
             fornecedor.AtualizarDados(
                 request.Nome,
+                request.NomeFantasia,
+                request.RamosAtividade,
+                ConverterEnderecoCorrespondenciaNullable(request.EnderecoCorrespondencia),
                 request.InscricaoEstadual,
                 request.Endereco?.Logradouro,
+                request.Endereco?.Bairro,
                 null, // UfId - será resolvido posteriormente
                 null, // MunicipioId - será resolvido posteriormente
                 request.Endereco?.Cep,
@@ -376,5 +437,152 @@ public class FornecedorService : IFornecedorService
 
         if (municipio.EstadoId != ufId.Value)
             throw new InvalidOperationException("O município selecionado não pertence à UF informada");
+    }
+
+    /// <summary>
+    /// Enriquece os DTOs com dados geográficos quando necessário
+    /// </summary>
+    private async Task EnriquecerComDadosGeograficosAsync(IEnumerable<FornecedorDto> fornecedores, CancellationToken cancellationToken = default)
+    {
+        var fornecedoresList = fornecedores.ToList();
+        
+        // Identificar quais dados geográficos precisam ser buscados
+        var ufIds = fornecedoresList
+            .Where(f => f.UfId.HasValue && string.IsNullOrEmpty(f.UfNome))
+            .Select(f => f.UfId!.Value)
+            .Distinct()
+            .ToList();
+
+        var municipioIds = fornecedoresList
+            .Where(f => f.MunicipioId.HasValue && string.IsNullOrEmpty(f.MunicipioNome))
+            .Select(f => f.MunicipioId!.Value)
+            .Distinct()
+            .ToList();
+
+        // Se não há dados para enriquecer, retorna
+        if (!ufIds.Any() && !municipioIds.Any())
+            return;
+
+        try
+        {
+            // Buscar dados geográficos em uma única consulta otimizada
+            var dadosGeograficos = await _fornecedorRepository.ObterDadosGeograficosAsync(ufIds, municipioIds, cancellationToken);
+            
+            var estados = (Dictionary<int, object>)dadosGeograficos["estados"];
+            var municipios = (Dictionary<int, object>)dadosGeograficos["municipios"];
+
+            // Enriquecer fornecedores com dados de UF
+            foreach (var fornecedor in fornecedoresList.Where(f => f.UfId.HasValue && string.IsNullOrEmpty(f.UfNome)))
+            {
+                if (estados.TryGetValue(fornecedor.UfId!.Value, out var estadoData))
+                {
+                    var estado = (dynamic)estadoData;
+                    fornecedor.UfNome = estado.Nome;
+                    fornecedor.UfCodigo = estado.Uf;
+                }
+            }
+
+            // Enriquecer fornecedores com dados de Município
+            foreach (var fornecedor in fornecedoresList.Where(f => f.MunicipioId.HasValue && string.IsNullOrEmpty(f.MunicipioNome)))
+            {
+                if (municipios.TryGetValue(fornecedor.MunicipioId!.Value, out var municipioData))
+                {
+                    var municipio = (dynamic)municipioData;
+                    fornecedor.MunicipioNome = municipio.Nome;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log do erro mas não falha a operação
+            Console.WriteLine($"Erro ao enriquecer dados geográficos: {ex.Message}");
+            
+            // Fallback: tentar buscar dados individualmente usando o serviço de municípios
+            await EnriquecerComDadosGeograficosFallbackAsync(fornecedoresList, ufIds, municipioIds, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Método de fallback para enriquecer dados geográficos quando a consulta otimizada falha
+    /// </summary>
+    private async Task EnriquecerComDadosGeograficosFallbackAsync(
+        List<FornecedorDto> fornecedoresList, 
+        List<int> ufIds, 
+        List<int> municipioIds, 
+        CancellationToken cancellationToken)
+    {
+        // Buscar dados de UF através dos municípios
+        foreach (var ufId in ufIds)
+        {
+            try
+            {
+                var municipiosDaUf = await _municipioService.ObterPorEstadoAsync(ufId, cancellationToken);
+                var primeiroMunicipio = municipiosDaUf.FirstOrDefault();
+                
+                if (primeiroMunicipio != null)
+                {
+                    var fornecedoresDaUf = fornecedoresList.Where(f => f.UfId == ufId);
+                    foreach (var fornecedor in fornecedoresDaUf)
+                    {
+                        fornecedor.UfNome = primeiroMunicipio.Estado.Nome;
+                        fornecedor.UfCodigo = primeiroMunicipio.Estado.Uf;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao buscar dados da UF {ufId}: {ex.Message}");
+            }
+        }
+
+        // Buscar dados de municípios individualmente
+        foreach (var municipioId in municipioIds)
+        {
+            try
+            {
+                var municipio = await _municipioService.ObterPorIdAsync(municipioId, cancellationToken);
+                if (municipio != null)
+                {
+                    var fornecedoresDoMunicipio = fornecedoresList.Where(f => f.MunicipioId == municipioId);
+                    foreach (var fornecedor in fornecedoresDoMunicipio)
+                    {
+                        fornecedor.MunicipioNome = municipio.Nome;
+                        // Também atualizar dados da UF se necessário
+                        if (string.IsNullOrEmpty(fornecedor.UfNome))
+                        {
+                            fornecedor.UfNome = municipio.Estado.Nome;
+                            fornecedor.UfCodigo = municipio.Estado.Uf;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao buscar dados do município {municipioId}: {ex.Message}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Converte string para EnderecoCorrespondenciaEnum
+    /// </summary>
+    private static EnderecoCorrespondenciaEnum ConverterEnderecoCorrespondencia(string enderecoCorrespondencia)
+    {
+        return enderecoCorrespondencia switch
+        {
+            "DiferenteFaturamento" => EnderecoCorrespondenciaEnum.DiferenteFaturamento,
+            _ => EnderecoCorrespondenciaEnum.MesmoFaturamento
+        };
+    }
+
+    /// <summary>
+    /// Converte string para EnderecoCorrespondenciaEnum nullable
+    /// </summary>
+    private static EnderecoCorrespondenciaEnum? ConverterEnderecoCorrespondenciaNullable(string? enderecoCorrespondencia)
+    {
+        if (string.IsNullOrEmpty(enderecoCorrespondencia))
+            return null;
+            
+        return ConverterEnderecoCorrespondencia(enderecoCorrespondencia);
     }
 }

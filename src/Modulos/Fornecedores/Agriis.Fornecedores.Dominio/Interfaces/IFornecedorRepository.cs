@@ -63,4 +63,13 @@ public interface IFornecedorRepository : IRepository<Fornecedor>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>True se existe</returns>
     Task<bool> ExisteCnpjAsync(string cnpj, int? fornecedorIdExcluir = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Obtém dados geográficos para enriquecer os fornecedores
+    /// </summary>
+    /// <param name="ufIds">IDs das UFs</param>
+    /// <param name="municipioIds">IDs dos municípios</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Dicionário com dados geográficos</returns>
+    Task<Dictionary<string, object>> ObterDadosGeograficosAsync(IEnumerable<int> ufIds, IEnumerable<int> municipioIds, CancellationToken cancellationToken = default);
 }

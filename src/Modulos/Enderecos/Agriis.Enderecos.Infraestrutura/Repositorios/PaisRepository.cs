@@ -55,4 +55,21 @@ public class PaisRepository : RepositoryBase<Pais, DbContext>, IPaisRepository
             .OrderBy(p => p.Nome)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IEnumerable<Pais>> ObterTodosComEstadosAsync(CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<Pais>()
+            .Include(p => p.Estados)
+            .OrderBy(p => p.Nome)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Pais>> ObterAtivosComEstadosAsync(CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<Pais>()
+            .Include(p => p.Estados)
+            .Where(p => p.Ativo)
+            .OrderBy(p => p.Nome)
+            .ToListAsync(cancellationToken);
+    }
 }

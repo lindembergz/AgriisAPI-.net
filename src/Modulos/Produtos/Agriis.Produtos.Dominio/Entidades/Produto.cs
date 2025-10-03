@@ -83,6 +83,11 @@ public class Produto : EntidadeRaizAgregada
     public int? EmbalagemId { get; private set; }
     
     /// <summary>
+    /// Quantidade de produto por embalagem
+    /// </summary>
+    public decimal QuantidadeEmbalagem { get; private set; }
+    
+    /// <summary>
     /// ID da atividade agropecuária relacionada ao produto
     /// </summary>
     public int? AtividadeAgropecuariaId { get; private set; }
@@ -123,6 +128,7 @@ public class Produto : EntidadeRaizAgregada
         string? observacoesRestricao = null,
         int? produtoPaiId = null,
         int? embalagemId = null,
+        decimal quantidadeEmbalagem = 1.0m,
         int? atividadeAgropecuariaId = null)
     {
         Nome = nome ?? throw new ArgumentNullException(nameof(nome));
@@ -133,6 +139,7 @@ public class Produto : EntidadeRaizAgregada
         CategoriaId = categoriaId;
         FornecedorId = fornecedorId;
         EmbalagemId = embalagemId;
+        QuantidadeEmbalagem = quantidadeEmbalagem > 0 ? quantidadeEmbalagem : throw new ArgumentException("Quantidade de embalagem deve ser maior que zero", nameof(quantidadeEmbalagem));
         AtividadeAgropecuariaId = atividadeAgropecuariaId;
         Descricao = descricao;
         Marca = marca;
@@ -217,6 +224,31 @@ public class Produto : EntidadeRaizAgregada
     public void AtualizarEmbalagem(int? embalagemId)
     {
         EmbalagemId = embalagemId;
+        AtualizarDataModificacao();
+    }
+
+    /// <summary>
+    /// Atualiza a embalagem e quantidade do produto
+    /// </summary>
+    public void AtualizarEmbalagem(int? embalagemId, decimal quantidadeEmbalagem)
+    {
+        if (quantidadeEmbalagem <= 0)
+            throw new ArgumentException("Quantidade de embalagem deve ser maior que zero", nameof(quantidadeEmbalagem));
+
+        EmbalagemId = embalagemId;
+        QuantidadeEmbalagem = quantidadeEmbalagem;
+        AtualizarDataModificacao();
+    }
+
+    /// <summary>
+    /// Atualiza apenas a quantidade de embalagem
+    /// </summary>
+    public void AtualizarQuantidadeEmbalagem(decimal quantidadeEmbalagem)
+    {
+        if (quantidadeEmbalagem <= 0)
+            throw new ArgumentException("Quantidade de embalagem deve ser maior que zero", nameof(quantidadeEmbalagem));
+
+        QuantidadeEmbalagem = quantidadeEmbalagem;
         AtualizarDataModificacao();
     }
 
