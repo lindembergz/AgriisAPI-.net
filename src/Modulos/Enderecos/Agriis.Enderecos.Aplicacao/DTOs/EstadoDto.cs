@@ -57,9 +57,18 @@ public class CriarEstadoDto
     public string Nome { get; set; } = string.Empty;
     
     /// <summary>
-    /// Sigla do estado (UF)
+    /// Código/Sigla do estado (UF) - aceita tanto 'codigo' quanto 'uf'
     /// </summary>
-    public string Uf { get; set; } = string.Empty;
+    public string Codigo { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Sigla do estado (UF) - propriedade para compatibilidade
+    /// </summary>
+    public string Uf 
+    { 
+        get => Codigo; 
+        set => Codigo = value; 
+    }
     
     /// <summary>
     /// Código IBGE do estado
@@ -88,9 +97,18 @@ public class AtualizarEstadoDto
     public string Nome { get; set; } = string.Empty;
     
     /// <summary>
-    /// Sigla do estado (UF)
+    /// Código/Sigla do estado (UF) - aceita tanto 'codigo' quanto 'uf'
     /// </summary>
-    public string Uf { get; set; } = string.Empty;
+    public string Codigo { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Sigla do estado (UF) - propriedade para compatibilidade
+    /// </summary>
+    public string Uf 
+    { 
+        get => Codigo; 
+        set => Codigo = value; 
+    }
     
     /// <summary>
     /// Código IBGE do estado

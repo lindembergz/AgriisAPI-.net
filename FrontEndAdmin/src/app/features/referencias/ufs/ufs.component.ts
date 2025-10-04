@@ -89,19 +89,11 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
   // =============================================================================
 
   displayColumns: () => TableColumn[] = () => [
-        {
-      field: 'id',
-      header: 'Código',
-      sortable: true,
-      width: '100px',
-      align: 'center',
-      type: 'text'
-    },
     {
       field: 'uf',
       header: 'UF',
       sortable: true,
-      width: '100px',
+      width: '80px',
       align: 'center',
       type: 'text'
     },
@@ -109,44 +101,35 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
       field: 'nome',
       header: 'Nome',
       sortable: true,
-      width: '250px',
+      width: '200px',
+      type: 'text'
+    },
+    {
+      field: 'codigoIbge',
+      header: 'Cód. IBGE',
+      sortable: true,
+      width: '100px',
+      align: 'center',
+      hideOnMobile: true,
+      type: 'text'
+    },
+    {
+      field: 'regiao',
+      header: 'Região',
+      sortable: true,
+      width: '150px',
+      hideOnMobile: true,
       type: 'text'
     },
     {
       field: 'pais.nome',
       header: 'País',
       sortable: true,
-      width: '200px',
-      hideOnMobile: true,
-      type: 'text'
-    }/*,
-    {
-      field: 'municipiosCount',
-      header: 'Municípios',
-      sortable: false,
-      width: '120px',
-      hideOnMobile: true,
-      type: 'custom',
-      align: 'center'
-    },
-    {
-      field: 'ativo',
-      header: 'Status',
-      sortable: true,
-      width: '100px',
-      type: 'boolean',
-      hideOnMobile: true,
-      align: 'center'
-    },
-    {
-      field: 'dataCriacao',
-      header: 'Criado em',
-      sortable: true,
       width: '150px',
-      type: 'date',
       hideOnMobile: true,
-      hideOnTablet: true
-    }*/
+      hideOnTablet: true,
+      type: 'text'
+    }
   ];
 
 
@@ -277,6 +260,8 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
     return {
       codigo: formValue.codigo?.toUpperCase().trim(),
       nome: formValue.nome?.trim(),
+      codigoIbge: parseInt(formValue.codigoIbge),
+      regiao: formValue.regiao?.trim(),
       paisId: parseInt(formValue.paisId)
     };
   }
@@ -287,6 +272,8 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
   protected mapToUpdateDto(formValue: any): AtualizarUfDto {
     return {
       nome: formValue.nome?.trim(),
+      codigoIbge: parseInt(formValue.codigoIbge),
+      regiao: formValue.regiao?.trim(),
       ativo: formValue.ativo
     };
   }
@@ -298,6 +285,8 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
     this.form.patchValue({
       codigo: item.uf,
       nome: item.nome,
+      codigoIbge: item.codigoIbge,
+      regiao: item.regiao,
       paisId: item.paisId,
       ativo: item.ativo
     });
@@ -410,6 +399,16 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
         Validators.minLength(2),
         Validators.maxLength(100),
         FieldValidatorsUtil.noSpecialChars()
+      ]],
+      codigoIbge: ['', [
+        Validators.required,
+        Validators.min(1),
+        Validators.max(99)
+      ]],
+      regiao: ['', [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(50)
       ]],
       paisId: ['', [
         Validators.required
@@ -732,7 +731,10 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
    */
   novoItem(): void {
     this.selectedItem.set(null);
-    this.form.reset({ ativo: true });
+    this.form.reset({ 
+      ativo: true,
+      paisId: 1 // Default para Brasil
+    });
     this.showForm.set(true);
   }
 
@@ -773,6 +775,8 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
           
           const updateDto: AtualizarUfDto = {
             nome: item.nome,
+            codigoIbge: item.codigoIbge,
+            regiao: item.regiao,
             ativo: false
           };
           
@@ -802,6 +806,8 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
       
       const updateDto: AtualizarUfDto = {
         nome: item.nome,
+        codigoIbge: item.codigoIbge,
+        regiao: item.regiao,
         ativo: true
       };
       

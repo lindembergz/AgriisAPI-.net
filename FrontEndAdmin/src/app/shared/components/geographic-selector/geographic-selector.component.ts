@@ -7,6 +7,8 @@ import { MessageModule } from 'primeng/message';
 import { TooltipModule } from 'primeng/tooltip';
 import { ReferenceCrudService } from '../../services/reference-crud.service';
 import { PaisDto, UfDto, MunicipioDto, GeographicData } from '../../models/reference.model';
+import { UfService } from '../../../features/referencias/ufs/services/uf.service';
+import { MunicipioService } from '../../../features/referencias/municipios/services/municipio.service';
 
 /**
  * Geographic selector component for cascading País > UF > Município selection
@@ -98,7 +100,7 @@ import { PaisDto, UfDto, MunicipioDto, GeographicData } from '../../models/refer
           optionLabel="nome"
           optionValue="id"
           [loading]="ufsLoading()"
-          [disabled]="disabled() || ufsLoading() || !selectedPais()"
+          [disabled]="disabled() || ufsLoading()"
           [filter]="true"
           filterBy="nome,codigo"
           [showClear]="!required()"
@@ -216,6 +218,7 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
   showMunicipio = input<boolean>(true);
   required = input<boolean>(false);
   disabled = input<boolean>(false);
+  initialData = input<GeographicData | null>(null);
   
   // Output events
   paisChange = output<PaisDto | null>();
@@ -223,11 +226,9 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
   municipioChange = output<MunicipioDto | null>();
   selectionChange = output<GeographicData>();
 
-  // Services (these would be injected concrete implementations)
-  // For now, we'll use abstract services that need to be provided
-  private paisService!: ReferenceCrudService<PaisDto, any, any>;
-  private ufService!: ReferenceCrudService<UfDto, any, any>;
-  private municipioService!: ReferenceCrudService<MunicipioDto, any, any>;
+  // Services - inject specific services
+  private ufService = inject(UfService);
+  private municipioService = inject(MunicipioService);
 
   // Signals for reactive state
   paises = signal<PaisDto[]>([]);
@@ -254,8 +255,27 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
   private onTouched = () => {};
 
   ngOnInit(): void {
-    if (this.showPais()) {
-      this.loadPaises();
+    console.log('🌍 GeographicSelector ngOnInit - configurações:', {
+      showPais: this.showPais(),
+      showUf: this.showUf(),
+      showMunicipio: this.showMunicipio(),
+      initialData: this.initialData()
+    });
+    
+    // Carregar dados iniciais se fornecidos
+    const initial = this.initialData();
+    if (initial) {
+      console.log('📥 Processando dados iniciais:', initial);
+      this.processInitialData(initial);
+    } else {
+      // Carregar dados padrão
+      if (this.showPais()) {
+        this.loadPaises();
+      } else if (this.showUf()) {
+        // Se não mostra país mas mostra UF, carregar UFs diretamente (assumindo Brasil)
+        console.log('🏛️ Carregando UFs diretamente (Brasil assumido)');
+        this.loadUfs(1);
+      }
     }
   }
 
@@ -266,17 +286,31 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
     this.paisesLoading.set(true);
     this.paisesError.set(false);
     
-    // This would use the actual service
-    // For now, we'll simulate the call
-    setTimeout(() => {
-      // Simulated data - in real implementation, this would come from the service
-      const mockPaises: PaisDto[] = [
-        { id: 1, nome: 'Brasil', codigo: 'BR', ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() }
-      ];
-      
-      this.paises.set(mockPaises);
-      this.paisesLoading.set(false);
-    }, 500);
+    // Por enquanto, vamos usar dados fixos para o Brasil
+    // Em uma implementação futura, isso viria de um serviço de países
+    const mockPaises: PaisDto[] = [
+      { 
+        id: 1, 
+        nome: 'Brasil', 
+        codigo: 'BR', 
+        ativo: true, 
+        dataCriacao: new Date(), 
+        dataAtualizacao: new Date(),
+        estados: [], // Will be populated when UFs are loaded
+        totalEstados: 0 // Will be updated when UFs are loaded
+      }
+    ];
+    
+    this.paises.set(mockPaises);
+    this.paisesLoading.set(false);
+    
+    // Se não temos país selecionado, selecionar Brasil por padrão
+    if (!this.selectedPais()) {
+      this.selectedPais.set(1);
+      if (this.showUf()) {
+        this.loadUfs(1);
+      }
+    }
   }
 
   /**
@@ -287,19 +321,19 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
     this.ufsError.set(false);
     this.ufs.set([]);
     
-    // This would use the actual service with cascading endpoint
-    // GET /api/referencias/ufs/pais/{paisId}
-    setTimeout(() => {
-      // Simulated data - in real implementation, this would come from the service
-      const mockUfs: UfDto[] = [
-        { id: 1, nome: 'São Paulo', uf: 'SP', paisId: 1, ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() },
-        { id: 2, nome: 'Rio de Janeiro', uf: 'RJ', paisId: 1, ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() },
-        { id: 3, nome: 'Minas Gerais', uf: 'MG', paisId: 1, ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() }
-      ];
-      
-      this.ufs.set(mockUfs);
-      this.ufsLoading.set(false);
-    }, 300);
+    // Usar o serviço real de UFs
+    this.ufService.obterAtivos().subscribe({
+      next: (ufs) => {
+        console.log('🏛️ UFs carregadas:', ufs);
+        this.ufs.set(ufs);
+        this.ufsLoading.set(false);
+      },
+      error: (error) => {
+        console.error('❌ Erro ao carregar UFs:', error);
+        this.ufsError.set(true);
+        this.ufsLoading.set(false);
+      }
+    });
   }
 
   /**
@@ -310,19 +344,19 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
     this.municipiosError.set(false);
     this.municipios.set([]);
     
-    // This would use the actual service with cascading endpoint
-    // GET /api/referencias/municipios/uf/{ufId}
-    setTimeout(() => {
-      // Simulated data - in real implementation, this would come from the service
-      const mockMunicipios: MunicipioDto[] = [
-        { id: 1, nome: 'São Paulo', codigoIbge: '3550308', ufId: 1, ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() },
-        { id: 2, nome: 'Campinas', codigoIbge: '3509502', ufId: 1, ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() },
-        { id: 3, nome: 'Santos', codigoIbge: '3548500', ufId: 1, ativo: true, dataCriacao: new Date(), dataAtualizacao: new Date() }
-      ];
-      
-      this.municipios.set(mockMunicipios);
-      this.municipiosLoading.set(false);
-    }, 300);
+    // Usar o serviço real de municípios
+    this.municipioService.obterAtivosPorUf(ufId).subscribe({
+      next: (municipios) => {
+        console.log('🏘️ Municípios carregados para UF', ufId, ':', municipios);
+        this.municipios.set(municipios);
+        this.municipiosLoading.set(false);
+      },
+      error: (error) => {
+        console.error('❌ Erro ao carregar municípios:', error);
+        this.municipiosError.set(true);
+        this.municipiosLoading.set(false);
+      }
+    });
   }
 
   /**
@@ -343,7 +377,7 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
     }
     
     this.markAsTouched();
-    this.emitChange();
+    this.emitSelectionChange();
     
     // Emit individual change event
     const pais = this.paises().find(p => p.id === paisId) || null;
@@ -366,7 +400,7 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
     }
     
     this.markAsTouched();
-    this.emitChange();
+    this.emitSelectionChange();
     
     // Emit individual change event
     const uf = this.ufs().find(u => u.id === ufId) || null;
@@ -381,26 +415,14 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
     this.selectedMunicipio.set(municipioId);
     
     this.markAsTouched();
-    this.emitChange();
+    this.emitSelectionChange();
     
     // Emit individual change event
     const municipio = this.municipios().find(m => m.id === municipioId) || null;
     this.municipioChange.emit(municipio);
   }
 
-  /**
-   * Emit combined change event
-   */
-  private emitChange(): void {
-    const data: GeographicData = {
-      pais: this.selectedPais() ? this.paises().find(p => p.id === this.selectedPais()) : undefined,
-      uf: this.selectedUf() ? this.ufs().find(u => u.id === this.selectedUf()) : undefined,
-      municipio: this.selectedMunicipio() ? this.municipios().find(m => m.id === this.selectedMunicipio()) : undefined
-    };
-    
-    this.onChange(data);
-    this.selectionChange.emit(data);
-  }
+
 
   /**
    * Mark component as touched
@@ -443,19 +465,42 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
 
   // ControlValueAccessor implementation
   writeValue(value: GeographicData | null): void {
+    console.log('🔄 GeographicSelector writeValue called with:', value);
+    
     if (value) {
+      // Se temos dados geográficos, vamos configurar as seleções
       if (value.pais) {
         this.selectedPais.set(value.pais.id);
-        if (this.showUf() && value.uf) {
-          this.loadUfs(value.pais.id);
-          this.selectedUf.set(value.uf.id);
-          if (this.showMunicipio() && value.municipio) {
-            this.loadMunicipios(value.uf.id);
-            this.selectedMunicipio.set(value.municipio.id);
-          }
+        console.log('🌍 País selecionado:', value.pais);
+      }
+      
+      if (this.showUf() && value.uf) {
+        console.log('🏛️ Configurando UF:', value.uf);
+        
+        // Carregar UFs se ainda não foram carregadas
+        if (this.ufs().length === 0) {
+          this.loadUfs(value.pais?.id || 1); // Assumir Brasil como padrão
         }
+        
+        // Aguardar um pouco para os UFs carregarem, então selecionar
+        setTimeout(() => {
+          this.selectedUf.set(value.uf!.id);
+          console.log('✅ UF selecionada:', value.uf!.id);
+          
+          if (this.showMunicipio() && value.municipio) {
+            console.log('🏘️ Configurando Município:', value.municipio);
+            this.loadMunicipios(value.uf!.id);
+            
+            // Aguardar um pouco para os municípios carregarem, então selecionar
+            setTimeout(() => {
+              this.selectedMunicipio.set(value.municipio!.id);
+              console.log('✅ Município selecionado:', value.municipio!.id);
+            }, 200);
+          }
+        }, 200);
       }
     } else {
+      console.log('🧹 Limpando seleções geográficas');
       this.selectedPais.set(null);
       this.selectedUf.set(null);
       this.selectedMunicipio.set(null);
@@ -493,6 +538,63 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
   }
 
   /**
+   * Process initial data and set selections
+   */
+  public processInitialData(data: GeographicData): void {
+    console.log('🔄 Processando dados iniciais:', data);
+    
+    // Configurar país se disponível
+    if (data.pais && this.showPais()) {
+      this.selectedPais.set(data.pais.id);
+      console.log('🌍 País inicial configurado:', data.pais.nome);
+    }
+    
+    // Configurar UF se disponível
+    if (data.uf && this.showUf()) {
+      console.log('🏛️ Configurando UF inicial:', data.uf.nome);
+      
+      // Carregar UFs primeiro
+      this.loadUfs(data.pais?.id || 1);
+      
+      // Aguardar carregamento e então selecionar
+      setTimeout(() => {
+        this.selectedUf.set(data.uf!.id);
+        console.log('✅ UF inicial selecionada:', data.uf!.nome);
+        
+        // Configurar município se disponível
+        if (data.municipio && this.showMunicipio()) {
+          console.log('🏘️ Configurando município inicial:', data.municipio.nome);
+          this.loadMunicipios(data.uf!.id);
+          
+          // Aguardar carregamento e então selecionar
+          setTimeout(() => {
+            this.selectedMunicipio.set(data.municipio!.id);
+            console.log('✅ Município inicial selecionado:', data.municipio!.nome);
+            
+            // Emitir evento de mudança
+            this.emitSelectionChange();
+          }, 300);
+        }
+      }, 300);
+    }
+  }
+
+  /**
+   * Emit selection change event
+   */
+  private emitSelectionChange(): void {
+    const currentData: GeographicData = {
+      pais: this.paises().find(p => p.id === this.selectedPais()) || null,
+      uf: this.ufs().find(u => u.id === this.selectedUf()) || null,
+      municipio: this.municipios().find(m => m.id === this.selectedMunicipio()) || null
+    };
+    
+    console.log('📤 Emitindo mudança de seleção:', currentData);
+    this.selectionChange.emit(currentData);
+    this.onChange(currentData);
+  }
+
+  /**
    * Reset all selections
    */
   reset(): void {
@@ -503,7 +605,14 @@ export class GeographicSelectorComponent implements OnInit, ControlValueAccessor
     this.municipios.set([]);
     this.touched.set(false);
     this.hasError.set(false);
-    this.emitChange();
+    this.emitSelectionChange();
+  }
+
+  /**
+   * Check if component is ready to receive data
+   */
+  public isReady(): boolean {
+    return this.showUf() ? this.ufs().length > 0 : true;
   }
 
   /**

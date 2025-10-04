@@ -1,10 +1,37 @@
 import { BaseEntity, BaseForm } from './base.model';
 
 /**
+ * Constantes para ramos de atividade disponíveis
+ */
+export const RAMOS_ATIVIDADE_DISPONIVEIS = [
+  'Industria',
+  'Distribuição',
+  'Cooperativa',
+  'Outro'
+ /* 'Sementes',
+  'Fertilizantes',
+  'Defensivos Agrícolas',
+  'Máquinas e Equipamentos',
+  'Irrigação',
+  'Nutrição Animal',
+  'Tecnologia Agrícola',
+  'Consultoria Agronômica'*/
+] as const;
+
+/**
+ * Opções para endereço de correspondência
+ */
+export const ENDERECO_CORRESPONDENCIA_OPTIONS = [
+  { value: 'MesmoFaturamento', label: 'Mesmo endereço do faturamento' },
+  { value: 'DiferenteFaturamento', label: 'Diferente do faturamento' }
+] as const;
+
+/**
  * Fornecedor entity interface - matching API structure
  */
 export interface Fornecedor extends BaseEntity {
   nome: string;
+  nomeFantasia?: string; // NOVO CAMPO
   cnpj: string;
   cnpjFormatado: string;
   cpfCnpj?: string; // Alternative property name
@@ -18,6 +45,7 @@ export interface Fornecedor extends BaseEntity {
   ufCodigo?: string;
   municipioId?: number;
   municipioNome?: string;
+  bairro?: string;
   cep?: string;
   complemento?: string;
   latitude?: number;
@@ -53,17 +81,30 @@ export interface Fornecedor extends BaseEntity {
   
   // Related entities
   usuarios: UsuarioFornecedor[];
+  
+  // NOVOS CAMPOS
+  ramosAtividade: string[]; // Lista de ramos de atividade
+  enderecoCorrespondencia: string; // 'MesmoFaturamento' ou 'DiferenteFaturamento'
 }
 
 /**
- * Usuario Fornecedor DTO
+ * Usuario Fornecedor DTO - matching API UsuarioFornecedorDto
  */
 export interface UsuarioFornecedor {
   id: number;
-  nome: string;
-  email: string;
+  usuarioId: number;
+  usuarioNome: string;
+  usuarioEmail: string;
+  fornecedorId: number;
+  fornecedorNome: string;
+  role: number;
+  roleNome: string;
   ativo: boolean;
-  // Add other user fields as needed
+  dataInicio: string;
+  dataFim?: string;
+  dataCriacao: string;
+  dataAtualizacao?: string;
+  territorios: any[];
 }
 
 /**
@@ -72,11 +113,14 @@ export interface UsuarioFornecedor {
 export interface FornecedorForm extends BaseForm {
   codigo?: string;
   nome: string;
+  nomeFantasia?: string; // NOVO CAMPO
   cpfCnpj: string; // Matches CriarFornecedorCompletoRequest.CpfCnpj
   tipoCliente: string; // Matches CriarFornecedorCompletoRequest.TipoCliente
   telefone?: string;
   email?: string;
   inscricaoEstadual?: string;
+  ramosAtividade?: string[]; // NOVO CAMPO
+  enderecoCorrespondencia?: string; // NOVO CAMPO
   
   // Endereco structure matching EnderecoRequest
   endereco?: {
@@ -169,6 +213,7 @@ export interface CriarFornecedorDto {
  */
 export interface AtualizarFornecedorDto {
   nome: string;
+  nomeFantasia?: string; // NOVO CAMPO
   inscricaoEstadual?: string;
   logradouro?: string;
   ufId?: number;
@@ -182,6 +227,8 @@ export interface AtualizarFornecedorDto {
   moedaPadrao: number;
   pedidoMinimo?: number;
   tokenLincros?: string;
+  ramosAtividade?: string[]; // NOVO CAMPO
+  enderecoCorrespondencia?: string; // NOVO CAMPO
 }
 
 /**
@@ -198,6 +245,8 @@ export interface FornecedorQueryParams {
  */
 export interface FiltrosFornecedorDto {
   filtro?: string;
+  ramosAtividade?: string[]; // NOVO CAMPO para filtro
+  enderecoCorrespondencia?: string; // NOVO CAMPO para filtro
   pagina: number;
   tamanhoPagina: number;
 }

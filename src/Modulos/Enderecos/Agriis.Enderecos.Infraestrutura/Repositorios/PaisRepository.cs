@@ -72,4 +72,40 @@ public class PaisRepository : RepositoryBase<Pais, DbContext>, IPaisRepository
             .OrderBy(p => p.Nome)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IEnumerable<Pais>> ObterTodosAsync(int pagina = 1, int tamanhoPagina = 50, CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<Pais>()
+            .Include(p => p.Estados)
+            .OrderBy(p => p.Nome)
+            .Skip((pagina - 1) * tamanhoPagina)
+            .Take(tamanhoPagina)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> ExistePorCodigoAsync(string codigo, int? idExcluir = null, CancellationToken cancellationToken = default)
+    {
+        var query = Context.Set<Pais>().Where(p => p.Codigo == codigo);
+        
+        if (idExcluir.HasValue)
+            query = query.Where(p => p.Id != idExcluir.Value);
+            
+        return await query.AnyAsync(cancellationToken);
+    }
+
+    public async Task<bool> ExistePorNomeAsync(string nome, int? idExcluir = null, CancellationToken cancellationToken = default)
+    {
+        var query = Context.Set<Pais>().Where(p => p.Nome == nome);
+        
+        if (idExcluir.HasValue)
+            query = query.Where(p => p.Id != idExcluir.Value);
+            
+        return await query.AnyAsync(cancellationToken);
+    }
+
+    public async Task<bool> PossuiEstadosAsync(int paisId, CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<Estado>()
+            .AnyAsync(e => e.PaisId == paisId, cancellationToken);
+    }
 }

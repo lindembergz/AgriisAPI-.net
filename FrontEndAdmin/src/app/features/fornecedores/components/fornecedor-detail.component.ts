@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -11,7 +11,10 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { InputMaskModule } from 'primeng/inputmask';
+import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -21,7 +24,7 @@ import { ConfirmationService } from 'primeng/api';
 import { FornecedorService } from '../services/fornecedor.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ValidationService } from '../../../shared/services/validation.service';
-import { Fornecedor, FornecedorForm } from '../../../shared/models/fornecedor.model';
+import { Fornecedor, FornecedorForm, RAMOS_ATIVIDADE_DISPONIVEIS, ENDERECO_CORRESPONDENCIA_OPTIONS } from '../../../shared/models/fornecedor.model';
 import { FornecedorFormControls, FornecedorDadosGeraisFormControls, EnderecoFormControls, PontoDistribuicaoFormControls, UsuarioFormControls } from '../../../shared/models/forms.model';
 import { TipoCliente } from '../../../shared/models/produtor.model';
 import { GeographicData, UfDto, MunicipioDto } from '../../../shared/models/reference.model';
@@ -34,11 +37,12 @@ import { phoneValidator, emailValidator, nameValidator, passwordValidator, cepVa
 
 // Shared components
 import { CoordenadasMapComponent } from '../../../shared/components/coordenadas-map.component';
-import { GeographicSelectorComponent } from '../../../shared/components/geographic-selector/geographic-selector.component';
+// GeographicSelectorComponent removido - usando selects nativos
 // UsuarioMasterFormComponent removido - usando formulário inline
 
 // Feature components
 import { PontoDistribuicaoFormComponent } from './ponto-distribuicao-form.component';
+import { InputNumber } from 'primeng/inputnumber';
 
 /**
  * Fornecedor Detail Component with tab navigation
@@ -49,20 +53,22 @@ import { PontoDistribuicaoFormComponent } from './ponto-distribuicao-form.compon
   standalone: true,
   imports: [
     CommonModule,
-  ReactiveFormsModule,
-  FormsModule,
+    ReactiveFormsModule,
+    FormsModule,
     TabsModule,
     CardModule,
     ButtonModule,
     InputTextModule,
+    InputNumberModule,
     SelectModule,
     InputMaskModule,
+    CheckboxModule,
+    RadioButtonModule,
     ToastModule,
     ProgressSpinnerModule,
     ConfirmDialogModule,
     // Shared components
     CoordenadasMapComponent,
-    GeographicSelectorComponent,
     // Feature components
     PontoDistribuicaoFormComponent
   ],
@@ -86,25 +92,36 @@ export class FornecedorDetailComponent implements OnInit {
   fornecedorId = signal<number | null>(null);
   isEditMode = computed(() => this.fornecedorId() !== null);
   activeTabIndex = signal(0);
-  
+
   // Geographic data signals
   selectedGeographicData = signal<GeographicData | null>(null);
   geographicDataLoading = signal(false);
 
+  // Geographic data for selects
+  availableUfs = signal<UfDto[]>([]);
+  availableMunicipios = signal<MunicipioDto[]>([]);
+  ufsLoading = signal<boolean>(false);
+  municipiosLoading = signal<boolean>(false);
+
   // Form and validation
   fornecedorForm!: FormGroup<FornecedorFormControls>;
-  
+
   // Dropdown options
   tipoClienteOptions = [
     { label: 'Pessoa Física', value: TipoCliente.PF },
     { label: 'Pessoa Jurídica', value: TipoCliente.PJ }
   ];
 
+  // NOVOS CAMPOS - Opções para os novos campos
+  ramosDisponiveis = RAMOS_ATIVIDADE_DISPONIVEIS;
+  enderecoCorrespondenciaOptions = ENDERECO_CORRESPONDENCIA_OPTIONS;
+
 
 
   constructor() {
     this.initializeForm();
     this.loadRouteData();
+    this.loadUfsForSelect();
   }
 
   ngOnInit(): void {
@@ -121,6 +138,10 @@ export class FornecedorDetailComponent implements OnInit {
           nonNullable: true,
           validators: [Validators.required, nameValidator(2)]
         }),
+        nomeFantasia: this.fb.control('', { // NOVO CAMPO
+          nonNullable: true,
+          validators: [Validators.maxLength(200)]
+        }),
         cpfCnpj: this.fb.control('', {
           nonNullable: true,
           validators: [Validators.required, conditionalCpfCnpjValidator('tipoCliente')]
@@ -136,10 +157,17 @@ export class FornecedorDetailComponent implements OnInit {
         email: this.fb.control('', {
           nonNullable: true,
           validators: [emailValidator()]
+        }),
+        ramosAtividade: this.fb.control<string[]>([], { // NOVO CAMPO
+          nonNullable: true
+        }),
+        enderecoCorrespondencia: this.fb.control('MesmoFaturamento', { // NOVO CAMPO
+          nonNullable: true,
+          validators: [Validators.required]
+        }),
+        inscricaoEstadual: this.fb.control('', { // MOVIDO PARA DENTRO DE DADOS GERAIS
+          nonNullable: true
         })
-      }),
-      inscricaoEstadual: this.fb.control('', {
-        nonNullable: true
       }),
       endereco: this.fb.group<EnderecoFormControls>({
         logradouro: this.fb.control('', { nonNullable: true }),
@@ -148,7 +176,7 @@ export class FornecedorDetailComponent implements OnInit {
         bairro: this.fb.control('', { nonNullable: true }),
         cidade: this.fb.control('', { nonNullable: true }),
         uf: this.fb.control('', { nonNullable: true }),
-        cep: this.fb.control('', { 
+        cep: this.fb.control('', {
           nonNullable: true,
           validators: [cepValidator()]
         }),
@@ -160,7 +188,7 @@ export class FornecedorDetailComponent implements OnInit {
       }),
       pontosDistribuicao: this.fb.array<FormGroup<PontoDistribuicaoFormControls>>([]),
       usuarioMaster: this.fb.group<UsuarioFormControls>({
-        nome: this.fb.control('', {   
+        nome: this.fb.control('', {
           validators: [Validators.required]
         }),
         email: this.fb.control('', {
@@ -204,11 +232,12 @@ export class FornecedorDetailComponent implements OnInit {
    */
   private loadFornecedor(id: number): void {
     this.loading.set(true);
-    
+
     this.fornecedorService.getById(id)
       .pipe(takeUntilDestroyed())
       .subscribe({
         next: (fornecedor) => {
+          console.log(fornecedor);
           this.populateForm(fornecedor);
           this.loading.set(false);
         },
@@ -224,33 +253,71 @@ export class FornecedorDetailComponent implements OnInit {
    * Populate form with fornecedor data
    */
   private populateForm(fornecedor: Fornecedor): void {
+    console.log('📝 Populando formulário com dados do fornecedor:', fornecedor);
+
+
+
     this.fornecedorForm.patchValue({
       dadosGerais: {
         nome: fornecedor.nome,
-        cpfCnpj: fornecedor.cpfCnpj,
+        nomeFantasia: fornecedor.nomeFantasia || '', // NOVO CAMPO
+        cpfCnpj: fornecedor.cnpj || fornecedor.cpfCnpj || '', // Usar cnpj como prioridade
         tipoCliente: fornecedor.tipoCliente as any,
         telefone: fornecedor.telefone || '',
-        email: fornecedor.email || ''
+        email: fornecedor.email || '',
+        ramosAtividade: fornecedor.ramosAtividade || [], // NOVO CAMPO
+        enderecoCorrespondencia: fornecedor.enderecoCorrespondencia || 'MesmoFaturamento', // NOVO CAMPO
+        inscricaoEstadual: fornecedor.inscricaoEstadual || '' // MOVIDO PARA DENTRO DE DADOS GERAIS
       }
     });
 
+    console.log('📝 Valores após patchValue:', {
+      cpfCnpj: this.fornecedorForm.get('dadosGerais.cpfCnpj')?.value,
+      inscricaoEstadual: this.fornecedorForm.get('dadosGerais.inscricaoEstadual')?.value,
+      ramosAtividade: this.fornecedorForm.get('dadosGerais.ramosAtividade')?.value
+    });
+
+    // Debug específico para inscrição estadual
+    console.log('🔍 DEBUG Inscrição Estadual:', {
+      valorOriginal: fornecedor.inscricaoEstadual,
+      valorFormulario: this.fornecedorForm.get('dadosGerais.inscricaoEstadual')?.value,
+      controleExiste: !!this.fornecedorForm.get('dadosGerais.inscricaoEstadual'),
+      formularioCompleto: this.fornecedorForm.value
+    });
+
     // Populate endereco
-    if (fornecedor.endereco) {
-      this.enderecoFormGroup.patchValue(fornecedor.endereco);
-      
-      // Load geographic data if UF and Municipio IDs are available
-      const ufId = (fornecedor.endereco as any).ufId;
-      const municipioId = (fornecedor.endereco as any).municipioId;
-      
-      if (ufId && municipioId) {
-        this.loadGeographicData(ufId, municipioId);
-      }
+    console.log('🏠 Populando endereço do fornecedor:', {
+      logradouro: fornecedor.logradouro,
+      bairro: fornecedor.bairro,
+      ufId: fornecedor.ufId,
+      municipioId: fornecedor.municipioId,
+      ufNome: fornecedor.ufNome,
+      municipioNome: fornecedor.municipioNome
+    });
+
+    this.enderecoFormGroup.patchValue({
+      logradouro: fornecedor.logradouro || '',
+      bairro: fornecedor.bairro || '',
+      cep: fornecedor.cep || '',
+      complemento: fornecedor.complemento || '',
+      latitude: fornecedor.latitude,
+      longitude: fornecedor.longitude,
+      ufId: fornecedor.ufId,
+      municipioId: fornecedor.municipioId,
+      uf: fornecedor.ufCodigo || '',
+      cidade: fornecedor.municipioNome || ''
+    });
+
+    // Load geographic data if UF and Municipio IDs are available
+    const ufId = fornecedor.ufId;
+    const municipioId = fornecedor.municipioId;
+
+    if (ufId) {
+      console.log('🌍 Carregando municípios para UF:', ufId);
+      this.loadMunicipiosForSelect(ufId);
     }
-    
-    // Populate inscricao estadual
-    if (fornecedor.inscricaoEstadual) {
-      this.fornecedorForm.get('inscricaoEstadual')?.patchValue(fornecedor.inscricaoEstadual);
-    }
+
+    // Inscrição estadual já foi mapeada no patchValue acima
 
     // Populate pontos de distribuicao
     if (fornecedor.pontosDistribuicao && fornecedor.pontosDistribuicao.length > 0) {
@@ -268,12 +335,31 @@ export class FornecedorDetailComponent implements OnInit {
       });
     }
 
-    // Populate usuarioMaster
-    if (fornecedor.usuarioMaster) {
+    // Populate usuarioMaster - buscar o usuário Master da lista de usuários
+    console.log('👤 Populando usuário Master:', fornecedor.usuarios);
+
+    // Encontrar o usuário Master (role 3 = RoleFornecedorWebAdmin)
+    const usuarioMaster = fornecedor.usuarios?.find(u => u.role === 3 || u.roleNome === 'Administrador');
+
+    if (usuarioMaster) {
+      console.log('👤 Usuário Master encontrado:', usuarioMaster);
+      this.fornecedorForm.get('usuarioMaster')?.patchValue({
+        nome: usuarioMaster.usuarioNome || '',
+        email: usuarioMaster.usuarioEmail || '',
+        senha: '', // Não retornamos a senha por segurança
+        telefone: '' // Telefone não está na estrutura atual do UsuarioFornecedorDto
+      });
+    } else {
+      console.log('⚠️ Usuário Master não encontrado na lista de usuários');
+    }
+
+    // Fallback: tentar usar fornecedor.usuarioMaster se existir (para compatibilidade)
+    if (!usuarioMaster && fornecedor.usuarioMaster) {
+      console.log('👤 Usando fallback usuarioMaster:', fornecedor.usuarioMaster);
       this.fornecedorForm.get('usuarioMaster')?.patchValue({
         nome: fornecedor.usuarioMaster.nome,
         email: fornecedor.usuarioMaster.email,
-        senha: fornecedor.usuarioMaster.senha,
+        senha: fornecedor.usuarioMaster.senha || '',
         telefone: fornecedor.usuarioMaster.telefone || ''
       });
     }
@@ -303,11 +389,11 @@ export class FornecedorDetailComponent implements OnInit {
   hasFieldError(path: string, errorType?: string): boolean {
     const control = this.getFormControl(path);
     if (!control) return false;
-    
+
     if (errorType) {
       return this.validationService.hasError(control, errorType);
     }
-    
+
     return this.validationService.shouldShowError(control);
   }
 
@@ -317,7 +403,7 @@ export class FornecedorDetailComponent implements OnInit {
   getFieldErrorMessage(path: string): string {
     const control = this.getFormControl(path);
     if (!control) return '';
-    
+
     const fieldName = path.split('.').pop();
     return this.validationService.getErrorMessage(control, fieldName);
   }
@@ -328,6 +414,38 @@ export class FornecedorDetailComponent implements OnInit {
   getCpfCnpjMask(): string {
     const tipoCliente = this.fornecedorForm.get('dadosGerais.tipoCliente')?.value;
     return getCpfCnpjMask(tipoCliente);
+  }
+
+  /**
+   * Check if ramo de atividade is selected
+   */
+  isRamoAtividadeSelecionado(ramo: string): boolean {
+    const ramosAtividade = this.fornecedorForm.get('dadosGerais.ramosAtividade')?.value || [];
+    return ramosAtividade.includes(ramo);
+  }
+
+  /**
+   * Handle ramo de atividade change
+   */
+  onRamoAtividadeChange(ramo: string, event: any): void {
+    const ramosControl = this.fornecedorForm.get('dadosGerais.ramosAtividade');
+    if (!ramosControl) return;
+
+    const currentRamos = ramosControl.value || [];
+
+    if (event.target.checked) {
+      // Add ramo if not already present
+      if (!currentRamos.includes(ramo)) {
+        ramosControl.setValue([...currentRamos, ramo]);
+      }
+    } else {
+      // Remove ramo
+      ramosControl.setValue(currentRamos.filter((r: string) => r !== ramo));
+    }
+
+    // Mark as dirty and touched
+    ramosControl.markAsDirty();
+    ramosControl.markAsTouched();
   }
 
   /**
@@ -347,7 +465,7 @@ export class FornecedorDetailComponent implements OnInit {
     // Validate all form sections
     if (!this.validateAllSections()) {
       this.notificationService.showValidationWarning('Por favor, corrija os erros no formulário antes de salvar');
-      
+
       // Navigate to first tab with errors
       this.navigateToFirstErrorTab();
       return;
@@ -355,16 +473,19 @@ export class FornecedorDetailComponent implements OnInit {
 
     this.saving.set(true);
     const formValue = this.fornecedorForm.value;
-    
+
     // Transform form data to API format matching CriarFornecedorCompletoRequest
     const fornecedorData: any = {
       codigo: '', // Will be generated by backend
       nome: formValue.dadosGerais?.nome?.trim() || '',
+      nomeFantasia: formValue.dadosGerais?.nomeFantasia?.trim() || undefined, // NOVO CAMPO
       cpfCnpj: formValue.dadosGerais?.cpfCnpj?.replace(/\D/g, '') || '', // Remove formatting
       tipoCliente: formValue.dadosGerais?.tipoCliente || TipoCliente.PF,
       telefone: formValue.dadosGerais?.telefone?.replace(/\D/g, '') || undefined, // Remove formatting
       email: formValue.dadosGerais?.email?.trim() || undefined,
-      inscricaoEstadual: formValue.inscricaoEstadual?.trim() || undefined,
+      inscricaoEstadual: formValue.dadosGerais?.inscricaoEstadual?.trim() || undefined,
+      ramosAtividade: formValue.dadosGerais?.ramosAtividade || [], // NOVO CAMPO
+      enderecoCorrespondencia: formValue.dadosGerais?.enderecoCorrespondencia || 'MesmoFaturamento', // NOVO CAMPO
       endereco: formValue.endereco && formValue.endereco.logradouro ? {
         logradouro: formValue.endereco.logradouro?.trim() || '',
         numero: formValue.endereco.numero?.trim() || '',
@@ -412,7 +533,7 @@ export class FornecedorDetailComponent implements OnInit {
       return;
     }
 
-    const saveOperation = this.isEditMode() 
+    const saveOperation = this.isEditMode()
       ? this.fornecedorService.update(this.fornecedorId()!, fornecedorData)
       : this.fornecedorService.create(fornecedorData);
 
@@ -530,9 +651,9 @@ export class FornecedorDetailComponent implements OnInit {
    */
   onGeographicSelectionChange(geographicData: GeographicData): void {
     console.log('🌍 Geographic data changed:', geographicData);
-    
+
     this.selectedGeographicData.set(geographicData);
-    
+
     // Update form with geographic references
     if (geographicData.uf) {
       this.enderecoFormGroup.patchValue({
@@ -545,7 +666,7 @@ export class FornecedorDetailComponent implements OnInit {
         uf: ''
       });
     }
-    
+
     if (geographicData.municipio) {
       this.enderecoFormGroup.patchValue({
         municipioId: geographicData.municipio.id,
@@ -557,11 +678,11 @@ export class FornecedorDetailComponent implements OnInit {
         cidade: ''
       });
     }
-    
+
     // Mark form as dirty to enable save button
     this.enderecoFormGroup.markAsDirty();
     this.enderecoFormGroup.markAsTouched();
-    
+
     console.log('📍 Form updated with geographic data:', {
       ufId: this.enderecoFormGroup.get('ufId')?.value,
       municipioId: this.enderecoFormGroup.get('municipioId')?.value,
@@ -576,12 +697,12 @@ export class FornecedorDetailComponent implements OnInit {
   validateGeographicSelection(): boolean {
     const ufId = this.enderecoFormGroup.get('ufId')?.value;
     const municipioId = this.enderecoFormGroup.get('municipioId')?.value;
-    
+
     if (!ufId || !municipioId) {
       this.notificationService.showValidationWarning('Por favor, selecione UF e Município');
       return false;
     }
-    
+
     // Validate that municipio belongs to selected UF
     const selectedGeographic = this.selectedGeographicData();
     if (selectedGeographic?.municipio && selectedGeographic?.uf) {
@@ -590,62 +711,99 @@ export class FornecedorDetailComponent implements OnInit {
         return false;
       }
     }
-    
+
     return true;
   }
 
+
+
   /**
-   * Load geographic data for existing fornecedor
+   * Load UFs for select dropdown
    */
-  private async loadGeographicData(ufId: number, municipioId: number): Promise<void> {
-    try {
-      this.geographicDataLoading.set(true);
-      
-      // Load UF data
-      const uf = await this.ufService.obterPorId(ufId).toPromise();
-      
-      // Load Municipio data
-      const municipio = await this.municipioService.obterPorId(municipioId).toPromise();
-      
-      if (uf && municipio) {
-        const geographicData: GeographicData = {
-          pais: uf.pais, // If available from UF
-          uf: uf,
-          municipio: municipio
-        };
-        
-        this.selectedGeographicData.set(geographicData);
-        console.log('🌍 Loaded geographic data for existing fornecedor:', geographicData);
+  private loadUfsForSelect(): void {
+    this.ufsLoading.set(true);
+
+    this.ufService.obterAtivos().subscribe({
+      next: (ufs) => {
+        console.log('🏛️ UFs carregadas para select:', ufs.length);
+        this.availableUfs.set(ufs);
+        this.ufsLoading.set(false);
+      },
+      error: (error) => {
+        console.error('❌ Erro ao carregar UFs para select:', error);
+        this.ufsLoading.set(false);
       }
-    } catch (error) {
-      console.error('Error loading geographic data:', error);
-      this.notificationService.showCustomError('Erro ao carregar dados geográficos');
-    } finally {
-      this.geographicDataLoading.set(false);
-    }
+    });
   }
+
+  /**
+   * Load Municípios for select dropdown based on selected UF
+   */
+  private loadMunicipiosForSelect(ufId: number): void {
+    this.municipiosLoading.set(true);
+
+    this.municipioService.obterAtivosPorUf(ufId).subscribe({
+      next: (municipios) => {
+        console.log('🏘️ Municípios carregados para select UF', ufId, ':', municipios.length);
+        this.availableMunicipios.set(municipios);
+        this.municipiosLoading.set(false);
+      },
+      error: (error) => {
+        console.error('❌ Erro ao carregar municípios para select:', error);
+        this.municipiosLoading.set(false);
+      }
+    });
+  }
+
+  /**
+   * Handle UF selection change
+   */
+  onUfSelectionChange(event: any): void {
+    const ufId = event.value;
+    console.log('🏛️ UF selecionada:', ufId);
+
+    // Reset município selection
+    this.enderecoFormGroup.patchValue({ municipioId: null, cidade: '' });
+    this.availableMunicipios.set([]);
+
+    if (ufId) {
+      // Update UF code for backward compatibility
+      const uf = this.availableUfs().find(u => u.id === ufId);
+      if (uf) {
+        this.enderecoFormGroup.patchValue({ uf: uf.uf });
+      }
+
+      this.loadMunicipiosForSelect(ufId);
+    }
+
+    // Mark form as dirty
+    this.enderecoFormGroup.markAsDirty();
+    this.enderecoFormGroup.markAsTouched();
+  }
+
+
 
   /**
    * Handle coordinates selection for fornecedor address location
    */
   onCoordinatesSelected(coordenadas: { latitude: number | null; longitude: number | null }): void {
     console.log('🗺️ Coordenadas selecionadas no mapa:', coordenadas);
-    
+
     // Atualizar as coordenadas do endereço do fornecedor
     this.enderecoFormGroup.patchValue({
       latitude: coordenadas.latitude,
       longitude: coordenadas.longitude
     });
-    
+
     // Marcar como modificado para habilitar o botão salvar
     this.enderecoFormGroup.markAsDirty();
     this.enderecoFormGroup.markAsTouched();
-    
+
     console.log('📍 Coordenadas atualizadas no formulário de endereço:', {
       latitude: this.enderecoFormGroup.get('latitude')?.value,
       longitude: this.enderecoFormGroup.get('longitude')?.value
     });
-    
+
     // Mostrar notificação de sucesso
     this.notificationService.showCustomSuccess('Coordenadas atualizadas com sucesso!');
   }
@@ -661,6 +819,7 @@ export class FornecedorDetailComponent implements OnInit {
     if (this.fornecedorForm.get('dadosGerais')?.invalid) {
       isValid = false;
       validationErrors.push('Dados gerais contêm erros');
+      console.log('❌ Erros em dados gerais:', this.fornecedorForm.get('dadosGerais')?.errors);
     }
 
     // Validate endereco (optional but if present must be valid)
@@ -668,7 +827,7 @@ export class FornecedorDetailComponent implements OnInit {
       isValid = false;
       validationErrors.push('Endereço contém erros');
     }
-    
+
     // Validate geographic selection if endereco is provided
     const hasEndereco = this.enderecoFormGroup.get('logradouro')?.value;
     if (hasEndereco && !this.validateGeographicSelection()) {
@@ -676,39 +835,31 @@ export class FornecedorDetailComponent implements OnInit {
       validationErrors.push('Seleção geográfica inválida');
     }
 
-    // Validate pontos distribuicao (optional but if present must be valid)
-    this.pontosDistribuicaoFormArray.controls.forEach((pontoControl, pontoIndex) => {
-      if (pontoControl.invalid) {
+    // Validate pontos distribuicao
+    const pontosArray = this.pontosDistribuicaoFormArray;
+    for (let i = 0; i < pontosArray.length; i++) {
+      const pontoGroup = pontosArray.at(i);
+      if (pontoGroup.invalid) {
         isValid = false;
-        validationErrors.push(`Ponto de distribuição ${pontoIndex + 1} contém erros`);
+        validationErrors.push(`Ponto de distribuição ${i + 1} contém erros`);
       }
-    });
-
-    // Validate usuario master (required)
-    if (this.usuarioMasterFormGroup.invalid) {
-      console.log('Usuario Master FormGroup is invalid:', this.usuarioMasterFormGroup);
-      Object.keys(this.usuarioMasterFormGroup.controls).forEach(key => {
-        const control = this.usuarioMasterFormGroup.get(key);
-        if (control && control.invalid) {
-          console.log(`Control '${key}' is invalid. Errors:`, control.errors);
-        }
-      });
-      isValid = false;
-      validationErrors.push('Dados do usuário master contêm erros');
     }
 
-    // Log validation errors for debugging
-    if (!isValid && validationErrors.length > 0) {
-      console.warn('Validation errors:', validationErrors);
+    // Validate usuario master
+    if (this.usuarioMasterFormGroup.invalid) {
+      isValid = false;
+      validationErrors.push('Usuário master contém erros');
+    }
+
+    if (!isValid) {
+      console.log('❌ Erros de validação encontrados:', validationErrors);
     }
 
     return isValid;
   }
 
-
-
   /**
-   * Navigate to the first tab that has validation errors
+   * Navigate to first tab with validation errors
    */
   private navigateToFirstErrorTab(): void {
     // Check dados gerais (tab 0)
@@ -729,55 +880,75 @@ export class FornecedorDetailComponent implements OnInit {
       return;
     }
 
-    // Check usuario master (tab 4)
+    // Check usuario master (tab 3)
     if (this.usuarioMasterFormGroup.invalid) {
-      this.activeTabIndex.set(4);
+      this.activeTabIndex.set(3);
       return;
     }
-
-    // Default to first tab if no specific errors found
-    this.activeTabIndex.set(0);
   }
 
   /**
-   * Test method to fill usuario master form programmatically
+   * Handle Município selection change
    */
-  testFillUsuarioMaster(): void {
-    console.log('🧪 Preenchendo formulário de usuário master automaticamente...');
-    
-    const testData = {
-      nome: 'Lindemberg Cortez Gomes',
-      email: 'lindemberg.cortez@gmail.com',
-      senha: 'senha123456',
-      telefone: '84991258889'
-    };
+  onMunicipioSelectionChange(event: any): void {
+    const municipioId = event.value;
+    console.log('🏘️ Município selecionado:', municipioId);
 
-    console.log('📋 Dados ANTES do preenchimento:', {
-      value: this.usuarioMasterFormGroup.value,
-      valid: this.usuarioMasterFormGroup.valid,
-      status: this.usuarioMasterFormGroup.status
-    });
-
-    // Preenche os dados
-    this.usuarioMasterFormGroup.patchValue(testData);
-    
-    // Marca como touched para mostrar validação
-    Object.keys(testData).forEach(key => {
-      const control = this.usuarioMasterFormGroup.get(key);
-      if (control) {
-        control.markAsTouched();
-        control.markAsDirty();
-        control.updateValueAndValidity();
+    // Update cidade field with municipio name for backward compatibility
+    if (municipioId) {
+      const municipio = this.availableMunicipios().find(m => m.id === municipioId);
+      if (municipio) {
+        this.enderecoFormGroup.patchValue({ cidade: municipio.nome });
       }
-    });
+    } else {
+      this.enderecoFormGroup.patchValue({ cidade: '' });
+    }
 
-    // Atualiza o FormGroup
-    this.usuarioMasterFormGroup.updateValueAndValidity();
+    // Mark form as dirty
+    this.enderecoFormGroup.markAsDirty();
+    this.enderecoFormGroup.markAsTouched();
+  }
 
-    console.log('✅ Dados DEPOIS do preenchimento:', {
-      value: this.usuarioMasterFormGroup.value,
-      valid: this.usuarioMasterFormGroup.valid,
-      status: this.usuarioMasterFormGroup.status
-    });
+  /**
+   * Check if form can be saved
+   */
+  canSave(): boolean {
+    return this.fornecedorForm.valid && !this.saving();
+  }
+
+  /**
+   * Check if form has been modified
+   */
+  isFormDirty(): boolean {
+    return this.fornecedorForm.dirty;
+  }
+
+  /**
+   * Reset form to initial state
+   */
+  resetForm(): void {
+    this.fornecedorForm.reset();
+    this.selectedGeographicData.set(null);
+    this.availableMunicipios.set([]);
+    this.activeTabIndex.set(0);
+  }
+
+
+
+  /**
+   * Get page title based on mode
+   */
+  getPageTitle(): string {
+    return this.isEditMode() ? 'Editar Fornecedor' : 'Novo Fornecedor';
+  }
+
+  /**
+   * Get save button text based on mode
+   */
+  getSaveButtonText(): string {
+    if (this.saving()) {
+      return this.isEditMode() ? 'Atualizando...' : 'Criando...';
+    }
+    return this.isEditMode() ? 'Atualizar' : 'Criar';
   }
 }

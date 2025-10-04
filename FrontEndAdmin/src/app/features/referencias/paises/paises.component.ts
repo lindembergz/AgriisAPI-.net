@@ -18,12 +18,12 @@ import { PaisDto, CriarPaisDto, AtualizarPaisDto } from '../../../shared/models/
 import { PaisService } from './services/pais.service';
 import { FieldValidatorsUtil } from '../../../shared/utils/field-validators.util';
 
-import { 
-  ComponentTemplate, 
-  CustomAction, 
-  TableColumn, 
-  EmptyStateConfig, 
-  LoadingStateConfig, 
+import {
+  ComponentTemplate,
+  CustomAction,
+  TableColumn,
+  EmptyStateConfig,
+  LoadingStateConfig,
   ResponsiveConfig,
   DialogConfig,
   DisplayMode
@@ -66,11 +66,15 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
   CriarPaisDto,
   AtualizarPaisDto
 > implements OnInit {
-  
+
   protected service = inject(PaisService);
 
-  // Signals for reactive data
-  ufsCountData = signal<Record<number, number>>({});
+  // No additional signals needed - estados data comes included in PaisDto
+
+  constructor() {
+    super();
+    // No special setup needed - estados data comes included in the API response
+  }
 
   // Entity configuration
   protected entityDisplayName = () => 'País';
@@ -150,7 +154,6 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
   ngOnInit(): void {
     try {
       super.ngOnInit();
-      this.carregarContagemUfs();
     } catch (error) {
       console.error('Error initializing PaisesComponent:', error);
     }
@@ -164,32 +167,18 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
 
 
 
-  /**
-   * Load UFs count for each país
-   */
-  private carregarContagemUfs(): void {
-    this.items().forEach(pais => {
-      this.service.obterEstatisticas(pais.id).subscribe({
-        next: (stats) => {
-          const currentData = this.ufsCountData();
-          this.ufsCountData.set({
-            ...currentData,
-            [pais.id]: stats.ufsCount
-          });
-        },
-        error: (error) => {
-          console.error(`Erro ao carregar estatísticas do país ${pais.codigo}:`, error);
-        }
-      });
-    });
-  }
+
 
   /**
    * Get UFs count for a país
    */
   getUfsCount(paisId: number): number {
-    return this.ufsCountData()[paisId] || 0;
+    // Get count directly from the país object (estados are included in the API response)
+    const pais = this.items().find(p => p.id === paisId);
+    return pais?.totalEstados || 0;
   }
+
+
 
   /**
    * Get UFs count display text
@@ -230,7 +219,7 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
       // Check if país has UFs before allowing deletion
       const temUfs = await this.service.verificarDependenciasUf(item.id).toPromise();
       const ufsCount = this.getUfsCount(item.id);
-      
+
       if (temUfs && ufsCount > 0) {
         this.feedbackService.showWarning(
           `Este país possui ${ufsCount} UF${ufsCount > 1 ? 's' : ''} cadastrada${ufsCount > 1 ? 's' : ''}. Remova as UFs primeiro.`,
@@ -238,7 +227,7 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
         );
         return;
       }
-      
+
       // Proceed with normal deletion flow
       await super.excluirItem(item);
     } catch (error) {
@@ -261,14 +250,14 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
     try {
       const temUfs = await this.service.verificarDependenciasUf(item.id).toPromise();
       const ufsCount = this.getUfsCount(item.id);
-      
+
       if (temUfs && ufsCount > 0) {
         return {
           canDeactivate: false,
           message: `Este país possui ${ufsCount} UF${ufsCount > 1 ? 's' : ''} cadastrada${ufsCount > 1 ? 's' : ''}. Desative as UFs primeiro.`
         };
       }
-      
+
       return { canDeactivate: true };
     } catch (error) {
       console.error('Erro ao verificar dependências de UFs:', error);
@@ -327,6 +316,13 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
       nome: item.nome,
       ativo: item.ativo
     });
+
+    // Disable codigo field in edit mode
+    if (this.isEditMode()) {
+      this.form.get('codigo')?.disable();
+    } else {
+      this.form.get('codigo')?.enable();
+    }
   }
 
   // Additional methods needed by template
@@ -343,6 +339,15 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
    */
   isEditMode(): boolean {
     return this.selectedItem() !== null;
+  }
+
+  /**
+   * Override novoItem to ensure codigo field is enabled
+   */
+  override novoItem(): void {
+    super.novoItem();
+    // Ensure codigo field is enabled for new items
+    this.form.get('codigo')?.enable();
   }
 
   /**
@@ -432,7 +437,7 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
    */
   private _paisesActiveFilters = computed(() => {
     const filters = [];
-    
+
     if (this.searchTerm()) {
       filters.push({
         key: 'search',
@@ -440,7 +445,7 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
         removable: true
       });
     }
-    
+
     if (this.selectedStatusFilter() !== 'todas') {
       const statusLabel = this.statusFilterOptions.find(s => s.value === this.selectedStatusFilter())?.label;
       filters.push({
@@ -449,7 +454,7 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
         removable: true
       });
     }
-    
+
     return filters;
   });
 
@@ -471,12 +476,7 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
     }
   }
 
-  /**
-   * Handle search change
-   */
-  onSearchChange(event: any): void {
-    this.searchTerm.set(event.target.value);
-  }
+
 
   /**
    * Clear search

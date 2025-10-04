@@ -61,26 +61,17 @@ public class EnderecosController : ControllerBase
     }
 
     /// <summary>
-    /// Obtém país por ID (mock - apenas Brasil)
+    /// Obtém país por ID
     /// </summary>
     [HttpGet("paises/{id:int}")]
-    public ActionResult<object> ObterPaisPorId(int id)
+    public async Task<ActionResult<PaisDto>> ObterPaisPorId(int id)
     {
         try
         {
-            if (id != 1)
+            var pais = await _paisService.ObterPorIdAsync(id);
+            if (pais == null)
                 return NotFound(new { error_code = "PAIS_NAO_ENCONTRADO", error_description = "País não encontrado" });
 
-            var pais = new
-            {
-                Id = 1,
-                Nome = "Brasil",
-                Codigo = "BR",
-                Ativo = true,
-                DataCriacao = DateTime.UtcNow,
-                DataAtualizacao = (DateTime?)null
-            };
-            
             return Ok(pais);
         }
         catch (Exception ex)
@@ -116,29 +107,282 @@ public class EnderecosController : ControllerBase
     {
         try
         {
-            // Para o Brasil, contar os estados
-            var estados = await _estadoRepository.ObterPorPaisAsync(1);
-            var ufsCount = estados.Count();
-            
-            var paises = new[]
-            {
-                new PaisComContadorDto
-                {
-                    Id = 1,
-                    Nome = "Brasil",
-                    Codigo = "BR",
-                    Ativo = true,
-                    UfsCount = ufsCount,
-                    DataCriacao = DateTime.UtcNow,
-                    DataAtualizacao = null
-                }
-            };
-            
+            var paises = await _paisService.ObterTodosAsync();
             return Ok(paises);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao obter países com contadores");
+            return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Obtém todos os países com paginação
+    /// </summary>
+    [HttpGet("paises/todos")]
+    public async Task<ActionResult<IEnumerable<PaisComContadorDto>>> ObterTodosPaises(
+        [FromQuery] int pagina = 1,
+        [FromQuery] int tamanhoPagina = 50)
+    {
+        try
+        {
+            if (pagina < 1)
+                return BadRequest(new { error_code = "PAGINA_INVALIDA", error_description = "Página deve ser maior que zero" });
+
+            if (tamanhoPagina < 1 || tamanhoPagina > 100)
+                tamanhoPagina = Math.Max(1, Math.Min(100, tamanhoPagina));
+
+            var paises = await _paisService.ObterTodosAsync(pagina, tamanhoPagina);
+            return Ok(paises);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter todos os países");
+            return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Cria um novo país
+    /// </summary>
+    [HttpPost("paises")]
+    public async Task<ActionResult<PaisDto>> CriarPais([FromBody] CriarPaisDto criarPaisDto)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var resultado = await _paisService.CriarAsync(criarPaisDto);
+            
+            if (!resultado.IsSuccess)
+                return BadRequest(new { error_code = "ERRO_VALIDACAO", error_description = resultado.Error });
+
+            return CreatedAtAction(nameof(ObterPaisPorId), new { id = resultado.Value!.Id }, resultado.Value);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao criar país: {Nome}", criarPaisDto.Nome);
+            return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Atualiza um país existente
+    /// </summary>
+    [HttpPut("paises/{id:int}")]
+    public async Task<ActionResult<PaisDto>> AtualizarPais(int id, [FromBody] AtualizarPaisDto atualizarPaisDto)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var resultado = await _paisService.AtualizarAsync(id, atualizarPaisDto);
+            
+            if (!resultado.IsSuccess)
+            {
+                if (resultado.Error!.Contains("não encontrado"))
+                    return NotFound(new { error_code = "PAIS_NAO_ENCONTRADO", error_description = resultado.Error });
+                
+                return BadRequest(new { error_code = "ERRO_VALIDACAO", error_description = resultado.Error });
+            }
+
+            return Ok(resultado.Value);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao atualizar país: {Id}", id);
+            return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Exclui um país (soft delete)
+    /// </summary>
+    [HttpDelete("paises/{id:int}")]
+    public async Task<ActionResult> ExcluirPais(int id)
+    {
+        try
+        {
+            var resultado = await _paisService.ExcluirAsync(id);
+            
+            if (!resultado.IsSuccess)
+            {
+                if (resultado.Error!.Contains("não encontrado"))
+                    return NotFound(new { error_code = "PAIS_NAO_ENCONTRADO", error_description = resultado.Error });
+                
+                return BadRequest(new { error_code = "ERRO_VALIDACAO", error_description = resultado.Error });
+            }
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao excluir país: {Id}", id);
+            return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Ativa um país
+    /// </summary>
+    [HttpPatch("paises/{id:int}/ativar")]
+    public async Task<ActionResult> AtivarPais(int id)
+    {
+        try
+        {
+            var resultado = await _paisService.AtivarAsync(id);
+            
+            if (!resultado.IsSuccess)
+            {
+                if (resultado.Error!.Contains("não encontrado"))
+                    return NotFound(new { error_code = "PAIS_NAO_ENCONTRADO", error_description = resultado.Error });
+                
+                return BadRequest(new { error_code = "ERRO_VALIDACAO", error_description = resultado.Error });
+            }
+
+            return Ok(new { message = "País ativado com sucesso" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao ativar país: {Id}", id);
+            return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Desativa um país
+    /// </summary>
+    [HttpPatch("paises/{id:int}/desativar")]
+    public async Task<ActionResult> DesativarPais(int id)
+    {
+        try
+        {
+            var resultado = await _paisService.DesativarAsync(id);
+            
+            if (!resultado.IsSuccess)
+            {
+                if (resultado.Error!.Contains("não encontrado"))
+                    return NotFound(new { error_code = "PAIS_NAO_ENCONTRADO", error_description = resultado.Error });
+                
+                return BadRequest(new { error_code = "ERRO_VALIDACAO", error_description = resultado.Error });
+            }
+
+            return Ok(new { message = "País desativado com sucesso" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao desativar país: {Id}", id);
+            return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Verifica se um país existe por código
+    /// </summary>
+    [HttpGet("paises/validar-codigo")]
+    public async Task<ActionResult<ValidationResponseDto>> ValidarCodigoPais(
+        [FromQuery] string codigo,
+        [FromQuery] int? excludeId = null)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(codigo))
+                return BadRequest(new { error_code = "CODIGO_OBRIGATORIO", error_description = "Código é obrigatório" });
+
+            var existe = await _paisService.ExistePorCodigoAsync(codigo);
+            
+            return Ok(new ValidationResponseDto 
+            { 
+                IsValid = !existe,
+                Message = existe ? "Código já existe" : "Código disponível"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao validar código país: {Codigo}", codigo);
+            return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Verifica se um país existe por nome
+    /// </summary>
+    [HttpGet("paises/validar-nome")]
+    public async Task<ActionResult<ValidationResponseDto>> ValidarNomePais(
+        [FromQuery] string nome,
+        [FromQuery] int? excludeId = null)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(nome))
+                return BadRequest(new { error_code = "NOME_OBRIGATORIO", error_description = "Nome é obrigatório" });
+
+            var existe = await _paisService.ExistePorNomeAsync(nome, excludeId);
+            
+            return Ok(new ValidationResponseDto 
+            { 
+                IsValid = !existe,
+                Message = existe ? "Nome já existe" : "Nome disponível"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao validar nome país: {Nome}", nome);
+            return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Verifica se país tem UFs/Estados
+    /// </summary>
+    [HttpGet("paises/{paisId:int}/tem-ufs")]
+    public async Task<ActionResult<ExistenceResponseDto>> VerificarPaisTemUfs(int paisId)
+    {
+        try
+        {
+            var estados = await _estadoRepository.ObterPorPaisAsync(paisId);
+            var hasUfs = estados.Any();
+            
+            return Ok(new ExistenceResponseDto 
+            { 
+                Exists = hasUfs,
+                HasDependencies = hasUfs
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao verificar UFs do país: {PaisId}", paisId);
+            return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Verifica se país pode ser removido
+    /// </summary>
+    [HttpGet("paises/{paisId:int}/pode-remover")]
+    public async Task<ActionResult<ExistenceResponseDto>> VerificarPaisPodeRemover(int paisId)
+    {
+        try
+        {
+            var pais = await _paisService.ObterPorIdAsync(paisId);
+            if (pais == null)
+                return NotFound(new { error_code = "PAIS_NAO_ENCONTRADO", error_description = "País não encontrado" });
+
+            var estados = await _estadoRepository.ObterPorPaisAsync(paisId);
+            var hasEstados = estados.Any();
+            
+            return Ok(new ExistenceResponseDto 
+            { 
+                Exists = !hasEstados, // Pode remover se NÃO tem estados
+                HasDependencies = hasEstados
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao verificar se país pode ser removido: {PaisId}", paisId);
             return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
         }
     }
@@ -246,7 +490,7 @@ public class EnderecosController : ControllerBase
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var estado = new Estado(criarEstadoDto.Nome, criarEstadoDto.Uf, criarEstadoDto.CodigoIbge, criarEstadoDto.Regiao, criarEstadoDto.PaisId);
+            var estado = new Estado(criarEstadoDto.Nome, criarEstadoDto.Codigo, criarEstadoDto.CodigoIbge, criarEstadoDto.Regiao, criarEstadoDto.PaisId);
             
             await _estadoRepository.AdicionarAsync(estado);
 
@@ -275,7 +519,7 @@ public class EnderecosController : ControllerBase
             if (estado == null)
                 return NotFound(new { error_code = "ESTADO_NAO_ENCONTRADO", error_description = "Estado não encontrado" });
 
-            estado.Atualizar(atualizarEstadoDto.Nome, atualizarEstadoDto.Uf, atualizarEstadoDto.CodigoIbge, atualizarEstadoDto.Regiao, atualizarEstadoDto.PaisId);
+            estado.Atualizar(atualizarEstadoDto.Nome, atualizarEstadoDto.Codigo, atualizarEstadoDto.CodigoIbge, atualizarEstadoDto.Regiao, atualizarEstadoDto.PaisId);
             
             await _estadoRepository.AtualizarAsync(estado);
 

@@ -50,6 +50,16 @@
                     </small>
                   </div>
 
+                  <!-- Nome Fantasia -->
+                  <div class="form-field">
+                    <label for="nomeFantasia" class="field-label">Nome Fantasia</label>
+                    <input pInputText id="nomeFantasia" formControlName="nomeFantasia" placeholder="Digite o nome fantasia"
+                      [class.ng-invalid]="hasFieldError('dadosGerais.nomeFantasia')" class="w-full">
+                    <small *ngIf="hasFieldError('dadosGerais.nomeFantasia')" class="error-message">
+                      {{ getFieldErrorMessage('dadosGerais.nomeFantasia') }}
+                    </small>
+                  </div>
+
                   <!-- Tipo Cliente -->
                   <div class="form-field">
                     <label for="tipoCliente" class="field-label required">Tipo de Cliente</label>
@@ -64,9 +74,7 @@
 
                   <!-- CPF/CNPJ -->
                   <div class="form-field">
-                    <label for="cpfCnpj" class="field-label required">
-                      {{ fornecedorForm.get('dadosGerais.tipoCliente')?.value === 'PF' ? 'CPF' : 'CNPJ' }}
-                    </label>
+                    <label for="cpfCnpj" class="field-label required">{{ fornecedorForm.get('dadosGerais.tipoCliente')?.value === 'PF' ? 'CPF' : 'CNPJ' }}</label>
                     <p-inputMask id="cpfCnpj" formControlName="cpfCnpj" [mask]="getCpfCnpjMask()"
                       placeholder="Digite o {{ fornecedorForm.get('dadosGerais.tipoCliente')?.value === 'PF' ? 'CPF' : 'CNPJ' }}"
                       [class.ng-invalid]="hasFieldError('dadosGerais.cpfCnpj')" styleClass="w-full">
@@ -75,6 +83,20 @@
                       {{ getFieldErrorMessage('dadosGerais.cpfCnpj') }}
                     </small>
                   </div>
+
+
+                   <!-- inscricaoEstadual -->
+                   <div class="form-field">
+                    <label for="inscricaoEstadual" class="field-label">Inscrição Estadual</label>
+                    <input pInputText id="inscricaoEstadual" formControlName="inscricaoEstadual" 
+                      placeholder="Digite a inscrição estadual" [class.ng-invalid]="hasFieldError('dadosGerais.inscricaoEstadual')"
+                      class="w-full">
+                    <small *ngIf="hasFieldError('dadosGerais.inscricaoEstadual')" class="error-message">
+                      {{ getFieldErrorMessage('dadosGerais.inscricaoEstadual') }}
+                    </small>
+                  </div>
+
+
 
                   <!-- Telefone -->
                   <div class="form-field">
@@ -92,9 +114,58 @@
                   <div class="form-field">
                     <label for="email" class="field-label">E-mail</label>
                     <input pInputText id="email" formControlName="email" type="email" placeholder="Digite o e-mail"
-                      [class.ng-invalid]="hasFieldError('dadosGerais.email')" class="w-full">
+                      [class.ng-invalid]="hasFieldError('dadosGerais.email')" styleClass="w-full">
                     <small *ngIf="hasFieldError('dadosGerais.email')" class="error-message">
                       {{ getFieldErrorMessage('dadosGerais.email') }}
+                    </small>
+                  </div>
+
+                  <!-- Ramos de Atividade -->
+                  <div class="form-field full-width">
+                    <label class="field-label">Ramos de Atividade</label>
+                    <div class="checkbox-group">
+                      <div *ngFor="let ramo of ramosDisponiveis" class="checkbox-item">
+                        <input 
+                          type="checkbox" 
+                          [id]="'ramo-' + ramo" 
+                          [checked]="isRamoAtividadeSelecionado(ramo)"
+                          (change)="onRamoAtividadeChange(ramo, $event)"
+                          class="checkbox-input">
+                        <label [for]="'ramo-' + ramo" class="checkbox-label">{{ ramo }}</label>
+                      </div>
+                    </div>
+                    <small *ngIf="hasFieldError('dadosGerais.ramosAtividade')" class="error-message">
+                      {{ getFieldErrorMessage('dadosGerais.ramosAtividade') }}
+                    </small>
+                  </div>
+
+                  <!-- Endereço de Correspondência -->
+                  <div class="form-field">
+                    <label class="field-label">Endereço de Correspondência</label>
+                    <div class="radio-group">
+                      <div class="radio-item">
+                        <input 
+                          type="radio" 
+                          id="mesmoFaturamento" 
+                          name="enderecoCorrespondencia" 
+                          value="MesmoFaturamento"
+                          formControlName="enderecoCorrespondencia"
+                          class="radio-input">
+                        <label for="mesmoFaturamento" class="radio-label">Mesmo endereço do faturamento</label>
+                      </div>
+                      <div class="radio-item">
+                        <input 
+                          type="radio" 
+                          id="diferenteFaturamento" 
+                          name="enderecoCorrespondencia" 
+                          value="DiferenteFaturamento"
+                          formControlName="enderecoCorrespondencia"
+                          class="radio-input">
+                        <label for="diferenteFaturamento" class="radio-label">Diferente do faturamento</label>
+                      </div>
+                    </div>
+                    <small *ngIf="hasFieldError('dadosGerais.enderecoCorrespondencia')" class="error-message">
+                      {{ getFieldErrorMessage('dadosGerais.enderecoCorrespondencia') }}
                     </small>
                   </div>
 
@@ -112,16 +183,7 @@
               </div>
 
               <p-card>
-                <div class="form-grid">
 
-                  <!-- Inscrição Estadual -->
-                  <div class="form-field">
-                    <label for="inscricaoEstadual" class="field-label">Inscrição Estadual</label>
-                    <input pInputText id="inscricaoEstadual" formControlName="inscricaoEstadual"
-                      placeholder="Digite a inscrição estadual" class="w-full">
-                  </div>
-
-                </div>
 
                 <div class="form-grid" formGroupName="endereco">
 
@@ -129,10 +191,10 @@
                   <div class="form-field">
                     <label for="logradouro" class="field-label">Logradouro *</label>
                     <input pInputText id="logradouro" formControlName="logradouro" placeholder="Digite o logradouro"
-                      [class.ng-invalid]="hasFieldError('endereco.logradouro')" class="w-full">
-                    <small *ngIf="hasFieldError('endereco.logradouro')" class="error-message">
+                      [class.ng-invalid]="hasFieldError('logradouro')" class="w-full">
+                    <!--<small *ngIf="hasFieldError('endereco.logradouro')" class="error-message">
                       {{ getFieldErrorMessage('endereco.logradouro') }}
-                    </small>
+                    </small>-->
                   </div>
 
                   <!-- Número -->
@@ -158,29 +220,82 @@
                     </small>
                   </div>
 
-                  <!-- Geographic Selector (UF and Município) -->
-                  <div class="form-field geographic-selector-field">
-                    <label class="field-label required">Localização Geográfica</label>
-                    <app-geographic-selector
-                      [showPais]="false"
-                      [showUf]="true"
-                      [showMunicipio]="true"
-                      [required]="true"
-                      [disabled]="saving() || geographicDataLoading()"
-                      (selectionChange)="onGeographicSelectionChange($event)"
-                      [ngModel]="selectedGeographicData()"
-                      class="w-full">
-                    </app-geographic-selector>
-                    <small *ngIf="hasFieldError('endereco.ufId') || hasFieldError('endereco.municipioId')" class="error-message">
-                      Por favor, selecione UF e Município
+                  <!-- UF Selection -->
+                  <div class="form-field">
+                    <label for="ufSelect" class="field-label required">Estado (UF)</label>
+                    <p-select
+                      id="ufSelect"
+                      [options]="availableUfs()"
+                      formControlName="ufId"
+                      placeholder="Selecione um estado"
+                      optionLabel="nome"
+                      optionValue="id"
+                      [loading]="ufsLoading()"
+                      [disabled]="saving() || ufsLoading()"
+                      (onChange)="onUfSelectionChange($event)"
+                      [filter]="true"
+                      filterBy="nome,uf"
+                      [showClear]="false"
+                      class="w-full"
+                      [class.p-invalid]="hasFieldError('endereco.ufId')">
+                      
+                      <ng-template pTemplate="selectedItem" let-selectedOption>
+                        <div *ngIf="selectedOption" class="selected-item">
+                          <span>{{ selectedOption.nome }} ({{ selectedOption.uf }})</span>
+                        </div>
+                      </ng-template>
+                      
+                      <ng-template pTemplate="item" let-uf>
+                        <div class="dropdown-item">
+                          <span class="item-name">{{ uf.nome }}</span>
+                          <small class="item-code">({{ uf.uf }})</small>
+                        </div>
+                      </ng-template>
+                    </p-select>
+                    <small *ngIf="hasFieldError('endereco.ufId')" class="error-message">
+                      Por favor, selecione um estado
+                    </small>
+                  </div>
+
+                  <!-- Município Selection -->
+                  <div class="form-field">
+                    <label for="municipioSelect" class="field-label required">Município</label>
+                    <p-select
+                      id="municipioSelect"
+                      [options]="availableMunicipios()"
+                      formControlName="municipioId"
+                      placeholder="Selecione um município"
+                      optionLabel="nome"
+                      optionValue="id"
+                      [loading]="municipiosLoading()"
+                      [disabled]="saving() || municipiosLoading() || !enderecoFormGroup.get('ufId')?.value"
+                      [filter]="true"
+                      filterBy="nome"
+                      [showClear]="false"
+                      class="w-full"
+                      [class.p-invalid]="hasFieldError('endereco.municipioId')">
+                      
+                      <ng-template pTemplate="selectedItem" let-selectedOption>
+                        <div *ngIf="selectedOption" class="selected-item">
+                          <span>{{ selectedOption.nome }}</span>
+                        </div>
+                      </ng-template>
+                      
+                      <ng-template pTemplate="item" let-municipio>
+                        <div class="dropdown-item">
+                          <span class="item-name">{{ municipio.nome }}</span>
+                          <small class="item-code">IBGE: {{ municipio.codigoIbge }}</small>
+                        </div>
+                      </ng-template>
+                    </p-select>
+                    <small *ngIf="hasFieldError('endereco.municipioId')" class="error-message">
+                      Por favor, selecione um município
                     </small>
                   </div>
 
                   <!-- Hidden fields for backward compatibility -->
                   <input type="hidden" formControlName="uf">
                   <input type="hidden" formControlName="cidade">
-                  <input type="hidden" formControlName="ufId">
-                  <input type="hidden" formControlName="municipioId">
 
                   <!-- CEP -->
                   <div class="form-field">

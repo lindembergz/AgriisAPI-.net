@@ -9,6 +9,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20250103120000_AdicionarCamposAdicionaisFornecedor.cs" />
+    <Compile Remove="Migrations\20250103150000_AdicionarQuantidadeEmbalagemProduto.cs" />
+    <Compile Remove="Migrations\20250923095215_InitialCreate.cs" />
+    <Compile Remove="Migrations\20250923095215_InitialCreate.Designer.cs" />
+    <Compile Remove="Migrations\20250923095748_AddRemainingTables.cs" />
+    <Compile Remove="Migrations\20250923095748_AddRemainingTables.Designer.cs" />
+    <Compile Remove="Migrations\20250923172258_CorrigirCompatibilidadeEmbalagem.cs" />
+    <Compile Remove="Migrations\20250923172258_CorrigirCompatibilidadeEmbalagem.Designer.cs" />
+    <Compile Remove="Migrations\20250925005430_AdicionarCamposEnderecoFornecedor.cs" />
+    <Compile Remove="Migrations\20250925005430_AdicionarCamposEnderecoFornecedor.Designer.cs" />
+    <Compile Remove="Migrations\20250925120000_RefatorarProdutoParaReferencias.cs" />
+    <Compile Remove="Migrations\20250926120000_RefatorarFornecedorParaReferencias.cs" />
+    <Compile Remove="Migrations\20250926150000_CorrigirInconsistenciasBanco.cs" />
+    <Compile Remove="Migrations\20250926180000_SeedEstadosBrasileiros.cs" />
+    <Compile Remove="Migrations\AgriisDbContextModelSnapshot.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- ASP.NET Core -->
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
@@ -110,6 +128,10 @@
     <ProjectReference Include="..\Modulos\Referencias\Agriis.Referencias.Dominio\Agriis.Referencias.Dominio.csproj" />
     <ProjectReference Include="..\Modulos\Referencias\Agriis.Referencias.Aplicacao\Agriis.Referencias.Aplicacao.csproj" />
     <ProjectReference Include="..\Modulos\Referencias\Agriis.Referencias.Infraestrutura\Agriis.Referencias.Infraestrutura.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

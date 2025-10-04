@@ -1,4 +1,3 @@
-
 <!-- Atividades Agropecuárias Component using Unified Template -->
 <div class="reference-crud-container">
   <!-- 1. HEADER SECTION -->
@@ -7,17 +6,13 @@
       <h2 class="entity-title">{{ entityDisplayName() }}</h2>
       <p class="entity-subtitle">{{ entityDescription() }}</p>
     </div>
-    
+
     <div class="actions-section">
       <!-- Primary Action -->
-      <p-button
-        [label]="'Nova ' + entityDisplayName()"
-        icon="pi pi-plus"
-        (onClick)="novoItem()"
-        class="p-button-primary new-item-btn"
-        [disabled]="loading()">
+      <p-button [label]="'Nova ' + entityDisplayName()" icon="pi pi-plus" (onClick)="novoItem()"
+        class="p-button-primary new-item-btn" [disabled]="loading()">
       </p-button>
-      
+
       <!-- Toggle View Action 
       <p-button
         [label]="showGroupedView() ? 'Visualização Lista' : 'Visualização Agrupada'"
@@ -38,24 +33,11 @@
       <div class="filter-item search-filter">
         <label for="search" class="filter-label">Buscar</label>
         <span class="p-input-icon-left search-container">
-         <input
-            #searchInput
-            id="search"
-            type="text"
-            pInputText
-            [value]="searchTerm()"
-            (input)="onSearchChange($event)"
-            placeholder="Buscar por código ou descrição..."
-            class="search-input"
-            autocomplete="off">
+          <input #searchInput id="search" type="text" pInputText [value]="searchTerm()" (input)="onSearchChange($event)"
+            placeholder="Buscar por código ou descrição..." class="search-input" autocomplete="off">
         </span>
-        <p-button
-          *ngIf="searchTerm()"
-          icon="pi pi-times"
-          (onClick)="clearSearch()"
-          class="p-button-text p-button-sm clear-search-btn"
-          pTooltip="Limpar busca"
-          tooltipPosition="bottom">
+        <p-button *ngIf="searchTerm()" icon="pi pi-times" (onClick)="clearSearch()"
+          class="p-button-text p-button-sm clear-search-btn" pTooltip="Limpar busca" tooltipPosition="bottom">
         </p-button>
       </div>
 
@@ -104,12 +86,8 @@
 
       <!-- Clear All Filters -->
       <div class="filter-item clear-filters" *ngIf="hasActiveFilters()">
-        <p-button
-          label="Limpar Filtros"
-          icon="pi pi-filter-slash"
-          (onClick)="clearAllFilters()"
-          class="p-button-outlined p-button-secondary clear-all-btn"
-          pTooltip="Limpar todos os filtros"
+        <p-button label="Limpar Filtros" icon="pi pi-filter-slash" (onClick)="clearAllFilters()"
+          class="p-button-outlined p-button-secondary clear-all-btn" pTooltip="Limpar todos os filtros"
           tooltipPosition="bottom">
         </p-button>
       </div>
@@ -119,13 +97,8 @@
     <div *ngIf="hasActiveFilters()" class="active-filters-summary">
       <span class="summary-label">Filtros ativos:</span>
       <div class="filter-tags">
-        <p-tag 
-          *ngFor="let filter of getActiveFiltersSummary()" 
-          [value]="filter.label" 
-          severity="info" 
-          class="filter-tag"
-          [removable]="filter.removable"
-          (onRemove)="removeFilter(filter.key)">
+        <p-tag *ngFor="let filter of getActiveFiltersSummary()" [value]="filter.label" severity="info"
+          class="filter-tag" [removable]="filter.removable" (onRemove)="removeFilter(filter.key)">
         </p-tag>
       </div>
     </div>
@@ -136,10 +109,7 @@
     <!-- Loading State -->
     <div *ngIf="loading()" class="loading-container">
       <div class="loading-content">
-        <p-progressSpinner 
-          [style]="{ width: '50px', height: '50px' }"
-          strokeWidth="4"
-          animationDuration="1s">
+        <p-progressSpinner [style]="{ width: '50px', height: '50px' }" strokeWidth="4" animationDuration="1s">
         </p-progressSpinner>
         <div class="loading-text">
           <p class="loading-message">{{ currentLoadingMessage() }}</p>
@@ -155,11 +125,9 @@
       </div>
 
       <div class="activity-groups">
-        <div 
-          *ngFor="let group of groupedActivities()" 
-          class="activity-group"
+        <div *ngFor="let group of groupedActivities()" class="activity-group"
           [class]="'tipo-' + group.tipoDescricao.toLowerCase()">
-          
+
           <!-- Group Header -->
           <div class="group-header">
             <div class="group-title">
@@ -173,70 +141,36 @@
 
           <!-- Group Items -->
           <div class="group-items">
-            <div 
-              *ngFor="let atividade of group.atividades" 
-              class="activity-item"
-              [class.inactive]="!atividade.ativo">
-              
+            <div *ngFor="let atividade of group.atividades" class="activity-item" [class.inactive]="!atividade.ativo">
+
               <div class="item-content">
                 <div class="item-header">
                   <span class="codigo">{{ atividade.codigo }}</span>
-                  <p-tag
-                    [value]="atividade.ativo ? 'Ativo' : 'Inativo'"
-                    [severity]="atividade.ativo ? 'success' : 'danger'"
-                    class="status-badge">
+                  <p-tag [value]="atividade.ativo ? 'Ativo' : 'Inativo'"
+                    [severity]="atividade.ativo ? 'success' : 'danger'" class="status-badge">
                   </p-tag>
                 </div>
-                
+
                 <div class="item-description">
                   {{ atividade.descricao }}
                 </div>
-                
+
                 <div class="item-meta">
                   Criado em {{ formatarData(atividade.dataCriacao) }}
                 </div>
               </div>
 
               <div class="item-actions">
-                <p-button
-                  icon="pi pi-pencil"
-                  (onClick)="editarItem(atividade)"
-                  class="p-button-rounded p-button-text p-button-info p-button-sm"
-                  pTooltip="Editar atividade"
-                  tooltipPosition="top"
-                  [loading]="isActionLoading('edit', atividade.id)"
+                <p-button icon="pi pi-pencil" (onClick)="editarItem(atividade)"
+                  class="p-button-rounded p-button-text p-button-info p-button-sm" pTooltip="Editar atividade"
+                  tooltipPosition="top" [loading]="isActionLoading('edit', atividade.id)"
                   [disabled]="hasAnyActionLoading()">
                 </p-button>
-                
-                <p-button
-                  *ngIf="atividade.ativo"
-                  icon="pi pi-times"
-                  (onClick)="desativarItem(atividade)"
-                  class="p-button-rounded p-button-text p-button-warning p-button-sm"
-                  pTooltip="Desativar atividade"
-                  tooltipPosition="top"
-                  [loading]="isActionLoading('deactivate', atividade.id)"
-                  [disabled]="hasAnyActionLoading()">
-                </p-button>
-                
-                <p-button
-                  *ngIf="!atividade.ativo"
-                  icon="pi pi-check"
-                  (onClick)="ativarItem(atividade)"
-                  class="p-button-rounded p-button-text p-button-success p-button-sm"
-                  pTooltip="Ativar atividade"
-                  tooltipPosition="top"
-                  [loading]="isActionLoading('activate', atividade.id)"
-                  [disabled]="hasAnyActionLoading()">
-                </p-button>
-                
-                <p-button
-                  icon="pi pi-trash"
-                  (onClick)="excluirItem(atividade)"
-                  class="p-button-rounded p-button-text p-button-danger p-button-sm"
-                  pTooltip="Excluir atividade"
-                  tooltipPosition="top"
-                  [loading]="isActionLoading('delete', atividade.id)"
+
+
+                <p-button icon="pi pi-trash" (onClick)="excluirItem(atividade)"
+                  class="p-button-rounded p-button-text p-button-danger p-button-sm" pTooltip="Excluir atividade"
+                  tooltipPosition="top" [loading]="isActionLoading('delete', atividade.id)"
                   [disabled]="hasAnyActionLoading()">
                 </p-button>
               </div>
@@ -251,11 +185,7 @@
           <i class="pi pi-briefcase empty-icon"></i>
           <h3>Nenhuma atividade encontrada</h3>
           <p>Não há atividades agropecuárias cadastradas no sistema.</p>
-          <p-button
-            label="Nova Atividade"
-            icon="pi pi-plus"
-            (onClick)="novoItem()"
-            class="p-button-primary">
+          <p-button label="Nova Atividade" icon="pi pi-plus" (onClick)="novoItem()" class="p-button-primary">
           </p-button>
         </div>
       </div>
@@ -264,48 +194,26 @@
     <!-- Table Display -->
     <div *ngIf="!loading() && !showGroupedView()" class="display-container">
       <ng-container *ngIf="getVisibleColumns() as visibleCols">
-        <p-table
-          [value]="filteredItems()"
-          [paginator]="true"
-          [rows]="pageSize()"
-          [rowsPerPageOptions]="[5, 10, 20, 50]"
-          [sortField]="defaultSortField()"
-          [sortOrder]="1"
-          responsiveLayout="scroll"
-          styleClass="p-datatable-gridlines p-datatable-striped reference-table"
-          [showCurrentPageReport]="true"
-          [currentPageReportTemplate]="getPageReportTemplate()"
-          [loading]="tableLoading()"
-          loadingIcon="pi pi-spinner"
-          [sortMode]="'multiple'"
-          [multiSortMeta]="multiSortMeta()"
-          (onSort)="onSort($event)"
-          (onPage)="onPageChange($event)"
-          [lazy]="false"
-          [scrollable]="true"
-          scrollHeight="60vh"
-          [resizableColumns]="true"
-          columnResizeMode="expand"
-          [tableStyle]="{ 'min-width': '50rem' }">
-        
+        <p-table [value]="filteredItems()" [paginator]="true" [rows]="pageSize()" [rowsPerPageOptions]="[5, 10, 20, 50]"
+          [sortField]="defaultSortField()" [sortOrder]="1" responsiveLayout="scroll"
+          styleClass="p-datatable-gridlines p-datatable-striped reference-table" [showCurrentPageReport]="true"
+          [currentPageReportTemplate]="getPageReportTemplate()" [loading]="tableLoading()" loadingIcon="pi pi-spinner"
+          [sortMode]="'multiple'" [multiSortMeta]="multiSortMeta()" (onSort)="onSort($event)"
+          (onPage)="onPageChange($event)" [lazy]="false" [scrollable]="true" scrollHeight="60vh"
+          [resizableColumns]="true" columnResizeMode="expand" [tableStyle]="{ 'min-width': '50rem' }">
+
           <!-- Table Header -->
           <ng-template pTemplate="header">
             <tr>
-              <th *ngFor="let col of visibleCols" 
-                  [pSortableColumn]="col.sortable ? col.field : null"
-                  [style.width]="col.width"
-                  [class.hide-mobile]="col.hideOnMobile && isMobile()"
-                  [class.hide-tablet]="col.hideOnTablet && isTablet()"
-                  [class.text-center]="col.align === 'center'"
-                  [class.text-right]="col.align === 'right'"
-                  pResizableColumn>
+              <th *ngFor="let col of visibleCols" [pSortableColumn]="col.sortable ? col.field : null"
+                [style.width]="col.width" [class.hide-mobile]="col.hideOnMobile && isMobile()"
+                [class.hide-tablet]="col.hideOnTablet && isTablet()" [class.text-center]="col.align === 'center'"
+                [class.text-right]="col.align === 'right'" pResizableColumn>
                 <div class="header-content">
                   <span class="header-text">{{ col.header }}</span>
                   <p-sortIcon *ngIf="col.sortable" [field]="col.field"></p-sortIcon>
-                  <i *ngIf="col.tooltip" 
-                     class="pi pi-info-circle header-info" 
-                     [pTooltip]="col.tooltip"
-                     tooltipPosition="top"></i>
+                  <i *ngIf="col.tooltip" class="pi pi-info-circle header-info" [pTooltip]="col.tooltip"
+                    tooltipPosition="top"></i>
                 </div>
               </th>
               <th class="actions-column" style="width: 150px">
@@ -318,29 +226,26 @@
 
           <!-- Table Body -->
           <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
-            <tr [class.row-highlight]="isRowHighlighted(rowIndex)"
-                [class.inactive-row]="item.ativo === false">
-              <td *ngFor="let col of visibleCols" 
-                  [class.hide-mobile]="col.hideOnMobile && isMobile()"
-                  [class.hide-tablet]="col.hideOnTablet && isTablet()"
-                  [class.text-center]="col.align === 'center'"
-                  [class.text-right]="col.align === 'right'">
-                
+            <tr [class.row-highlight]="isRowHighlighted(rowIndex)" [class.inactive-row]="item.ativo === false">
+              <td *ngFor="let col of visibleCols" [class.hide-mobile]="col.hideOnMobile && isMobile()"
+                [class.hide-tablet]="col.hideOnTablet && isTablet()" [class.text-center]="col.align === 'center'"
+                [class.text-right]="col.align === 'right'">
+
                 <!-- Mobile Label -->
                 <span class="mobile-label" *ngIf="isMobile()">{{ col.header }}:</span>
-                
+
                 <!-- Field Content -->
                 <ng-container [ngSwitch]="col.field">
                   <!-- Código Field -->
                   <span *ngSwitchCase="'codigo'" class="codigo-field">
                     <strong>{{ item.codigo }}</strong>
                   </span>
-                  
+
                   <!-- Descrição Field -->
                   <span *ngSwitchCase="'descricao'" class="descricao-field">
                     {{ item.descricao }}
                   </span>
-                  
+
                   <!-- Tipo Field -->
                   <span *ngSwitchCase="'tipoDescricao'" class="tipo-field">
                     <div class="flex align-items-center gap-2">
@@ -348,74 +253,42 @@
                       <span>{{ item.tipoDescricao }}</span>
                     </div>
                   </span>
-                  
+
                   <!-- Status Field -->
                   <span *ngSwitchCase="'ativo'" class="status-field">
-                    <p-tag
-                      [value]="getStatusLabel(item.ativo)"
-                      [severity]="getStatusSeverity(item.ativo)"
+                    <p-tag [value]="getStatusLabel(item.ativo)" [severity]="getStatusSeverity(item.ativo)"
                       class="status-tag">
                     </p-tag>
                   </span>
-                  
+
                   <!-- Data Criação Field -->
                   <span *ngSwitchCase="'dataCriacao'" class="date-field">
                     {{ formatarData(item.dataCriacao) }}
                   </span>
-                  
+
                   <!-- Default Field -->
                   <span *ngSwitchDefault class="text-field">
                     {{ getFieldValue(item, col.field) }}
                   </span>
                 </ng-container>
               </td>
-              
+
               <!-- Actions Column -->
               <td class="actions-column">
                 <div class="action-buttons">
                   <!-- Edit Action -->
-                  <p-button
-                    icon="pi pi-pencil"
-                    (onClick)="editarItem(item)"
-                    class="p-button-rounded p-button-text p-button-info edit-btn"
-                    pTooltip="Editar"
-                    tooltipPosition="top"
-                    [loading]="isActionLoading('edit', item.id)"
+                  <p-button icon="pi pi-pencil" (onClick)="editarItem(item)"
+                    class="p-button-rounded p-button-text p-button-info edit-btn" pTooltip="Editar"
+                    tooltipPosition="top" [loading]="isActionLoading('edit', item.id)"
                     [disabled]="hasAnyActionLoading()">
                   </p-button>
-                  
-                  <!-- Deactivate Action -->
-                  <p-button
-                    *ngIf="item.ativo"
-                    icon="pi pi-times"
-                    (onClick)="desativarItem(item)"
-                    class="p-button-rounded p-button-text p-button-warning deactivate-btn"
-                    pTooltip="Desativar Atividade"
-                    tooltipPosition="top"
-                    [loading]="isActionLoading('deactivate', item.id)"
-                    [disabled]="hasAnyActionLoading()">
-                  </p-button>
-                  
-                  <!-- Activate Action -->
-                  <p-button
-                    *ngIf="!item.ativo"
-                    icon="pi pi-check"
-                    (onClick)="ativarItem(item)"
-                    class="p-button-rounded p-button-text p-button-success activate-btn"
-                    pTooltip="Ativar Atividade"
-                    tooltipPosition="top"
-                    [loading]="isActionLoading('activate', item.id)"
-                    [disabled]="hasAnyActionLoading()">
-                  </p-button>
-                  
+
+
+
                   <!-- Delete Action -->
-                  <p-button
-                    icon="pi pi-trash"
-                    (onClick)="excluirItem(item)"
-                    class="p-button-rounded p-button-text p-button-danger delete-btn"
-                    pTooltip="Excluir"
-                    tooltipPosition="top"
-                    [loading]="isActionLoading('delete', item.id)"
+                  <p-button icon="pi pi-trash" (onClick)="excluirItem(item)"
+                    class="p-button-rounded p-button-text p-button-danger delete-btn" pTooltip="Excluir"
+                    tooltipPosition="top" [loading]="isActionLoading('delete', item.id)"
                     [disabled]="hasAnyActionLoading()">
                   </p-button>
                 </div>
@@ -431,30 +304,23 @@
                   <div class="empty-illustration">
                     <i class="pi pi-briefcase empty-icon"></i>
                   </div>
-                  
+
                   <div class="empty-content">
                     <h3 class="empty-title">Nenhuma atividade agropecuária encontrada</h3>
                     <p class="empty-description">
                       Não há atividades agropecuárias cadastradas ou que atendam aos filtros aplicados.
                     </p>
-                    
+
                     <div class="empty-actions">
-                      <p-button
-                        label="Nova Atividade Agropecuária"
-                        icon="pi pi-plus"
-                        (onClick)="novoItem()"
+                      <p-button label="Nova Atividade Agropecuária" icon="pi pi-plus" (onClick)="novoItem()"
                         class="p-button-primary primary-empty-action">
                       </p-button>
-                      
-                      <p-button
-                        *ngIf="hasActiveFilters()"
-                        label="Limpar Filtros"
-                        icon="pi pi-filter-slash"
-                        (onClick)="clearAllFilters()"
-                        class="p-button-outlined secondary-empty-action">
+
+                      <p-button *ngIf="hasActiveFilters()" label="Limpar Filtros" icon="pi pi-filter-slash"
+                        (onClick)="clearAllFilters()" class="p-button-outlined secondary-empty-action">
                       </p-button>
                     </div>
-                    
+
                     <p class="empty-help">
                       As atividades agropecuárias são essenciais para categorizar os tipos de produção rural.
                     </p>
@@ -469,48 +335,29 @@
   </div>
 
   <!-- 4. FORM DIALOG -->
-  <p-dialog
-    [header]="dialogTitle()"
-    [visible]="showForm()"
-    (visibleChange)="showForm.set($event)"
-    [modal]="true"
-    [closable]="true"
-    [draggable]="true"
-    [resizable]="true"
-    [style]="getDialogStyle()"
-    styleClass="reference-form-dialog"
-    (onHide)="cancelarEdicao()">
-    
+  <p-dialog [header]="dialogTitle()" [visible]="showForm()" (visibleChange)="showForm.set($event)" [modal]="true"
+    [closable]="true" [draggable]="true" [resizable]="true" [style]="getDialogStyle()"
+    styleClass="reference-form-dialog" (onHide)="cancelarEdicao()">
+
     <!-- Form Content -->
     <div class="form-container">
       <!-- Form Loading Overlay -->
       <div *ngIf="formLoading()" class="form-loading-overlay">
         <div class="form-loading-content">
-          <p-progressSpinner 
-            [style]="{ width: '30px', height: '30px' }"
-            strokeWidth="4">
+          <p-progressSpinner [style]="{ width: '30px', height: '30px' }" strokeWidth="4">
           </p-progressSpinner>
           <span class="form-loading-text">Processando...</span>
         </div>
       </div>
-      
+
       <!-- Form Fields -->
       <form [formGroup]="form" (ngSubmit)="salvarItem()" class="reference-form">
         <!-- Código field -->
         <div class="field">
           <label for="codigo" class="field-label required">Código</label>
-          <input
-            pInputText
-            id="codigo"
-            formControlName="codigo"
-            placeholder="Ex: AGR001, PEC002"
-            maxlength="10"
-            [disabled]="isEditMode()"
-            class="w-full codigo-input" />
-          <app-field-error
-            [control]="form.get('codigo')"
-            fieldName="codigo"
-            [customMessages]="{
+          <input pInputText id="codigo" formControlName="codigo" placeholder="Ex: AGR001, PEC002" maxlength="10"
+            [disabled]="isEditMode()" class="w-full codigo-input" />
+          <app-field-error [control]="form.get('codigo')" fieldName="codigo" [customMessages]="{
               required: 'Código é obrigatório',
               minlength: 'Código deve ter pelo menos 2 caracteres',
               maxlength: 'Código deve ter no máximo 10 caracteres',
@@ -526,17 +373,9 @@
         <!-- Descrição field -->
         <div class="field">
           <label for="descricao" class="field-label required">Descrição</label>
-          <input
-            pInputText
-            id="descricao"
-            formControlName="descricao"
-            placeholder="Ex: Cultivo de Soja, Criação de Bovinos"
-            maxlength="200"
-            class="w-full" />
-          <app-field-error
-            [control]="form.get('descricao')"
-            fieldName="descricao"
-            [customMessages]="{
+          <input pInputText id="descricao" formControlName="descricao"
+            placeholder="Ex: Cultivo de Soja, Criação de Bovinos" maxlength="200" class="w-full" />
+          <app-field-error [control]="form.get('descricao')" fieldName="descricao" [customMessages]="{
               required: 'Descrição é obrigatória',
               minlength: 'Descrição deve ter pelo menos 5 caracteres',
               maxlength: 'Descrição deve ter no máximo 200 caracteres'
@@ -547,15 +386,8 @@
         <!-- Tipo field -->
         <div class="field">
           <label for="tipo" class="field-label required">Tipo de Atividade</label>
-          <p-select
-            id="tipo"
-            formControlName="tipo"
-            [options]="tipoOptions()"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Selecione o tipo"
-            [showClear]="false"
-            class="w-full">
+          <p-select id="tipo" formControlName="tipo" [options]="tipoOptions()" optionLabel="label" optionValue="value"
+            placeholder="Selecione o tipo" [showClear]="false" class="w-full">
             <ng-template pTemplate="selectedItem" let-selectedOption>
               <div *ngIf="selectedOption" class="flex align-items-center gap-2">
                 <i [class]="getTypeIcon(selectedOption.value)"></i>
@@ -569,10 +401,7 @@
               </div>
             </ng-template>
           </p-select>
-          <app-field-error
-            [control]="form.get('tipo')"
-            fieldName="tipo"
-            [customMessages]="{
+          <app-field-error [control]="form.get('tipo')" fieldName="tipo" [customMessages]="{
               required: 'Tipo é obrigatório'
             }">
           </app-field-error>
@@ -584,38 +413,25 @@
         <!-- Ativo field -->
         <div class="field ativo-field">
           <div class="field-content">
-            <p-checkbox
-              formControlName="ativo"
-              [binary]="true"
-              inputId="ativo"
-              class="ativo-checkbox">
+            <p-checkbox formControlName="ativo" [binary]="true" inputId="ativo" class="ativo-checkbox">
             </p-checkbox>
             <label for="ativo" class="checkbox-label">Ativo</label>
-            <i class="pi pi-info-circle field-help-icon" 
-               pTooltip="Define se a atividade está ativa no sistema"
-               tooltipPosition="top"></i>
+            <i class="pi pi-info-circle field-help-icon" pTooltip="Define se a atividade está ativa no sistema"
+              tooltipPosition="top"></i>
           </div>
         </div>
       </form>
     </div>
-    
+
     <!-- Dialog Footer -->
     <ng-template pTemplate="footer">
       <div class="dialog-footer">
-        <p-button
-          label="Cancelar"
-          icon="pi pi-times"
-          (onClick)="cancelarEdicao()"
-          class="p-button-outlined p-button-secondary cancel-btn"
-          [disabled]="formLoading()">
+        <p-button label="Cancelar" icon="pi pi-times" (onClick)="cancelarEdicao()"
+          class="p-button-outlined p-button-secondary cancel-btn" [disabled]="formLoading()">
         </p-button>
-        
-        <p-button
-          [label]="isEditMode() ? 'Atualizar' : 'Salvar'"
-          [icon]="isEditMode() ? 'pi pi-check' : 'pi pi-save'"
-          (onClick)="salvarItem()"
-          class="p-button-primary save-btn"
-          [loading]="formLoading()"
+
+        <p-button [label]="isEditMode() ? 'Atualizar' : 'Salvar'" [icon]="isEditMode() ? 'pi pi-check' : 'pi pi-save'"
+          (onClick)="salvarItem()" class="p-button-primary save-btn" [loading]="formLoading()"
           [disabled]="!canSaveForm() || form.invalid">
         </p-button>
       </div>
@@ -623,15 +439,10 @@
   </p-dialog>
 
   <!-- 5. CONFIRMATION DIALOGS -->
-  <p-confirmDialog 
-    [style]="{ width: '450px' }"
-    [baseZIndex]="10000"
-    rejectButtonStyleClass="p-button-text">
+  <p-confirmDialog [style]="{ width: '450px' }" [baseZIndex]="10000" rejectButtonStyleClass="p-button-text">
   </p-confirmDialog>
 
   <!-- 6. TOAST MESSAGES -->
-  <p-toast 
-    position="top-right"
-    [baseZIndex]="20000">
+  <p-toast position="top-right" [baseZIndex]="20000">
   </p-toast>
 </div>

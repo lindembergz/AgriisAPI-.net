@@ -32,7 +32,7 @@
             id="search"
             type="text"
             pInputText
-            [value]="searchTerm()"
+            [ngModel]="searchTerm()"
             (input)="onSearchChange($event)"
             placeholder="Buscar por código ou nome..."
             class="search-input"
@@ -188,12 +188,14 @@
                 
                 <!-- UFs Count Field -->
                 <span *ngSwitchCase="'ufsCount'" class="ufs-field">
-                  <p-tag
-                    [value]="getUfsCountDisplay(item)"
-                    [severity]="getUfsCountSeverity(getUfsCount(item.id))"
-                    [pTooltip]="getUfsTooltip(getUfsCount(item.id))"
-                    class="ufs-tag">
-                  </p-tag>
+                  <ng-container *ngIf="getUfsCount(item.id) as ufsCount">
+                    <p-tag
+                      [value]="ufsCount === 0 ? 'Nenhuma' : ufsCount.toString()"
+                      [severity]="getUfsCountSeverity(ufsCount)"
+                      [pTooltip]="getUfsTooltip(ufsCount)"
+                      class="ufs-tag">
+                    </p-tag>
+                  </ng-container>
                 </span>
                 
                 <!-- Status Field -->
@@ -229,32 +231,9 @@
                   tooltipPosition="top"
                   [loading]="isActionLoading('edit', item.id)"
                   [disabled]="hasAnyActionLoading()">
-                </p-button>
-                
-                <!-- Deactivate Action -->
-                <p-button
-                  *ngIf="item.ativo"
-                  icon="pi pi-times"
-                  (onClick)="desativarItem(item)"
-                  class="p-button-rounded p-button-text p-button-warning deactivate-btn"
-                  pTooltip="Desativar país"
-                  tooltipPosition="top"
-                  [loading]="isActionLoading('deactivate', item.id)"
-                  [disabled]="hasAnyActionLoading()">
-                </p-button>
-                
-                <!-- Activate Action -->
-                <p-button
-                  *ngIf="!item.ativo"
-                  icon="pi pi-check"
-                  (onClick)="ativarItem(item)"
-                  class="p-button-rounded p-button-text p-button-success activate-btn"
-                  pTooltip="Ativar país"
-                  tooltipPosition="top"
-                  [loading]="isActionLoading('activate', item.id)"
-                  [disabled]="hasAnyActionLoading()">
-                </p-button>
-                
+                </p-button>                
+               
+               
                 <!-- Delete Action -->
                 <p-button
                   icon="pi pi-trash"
@@ -352,7 +331,6 @@
             formControlName="codigo"
             placeholder="Ex: BR, US, AR"
             maxlength="3"
-            [disabled]="isEditMode()"
             class="w-full codigo-input" />
           <app-field-error
             [control]="form.get('codigo')"

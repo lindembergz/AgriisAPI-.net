@@ -3,14 +3,14 @@
   <!-- 1. HEADER SECTION -->
   <div class="header-section">
     <div class="title-section">
-      <h2 class="entity-title">{{ entityDisplayName() }}</h2>
+      <h2 class="entity-title">Estados</h2>
       <p class="entity-subtitle">{{ entityDescription() }}</p>
     </div>
     
     <div class="actions-section">
       <!-- Primary Action -->
       <p-button
-        [label]="'Nova ' + entityDisplayName()"
+        [label]="'Nova estado'"
         icon="pi pi-plus"
         (onClick)="novoItem()"
         class="p-button-primary new-item-btn"
@@ -195,14 +195,24 @@
               
               <!-- Field Content -->
               <ng-container [ngSwitch]="col.field">
-                <!-- Código Field -->
-                <span *ngSwitchCase="'codigo'" class="codigo-field">
-                  <strong>{{ item.codigo }}</strong>
+                <!-- UF Field -->
+                <span *ngSwitchCase="'uf'" class="uf-field">
+                  <strong>{{ item.uf }}</strong>
                 </span>
                 
                 <!-- Nome Field -->
                 <span *ngSwitchCase="'nome'" class="nome-field">
                   {{ item.nome }}
+                </span>
+                
+                <!-- Código IBGE Field -->
+                <span *ngSwitchCase="'codigoIbge'" class="codigo-ibge-field">
+                  {{ item.codigoIbge }}
+                </span>
+                
+                <!-- Região Field -->
+                <span *ngSwitchCase="'regiao'" class="regiao-field">
+                  {{ item.regiao }}
                 </span>
                 
                 <!-- País Field -->
@@ -255,30 +265,7 @@
                   [disabled]="hasAnyActionLoading()">
                 </p-button>
                 
-                <!-- Deactivate Action -->
-                <p-button
-                  *ngIf="item.ativo"
-                  icon="pi pi-times"
-                  (onClick)="desativarItem(item)"
-                  class="p-button-rounded p-button-text p-button-warning deactivate-btn"
-                  pTooltip="Desativar UF"
-                  tooltipPosition="top"
-                  [loading]="isActionLoading('deactivate', item.id)"
-                  [disabled]="hasAnyActionLoading()">
-                </p-button>
-                
-                <!-- Activate Action -->
-                <p-button
-                  *ngIf="!item.ativo"
-                  icon="pi pi-check"
-                  (onClick)="ativarItem(item)"
-                  class="p-button-rounded p-button-text p-button-success activate-btn"
-                  pTooltip="Ativar UF"
-                  tooltipPosition="top"
-                  [loading]="isActionLoading('activate', item.id)"
-                  [disabled]="hasAnyActionLoading()">
-                </p-button>
-                
+               
                 <!-- Delete Action -->
                 <p-button
                   icon="pi pi-trash"
@@ -414,6 +401,62 @@
               unique: 'Este nome já está em uso'
             }">
           </app-field-error>
+        </div>
+
+        <!-- Código IBGE field -->
+        <div class="field">
+          <label for="codigoIbge" class="field-label required">Código IBGE</label>
+          <input
+            pInputText
+            id="codigoIbge"
+            formControlName="codigoIbge"
+            placeholder="Ex: 35, 33, 21"
+            type="number"
+            min="1"
+            max="99"
+            class="w-full" />
+          <app-field-error
+            [control]="form.get('codigoIbge')"
+            fieldName="codigoIbge"
+            [customMessages]="{
+              required: 'Código IBGE é obrigatório',
+              min: 'Código IBGE deve ser maior que 0',
+              max: 'Código IBGE deve ser menor que 100'
+            }">
+          </app-field-error>
+          <small class="field-help">
+            Código oficial do IBGE para esta UF
+          </small>
+        </div>
+
+        <!-- Região field -->
+        <div class="field">
+          <label for="regiao" class="field-label required">Região</label>
+          <p-select
+            id="regiao"
+            formControlName="regiao"
+            [options]="[
+              { label: 'Norte', value: 'Norte' },
+              { label: 'Nordeste', value: 'Nordeste' },
+              { label: 'Centro-Oeste', value: 'Centro-Oeste' },
+              { label: 'Sudeste', value: 'Sudeste' },
+              { label: 'Sul', value: 'Sul' }
+            ]"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione uma região"
+            class="w-full">
+          </p-select>
+          <app-field-error
+            [control]="form.get('regiao')"
+            fieldName="regiao"
+            [customMessages]="{
+              required: 'Região é obrigatória'
+            }">
+          </app-field-error>
+          <small class="field-help">
+            Região geográfica brasileira
+          </small>
         </div>
 
         <!-- País field -->

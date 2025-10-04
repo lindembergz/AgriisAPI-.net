@@ -107,6 +107,8 @@ export class PaisService extends ReferenceCrudService<
 
   /**
    * Get país statistics (UFs count, municipalities count, etc.)
+   * @deprecated Use the totalEstados property from PaisDto instead for UFs count
+   * The API now returns países with estados included, eliminating the need for separate requests
    */
   obterEstatisticas(paisId: number): Observable<{
     ufsCount: number;

@@ -1,0 +1,149 @@
+<div class="produto-list-container">
+  <!-- Header with title and primary actions -->
+  <div class="header-section">
+    <div class="title-section">
+      <h2 class="entity-title">Produtos</h2>
+      <p class="entity-subtitle">Gerencie o catálogo de produtos agrícolas</p>
+    </div>
+    <div class="actions-section">
+      <p-button label="Novo Produto" icon="pi pi-plus" (onClick)="navigateToNew()"
+        class="p-button-primary new-item-btn" [disabled]="isLoading()">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section" *ngIf="!isLoading()">
+    <div class="filters-grid">
+      <!-- Status Filter -->
+      <div class="filter-field">
+        <label for="statusFilter">Status</label>
+        <p-select id="statusFilter" [(ngModel)]="selectedStatusFilter" [options]="statusFilterOptions"
+          optionLabel="label" optionValue="value" (onChange)="onStatusFilterChange()" class="w-full">
+        </p-select>
+      </div>
+
+      <!-- Categoria Filter -->
+      <div class="filter-field">
+        <label for="filtroCategoria">Categoria</label>
+        <p-select id="filtroCategoria" [(ngModel)]="selectedCategoria" [options]="categoriasParaFiltro()"
+          optionLabel="nome" optionValue="id" placeholder="Todas as categorias" (onChange)="onFilterChange()"
+          [showClear]="true" [filter]="true" filterBy="nome" class="w-full">
+        </p-select>
+      </div>
+
+      <!-- Unidade de Medida Filter -->
+      <div class="filter-field">
+        <label for="filtroUnidade">Unidade de Medida</label>
+        <p-select id="filtroUnidade" [(ngModel)]="selectedUnidadeMedida" [options]="unidadesParaFiltro()"
+          optionLabel="nome" optionValue="id" placeholder="Todas as unidades" (onChange)="onFilterChange()"
+          [showClear]="true" [filter]="true" filterBy="nome" class="w-full">
+        </p-select>
+      </div>
+
+      <!-- Atividade Agropecuária Filter -->
+      <div class="filter-field">
+        <label for="filtroAtividade">Atividade Agropecuária</label>
+        <p-select id="filtroAtividade" [(ngModel)]="selectedAtividadeAgropecuaria" [options]="atividadesParaFiltro()"
+          optionLabel="nome" optionValue="id" placeholder="Todas as atividades" (onChange)="onFilterChange()"
+          [showClear]="true" [filter]="true" filterBy="nome" class="w-full">
+        </p-select>
+      </div>
+
+      <!-- Search Field -->
+      <div class="filter-field">
+        <label for="filtroTexto">Buscar</label>
+        <div class="search-container">
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input id="filtroTexto" type="text" pInputText [(ngModel)]="searchTerm" (input)="onSearchChange($event)"
+              placeholder="Buscar por código, nome..." class="search-input w-full">
+          </span>
+          <p-button label="Limpar" icon="pi pi-times" (onClick)="clearFilters()"
+            class="p-button-text p-button-sm" [disabled]="!temFiltrosAtivos()">
+          </p-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Carregando produtos...</p>
+  </div>
+
+  <!-- Items Table -->
+  <div *ngIf="!isLoading()" class="table-container">
+    <p-table [value]="produtos()" [paginator]="true" [rows]="pageSize" [rowsPerPageOptions]="[10, 20, 50, 100]"
+      [sortMode]="'multiple'" responsiveLayout="scroll"
+      styleClass="p-datatable-gridlines p-datatable-striped produtos-table" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" [resizableColumns]="true"
+      columnResizeMode="expand" [tableStyle]="{ 'min-width': '50rem' }">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th *ngFor="let col of displayColumns()" [pSortableColumn]="col.sortable ? col.field : null"
+            [style.width]="col.width" [class.hide-on-mobile]="col.hideOnMobile"
+            [class.hide-on-tablet]="col.hideOnTablet">
+            <div class="header-content">
+              <span class="header-text">{{ col.header }}</span>
+              <p-sortIcon *ngIf="col.sortable" [field]="col.field"></p-sortIcon>
+            </div>
+          </th>
+          <th style="width: 120px"><span class="header-text">Ações</span></th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+        <tr>
+          <td *ngFor="let col of displayColumns()" [class.hide-on-mobile]="col.hideOnMobile"
+            [class.hide-on-tablet]="col.hideOnTablet">
+            <ng-container [ngSwitch]="col.type">
+              <span *ngSwitchCase="'boolean'">
+                <p-tag [value]="item[col.field] ? 'Ativo' : 'Inativo'"
+                  [severity]="item[col.field] ? 'success' : 'danger'">
+                </p-tag>
+              </span>
+              <span *ngSwitchCase="'custom'" [ngSwitch]="col.field">
+                <span *ngSwitchCase="'preco'" [class]="getPrecoClass(item.preco)">
+                  {{ formatarPreco(item.preco) }}
+                </span>
+              </span>
+              <span *ngSwitchDefault [ngSwitch]="col.field">
+                <span *ngSwitchCase="'unidadeMedidaSimbolo'">
+                  {{ item.unidadeMedidaSimbolo || 'N/A' }}
+                </span>
+                <span *ngSwitchCase="'atividadeAgropecuariaNome'">
+                  {{ item.atividadeAgropecuariaNome || 'N/A' }}
+                </span>
+                <span *ngSwitchDefault>{{ item[col.field] }}</span>
+              </span>
+            </ng-container>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <p-button icon="pi pi-pencil" pTooltip="Editar produto" tooltipPosition="top" 
+                (onClick)="navigateToEdit(item.id)" class="p-button-rounded p-button-text p-button-info edit-btn">
+              </p-button>
+              <p-button icon="pi pi-trash" pTooltip="Excluir produto" tooltipPosition="top" 
+                (onClick)="confirmDelete(item)" class="p-button-rounded p-button-text p-button-danger delete-btn">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="displayColumns().length + 1" class="text-center">
+            <div class="empty-state">
+              <i class="pi pi-info-circle" style="font-size: 2rem; color: var(--text-color-secondary);"></i>
+              <p>Nenhum produto encontrado.</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

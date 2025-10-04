@@ -266,30 +266,8 @@
                   [disabled]="hasAnyActionLoading()">
                 </p-button>
                 
-                <!-- Deactivate Action -->
-                <p-button
-                  *ngIf="item.ativo"
-                  icon="pi pi-times"
-                  (onClick)="desativarItem(item)"
-                  class="p-button-rounded p-button-text p-button-warning deactivate-btn"
-                  pTooltip="Desativar Município"
-                  tooltipPosition="top"
-                  [loading]="isActionLoading('deactivate', item.id)"
-                  [disabled]="hasAnyActionLoading()">
-                </p-button>
-                
-                <!-- Activate Action -->
-                <p-button
-                  *ngIf="!item.ativo"
-                  icon="pi pi-check"
-                  (onClick)="ativarItem(item)"
-                  class="p-button-rounded p-button-text p-button-success activate-btn"
-                  pTooltip="Ativar Município"
-                  tooltipPosition="top"
-                  [loading]="isActionLoading('activate', item.id)"
-                  [disabled]="hasAnyActionLoading()">
-                </p-button>
-                
+            
+               
                 <!-- Delete Action -->
                 <p-button
                   icon="pi pi-trash"

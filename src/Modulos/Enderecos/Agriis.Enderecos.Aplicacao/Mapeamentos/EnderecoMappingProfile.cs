@@ -24,6 +24,22 @@ public class EnderecoMappingProfile : Profile
         CreateMap<Pais, PaisDto>()
             .ForMember(dest => dest.Estados, opt => opt.MapFrom(src => src.Estados))
             .ForMember(dest => dest.TotalEstados, opt => opt.MapFrom(src => src.Estados.Count));
+
+        // Pais -> PaisComContadorDto
+        CreateMap<Pais, PaisComContadorDto>()
+            .ForMember(dest => dest.UfsCount, opt => opt.MapFrom(src => src.Estados.Count));
+
+        // CriarPaisDto -> Pais
+        CreateMap<CriarPaisDto, Pais>()
+            .ConstructUsing(dto => new Pais(dto.Nome, dto.Codigo))
+            .ForMember(dest => dest.Ativo, opt => opt.MapFrom(src => true));
+
+        // AtualizarPaisDto -> Pais
+        CreateMap<AtualizarPaisDto, Pais>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.DataCriacao, opt => opt.Ignore())
+            .ForMember(dest => dest.DataAtualizacao, opt => opt.Ignore())
+            .ForMember(dest => dest.Estados, opt => opt.Ignore());
     }
 
     private void ConfigurarMapeamentosEstado()
@@ -36,7 +52,15 @@ public class EnderecoMappingProfile : Profile
         
         // CriarEstadoDto -> Estado
         CreateMap<CriarEstadoDto, Estado>()
-            .ConstructUsing(dto => new Estado(dto.Nome, dto.Uf, dto.CodigoIbge, dto.Regiao, dto.PaisId));
+            .ConstructUsing(dto => new Estado(dto.Nome, dto.Codigo, dto.CodigoIbge, dto.Regiao, dto.PaisId));
+
+        // AtualizarEstadoDto -> Estado
+        CreateMap<AtualizarEstadoDto, Estado>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.DataCriacao, opt => opt.Ignore())
+            .ForMember(dest => dest.DataAtualizacao, opt => opt.Ignore())
+            .ForMember(dest => dest.Pais, opt => opt.Ignore())
+            .ForMember(dest => dest.Municipios, opt => opt.Ignore());
     }
 
     private void ConfigurarMapeamentosMunicipio()

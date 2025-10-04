@@ -234,18 +234,7 @@
                   [disabled]="hasAnyActionLoading()">
                 </p-button>
                 
-                <!-- Deactivate Action -->
-                <p-button
-                  *ngIf="item.ativo"
-                  icon="pi pi-times"
-                  (onClick)="desativarItem(item)"
-                  class="p-button-rounded p-button-text p-button-warning deactivate-btn"
-                  pTooltip="Desativar moeda"
-                  tooltipPosition="top"
-                  [loading]="isActionLoading('deactivate', item.id)"
-                  [disabled]="hasAnyActionLoading()">
-                </p-button>
-                
+               
                 <!-- Activate Action -->
                 <p-button
                   *ngIf="!item.ativo"

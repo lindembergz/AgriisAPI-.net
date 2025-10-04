@@ -29,10 +29,22 @@ export interface AtualizarMoedaDto {
 }
 
 /**
+ * Estado resumo interface
+ */
+export interface EstadoResumoDto {
+  id: number;
+  nome: string;
+  uf: string;
+  regiao: string;
+}
+
+/**
  * País interfaces
  */
 export interface PaisDto extends BaseReferenceEntity {
   codigo: string;
+  estados: EstadoResumoDto[];
+  totalEstados: number;
 }
 
 export interface CriarPaisDto {
@@ -50,6 +62,8 @@ export interface AtualizarPaisDto {
  */
 export interface UfDto extends BaseReferenceEntity {
   uf: string;
+  codigoIbge: number;
+  regiao: string;
   paisId: number;
   pais?: PaisDto;
 }
@@ -57,11 +71,15 @@ export interface UfDto extends BaseReferenceEntity {
 export interface CriarUfDto {
   codigo: string;
   nome: string;
+  codigoIbge: number;
+  regiao: string;
   paisId: number;
 }
 
 export interface AtualizarUfDto {
   nome: string;
+  codigoIbge: number;
+  regiao: string;
   ativo: boolean;
 }
 

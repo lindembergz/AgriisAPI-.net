@@ -1,4 +1,4 @@
-using Agriis.Api.Contexto;
+
 using Agriis.Autenticacao.Aplicacao.Interfaces;
 using Agriis.Autenticacao.Aplicacao.Servicos;
 using Agriis.Autenticacao.Dominio.Interfaces;

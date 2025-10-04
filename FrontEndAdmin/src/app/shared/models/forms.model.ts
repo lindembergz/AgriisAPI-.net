@@ -44,6 +44,41 @@ export interface UsuarioFormControls {
 }
 
 /**
+ * Fornecedor dados gerais form controls
+ */
+export interface FornecedorDadosGeraisFormControls {
+  nome: FormControl<string>;
+  nomeFantasia: FormControl<string>;
+  cpfCnpj: FormControl<string>;
+  tipoCliente: FormControl<TipoCliente>;
+  telefone: FormControl<string>;
+  email: FormControl<string>;
+  ramosAtividade: FormControl<string[]>;
+  enderecoCorrespondencia: FormControl<string>;
+  inscricaoEstadual: FormControl<string>;
+}
+
+/**
+ * Ponto distribuicao form controls
+ */
+export interface PontoDistribuicaoFormControls {
+  nome: FormControl<string>;
+  latitude: FormControl<number | null>;
+  longitude: FormControl<number | null>;
+  endereco: FormGroup<EnderecoFormControls>;
+}
+
+/**
+ * Fornecedor form controls
+ */
+export interface FornecedorFormControls {
+  dadosGerais: FormGroup<FornecedorDadosGeraisFormControls>;
+  endereco: FormGroup<EnderecoFormControls>;
+  pontosDistribuicao: FormArray<FormGroup<PontoDistribuicaoFormControls>>;
+  usuarioMaster: FormGroup<UsuarioFormControls>;
+}
+
+/**
  * Cultura form controls
  */
 export interface CulturaFormControls {
@@ -101,10 +136,13 @@ export interface PontoDistribuicaoFormControls {
  */
 export interface FornecedorDadosGeraisFormControls {
   nome: FormControl<string>;
+  nomeFantasia: FormControl<string>; // NOVO CAMPO
   cpfCnpj: FormControl<string>;
   tipoCliente: FormControl<TipoCliente>;
   telefone: FormControl<string>;
   email: FormControl<string>;
+  ramosAtividade: FormControl<string[]>; // NOVO CAMPO
+  enderecoCorrespondencia: FormControl<string>; // NOVO CAMPO
 }
 
 /**
@@ -112,7 +150,6 @@ export interface FornecedorDadosGeraisFormControls {
  */
 export interface FornecedorFormControls {
   dadosGerais: FormGroup<FornecedorDadosGeraisFormControls>;
-  inscricaoEstadual: FormControl<string>;
   endereco: FormGroup<EnderecoFormControls>;
   pontosDistribuicao: FormArray<FormGroup<PontoDistribuicaoFormControls>>;
   usuarioMaster: FormGroup<UsuarioFormControls>;

@@ -316,8 +316,8 @@ export abstract class ReferenceCrudBaseComponent<
       loadingMessage
     );
 
-    // Simulate progress for better UX
-    this.simulateProgress();
+    // Simulate progress for better UX (disabled to prevent infinite loops)
+    // this.simulateProgress();
 
     request.subscribe({
       next: (items) => {

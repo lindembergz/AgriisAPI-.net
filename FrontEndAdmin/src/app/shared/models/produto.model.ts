@@ -100,6 +100,7 @@ export interface ProdutoDto extends BaseEntity {
   embalagemId?: number;
   embalagemNome?: string;
   embalagem?: EmbalagemDto;
+  quantidadeEmbalagem: number;
   
   atividadeAgropecuariaId?: number;
   atividadeAgropecuariaNome?: string;
@@ -145,6 +146,7 @@ export interface ProdutoForm extends BaseForm {
   tipo: TipoProduto;
   unidadeMedidaId: number;
   embalagemId?: number;
+  quantidadeEmbalagem: number;
   atividadeAgropecuariaId?: number;
   tipoCalculoPeso: TipoCalculoPeso;
   produtoRestrito: boolean;
@@ -168,6 +170,7 @@ export interface CriarProdutoDto {
   tipo: TipoProduto;
   unidadeMedidaId: number;
   embalagemId?: number;
+  quantidadeEmbalagem: number;
   atividadeAgropecuariaId?: number;
   tipoCalculoPeso: TipoCalculoPeso;
   produtoRestrito: boolean;
@@ -189,6 +192,7 @@ export interface AtualizarProdutoDto {
   marca?: string;
   unidadeMedidaId: number;
   embalagemId?: number;
+  quantidadeEmbalagem: number;
   atividadeAgropecuariaId?: number;
   tipoCalculoPeso: TipoCalculoPeso;
   produtoRestrito: boolean;

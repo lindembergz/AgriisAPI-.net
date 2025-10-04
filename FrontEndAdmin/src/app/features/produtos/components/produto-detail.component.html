@@ -1,0 +1,353 @@
+<div class="produto-detail-container">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading()" class="loading-container">
+    <p-progressSpinner />
+    <p>Carregando produto...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading()" class="content-wrapper">
+    <!-- Breadcrumb 
+    <p-breadcrumb 
+      [model]="breadcrumbItems()" 
+      [home]="breadcrumbHome()"
+      class="mb-4">
+    </p-breadcrumb>-->
+
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+      <h1 class="page-title">
+        {{ isEditMode() ? 'Editar Produto' : 'Novo Produto' }}
+      </h1>
+      <p class="page-subtitle">
+        {{ isEditMode() ? 'Atualize as informações do produto' : 'Preencha os dados para criar um novo produto' }}
+      </p>
+    </div>
+
+    <!-- Form Card -->
+    <p-card class="form-card">
+      <form [formGroup]="produtoForm" (ngSubmit)="onSave()">
+        <!-- Tab Navigation -->
+        <p-tabs [value]="activeTabIndex()" (valueChange)="onTabChange($event)" styleClass="produto-tabs">
+
+          <p-tablist>
+            <p-tab [value]="0">Informações Básicas</p-tab>
+            <p-tab [value]="1">Embalagem e Medidas</p-tab>
+            <p-tab [value]="2">Dimensões e Peso</p-tab>
+            <p-tab [value]="3">Configurações</p-tab>
+          </p-tablist>
+
+          <p-tabpanels>
+            <!-- Tab 1: Informações Básicas -->
+            <p-tabpanel [value]="0">
+              <div class="tab-content">
+                <div class="form-grid">
+                  <!-- Código -->
+                  <div class="form-field">
+                    <label for="codigo" class="field-label required">Código</label>
+                    <input pInputText id="codigo" formControlName="codigo" placeholder="Digite o código do produto"
+                      [class.ng-invalid]="shouldShowError('codigo')" class="w-full" />
+                    <app-field-error *ngIf="shouldShowError('codigo')" [message]="getErrorMessage('codigo')">
+                    </app-field-error>
+                  </div>
+
+                  <!-- Nome -->
+                  <div class="form-field">
+                    <label for="nome" class="field-label required">Nome</label>
+                    <input pInputText id="nome" formControlName="nome" placeholder="Digite o nome do produto"
+                      [class.ng-invalid]="shouldShowError('nome')" class="w-full" />
+                    <app-field-error *ngIf="shouldShowError('nome')" [message]="getErrorMessage('nome')">
+                    </app-field-error>
+                  </div>
+
+                  <!-- Marca -->
+                  <div class="form-field">
+                    <label for="marca" class="field-label">Marca</label>
+                    <input pInputText id="marca" formControlName="marca" placeholder="Digite a marca do produto"
+                      class="w-full" />
+                  </div>
+
+                  <!-- Tipo -->
+                  <div class="form-field">
+                    <label for="tipo" class="field-label required">Tipo</label>
+                    <p-select id="tipo" formControlName="tipo" [options]="tiposProduto" placeholder="Selecione o tipo"
+                      [class.ng-invalid]="shouldShowError('tipo')" class="w-full">
+                    </p-select>
+                    <app-field-error *ngIf="shouldShowError('tipo')" [message]="getErrorMessage('tipo')">
+                    </app-field-error>
+                  </div>
+
+                  <!-- Fornecedor -->
+                  <div class="form-field">
+                    <label for="fornecedorId" class="field-label">Fornecedor</label>
+                    <p-select id="fornecedorId" formControlName="fornecedorId" [options]="fornecedores()"
+                      placeholder="Selecione o fornecedor" [loading]="loadingFornecedores()"
+                      [class.ng-invalid]="shouldShowError('fornecedorId')" class="w-full">
+                    </p-select>
+                    <app-field-error *ngIf="shouldShowError('fornecedorId')"
+                      [message]="getErrorMessage('fornecedorId')">
+                    </app-field-error>
+                  </div>
+
+                  <!-- Categoria -->
+                  <div class="form-field">
+                    <label for="categoriaId" class="field-label">Categoria</label>
+                    <p-select id="categoriaId" formControlName="categoriaId" [options]="categoriasParaSelect()"
+                      placeholder="Selecione uma categoria" [loading]="loadingCategorias()"
+                      [class.ng-invalid]="shouldShowError('categoriaId')" [showClear]="true" [filter]="true"
+                      filterBy="label" class="w-full">
+                    </p-select>
+                    <app-field-error *ngIf="shouldShowError('categoriaId')" [message]="getErrorMessage('categoriaId')">
+                    </app-field-error>
+                  </div>
+
+                  <!-- Descrição -->
+                  <div class="form-field full-width">
+                    <label for="descricao" class="field-label">Descrição</label>
+                    <textarea pTextarea id="descricao" formControlName="descricao"
+                      placeholder="Digite uma descrição detalhada do produto" rows="4" class="w-full">
+                  </textarea>
+                  </div>
+                </div>
+              </div>
+            </p-tabpanel>
+
+            <!-- Tab 2: Embalagem e Medidas -->
+            <p-tabpanel [value]="1">
+              <div class="tab-content">
+                <div class="form-grid">
+                  <!-- Unidade de Medida -->
+                  <div class="form-field">
+                    <label for="unidadeMedidaId" class="field-label required">Unidade de Medida</label>
+                    <p-select id="unidadeMedidaId" formControlName="unidadeMedidaId" [options]="unidadesMedida()"
+                      placeholder="Selecione a unidade" [loading]="loadingUnidades()"
+                      [class.ng-invalid]="shouldShowError('unidadeMedidaId')" (onChange)="onUnidadeMedidaChange($event)"
+                      class="w-full">
+                    </p-select>
+                    <app-field-error *ngIf="shouldShowError('unidadeMedidaId')"
+                      [message]="getErrorMessage('unidadeMedidaId')">
+                    </app-field-error>
+                  </div>
+
+                  <!-- Embalagem -->
+                  <div class="form-field">
+                    <label for="embalagemId" class="field-label">Embalagem</label>
+                    <p-select id="embalagemId" formControlName="embalagemId" [options]="embalagensDisponiveis()"
+                      placeholder="Selecione a embalagem" [loading]="loadingEmbalagens()"
+                      [disabled]="!produtoForm.get('unidadeMedidaId')?.value" class="w-full">
+                    </p-select>
+                    <small class="field-hint" *ngIf="!produtoForm.get('unidadeMedidaId')?.value">
+                      Selecione uma unidade de medida primeiro
+                    </small>
+                  </div>
+
+                  <!-- Quantidade por Embalagem -->
+                  <div class="form-field">
+                    <label for="quantidadeEmbalagem" class="field-label">Quantidade por Embalagem</label>
+                    <p-inputNumber id="quantidadeEmbalagem" formControlName="quantidadeEmbalagem" [min]="0.01"
+                      [step]="0.01" [minFractionDigits]="2" [maxFractionDigits]="2" placeholder="1.00" class="w-full">
+                    </p-inputNumber>
+                  </div>
+
+                  <!-- Atividade Agropecuária -->
+                  <div class="form-field">
+                    <label for="atividadeAgropecuariaId" class="field-label">Atividade Agropecuária</label>
+                    <p-select id="atividadeAgropecuariaId" formControlName="atividadeAgropecuariaId"
+                      [options]="atividadesAgropecuarias()" placeholder="Selecione a atividade"
+                      [loading]="loadingAtividades()" class="w-full">
+                    </p-select>
+                  </div>
+
+                  <!-- Produto Pai -->
+                  <div class="form-field">
+                    <label for="produtoPaiId" class="field-label">Produto Pai</label>
+                    <p-select id="produtoPaiId" formControlName="produtoPaiId" [options]="produtosPais()"
+                      placeholder="Selecione o produto pai" [loading]="loadingProdutosPais()" class="w-full">
+                    </p-select>
+                  </div>
+
+                  <!-- Culturas -->
+                  <div class="form-field full-width">
+                    <label for="culturasIds" class="field-label">Culturas Aplicáveis</label>
+                    <p-multiSelect id="culturasIds" formControlName="culturasIds" [options]="culturas()"
+                      placeholder="Selecione as culturas" [loading]="loadingCulturas()" class="w-full">
+                    </p-multiSelect>
+                  </div>
+                </div>
+              </div>
+            </p-tabpanel>
+
+            <!-- Tab 3: Dimensões e Peso -->
+            <p-tabpanel [value]="2">
+              <div class="tab-content" formGroupName="dimensoes">
+                <div class="form-grid">
+                  <!-- Altura -->
+                  <div class="form-field">
+                    <label for="altura" class="field-label required">Altura (cm)</label>
+                    <p-inputNumber id="altura" formControlName="altura" [min]="0" [step]="0.1" [minFractionDigits]="1"
+                      [maxFractionDigits]="2" placeholder="0.0" [class.ng-invalid]="shouldShowError('dimensoes.altura')"
+                      class="w-full">
+                    </p-inputNumber>
+                    <app-field-error *ngIf="shouldShowError('dimensoes.altura')"
+                      [message]="getErrorMessage('dimensoes.altura')">
+                    </app-field-error>
+                  </div>
+
+                  <!-- Largura -->
+                  <div class="form-field">
+                    <label for="largura" class="field-label required">Largura (cm)</label>
+                    <p-inputNumber id="largura" formControlName="largura" [min]="0" [step]="0.1" [minFractionDigits]="1"
+                      [maxFractionDigits]="2" placeholder="0.0"
+                      [class.ng-invalid]="shouldShowError('dimensoes.largura')" class="w-full">
+                    </p-inputNumber>
+                    <app-field-error *ngIf="shouldShowError('dimensoes.largura')"
+                      [message]="getErrorMessage('dimensoes.largura')">
+                    </app-field-error>
+                  </div>
+
+                  <!-- Comprimento -->
+                  <div class="form-field">
+                    <label for="comprimento" class="field-label required">Comprimento (cm)</label>
+                    <p-inputNumber id="comprimento" formControlName="comprimento" [min]="0" [step]="0.1"
+                      [minFractionDigits]="1" [maxFractionDigits]="2" placeholder="0.0"
+                      [class.ng-invalid]="shouldShowError('dimensoes.comprimento')" class="w-full">
+                    </p-inputNumber>
+                    <app-field-error *ngIf="shouldShowError('dimensoes.comprimento')"
+                      [message]="getErrorMessage('dimensoes.comprimento')">
+                    </app-field-error>
+                  </div>
+
+                  <!-- Peso Nominal -->
+                  <div class="form-field">
+                    <label for="pesoNominal" class="field-label required">Peso Nominal (kg)</label>
+                    <p-inputNumber id="pesoNominal" formControlName="pesoNominal" [min]="0" [step]="0.01"
+                      [minFractionDigits]="2" [maxFractionDigits]="3" placeholder="0.00"
+                      [class.ng-invalid]="shouldShowError('dimensoes.pesoNominal')" class="w-full">
+                    </p-inputNumber>
+                    <app-field-error *ngIf="shouldShowError('dimensoes.pesoNominal')"
+                      [message]="getErrorMessage('dimensoes.pesoNominal')">
+                    </app-field-error>
+                  </div>
+
+                  <!-- Peso da Embalagem -->
+                  <div class="form-field">
+                    <label for="pesoEmbalagem" class="field-label">Peso da Embalagem (kg)</label>
+                    <p-inputNumber id="pesoEmbalagem" formControlName="pesoEmbalagem" [min]="0" [step]="0.01"
+                      [minFractionDigits]="2" [maxFractionDigits]="3" placeholder="0.00" class="w-full">
+                    </p-inputNumber>
+                  </div>
+
+                  <!-- PMS -->
+                  <div class="form-field">
+                    <label for="pms" class="field-label">PMS (%)</label>
+                    <p-inputNumber id="pms" formControlName="pms" [min]="0" [max]="100" [step]="0.1"
+                      [minFractionDigits]="1" [maxFractionDigits]="2" placeholder="0.0" class="w-full">
+                    </p-inputNumber>
+                  </div>
+
+                  <!-- Quantidade Mínima -->
+                  <div class="form-field">
+                    <label for="quantidadeMinima" class="field-label">Quantidade Mínima</label>
+                    <p-inputNumber id="quantidadeMinima" formControlName="quantidadeMinima" [min]="1" [step]="1"
+                      placeholder="1" class="w-full">
+                    </p-inputNumber>
+                  </div>
+
+                  <!-- Embalagem (Texto) -->
+                  <div class="form-field">
+                    <label for="embalagem" class="field-label">Descrição da Embalagem</label>
+                    <input pInputText id="embalagem" formControlName="embalagem"
+                      placeholder="Ex: Saco de papel, Tambor plástico" class="w-full" />
+                  </div>
+
+                  <!-- Faixa de Densidade -->
+                  <div class="form-field">
+                    <label for="faixaDensidadeInicial" class="field-label">Densidade Inicial (kg/m³)</label>
+                    <p-inputNumber id="faixaDensidadeInicial" formControlName="faixaDensidadeInicial" [min]="0"
+                      [step]="0.1" [minFractionDigits]="1" [maxFractionDigits]="2" placeholder="0.0" class="w-full">
+                    </p-inputNumber>
+                  </div>
+
+                  <div class="form-field">
+                    <label for="faixaDensidadeFinal" class="field-label">Densidade Final (kg/m³)</label>
+                    <p-inputNumber id="faixaDensidadeFinal" formControlName="faixaDensidadeFinal" [min]="0" [step]="0.1"
+                      [minFractionDigits]="1" [maxFractionDigits]="2" placeholder="0.0" class="w-full">
+                    </p-inputNumber>
+                  </div>
+                </div>
+              </div>
+            </p-tabpanel>
+
+            <!-- Tab 4: Configurações -->
+            <p-tabpanel [value]="3">
+              <div class="tab-content">
+                <div class="form-grid">
+                  <!-- Tipo de Cálculo de Peso -->
+                  <div class="form-field">
+                    <label for="tipoCalculoPeso" class="field-label">Tipo de Cálculo de Peso</label>
+                    <p-select id="tipoCalculoPeso" formControlName="tipoCalculoPeso" [options]="tiposCalculoPeso"
+                      placeholder="Selecione o tipo" class="w-full">
+                    </p-select>
+                  </div>
+
+                  <!-- Código CDA -->
+                  <div class="form-field">
+                    <label for="codigoCda" class="field-label">Código CDA</label>
+                    <input pInputText id="codigoCda" formControlName="codigoCda" placeholder="Digite o código CDA"
+                      class="w-full" />
+                  </div>
+
+                  <!-- Produto Restrito -->
+                  <div class="form-field full-width">
+                    <div class="checkbox-field">
+                      <p-checkbox id="produtoRestrito" formControlName="produtoRestrito" binary="true">
+                      </p-checkbox>
+                      <label for="produtoRestrito" class="checkbox-label">
+                        Produto Restrito
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Observações de Restrição -->
+                  <div class="form-field full-width" *ngIf="produtoForm.get('produtoRestrito')?.value">
+                    <label for="observacoesRestricao" class="field-label">Observações sobre Restrições</label>
+                    <textarea pTextarea id="observacoesRestricao" formControlName="observacoesRestricao"
+                      placeholder="Descreva as restrições do produto" rows="3" class="w-full">
+                  </textarea>
+                  </div>
+
+                  <!-- Ativo -->
+                  <div class="form-field full-width">
+                    <div class="checkbox-field">
+                      <p-checkbox id="ativo" formControlName="ativo" binary="true">
+                      </p-checkbox>
+                      <label for="ativo" class="checkbox-label">
+                        Produto Ativo
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </p-tabpanel>
+          </p-tabpanels>
+        </p-tabs>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <p-button label="Cancelar" severity="secondary" (onClick)="onCancel()" [disabled]="saving()">
+          </p-button>
+
+          <p-button label="{{ isEditMode() ? 'Atualizar' : 'Salvar' }} Produto" type="submit" [loading]="saving()"
+            [disabled]="saving()">
+          </p-button>
+        </div>
+      </form>
+    </p-card>
+  </div>
+
+  <!-- Toast Messages -->
+  <p-toast />
+
+  <!-- Confirmation Dialog -->
+  <p-confirmDialog />
+</div>

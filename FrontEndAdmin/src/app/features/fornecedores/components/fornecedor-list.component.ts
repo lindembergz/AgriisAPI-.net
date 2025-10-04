@@ -111,8 +111,11 @@ export class FornecedorListComponent implements OnInit {
   columns: TableColumn[] = [
     { field: 'codigo', header: 'Código', sortable: true, width: '120px' },
     { field: 'nome', header: 'Nome', sortable: true },
+    //{ field: 'nomeFantasia', header: 'Nome Fantasia', sortable: true, width: '150px' }, // NOVO CAMPO
     { field: 'cpfCnpj', header: 'CPF/CNPJ', sortable: true, width: '150px' },
     { field: 'tipoCliente', header: 'Tipo Cliente', sortable: true, width: '120px' },
+    //{ field: 'ramosAtividade', header: 'Ramos de Atividade', sortable: false, width: '200px' }, // NOVO CAMPO
+    //{ field: 'bairro', header: 'Bairro', sortable: true, width: '120px' },
     { field: 'localidade', header: 'Localidade', sortable: false, width: '150px' },
     { field: 'uf', header: 'UF', sortable: true, width: '80px' }
   ];
@@ -219,8 +222,14 @@ export class FornecedorListComponent implements OnInit {
    
    this.fornecedorService.list(params).subscribe({
       next: (response) => {
-     console.log(response.items)
-        console.log(response)
+        console.log('📋 Fornecedores recebidos da API:', response.items);
+        console.log('🔍 Primeiro fornecedor - dados de endereço:', {
+          bairro: response.items[0]?.bairro,
+          ufNome: response.items[0]?.ufNome,
+          ufCodigo: response.items[0]?.ufCodigo,
+          municipioNome: response.items[0]?.municipioNome,
+          endereco: response.items[0]?.endereco
+        });
         this.fornecedores.set(response.items);
         this.totalRecords.set(response.total);
         this.isLoading.set(false);
@@ -378,12 +387,18 @@ export class FornecedorListComponent implements OnInit {
    * Get localidade from address with complete geographic information
    */
   getLocalidade(fornecedor: Fornecedor): string {
+    // Primeiro tenta buscar diretamente no fornecedor (nova estrutura da API)
+    if (fornecedor.municipioNome) {
+      return fornecedor.municipioNome;
+    }
+    
+    // Fallback para estrutura antiga com endereco aninhado
     if (fornecedor.endereco) {
       const endereco = fornecedor.endereco as any;
-      // Use enriched geographic data if available, fallback to original fields
       const municipioNome = endereco.municipioNome || endereco.cidade;
       return municipioNome || '-';
     }
+    
     return '-';
   }
 
@@ -391,12 +406,18 @@ export class FornecedorListComponent implements OnInit {
    * Get UF from address with complete geographic information
    */
   getUf(fornecedor: Fornecedor): string {
+    // Primeiro tenta buscar diretamente no fornecedor (nova estrutura da API)
+    if (fornecedor.ufCodigo) {
+      return fornecedor.ufCodigo;
+    }
+    
+    // Fallback para estrutura antiga com endereco aninhado
     if (fornecedor.endereco) {
       const endereco = fornecedor.endereco as any;
-      // Use enriched geographic data if available, fallback to original fields
       const ufCodigo = endereco.ufCodigo || endereco.uf;
       return ufCodigo || '-';
     }
+    
     return '-';
   }
 
@@ -404,19 +425,33 @@ export class FornecedorListComponent implements OnInit {
    * Get complete geographic information for display
    */
   getCompleteGeographicInfo(fornecedor: Fornecedor): string {
+    // Primeiro tenta buscar diretamente no fornecedor (nova estrutura da API)
+    const municipio = fornecedor.municipioNome;
+    const uf = fornecedor.ufCodigo;
+    
+    if (municipio && uf) {
+      return `${municipio} - ${uf}`;
+    } else if (municipio) {
+      return municipio;
+    } else if (uf) {
+      return uf;
+    }
+    
+    // Fallback para estrutura antiga com endereco aninhado
     if (fornecedor.endereco) {
       const endereco = fornecedor.endereco as any;
-      const municipio = endereco.municipioNome || endereco.cidade;
-      const uf = endereco.ufCodigo || endereco.uf;
+      const municipioFallback = endereco.municipioNome || endereco.cidade;
+      const ufFallback = endereco.ufCodigo || endereco.uf;
       
-      if (municipio && uf) {
-        return `${municipio} - ${uf}`;
-      } else if (municipio) {
-        return municipio;
-      } else if (uf) {
-        return uf;
+      if (municipioFallback && ufFallback) {
+        return `${municipioFallback} - ${ufFallback}`;
+      } else if (municipioFallback) {
+        return municipioFallback;
+      } else if (ufFallback) {
+        return ufFallback;
       }
     }
+    
     return '-';
   }
 
@@ -426,5 +461,81 @@ export class FornecedorListComponent implements OnInit {
   getUfDisplayName(ufId: string): string {
     const uf = this.availableUfs().find(u => u.id.toString() === ufId);
     return uf ? `${uf.nome} (${uf.uf})` : '';
+  }
+
+  /**
+   * Get bairro from fornecedor
+   */
+  getBairro(fornecedor: Fornecedor): string {
+    console.log('🏘️ getBairro chamado para fornecedor:', {
+      id: fornecedor.id,
+      nome: fornecedor.nome,
+      bairro: fornecedor.bairro,
+      endereco: fornecedor.endereco
+    });
+    
+    // Primeiro tenta buscar diretamente no fornecedor (nova estrutura da API)
+    if (fornecedor.bairro) {
+      console.log('✅ Bairro encontrado diretamente:', fornecedor.bairro);
+      return fornecedor.bairro;
+    }
+    
+    // Fallback para estrutura antiga com endereco aninhado
+    if (fornecedor.endereco) {
+      const endereco = fornecedor.endereco as any;
+      const bairroEndereco = endereco.bairro || '-';
+      console.log('🔄 Bairro do endereco aninhado:', bairroEndereco);
+      return bairroEndereco;
+    }
+    
+    console.log('❌ Nenhum bairro encontrado');
+    return '-';
+  }
+
+  /**
+   * Get nome fantasia from fornecedor
+   */
+  getNomeFantasia(fornecedor: Fornecedor): string {
+    return fornecedor.nomeFantasia || '-';
+  }
+
+  /**
+   * Get ramos de atividade formatted for display
+   */
+  getRamosAtividadeDisplay(fornecedor: Fornecedor): string {
+    if (!fornecedor.ramosAtividade || fornecedor.ramosAtividade.length === 0) {
+      return '-';
+    }
+    
+    // Se há muitos ramos, mostra os primeiros e adiciona "..."
+    if (fornecedor.ramosAtividade.length > 2) {
+      return fornecedor.ramosAtividade.slice(0, 2).join(', ') + '...';
+    }
+    
+    return fornecedor.ramosAtividade.join(', ');
+  }
+
+  /**
+   * Get full ramos de atividade list for tooltip
+   */
+  getRamosAtividadeTooltip(fornecedor: Fornecedor): string {
+    if (!fornecedor.ramosAtividade || fornecedor.ramosAtividade.length === 0) {
+      return 'Nenhum ramo de atividade cadastrado';
+    }
+    
+    return fornecedor.ramosAtividade.join(', ');
+  }
+
+  /**
+   * Get endereço de correspondência display
+   */
+  getEnderecoCorrespondenciaDisplay(fornecedor: Fornecedor): string {
+    if (!fornecedor.enderecoCorrespondencia) {
+      return 'Mesmo faturamento';
+    }
+    
+    return fornecedor.enderecoCorrespondencia === 'MesmoFaturamento' 
+      ? 'Mesmo faturamento' 
+      : 'Diferente do faturamento';
   }
 }

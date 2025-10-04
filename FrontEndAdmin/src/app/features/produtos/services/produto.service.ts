@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, combineLatest, map, switchMap } from 'rxjs';
+import { Observable, combineLatest, map } from 'rxjs';
 import { ReferenceCrudService } from '../../../shared/services/reference-crud.service';
 import { 
   ProdutoDto, 
@@ -291,14 +291,16 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    */
   override criar(dto: CriarProdutoDto): Observable<ProdutoDto> {
     return this.errorHandlingService.wrapWithErrorHandling(
-      this.validarReferencias(dto).pipe(
-        switchMap(validation => {
-          if (!validation.isValid) {
-            throw new Error(`Referências inválidas: ${validation.errors.join(', ')}`);
-          }
-          return this.http.post<ProdutoDto>(this.baseUrl, dto);
-        })
-      ),
+      // Temporarily disabled reference validation due to API endpoint issues
+      // this.validarReferencias(dto).pipe(
+      //   switchMap(validation => {
+      //     if (!validation.isValid) {
+      //       throw new Error(`Referências inválidas: ${validation.errors.join(', ')}`);
+      //     }
+      //     return this.http.post<ProdutoDto>(this.baseUrl, dto);
+      //   })
+      // ),
+      this.http.post<ProdutoDto>(this.baseUrl, dto),
       'criar produto',
       'Produto'
     );
@@ -309,14 +311,16 @@ export class ProdutoService extends ReferenceCrudService<ProdutoDto, CriarProdut
    */
   override atualizar(id: number, dto: AtualizarProdutoDto, rowVersion?: string): Observable<ProdutoDto> {
     return this.errorHandlingService.wrapWithErrorHandling(
-      this.validarReferencias(dto).pipe(
-        switchMap(validation => {
-          if (!validation.isValid) {
-            throw new Error(`Referências inválidas: ${validation.errors.join(', ')}`);
-          }
-          return this.http.put<ProdutoDto>(`${this.baseUrl}/${id}`, dto);
-        })
-      ),
+      // Temporarily disabled reference validation due to API endpoint issues
+      // this.validarReferencias(dto).pipe(
+      //   switchMap(validation => {
+      //     if (!validation.isValid) {
+      //       throw new Error(`Referências inválidas: ${validation.errors.join(', ')}`);
+      //     }
+      //     return this.http.put<ProdutoDto>(`${this.baseUrl}/${id}`, dto);
+      //   })
+      // ),
+      this.http.put<ProdutoDto>(`${this.baseUrl}/${id}`, dto),
       'atualizar produto',
       'Produto'
     );

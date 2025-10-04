@@ -101,9 +101,6 @@ public class EnderecoRequest
     [Required(ErrorMessage = "Bairro é obrigatório")]
     public string Bairro { get; set; } = string.Empty;
     
-    [Required(ErrorMessage = "Cidade é obrigatória")]
-    public string Cidade { get; set; } = string.Empty;
-    
     [Required(ErrorMessage = "UF é obrigatória")]
     public string Uf { get; set; } = string.Empty;
     

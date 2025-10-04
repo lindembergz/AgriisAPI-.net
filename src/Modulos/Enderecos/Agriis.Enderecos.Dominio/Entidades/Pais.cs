@@ -35,15 +35,15 @@ public class Pais : EntidadeBase
     /// <summary>
     /// Construtor para criação de um novo país
     /// </summary>
-    /// <param name="codigo">Código do país (ISO)</param>
     /// <param name="nome">Nome do país</param>
-    public Pais(string codigo, string nome)
+    /// <param name="codigo">Código do país (ISO)</param>
+    public Pais(string nome, string codigo)
     {
-        ValidarCodigo(codigo);
         ValidarNome(nome);
+        ValidarCodigo(codigo);
         
-        Codigo = codigo.ToUpper();
         Nome = nome;
+        Codigo = codigo.ToUpper();
         Ativo = true;
     }
     
@@ -69,11 +69,14 @@ public class Pais : EntidadeBase
     /// Atualiza as informações do país
     /// </summary>
     /// <param name="nome">Novo nome</param>
-    public void AtualizarInformacoes(string nome)
+    /// <param name="codigo">Novo código</param>
+    public void AtualizarInformacoes(string nome, string codigo)
     {
         ValidarNome(nome);
+        ValidarCodigo(codigo);
         
         Nome = nome;
+        Codigo = codigo.ToUpper();
         AtualizarDataModificacao();
     }
     
