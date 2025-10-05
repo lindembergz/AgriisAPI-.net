@@ -371,7 +371,7 @@ export abstract class ReferenceCrudBaseComponent<
   /**
    * Apply all filters (search + status + custom)
    */
-  private applyFilters(): void {
+  protected applyFilters(): void {
     let filtered = [...this.items()];
     
     // Apply status filter
@@ -693,128 +693,11 @@ export abstract class ReferenceCrudBaseComponent<
     this.form.reset();
   }
 
-  /**
-   * Activate item with confirmation
-   */
-  async ativarItem(item: TDto): Promise<void> {
-    try {
-      // Get custom warning message if any
-      const warningMessage = this.getStatusChangeWarning(item, true);
-      let confirmationMessage = `Tem certeza que deseja ativar este ${this.entityDisplayName().toLowerCase()}?`;
-      
-      if (warningMessage) {
-        confirmationMessage += `\n\n⚠️ ${warningMessage}`;
-      }
 
-      const confirmed = await this.feedbackService.showConfirmation({
-        message: confirmationMessage,
-        header: 'Confirmar Ativação',
-        icon: 'pi pi-question-circle',
-        acceptLabel: 'Ativar',
-        rejectLabel: 'Cancelar',
-        acceptButtonStyleClass: 'p-button-success',
-        rejectButtonStyleClass: 'p-button-text'
-      });
-      
-      if (confirmed) {
-        this.confirmarAtivacao(item);
-      }
-    } catch (error) {
-      console.error('Erro ao processar ativação:', error);
-      this.feedbackService.showError(
-        'Erro ao processar ativação. Tente novamente.',
-        'Erro de Operação'
-      );
-    }
-  }
 
-  /**
-   * Execute item activation
-   */
-  private confirmarAtivacao(item: TDto): void {
-    const loadingKey = `activate-${item.id}`;
-    
-    // Optimistically update the UI
-    this.updateItemStatusOptimistically(item, true);
-    
-    this.loadingStateService.wrapAsync(
-      'item-action',
-      loadingKey,
-      () => this.service.ativar(item.id),
-      `Ativando ${this.entityDisplayName().toLowerCase()}...`
-    ).subscribe({
-      next: () => {
-        this.feedbackService.showSuccess({
-          message: this.entityDisplayName() + ' ativado com sucesso',
-          summary: 'Ativação Realizada',
-          includeUndo: true,
-          undoAction: () => this.confirmarDesativacao(item),
-          undoLabel: 'Desativar'
-        });
-        
-        // Highlight the row temporarily
-        this.highlightRowTemporarily(item);
-        
-        // Refresh data to ensure consistency
-        this.refreshItemData(item);
-      },
-      error: (error) => {
-        // Revert optimistic update on error
-        this.updateItemStatusOptimistically(item, false);
-        // Error is already handled by the service
-      }
-    });
-  }
 
-  /**
-   * Deactivate item with enhanced confirmation and dependency checking
-   */
-  async desativarItem(item: TDto): Promise<void> {
-    // Check for dependencies before showing confirmation
-    try {
-      const dependencyInfo = await this.checkDeactivationDependencies(item);
-      if (dependencyInfo && !dependencyInfo.canDeactivate) {
-        // Show dependency warning
-        this.feedbackService.showWarning(
-          dependencyInfo.message || `Este ${this.entityDisplayName().toLowerCase()} está sendo usado por outros registros e não pode ser desativado`,
-          'Desativação Não Permitida'
-        );
-        return;
-      }
 
-      // Get custom warning message if any
-      const warningMessage = this.getStatusChangeWarning(item, false);
-      let confirmationMessage = `Tem certeza que deseja desativar este ${this.entityDisplayName().toLowerCase()}?`;
-      
-      if (warningMessage) {
-        confirmationMessage += `\n\n⚠️ ${warningMessage}`;
-      }
 
-      if (dependencyInfo && dependencyInfo.warningMessage) {
-        confirmationMessage += `\n\n⚠️ ${dependencyInfo.warningMessage}`;
-      }
-
-      const confirmed = await this.feedbackService.showConfirmation({
-        message: confirmationMessage,
-        header: 'Confirmar Desativação',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Desativar',
-        rejectLabel: 'Cancelar',
-        acceptButtonStyleClass: 'p-button-warning',
-        rejectButtonStyleClass: 'p-button-text'
-      });
-      
-      if (confirmed) {
-        this.confirmarDesativacao(item);
-      }
-    } catch (error) {
-      console.error('Erro ao verificar dependências para desativação:', error);
-      this.feedbackService.showError(
-        'Erro ao verificar dependências. Tente novamente.',
-        'Erro de Validação'
-      );
-    }
-  }
 
   /**
    * Check if item can be deactivated (override in child components if needed)
@@ -830,60 +713,13 @@ export abstract class ReferenceCrudBaseComponent<
     return null;
   }
 
-  /**
-   * Execute item deactivation
-   */
-  private confirmarDesativacao(item: TDto): void {
-    const loadingKey = `deactivate-${item.id}`;
-    
-    // Optimistically update the UI
-    this.updateItemStatusOptimistically(item, false);
-    
-    this.loadingStateService.wrapAsync(
-      'item-action',
-      loadingKey,
-      () => this.service.desativar(item.id),
-      `Desativando ${this.entityDisplayName().toLowerCase()}...`
-    ).subscribe({
-      next: () => {
-        this.feedbackService.showSuccess({
-          message: this.entityDisplayName() + ' desativado com sucesso',
-          summary: 'Desativação Realizada',
-          includeUndo: true,
-          undoAction: () => this.confirmarAtivacao(item),
-          undoLabel: 'Reativar'
-        });
-        
-        // Highlight the row temporarily
-        this.highlightRowTemporarily(item);
-        
-        // Refresh data to ensure consistency
-        this.refreshItemData(item);
-      },
-      error: (error) => {
-        // Revert optimistic update on error
-        this.updateItemStatusOptimistically(item, true);
-        // Error is already handled by the service
-      }
-    });
-  }
+
 
   /**
    * Confirm and delete item with enhanced feedback
    */
   async excluirItem(item: TDto): Promise<void> {
     try {
-      // First check if item can be removed
-      const canRemove = await this.service.podeRemover(item.id).toPromise();
-      
-      if (!canRemove) {
-        this.feedbackService.showWarning(
-          `Este ${this.entityDisplayName().toLowerCase()} está sendo usado por outros registros e não pode ser excluído`,
-          'Exclusão Não Permitida'
-        );
-        return;
-      }
-
       // Show enhanced delete confirmation
       const confirmed = await this.feedbackService.showDeleteConfirmation(
         `este ${this.entityDisplayName().toLowerCase()}`

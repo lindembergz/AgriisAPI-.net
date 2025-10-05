@@ -87,7 +87,6 @@ export class ProdutoListComponent implements OnInit {
         { field: 'categoriaNome', header: 'Categoria', sortable: true, hideOnMobile: true, type: 'text' },
         { field: 'unidadeMedidaSimbolo', header: 'Unidade', sortable: true, width: '100px', hideOnMobile: true, type: 'text' },
         { field: 'atividadeAgropecuariaNome', header: 'Atividade', sortable: true, width: '120px', hideOnTablet: true, type: 'text' },
-        { field: 'ativo', header: 'Status', sortable: true, width: '100px', type: 'boolean' }
     ]);
 
     // Status filter options

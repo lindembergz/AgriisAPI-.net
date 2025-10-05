@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Geocodificação com IDs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Teste - Geocodificação Reversa com Resolução de IDs</h1>
+    
+    <div class="test-section">
+        <h2>Teste 1: São Paulo</h2>
+        <p>Coordenadas: -23.5505, -46.6333</p>
+        <button onclick="testarCoordenadas(-23.5505, -46.6333, 'resultado1')">Testar São Paulo</button>
+        <div id="resultado1" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Teste 2: Brasília</h2>
+        <p>Coordenadas: -15.7998, -47.8645</p>
+        <button onclick="testarCoordenadas(-15.7998, -47.8645, 'resultado2')">Testar Brasília</button>
+        <div id="resultado2" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Teste 3: Rio de Janeiro</h2>
+        <p>Coordenadas: -22.9068, -43.1729</p>
+        <button onclick="testarCoordenadas(-22.9068, -43.1729, 'resultado3')">Testar Rio de Janeiro</button>
+        <div id="resultado3" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Teste de APIs Backend</h2>
+        <button onclick="testarApiUf()">Testar API UF</button>
+        <button onclick="testarApiMunicipio()">Testar API Município</button>
+        <div id="resultadoApi" class="result"></div>
+    </div>
+
+    <script>
+        // Simular o serviço de geocodificação
+        async function testarCoordenadas(lat, lng, resultadoId) {
+            const resultadoDiv = document.getElementById(resultadoId);
+            resultadoDiv.innerHTML = 'Testando...';
+            
+            try {
+                // Simular chamada para o serviço
+                const resultado = await simularGeocodificacao(lat, lng);
+                
+                resultadoDiv.className = 'result success';
+                resultadoDiv.innerHTML = `
+                    <h4>Resultado da Geocodificação:</h4>
+                    <p><strong>Endereço:</strong> ${resultado.enderecoCompleto}</p>
+                    <p><strong>Cidade:</strong> ${resultado.cidade}</p>
+                    <p><strong>UF:</strong> ${resultado.uf}</p>
+                    <p><strong>CEP:</strong> ${resultado.cep}</p>
+                    <p><strong>UF ID:</strong> ${resultado.ufId || 'Não resolvido'}</p>
+                    <p><strong>Município ID:</strong> ${resultado.municipioId || 'Não resolvido'}</p>
+                    <p><strong>Coordenadas:</strong> ${resultado.latitude}, ${resultado.longitude}</p>
+                `;
+            } catch (error) {
+                resultadoDiv.className = 'result error';
+                resultadoDiv.innerHTML = `<p>Erro: ${error.message}</p>`;
+            }
+        }
+
+        async function simularGeocodificacao(lat, lng) {
+            // Simular dados baseados nas coordenadas
+            const dados = {
+                '-23.5505,-46.6333': {
+                    logradouro: 'Avenida Paulista',
+                    numero: '1000',
+                    bairro: 'Bela Vista',
+                    cidade: 'São Paulo',
+                    uf: 'SP',
+                    cep: '01310-100',
+                    enderecoCompleto: 'Av. Paulista, 1000 - Bela Vista, São Paulo - SP',
+                    ufId: 25, // ID do SP
+                    municipioId: 3550308 // Código IBGE de São Paulo
+                },
+                '-15.7998,-47.8645': {
+                    logradouro: 'Esplanada dos Ministérios',
+                    numero: 'S/N',
+                    bairro: 'Zona Cívico-Administrativa',
+                    cidade: 'Brasília',
+                    uf: 'DF',
+                    cep: '70150-900',
+                    enderecoCompleto: 'Esplanada dos Ministérios - Zona Cívico-Administrativa, Brasília - DF',
+                    ufId: 7, // ID do DF
+                    municipioId: 5300108 // Código IBGE de Brasília
+                },
+                '-22.9068,-43.1729': {
+                    logradouro: 'Avenida Atlântica',
+                    numero: '1702',
+                    bairro: 'Copacabana',
+                    cidade: 'Rio de Janeiro',
+                    uf: 'RJ',
+                    cep: '22021-001',
+                    enderecoCompleto: 'Av. Atlântica, 1702 - Copacabana, Rio de Janeiro - RJ',
+                    ufId: 19, // ID do RJ
+                    municipioId: 3304557 // Código IBGE do Rio de Janeiro
+                }
+            };
+
+            const chave = `${lat},${lng}`;
+            const resultado = dados[chave];
+            
+            if (resultado) {
+                return {
+                    ...resultado,
+                    latitude: lat,
+                    longitude: lng
+                };
+            } else {
+                throw new Error('Coordenadas não encontradas nos dados de teste');
+            }
+        }
+
+        async function testarApiUf() {
+            const resultadoDiv = document.getElementById('resultadoApi');
+            resultadoDiv.innerHTML = 'Testando API UF...';
+            
+            try {
+                const response = await fetch('/api/enderecos/estados/uf/SP');
+                const data = await response.json();
+                
+                resultadoDiv.className = 'result success';
+                resultadoDiv.innerHTML = `
+                    <h4>API UF - Resultado:</h4>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultadoDiv.className = 'result error';
+                resultadoDiv.innerHTML = `<p>Erro na API UF: ${error.message}</p>`;
+            }
+        }
+
+        async function testarApiMunicipio() {
+            const resultadoDiv = document.getElementById('resultadoApi');
+            resultadoDiv.innerHTML = 'Testando API Município...';
+            
+            try {
+                const response = await fetch('/api/enderecos/municipios/buscar?nome=São Paulo&ufId=25');
+                const data = await response.json();
+                
+                resultadoDiv.className = 'result success';
+                resultadoDiv.innerHTML = `
+                    <h4>API Município - Resultado:</h4>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultadoDiv.className = 'result error';
+                resultadoDiv.innerHTML = `<p>Erro na API Município: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -20,7 +20,15 @@
         {{ isEditMode() ? 'Editar Produto' : 'Novo Produto' }}
       </h1>
       <p class="page-subtitle">
-        {{ isEditMode() ? 'Atualize as informações do produto' : 'Preencha os dados para criar um novo produto' }}
+        <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()"
+          [disabled]="saving()">
+        </p-button>
+
+        <p-button label="{{ isEditMode() ? 'Atualizar' : 'Salvar' }} Produto" type="submit" [loading]="saving()"
+          [disabled]="saving()">
+        </p-button>
+
+
       </p>
     </div>
 
@@ -70,8 +78,9 @@
                   <!-- Tipo -->
                   <div class="form-field">
                     <label for="tipo" class="field-label required">Tipo</label>
-                    <p-select id="tipo" formControlName="tipo" [options]="tiposProduto" placeholder="Selecione o tipo"
-                      [class.ng-invalid]="shouldShowError('tipo')" class="w-full">
+                    <p-select id="tipo" formControlName="tipo" [options]="tiposProduto" optionLabel="label"
+                      optionValue="value" placeholder="Selecione o tipo" [class.ng-invalid]="shouldShowError('tipo')"
+                      class="w-full">
                     </p-select>
                     <app-field-error *ngIf="shouldShowError('tipo')" [message]="getErrorMessage('tipo')">
                     </app-field-error>
@@ -81,8 +90,9 @@
                   <div class="form-field">
                     <label for="fornecedorId" class="field-label">Fornecedor</label>
                     <p-select id="fornecedorId" formControlName="fornecedorId" [options]="fornecedores()"
-                      placeholder="Selecione o fornecedor" [loading]="loadingFornecedores()"
-                      [class.ng-invalid]="shouldShowError('fornecedorId')" class="w-full">
+                      optionLabel="nome" optionValue="id" placeholder="Selecione o fornecedor"
+                      [loading]="loadingFornecedores()" [class.ng-invalid]="shouldShowError('fornecedorId')"
+                      [showClear]="true" [filter]="true" filterBy="nome" class="w-full">
                     </p-select>
                     <app-field-error *ngIf="shouldShowError('fornecedorId')"
                       [message]="getErrorMessage('fornecedorId')">
@@ -120,8 +130,9 @@
                   <div class="form-field">
                     <label for="unidadeMedidaId" class="field-label required">Unidade de Medida</label>
                     <p-select id="unidadeMedidaId" formControlName="unidadeMedidaId" [options]="unidadesMedida()"
-                      placeholder="Selecione a unidade" [loading]="loadingUnidades()"
-                      [class.ng-invalid]="shouldShowError('unidadeMedidaId')" (onChange)="onUnidadeMedidaChange($event)"
+                      optionLabel="nome" optionValue="id" placeholder="Selecione a unidade"
+                      [loading]="loadingUnidades()" [class.ng-invalid]="shouldShowError('unidadeMedidaId')"
+                      (onChange)="onUnidadeMedidaChange($event)" [showClear]="true" [filter]="true" filterBy="nome"
                       class="w-full">
                     </p-select>
                     <app-field-error *ngIf="shouldShowError('unidadeMedidaId')"
@@ -133,8 +144,9 @@
                   <div class="form-field">
                     <label for="embalagemId" class="field-label">Embalagem</label>
                     <p-select id="embalagemId" formControlName="embalagemId" [options]="embalagensDisponiveis()"
-                      placeholder="Selecione a embalagem" [loading]="loadingEmbalagens()"
-                      [disabled]="!produtoForm.get('unidadeMedidaId')?.value" class="w-full">
+                      optionLabel="nome" optionValue="id" placeholder="Selecione a embalagem"
+                      [loading]="loadingEmbalagens()" [disabled]="!produtoForm.get('unidadeMedidaId')?.value"
+                      [showClear]="true" [filter]="true" filterBy="nome" class="w-full">
                     </p-select>
                     <small class="field-hint" *ngIf="!produtoForm.get('unidadeMedidaId')?.value">
                       Selecione uma unidade de medida primeiro
@@ -153,8 +165,9 @@
                   <div class="form-field">
                     <label for="atividadeAgropecuariaId" class="field-label">Atividade Agropecuária</label>
                     <p-select id="atividadeAgropecuariaId" formControlName="atividadeAgropecuariaId"
-                      [options]="atividadesAgropecuarias()" placeholder="Selecione a atividade"
-                      [loading]="loadingAtividades()" class="w-full">
+                      [options]="atividadesAgropecuarias()" optionLabel="nome" optionValue="id"
+                      placeholder="Selecione a atividade" [loading]="loadingAtividades()" [showClear]="true"
+                      [filter]="true" filterBy="nome" class="w-full">
                     </p-select>
                   </div>
 
@@ -162,7 +175,9 @@
                   <div class="form-field">
                     <label for="produtoPaiId" class="field-label">Produto Pai</label>
                     <p-select id="produtoPaiId" formControlName="produtoPaiId" [options]="produtosPais()"
-                      placeholder="Selecione o produto pai" [loading]="loadingProdutosPais()" class="w-full">
+                      optionLabel="nome" optionValue="id" placeholder="Selecione o produto pai"
+                      [loading]="loadingProdutosPais()" [showClear]="true" [filter]="true" filterBy="nome"
+                      class="w-full">
                     </p-select>
                   </div>
 
@@ -170,7 +185,8 @@
                   <div class="form-field full-width">
                     <label for="culturasIds" class="field-label">Culturas Aplicáveis</label>
                     <p-multiSelect id="culturasIds" formControlName="culturasIds" [options]="culturas()"
-                      placeholder="Selecione as culturas" [loading]="loadingCulturas()" class="w-full">
+                      optionLabel="nome" optionValue="id" placeholder="Selecione as culturas"
+                      [loading]="loadingCulturas()" [filter]="true" filterBy="nome" class="w-full">
                     </p-multiSelect>
                   </div>
                 </div>
@@ -286,7 +302,7 @@
                   <div class="form-field">
                     <label for="tipoCalculoPeso" class="field-label">Tipo de Cálculo de Peso</label>
                     <p-select id="tipoCalculoPeso" formControlName="tipoCalculoPeso" [options]="tiposCalculoPeso"
-                      placeholder="Selecione o tipo" class="w-full">
+                      optionLabel="label" optionValue="value" placeholder="Selecione o tipo" class="w-full">
                     </p-select>
                   </div>
 
@@ -331,16 +347,6 @@
             </p-tabpanel>
           </p-tabpanels>
         </p-tabs>
-
-        <!-- Form Actions -->
-        <div class="form-actions">
-          <p-button label="Cancelar" severity="secondary" (onClick)="onCancel()" [disabled]="saving()">
-          </p-button>
-
-          <p-button label="{{ isEditMode() ? 'Atualizar' : 'Salvar' }} Produto" type="submit" [loading]="saving()"
-            [disabled]="saving()">
-          </p-button>
-        </div>
       </form>
     </p-card>
   </div>

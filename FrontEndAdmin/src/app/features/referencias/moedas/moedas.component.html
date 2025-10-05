@@ -10,7 +10,7 @@
     <div class="actions-section">
       <!-- Primary Action -->
       <p-button
-        [label]="'Nova ' + entityDisplayName()"
+        [label]="'Nova moeda'"
         icon="pi pi-plus"
         (onClick)="novoItem()"
         class="p-button-primary new-item-btn"
@@ -46,21 +46,6 @@
           pTooltip="Limpar busca"
           tooltipPosition="bottom">
         </p-button>
-      </div>
-
-      <!-- Status Filter -->
-      <div class="filter-item status-filter">
-        <label for="statusFilter" class="filter-label">Status</label>
-        <p-select
-          id="statusFilter"
-          [options]="statusFilterOptions"
-          [ngModel]="selectedStatusFilter()"
-          (onChange)="onStatusFilterChange($event)"
-          placeholder="Filtrar por status"
-          optionLabel="label"
-          optionValue="value"
-          class="status-select">
-        </p-select>
       </div>
 
       <!-- Clear All Filters -->
@@ -199,6 +184,14 @@
                   </span>
                 </span>
                 
+                <!-- País Field -->
+                <span *ngSwitchCase="'paisNome'" class="pais-field">
+                  <div class="flex align-items-center gap-2">
+                    <span class="font-bold text-sm">{{ item.paisCodigo }}</span>
+                    <span>{{ item.paisNome }}</span>
+                  </div>
+                </span>
+                
                 <!-- Status Field -->
                 <span *ngSwitchCase="'ativo'" class="status-field">
                   <p-tag
@@ -235,17 +228,7 @@
                 </p-button>
                 
                
-                <!-- Activate Action -->
-                <p-button
-                  *ngIf="!item.ativo"
-                  icon="pi pi-check"
-                  (onClick)="ativarItem(item)"
-                  class="p-button-rounded p-button-text p-button-success activate-btn"
-                  pTooltip="Ativar moeda"
-                  tooltipPosition="top"
-                  [loading]="isActionLoading('activate', item.id)"
-                  [disabled]="hasAnyActionLoading()">
-                </p-button>
+
                 
                 <!-- Delete Action -->
                 <p-button
@@ -335,6 +318,49 @@
       
       <!-- Form Fields -->
       <form [formGroup]="form" (ngSubmit)="salvarItem()" class="reference-form">
+
+        <!-- País field -->
+        <div class="field">
+          <label for="paisId" class="field-label required">País</label>
+          <p-select
+            id="paisId"
+            formControlName="paisId"
+            [options]="paises()"
+            optionLabel="nome"
+            optionValue="id"
+            placeholder="Selecione o país"
+            [showClear]="true"
+            [filter]="true"
+            filterBy="nome,codigo"
+            class="w-full">
+            
+            <!-- Template customizado para exibir país com código -->
+            <ng-template pTemplate="selectedItem" let-selectedOption>
+              <div class="flex align-items-center gap-2" *ngIf="selectedOption">
+                <span class="font-bold">{{ selectedOption.codigo }}</span>
+                <span>{{ selectedOption.nome }}</span>
+              </div>
+            </ng-template>
+            
+            <ng-template pTemplate="item" let-pais>
+              <div class="flex align-items-center gap-2">
+                <span class="font-bold">{{ pais.codigo }}</span>
+                <span>{{ pais.nome }}</span>
+              </div>
+            </ng-template>
+          </p-select>
+          <app-field-error
+            [control]="form.get('paisId')"
+            fieldName="paisId"
+            [customMessages]="{
+              required: 'País é obrigatório'
+            }">
+          </app-field-error>
+          <small class="field-help">
+            País ao qual a moeda pertence
+          </small>
+        </div>
+        
         <!-- Código field -->
         <div class="field">
           <label for="codigo" class="field-label required">Código</label>
@@ -407,6 +433,8 @@
             Símbolo da moeda para exibição (ex: R$, US$, €)
           </small>
         </div>
+
+        
 
         <!-- Ativo field -->
         <div class="field ativo-field">

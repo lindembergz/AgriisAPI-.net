@@ -538,4 +538,5 @@ export class FornecedorListComponent implements OnInit {
       ? 'Mesmo faturamento' 
       : 'Diferente do faturamento';
   }
+
 }

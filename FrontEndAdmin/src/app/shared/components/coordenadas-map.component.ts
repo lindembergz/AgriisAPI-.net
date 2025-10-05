@@ -7,13 +7,8 @@ import { Message } from 'primeng/message';
 import { BaseComponent, GoogleMapsManager } from '../utils/memory-management.util';
 import { PerformanceService } from '../../core/services/performance.service';
 
-/**
- * Interface for coordinate data
- */
-export interface Coordenadas {
-  latitude: number | null;
-  longitude: number | null;
-}
+// Interfaces
+import { Coordenadas, CONSTANTES_GEOGRAFICAS } from '../interfaces/coordenadas.interface';
 
 /**
  * Reusable component for Google Maps coordinate selection
@@ -77,7 +72,10 @@ export class CoordenadasMapComponent extends BaseComponent implements OnInit, On
 
   // Map configuration
   mapOptions: google.maps.MapOptions = {
-    center: { lat: -14.235, lng: -51.9253 }, // Center of Brazil
+    center: { 
+      lat: CONSTANTES_GEOGRAFICAS.BRASIL_CENTRO.latitude!, 
+      lng: CONSTANTES_GEOGRAFICAS.BRASIL_CENTRO.longitude! 
+    },
     zoom: 4,
     mapTypeId: google.maps.MapTypeId.HYBRID,
     streetViewControl: false,

@@ -1,4 +1,5 @@
 using Agriis.Compartilhado.Dominio.Entidades;
+using Agriis.Enderecos.Dominio.Entidades;
 
 namespace Agriis.Referencias.Dominio.Entidades;
 
@@ -23,6 +24,16 @@ public class Moeda : EntidadeBase
     public string Simbolo { get; private set; } = string.Empty;
     
     /// <summary>
+    /// ID do país ao qual a moeda pertence
+    /// </summary>
+    public int PaisId { get; private set; }
+    
+    /// <summary>
+    /// País ao qual a moeda pertence
+    /// </summary>
+    public virtual Pais Pais { get; private set; } = null!;
+    
+    /// <summary>
     /// Indica se a moeda está ativa no sistema
     /// </summary>
     public bool Ativo { get; private set; }
@@ -38,15 +49,18 @@ public class Moeda : EntidadeBase
     /// <param name="codigo">Código da moeda (3 caracteres)</param>
     /// <param name="nome">Nome da moeda</param>
     /// <param name="simbolo">Símbolo da moeda</param>
-    public Moeda(string codigo, string nome, string simbolo)
+    /// <param name="paisId">ID do país</param>
+    public Moeda(string codigo, string nome, string simbolo, int paisId)
     {
         ValidarCodigo(codigo);
         ValidarNome(nome);
         ValidarSimbolo(simbolo);
+        ValidarPaisId(paisId);
         
         Codigo = codigo.ToUpper();
         Nome = nome;
         Simbolo = simbolo;
+        PaisId = paisId;
         Ativo = true;
     }
     
@@ -73,13 +87,16 @@ public class Moeda : EntidadeBase
     /// </summary>
     /// <param name="nome">Novo nome</param>
     /// <param name="simbolo">Novo símbolo</param>
-    public void AtualizarInformacoes(string nome, string simbolo)
+    /// <param name="paisId">Novo ID do país</param>
+    public void AtualizarInformacoes(string nome, string simbolo, int paisId)
     {
         ValidarNome(nome);
         ValidarSimbolo(simbolo);
+        ValidarPaisId(paisId);
         
         Nome = nome;
         Simbolo = simbolo;
+        PaisId = paisId;
         AtualizarDataModificacao();
     }
     
@@ -108,5 +125,11 @@ public class Moeda : EntidadeBase
             
         if (simbolo.Length > 5)
             throw new ArgumentException("Símbolo da moeda não pode ter mais de 5 caracteres", nameof(simbolo));
+    }
+    
+    private static void ValidarPaisId(int paisId)
+    {
+        if (paisId <= 0)
+            throw new ArgumentException("ID do país deve ser maior que zero", nameof(paisId));
     }
 }

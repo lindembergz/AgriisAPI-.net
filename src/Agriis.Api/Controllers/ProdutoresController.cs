@@ -208,7 +208,7 @@ public class ProdutoresController : ControllerBase
     /// <param name="id">ID do produtor</param>
     /// <returns>Resultado da operação</returns>
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "RoleAdmin")]
+    //[Authorize(Roles = "RoleAdmin")]
     public async Task<ActionResult> Remover(int id)
     {
         try

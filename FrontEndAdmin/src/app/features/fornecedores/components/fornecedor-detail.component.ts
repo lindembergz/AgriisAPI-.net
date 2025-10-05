@@ -37,6 +37,9 @@ import { phoneValidator, emailValidator, nameValidator, passwordValidator, cepVa
 
 // Shared components
 import { CoordenadasMapComponent } from '../../../shared/components/coordenadas-map.component';
+import { EnderecoMapComponent } from '../../../shared/components/endereco-map.component';
+import { Endereco } from '../../../shared/models/endereco.model';
+import { Coordenadas } from '../../../shared/interfaces/coordenadas.interface';
 // GeographicSelectorComponent removido - usando selects nativos
 // UsuarioMasterFormComponent removido - usando formulário inline
 
@@ -69,6 +72,7 @@ import { InputNumber } from 'primeng/inputnumber';
     ConfirmDialogModule,
     // Shared components
     CoordenadasMapComponent,
+    EnderecoMapComponent,
     // Feature components
     PontoDistribuicaoFormComponent
   ],
@@ -92,6 +96,7 @@ export class FornecedorDetailComponent implements OnInit {
   fornecedorId = signal<number | null>(null);
   isEditMode = computed(() => this.fornecedorId() !== null);
   activeTabIndex = signal(0);
+  enderecoAtual = signal<Endereco | null>(null);
 
   // Geographic data signals
   selectedGeographicData = signal<GeographicData | null>(null);
@@ -306,6 +311,23 @@ export class FornecedorDetailComponent implements OnInit {
       municipioId: fornecedor.municipioId,
       uf: fornecedor.ufCodigo || '',
       cidade: fornecedor.municipioNome || ''
+    });
+
+    // Initialize endereco signal for the map component
+    this.enderecoAtual.set({
+      id: fornecedor.id || 0,
+      logradouro: fornecedor.logradouro || '',
+      numero: '', // Fornecedor não tem campo numero separado
+      complemento: fornecedor.complemento || '',
+      bairro: fornecedor.bairro || '',
+      cidade: fornecedor.municipioNome || '',
+      uf: fornecedor.ufCodigo || '',
+      cep: fornecedor.cep || '',
+      latitude: fornecedor.latitude,
+      longitude: fornecedor.longitude,
+      ativo: true,
+      dataCriacao: new Date(),
+      dataAtualizacao: new Date()
     });
 
     // Load geographic data if UF and Municipio IDs are available
@@ -591,6 +613,35 @@ export class FornecedorDetailComponent implements OnInit {
     };
   }
 
+  /**
+   * Get current endereco data for the map component
+   */
+  get currentEndereco(): Endereco | null {
+    const formValue = this.enderecoFormGroup.value;
+    
+    if (!formValue.logradouro && !formValue.latitude) {
+      return null;
+    }
+
+    return {
+      id: 0,
+      logradouro: formValue.logradouro || '',
+      numero: formValue.numero || '',
+      complemento: formValue.complemento || '',
+      bairro: formValue.bairro || '',
+      cidade: formValue.cidade || '',
+      uf: formValue.uf || '',
+      cep: formValue.cep || '',
+      latitude: formValue.latitude,
+      longitude: formValue.longitude,
+      ufId: formValue.ufId,
+      municipioId: formValue.municipioId,
+      ativo: true,
+      dataCriacao: new Date(),
+      dataAtualizacao: new Date()
+    };
+  }
+
 
 
   /**
@@ -783,6 +834,8 @@ export class FornecedorDetailComponent implements OnInit {
 
 
 
+
+
   /**
    * Handle coordinates selection for fornecedor address location
    */
@@ -806,6 +859,76 @@ export class FornecedorDetailComponent implements OnInit {
 
     // Mostrar notificação de sucesso
     this.notificationService.showCustomSuccess('Coordenadas atualizadas com sucesso!');
+  }
+
+  /**
+   * Handle endereco change from integrated map component
+   */
+  onEnderecoMapChange(endereco: Endereco): void {
+    console.log('🏠 Endereço atualizado pelo mapa integrado:', endereco);
+
+    // Update the signal
+    this.enderecoAtual.set(endereco);
+
+    // Atualizar o formulário com os dados do endereço
+    this.enderecoFormGroup.patchValue({
+      logradouro: endereco.logradouro,
+      numero: endereco.numero,
+      complemento: endereco.complemento,
+      bairro: endereco.bairro,
+      cidade: endereco.cidade,
+      uf: endereco.uf,
+      cep: endereco.cep,
+      latitude: endereco.latitude,
+      longitude: endereco.longitude
+    });
+
+    // Se temos UF e município IDs, atualizar também
+    if (endereco.ufId) {
+      this.enderecoFormGroup.patchValue({ ufId: endereco.ufId });
+      
+      // Carregar municípios se necessário
+      if (!this.availableMunicipios().length) {
+        this.loadMunicipiosForSelect(endereco.ufId);
+      }
+    }
+
+    if (endereco.municipioId) {
+      this.enderecoFormGroup.patchValue({ municipioId: endereco.municipioId });
+    }
+
+    // Marcar como modificado
+    this.enderecoFormGroup.markAsDirty();
+    this.enderecoFormGroup.markAsTouched();
+
+    console.log('📍 Formulário atualizado com dados do mapa integrado');
+  }
+
+  /**
+   * Handle coordenadas change from integrated map component
+   */
+  onCoordenadasMapChange(coordenadas: Coordenadas): void {
+    console.log('🗺️ Coordenadas atualizadas pelo mapa integrado:', coordenadas);
+
+    // Atualizar apenas as coordenadas
+    this.enderecoFormGroup.patchValue({
+      latitude: coordenadas.latitude,
+      longitude: coordenadas.longitude
+    });
+
+    // Update the endereco signal if it exists
+    const enderecoAtual = this.enderecoAtual();
+    if (enderecoAtual) {
+      this.enderecoAtual.set({
+        ...enderecoAtual,
+        latitude: coordenadas.latitude,
+        longitude: coordenadas.longitude
+      });
+    }
+
+    // Marcar como modificado
+    this.enderecoFormGroup.markAsDirty();
+    this.enderecoFormGroup.markAsTouched();
   }
 
   /**

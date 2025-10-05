@@ -14,17 +14,22 @@ export interface BaseReferenceEntity extends BaseEntity {
 export interface MoedaDto extends BaseReferenceEntity {
   codigo: string;
   simbolo: string;
+  paisId: number;
+  paisNome: string;
+  paisCodigo: string;
 }
 
 export interface CriarMoedaDto {
   codigo: string;
   nome: string;
   simbolo: string;
+  paisId: number;
 }
 
 export interface AtualizarMoedaDto {
   nome: string;
   simbolo: string;
+  paisId: number;
   ativo: boolean;
 }
 

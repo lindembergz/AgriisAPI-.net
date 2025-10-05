@@ -803,20 +803,50 @@ public class EnderecosController : ControllerBase
     }
 
     /// <summary>
-    /// Obtém todos os municípios
+    /// Obtém todos os municípios ou filtra por estado
     /// </summary>
     [HttpGet("municipios")]
-    public async Task<ActionResult<IEnumerable<MunicipioFrontendDto>>> ObterMunicipios([FromQuery] string? include = null)
+    public async Task<ActionResult<IEnumerable<MunicipioFrontendDto>>> ObterMunicipios(
+        [FromQuery] string? include = null,
+        [FromQuery] int? estado_id = null)
     {
         try
         {
-            var municipios = await _municipioRepository.ObterTodosAsync();
+            _logger.LogInformation("🔍 ObterMunicipios chamado - include: {Include}, estado_id: {EstadoId}", include, estado_id);
+            
+            IEnumerable<Municipio> municipios;
+            
+            if (estado_id.HasValue)
+            {
+                _logger.LogInformation("🏛️ Filtrando municípios por estado ID: {EstadoId}", estado_id.Value);
+                
+                // Validar se o estado existe
+                var estado = await _estadoRepository.ObterPorIdAsync(estado_id.Value);
+                if (estado == null)
+                {
+                    _logger.LogWarning("❌ Estado não encontrado: {EstadoId}", estado_id.Value);
+                    return NotFound(new { error_code = "ESTADO_NAO_ENCONTRADO", error_description = "Estado não encontrado" });
+                }
+                
+                _logger.LogInformation("✅ Estado encontrado: {EstadoNome} ({EstadoUf})", estado.Nome, estado.Uf);
+                municipios = await _municipioRepository.ObterPorEstadoAsync(estado_id.Value);
+                _logger.LogInformation("📊 Municípios encontrados para o estado: {Count}", municipios.Count());
+            }
+            else
+            {
+                _logger.LogInformation("🌍 Obtendo todos os municípios (sem filtro)");
+                municipios = await _municipioRepository.ObterTodosAsync();
+                _logger.LogInformation("📊 Total de municípios: {Count}", municipios.Count());
+            }
+            
             var municipiosDto = _mapper.Map<IEnumerable<MunicipioFrontendDto>>(municipios);
+            _logger.LogInformation("✅ Retornando {Count} municípios mapeados", municipiosDto.Count());
+            
             return Ok(municipiosDto);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erro ao obter municípios");
+            _logger.LogError(ex, "❌ Erro ao obter municípios. EstadoId: {EstadoId}", estado_id);
             return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
         }
     }
@@ -941,13 +971,19 @@ public class EnderecosController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("🔍 ObterMunicipiosPorUfId chamado - ufId: {UfId}", ufId);
+            
             var municipios = await _municipioRepository.ObterPorEstadoAsync(ufId);
+            _logger.LogInformation("📊 Municípios encontrados para UF ID {UfId}: {Count}", ufId, municipios.Count());
+            
             var municipiosDto = _mapper.Map<IEnumerable<MunicipioFrontendDto>>(municipios);
+            _logger.LogInformation("✅ Retornando {Count} municípios mapeados", municipiosDto.Count());
+            
             return Ok(municipiosDto);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erro ao obter municípios por UF ID: {UfId}", ufId);
+            _logger.LogError(ex, "❌ Erro ao obter municípios por UF ID: {UfId}", ufId);
             return StatusCode(500, new { error_code = "INTERNAL_ERROR", error_description = "Erro interno do servidor" });
         }
     }

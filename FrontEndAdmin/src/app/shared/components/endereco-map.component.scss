@@ -1,0 +1,263 @@
+:host {
+  display: block;
+}
+
+.map-container {
+  position: relative;
+  
+  google-map {
+    border: 1px solid var(--surface-border);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.3s ease;
+    }
+  }
+}
+
+.coordinate-display {
+  background: var(--surface-100);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  padding: 0.75rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  
+  &.brasil {
+    border-color: var(--green-500);
+    background: var(--green-50);
+    color: var(--green-800);
+  }
+  
+  &.fora-brasil {
+    border-color: var(--orange-500);
+    background: var(--orange-50);
+    color: var(--orange-800);
+  }
+}
+
+.form-grid {
+  .p-inputtext,
+  .p-select,
+  .p-inputmask {
+    width: 100%;
+  }
+  
+  .p-field {
+    margin-bottom: 1rem;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    
+    &.required::after {
+      content: ' *';
+      color: var(--red-500);
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  
+  .p-button {
+    flex: 1;
+    min-width: 120px;
+    
+    @media (max-width: 768px) {
+      min-width: 100px;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+.geocoding-status {
+  .success-message {
+    background: var(--green-50);
+    border: 1px solid var(--green-200);
+    color: var(--green-800);
+    padding: 0.75rem;
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    i {
+      color: var(--green-600);
+    }
+  }
+  
+  .error-message {
+    background: var(--red-50);
+    border: 1px solid var(--red-200);
+    color: var(--red-800);
+    padding: 0.75rem;
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    i {
+      color: var(--red-600);
+    }
+  }
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: var(--border-radius);
+  
+  .loading-content {
+    text-align: center;
+    
+    .p-progressSpinner {
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      margin: 0;
+      color: var(--text-color-secondary);
+    }
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .map-container {
+    google-map {
+      height: 300px !important;
+    }
+  }
+  
+  .action-buttons {
+    .p-button {
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+  
+  .coordinate-display {
+    font-size: 0.8rem;
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .action-buttons {
+    flex-direction: column;
+    
+    .p-button {
+      width: 100%;
+      min-width: auto;
+    }
+  }
+}
+
+// Estados do formulário
+.p-inputtext,
+.p-select,
+.p-inputmask {
+  &.ng-invalid.ng-touched {
+    border-color: var(--red-500);
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2);
+    }
+  }
+  
+  &.ng-valid.ng-touched {
+    border-color: var(--green-500);
+  }
+  
+  &:disabled,
+  &[readonly] {
+    background-color: var(--surface-100);
+    color: var(--text-color-secondary);
+    cursor: not-allowed;
+  }
+}
+
+// Animações
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Melhorias de acessibilidade
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Tema escuro
+@media (prefers-color-scheme: dark) {
+  .coordinate-display {
+    background: var(--surface-800);
+    border-color: var(--surface-600);
+    color: var(--text-color);
+    
+    &.brasil {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: var(--green-400);
+      color: var(--green-300);
+    }
+    
+    &.fora-brasil {
+      background: rgba(251, 146, 60, 0.1);
+      border-color: var(--orange-400);
+      color: var(--orange-300);
+    }
+  }
+  
+  .loading-overlay {
+    background: rgba(0, 0, 0, 0.8);
+  }
+}

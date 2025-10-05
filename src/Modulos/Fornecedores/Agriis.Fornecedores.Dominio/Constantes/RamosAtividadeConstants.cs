@@ -10,14 +10,10 @@ public static class RamosAtividadeConstants
     /// </summary>
     public static readonly List<string> RamosDisponiveis = new()
     {
-        "Sementes",
-        "Fertilizantes",
-        "Defensivos Agrícolas",
-        "Máquinas e Equipamentos",
-        "Irrigação",
-        "Nutrição Animal",
-        "Tecnologia Agrícola",
-        "Consultoria Agronômica"
+        "Industria",
+        "Distribuição",
+        "Cooperativa",
+        "Outro"
     };
     
     /// <summary>

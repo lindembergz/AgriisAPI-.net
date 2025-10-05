@@ -54,11 +54,11 @@ export class LayoutComponent implements OnInit {
       label: 'Configurações de sistema',
       items: [
         { label: 'Ano Safra', routerLink: ['/safras'] },
-        { label: 'Culturas', routerLink: ['/culturas'] },
-        { label: 'Moedas', routerLink: ['/referencias/moedas']},
+        { label: 'Culturas', routerLink: ['/culturas'] },       
         { label: 'Países', routerLink: ['/referencias/paises'] },
         { label: 'Estados', routerLink: ['/referencias/ufs'] },
         { label: 'Municípios', routerLink: ['/referencias/municipios']},
+         { label: 'Moedas', routerLink: ['/referencias/moedas']},
         { label: 'Atividades Agropecuárias', routerLink: ['/referencias/atividades-agropecuarias'] },
       ],
     },

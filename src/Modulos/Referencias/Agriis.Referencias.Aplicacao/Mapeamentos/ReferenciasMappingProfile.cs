@@ -22,7 +22,9 @@ public class ReferenciasMappingProfile : Profile
     private void ConfigurarMapeamentoMoeda()
     {
         // Entidade -> DTO de leitura
-        CreateMap<Moeda, MoedaDto>();
+        CreateMap<Moeda, MoedaDto>()
+            .ForMember(dest => dest.PaisNome, opt => opt.MapFrom(src => src.Pais != null ? src.Pais.Nome : string.Empty))
+            .ForMember(dest => dest.PaisCodigo, opt => opt.MapFrom(src => src.Pais != null ? src.Pais.Codigo : string.Empty));
 
         // DTO de criação -> Entidade
         CreateMap<CriarMoedaDto, Moeda>()
@@ -30,7 +32,8 @@ public class ReferenciasMappingProfile : Profile
             .ForMember(dest => dest.DataCriacao, opt => opt.Ignore())
             .ForMember(dest => dest.DataAtualizacao, opt => opt.Ignore())
             .ForMember(dest => dest.RowVersion, opt => opt.Ignore())
-            .ForMember(dest => dest.Ativo, opt => opt.MapFrom(src => true)); // Novas moedas são criadas ativas
+            .ForMember(dest => dest.Ativo, opt => opt.MapFrom(src => true)) // Novas moedas são criadas ativas
+            .ForMember(dest => dest.Pais, opt => opt.Ignore()); // Relacionamento será carregado pelo EF
 
         // DTO de atualização -> Entidade (preserva campos não editáveis)
         CreateMap<AtualizarMoedaDto, Moeda>()
@@ -38,7 +41,8 @@ public class ReferenciasMappingProfile : Profile
             .ForMember(dest => dest.Codigo, opt => opt.Ignore()) // Código não pode ser alterado
             .ForMember(dest => dest.DataCriacao, opt => opt.Ignore())
             .ForMember(dest => dest.DataAtualizacao, opt => opt.Ignore())
-            .ForMember(dest => dest.RowVersion, opt => opt.Ignore()); // RowVersion é gerenciado pelo EF
+            .ForMember(dest => dest.RowVersion, opt => opt.Ignore()) // RowVersion é gerenciado pelo EF
+            .ForMember(dest => dest.Pais, opt => opt.Ignore()); // Relacionamento será carregado pelo EF
     }
 
 

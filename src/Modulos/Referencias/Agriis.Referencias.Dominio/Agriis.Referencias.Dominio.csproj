@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Agriis.Compartilhado\Agriis.Compartilhado.Dominio\Agriis.Compartilhado.Dominio.csproj" />
+    <ProjectReference Include="..\..\Enderecos\Agriis.Enderecos.Dominio\Agriis.Enderecos.Dominio.csproj" />
   </ItemGroup>
 
   <ItemGroup>

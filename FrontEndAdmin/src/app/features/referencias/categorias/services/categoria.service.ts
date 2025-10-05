@@ -196,19 +196,7 @@ export class CategoriaService extends ReferenceCrudService<
     );
   }
 
-  /**
-   * Check if category can be removed (override base method for hierarchy validation)
-   */
-  override podeRemover(id: number): Observable<boolean> {
-    return this.errorHandlingService.wrapWithErrorHandling(
-      this.http.get<{ canRemove: boolean; reason?: string }>(`${this.baseUrl}/${id}/pode-remover`).pipe(
-        map(response => response.canRemove)
-      ),
-      `verificar se categoria ${id} pode ser removida`,
-      'categoria'
-    );
-  }
-
+ 
   /**
    * Transform flat category list to hierarchical structure
    */

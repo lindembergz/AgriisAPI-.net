@@ -63,23 +63,6 @@
         </p-select>
       </div>-->
 
-      <!-- País Filter -->
-      <div class="filter-item custom-filter">
-        <label for="paisFilter" class="filter-label">País</label>
-        <p-select
-          id="paisFilter"
-          [options]="paisFilterOptions()"
-          [ngModel]="getCustomFilterValue('pais')"
-          (onChange)="onCustomFilterChange('pais', $event)"
-          placeholder="Filtrar por país"
-          optionLabel="label"
-          optionValue="value"
-          [showClear]="true"
-          [loading]="loadingPaises()"
-          class="custom-filter-select">
-        </p-select>
-      </div>
-
       <!-- Clear All Filters -->
       <div class="filter-item clear-filters" *ngIf="hasActiveFilters()">
         <p-button

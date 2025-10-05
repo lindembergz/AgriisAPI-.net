@@ -11,6 +11,9 @@ public class MoedaDto
     public string Codigo { get; set; } = string.Empty;
     public string Nome { get; set; } = string.Empty;
     public string Simbolo { get; set; } = string.Empty;
+    public int PaisId { get; set; }
+    public string PaisNome { get; set; } = string.Empty;
+    public string PaisCodigo { get; set; } = string.Empty;
     public bool Ativo { get; set; }
     public DateTime DataCriacao { get; set; }
     public DateTime? DataAtualizacao { get; set; }
@@ -34,6 +37,10 @@ public class CriarMoedaDto
     [Required(ErrorMessage = "O símbolo da moeda é obrigatório")]
     [StringLength(5, MinimumLength = 1, ErrorMessage = "O símbolo deve ter entre 1 e 5 caracteres")]
     public string Simbolo { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "O país é obrigatório")]
+    [Range(1, int.MaxValue, ErrorMessage = "O país deve ser selecionado")]
+    public int PaisId { get; set; }
 }
 
 /// <summary>
@@ -48,6 +55,10 @@ public class AtualizarMoedaDto
     [Required(ErrorMessage = "O símbolo da moeda é obrigatório")]
     [StringLength(5, MinimumLength = 1, ErrorMessage = "O símbolo deve ter entre 1 e 5 caracteres")]
     public string Simbolo { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "O país é obrigatório")]
+    [Range(1, int.MaxValue, ErrorMessage = "O país deve ser selecionado")]
+    public int PaisId { get; set; }
 
     public bool Ativo { get; set; }
 

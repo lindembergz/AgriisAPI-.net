@@ -30,8 +30,9 @@ import { conditionalCpfCnpjValidator, getCpfCnpjMask } from '../../../shared/uti
 import { phoneValidator, emailValidator, nameValidator, areaValidator, yearValidator, cepValidator } from '../../../shared/utils/field-validators.util';
 
 // Shared components
-import { EnderecoFormComponent } from '../../../shared/components/endereco-form.component';
+import { EnderecoMapComponent } from '../../../shared/components/endereco-map.component';
 import { CoordenadasMapComponent } from '../../../shared/components/coordenadas-map.component';
+import { Coordenadas } from '../../../shared/interfaces/coordenadas.interface';
 
 // Feature components
 import { PropriedadeFormComponent } from './propriedade-form.component';
@@ -57,7 +58,7 @@ import { CulturaFormComponent } from './cultura-form.component';
     ProgressSpinnerModule,
     ConfirmDialogModule,
     // Shared components
-    EnderecoFormComponent,
+    EnderecoMapComponent,
     CoordenadasMapComponent,
     // Feature components
     PropriedadeFormComponent,
@@ -84,6 +85,7 @@ export class ProdutorDetailComponent implements OnInit, OnDestroy {
   produtorId = signal<number | null>(null);
   isEditMode = computed(() => this.produtorId() !== null);
   activeTabIndex = signal(0);
+  enderecosList = signal<any[]>([]);
 
   // Form and validation
   produtorForm!: FormGroup<ProdutorFormControls>;
@@ -102,7 +104,10 @@ export class ProdutorDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Component initialization is handled in constructor
+    // Initialize with one empty endereco if not in edit mode
+    if (!this.isEditMode() && this.enderecosList().length === 0) {
+      this.adicionarEndereco();
+    }
   }
 
   ngOnDestroy(): void {
@@ -226,13 +231,10 @@ export class ProdutorDetailComponent implements OnInit, OnDestroy {
 
     // Populate enderecos
     if (produtor.enderecos && produtor.enderecos.length > 0) {
-      const enderecosArray = this.enderecosFormArray;
-      enderecosArray.clear();
-      produtor.enderecos.forEach(endereco => {
-        const enderecoGroup = this.createEnderecoFormGroup();
-        enderecoGroup.patchValue(endereco);
-        enderecosArray.push(enderecoGroup);
-      });
+      this.enderecosList.set(produtor.enderecos);
+    } else {
+      // Inicializar com um endereço vazio se não houver nenhum
+      this.adicionarEndereco();
     }
 
     // Populate propriedades
@@ -365,7 +367,7 @@ export class ProdutorDetailComponent implements OnInit, OnDestroy {
       telefone2: formValue.dadosGerais?.telefone2?.replace(/\D/g, '') || undefined, // Remove formatting
       telefone3: formValue.dadosGerais?.telefone3?.replace(/\D/g, '') || undefined, // Remove formatting
       email: formValue.dadosGerais?.email?.trim() || undefined,
-      enderecos: (formValue.enderecos || [])
+      enderecos: this.enderecosList()
         .filter(endereco => endereco?.logradouro && endereco?.cidade) // Only include valid enderecos
         .map(endereco => ({
           logradouro: endereco.logradouro?.trim() || '',
@@ -438,11 +440,11 @@ export class ProdutorDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get enderecos form array
+   * Get enderecos form array (deprecated - using enderecosList signal instead)
    */
-  get enderecosFormArray(): FormArray<FormGroup<EnderecoFormControls>> {
-    return this.produtorForm.get('enderecos') as FormArray<FormGroup<EnderecoFormControls>>;
-  }
+  // get enderecosFormArray(): FormArray<FormGroup<EnderecoFormControls>> {
+  //   return this.produtorForm.get('enderecos') as FormArray<FormGroup<EnderecoFormControls>>;
+  // }
 
   /**
    * Get propriedades form array
@@ -459,39 +461,39 @@ export class ProdutorDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Create endereco form group
+   * Create endereco form group (deprecated - using enderecosList signal instead)
    */
-  private createEnderecoFormGroup(): FormGroup<EnderecoFormControls> {
-    return this.fb.group<EnderecoFormControls>({
-      logradouro: this.fb.control('', {
-        nonNullable: true,
-        validators: [Validators.required, Validators.minLength(3)]
-      }),
-      numero: this.fb.control('', {
-        nonNullable: true,
-        validators: [Validators.required]
-      }),
-      complemento: this.fb.control('', { nonNullable: true }),
-      bairro: this.fb.control('', {
-        nonNullable: true,
-        validators: [Validators.required, Validators.minLength(2)]
-      }),
-      cidade: this.fb.control('', {
-        nonNullable: true,
-        validators: [Validators.required, Validators.minLength(2)]
-      }),
-      uf: this.fb.control('', {
-        nonNullable: true,
-        validators: [Validators.required]
-      }),
-      cep: this.fb.control('', {
-        nonNullable: true,
-        validators: [Validators.required, cepValidator()]
-      }),
-      latitude: this.fb.control<number | null>(null),
-      longitude: this.fb.control<number | null>(null)
-    });
-  }
+  // private createEnderecoFormGroup(): FormGroup<EnderecoFormControls> {
+  //   return this.fb.group<EnderecoFormControls>({
+  //     logradouro: this.fb.control('', {
+  //       nonNullable: true,
+  //       validators: [Validators.required, Validators.minLength(3)]
+  //     }),
+  //     numero: this.fb.control('', {
+  //       nonNullable: true,
+  //       validators: [Validators.required]
+  //     }),
+  //     complemento: this.fb.control('', { nonNullable: true }),
+  //     bairro: this.fb.control('', {
+  //       nonNullable: true,
+  //       validators: [Validators.required, Validators.minLength(2)]
+  //     }),
+  //     cidade: this.fb.control('', {
+  //       nonNullable: true,
+  //       validators: [Validators.required, Validators.minLength(2)]
+  //     }),
+  //     uf: this.fb.control('', {
+  //       nonNullable: true,
+  //       validators: [Validators.required]
+  //     }),
+  //     cep: this.fb.control('', {
+  //       nonNullable: true,
+  //       validators: [Validators.required, cepValidator()]
+  //     }),
+  //     latitude: this.fb.control<number | null>(null),
+  //     longitude: this.fb.control<number | null>(null)
+  //   });
+  // }
 
   /**
    * Create propriedade form group
@@ -535,10 +537,64 @@ export class ProdutorDetailComponent implements OnInit, OnDestroy {
   /**
    * Handle endereco changes
    */
-  onEnderecosChange(): void {
-    // Mark form as dirty to enable save button and trigger validation
-    this.enderecosFormArray.markAsDirty();
-    this.enderecosFormArray.markAsTouched();
+  onEnderecoChange(endereco: any, index: number): void {
+    const enderecos = this.enderecosList();
+    enderecos[index] = endereco;
+    this.enderecosList.set([...enderecos]);
+    
+    // Mark form as dirty to enable save button
+    this.produtorForm.markAsDirty();
+  }
+
+  /**
+   * Handle coordenadas changes
+   */
+  onCoordenadasChange(coordenadas: Coordenadas, index: number): void {
+    const enderecos = this.enderecosList();
+    if (enderecos[index]) {
+      enderecos[index] = {
+        ...enderecos[index],
+        latitude: coordenadas.latitude,
+        longitude: coordenadas.longitude
+      };
+      this.enderecosList.set([...enderecos]);
+    }
+  }
+
+  /**
+   * Adicionar novo endereço
+   */
+  adicionarEndereco(): void {
+    const novoEndereco = {
+      id: 0,
+      logradouro: '',
+      numero: '',
+      complemento: '',
+      bairro: '',
+      cidade: '',
+      uf: '',
+      cep: '',
+      latitude: null,
+      longitude: null,
+      ativo: true,
+      dataCriacao: new Date(),
+      dataAtualizacao: new Date()
+    };
+    
+    const enderecos = this.enderecosList();
+    this.enderecosList.set([...enderecos, novoEndereco]);
+  }
+
+  /**
+   * Remover endereço
+   */
+  removerEndereco(index: number): void {
+    const enderecos = this.enderecosList();
+    if (enderecos.length > 1) {
+      enderecos.splice(index, 1);
+      this.enderecosList.set([...enderecos]);
+      this.produtorForm.markAsDirty();
+    }
   }
 
   /**
@@ -604,17 +660,15 @@ export class ProdutorDetailComponent implements OnInit, OnDestroy {
     }
 
     // Validate enderecos (at least one is required)
-    if (this.enderecosFormArray.length === 0) {
+    const enderecos = this.enderecosList();
+    if (enderecos.length === 0) {
       isValid = false;
       validationErrors.push('Pelo menos um endereço é obrigatório');
     } else {
       let hasValidEndereco = false;
-      this.enderecosFormArray.controls.forEach((control, index) => {
-        if (control.valid) {
+      enderecos.forEach((endereco, index) => {
+        if (endereco.logradouro && endereco.bairro && endereco.cidade && endereco.uf && endereco.cep) {
           hasValidEndereco = true;
-        } else if (control.invalid) {
-          isValid = false;
-          validationErrors.push(`Endereço ${index + 1} contém erros`);
         }
       });
       
@@ -685,7 +739,8 @@ export class ProdutorDetailComponent implements OnInit, OnDestroy {
     }
 
     // Check enderecos (tab 1)
-    if (this.enderecosFormArray.length === 0 || this.enderecosFormArray.invalid) {
+    const enderecos = this.enderecosList();
+    if (enderecos.length === 0) {
       this.activeTabIndex.set(1);
       return;
     }

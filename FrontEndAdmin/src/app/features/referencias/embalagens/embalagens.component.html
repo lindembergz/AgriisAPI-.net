@@ -327,22 +327,6 @@
           <app-field-error controlName="nome"></app-field-error>
         </div>
 
-        <!-- Descrição -->
-        <div class="field">
-          <label for="descricao" class="field-label">Descrição</label>
-          <textarea
-            id="descricao"
-            pInputText
-            formControlName="descricao"
-            placeholder="Descrição detalhada da embalagem (opcional)"
-            class="w-full"
-            maxlength="500"
-            rows="3">
-          </textarea>
-          <small class="field-help">Descrição opcional da embalagem (máximo 500 caracteres)</small>
-          <app-field-error controlName="descricao"></app-field-error>
-        </div>
-
         <!-- Unidade de Medida -->
         <div class="field">
           <label for="unidadeMedidaId" class="field-label required">Unidade de Medida</label>
@@ -375,6 +359,24 @@
           <small class="field-help">Unidade de medida associada à embalagem</small>
           <app-field-error controlName="unidadeMedidaId"></app-field-error>
         </div>
+
+        <!-- Descrição -->
+        <div class="field">
+          <label for="descricao" class="field-label">Descrição</label>
+          <textarea
+            id="descricao"
+            pInputText
+            formControlName="descricao"
+            placeholder="Descrição detalhada da embalagem (opcional)"
+            class="w-full"
+            maxlength="500"
+            rows="3">
+          </textarea>
+          <small class="field-help">Descrição opcional da embalagem (máximo 500 caracteres)</small>
+          <app-field-error controlName="descricao"></app-field-error>
+        </div>
+
+        
 
         <!-- Ativo field -->
         <div class="field ativo-field">

@@ -56,6 +56,7 @@ import { FieldErrorComponent } from '../../../shared/components/field-error/fiel
     TooltipModule,
     DialogModule,
     CheckboxModule,
+
     FieldErrorComponent
   ],
   providers: [],
@@ -71,30 +72,32 @@ export class MoedasComponent extends ReferenceCrudBaseComponent<
   protected service = inject(MoedaService);
 
   // Entity configuration
-  protected entityDisplayName = () => 'Moeda';
-  protected entityDescription = () => 'Gerenciar moedas utilizadas no sistema';
+  protected entityDisplayName = () => 'Moedas';
+  protected entityDescription = () => '';
   protected defaultSortField = () => 'codigo';
   protected searchFields = () => ['codigo', 'nome', 'simbolo'];
+
+  // Países para dropdown
+  paises = signal<{ id: number; nome: string; codigo: string }[]>([]);
 
   // =============================================================================
   // UNIFIED FRAMEWORK IMPLEMENTATION
   // =============================================================================
 
   displayColumns: () => TableColumn[] = () => [
-        {
-      field: 'id',
+    {
+      field: 'codigo',
       header: 'Código',
       sortable: true,
       width: '120px',
       align: 'center',
       type: 'text'
     },
-
     {
       field: 'nome',
       header: 'Nome',
       sortable: true,
-      width: '300px',
+      width: '250px',
       type: 'text'
     },
     {
@@ -106,13 +109,20 @@ export class MoedasComponent extends ReferenceCrudBaseComponent<
       align: 'center'
     },
     {
-      field: 'codigo',
-      header: 'Cód Transação comercial da moeda',
+      field: 'paisNome',
+      header: 'País',
       sortable: true,
-      width: '120px',
-      align: 'center',
+      width: '150px',
       type: 'text'
     },
+    {
+      field: 'ativo',
+      header: 'Status',
+      sortable: true,
+      width: '100px',
+      type: 'custom',
+      align: 'center'
+    }
   ];
 
   /**
@@ -132,9 +142,24 @@ export class MoedasComponent extends ReferenceCrudBaseComponent<
   ngOnInit(): void {
     try {
       super.ngOnInit();
+      this.carregarPaises();
     } catch (error) {
       console.error('Error initializing MoedasComponent:', error);
     }
+  }
+
+  /**
+   * Carregar países para o dropdown
+   */
+  private carregarPaises(): void {
+    this.service.obterPaises().subscribe({
+      next: (paises) => {
+        this.paises.set(paises);
+      },
+      error: (error) => {
+        console.error('Erro ao carregar países:', error);
+      }
+    });
   }
 
   // =============================================================================
@@ -164,6 +189,7 @@ export class MoedasComponent extends ReferenceCrudBaseComponent<
         Validators.minLength(1),
         Validators.maxLength(5)
       ]],
+      paisId: [null, [Validators.required]],
       ativo: [true]
     });
   }
@@ -175,7 +201,8 @@ export class MoedasComponent extends ReferenceCrudBaseComponent<
     return {
       codigo: formValue.codigo?.toUpperCase().trim(),
       nome: formValue.nome?.trim(),
-      simbolo: formValue.simbolo?.trim()
+      simbolo: formValue.simbolo?.trim(),
+      paisId: formValue.paisId
     };
   }
 
@@ -186,6 +213,7 @@ export class MoedasComponent extends ReferenceCrudBaseComponent<
     return {
       nome: formValue.nome?.trim(),
       simbolo: formValue.simbolo?.trim(),
+      paisId: formValue.paisId,
       ativo: formValue.ativo
     };
   }
@@ -198,6 +226,7 @@ export class MoedasComponent extends ReferenceCrudBaseComponent<
       codigo: item.codigo,
       nome: item.nome,
       simbolo: item.simbolo,
+      paisId: item.paisId,
       ativo: item.ativo
     });
   }

@@ -15,31 +15,6 @@
   <!-- Filters Section -->
   <div class="filters-section" *ngIf="!isLoading()">
     <div class="filters-grid">
-      <!-- Status Filter -->
-      <div class="filter-field">
-        <label for="statusFilter">Status</label>
-        <p-select id="statusFilter" [(ngModel)]="selectedStatusFilter" [options]="statusFilterOptions"
-          optionLabel="label" optionValue="value" (onChange)="onStatusFilterChange()" class="w-full">
-        </p-select>
-      </div>
-
-      <!-- Categoria Filter -->
-      <div class="filter-field">
-        <label for="filtroCategoria">Categoria</label>
-        <p-select id="filtroCategoria" [(ngModel)]="selectedCategoria" [options]="categoriasParaFiltro()"
-          optionLabel="nome" optionValue="id" placeholder="Todas as categorias" (onChange)="onFilterChange()"
-          [showClear]="true" [filter]="true" filterBy="nome" class="w-full">
-        </p-select>
-      </div>
-
-      <!-- Unidade de Medida Filter -->
-      <div class="filter-field">
-        <label for="filtroUnidade">Unidade de Medida</label>
-        <p-select id="filtroUnidade" [(ngModel)]="selectedUnidadeMedida" [options]="unidadesParaFiltro()"
-          optionLabel="nome" optionValue="id" placeholder="Todas as unidades" (onChange)="onFilterChange()"
-          [showClear]="true" [filter]="true" filterBy="nome" class="w-full">
-        </p-select>
-      </div>
 
       <!-- Atividade Agropecuária Filter -->
       <div class="filter-field">

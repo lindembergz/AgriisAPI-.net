@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Agriis.Referencias.Aplicacao.DTOs;
 using Agriis.Referencias.Aplicacao.Interfaces;
+using Agriis.Enderecos.Aplicacao.Interfaces;
 using Agriis.Api.Controllers;
 
 namespace Agriis.Api.Controllers;
@@ -15,12 +16,15 @@ namespace Agriis.Api.Controllers;
 public class MoedasController : ReferenciaControllerBase<MoedaDto, CriarMoedaDto, AtualizarMoedaDto>
 {
     private readonly IMoedaService _moedaService;
+    private readonly IPaisService _paisService;
 
     public MoedasController(
         IMoedaService moedaService,
+        IPaisService paisService,
         ILogger<MoedasController> logger) : base(moedaService, logger)
     {
         _moedaService = moedaService;
+        _paisService = paisService;
     }
 
     /// <summary>
@@ -108,6 +112,39 @@ public class MoedasController : ReferenciaControllerBase<MoedaDto, CriarMoedaDto
         catch (Exception ex)
         {
             Logger.LogError(ex, "Erro ao obter moeda com código {Codigo}", codigo);
+            return StatusCode(500, new { 
+                ErrorCode = "INTERNAL_ERROR", 
+                ErrorDescription = "Erro interno do servidor",
+                TraceId = HttpContext.TraceIdentifier,
+                Timestamp = DateTime.UtcNow
+            });
+        }
+    }
+
+    /// <summary>
+    /// Obtém lista de países para seleção
+    /// </summary>
+    [HttpGet("paises")]
+    public async Task<IActionResult> ObterPaises()
+    {
+        try
+        {
+            Logger.LogDebug("Obtendo países para seleção de moedas");
+            
+            var paises = await _paisService.ObterAtivosAsync();
+            
+            var paisesSelect = paises.Select(p => new
+            {
+                Id = p.Id,
+                Nome = p.Nome,
+                Codigo = p.Codigo
+            }).OrderBy(p => p.Nome);
+            
+            return Ok(paisesSelect);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erro ao obter países para seleção");
             return StatusCode(500, new { 
                 ErrorCode = "INTERNAL_ERROR", 
                 ErrorDescription = "Erro interno do servidor",

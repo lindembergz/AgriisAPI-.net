@@ -77,8 +77,8 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
   }
 
   // Entity configuration
-  protected entityDisplayName = () => 'País';
-  protected entityDescription = () => 'Gerenciar países do sistema';
+  protected entityDisplayName = () => 'Países';
+  protected entityDescription = () => '';
   protected defaultSortField = () => 'nome';
   protected searchFields = () => ['codigo', 'nome'];
 
@@ -102,7 +102,7 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
       width: '300px',
       type: 'text'
     },
-    {
+    /*{
       field: 'ufsCount',
       header: 'UFs',
       sortable: false,
@@ -110,7 +110,7 @@ export class PaisesComponent extends ReferenceCrudBaseComponent<
       type: 'custom',
       align: 'center',
       hideOnMobile: true
-    }/*,
+    },
     {
       field: 'ativo',
       header: 'Status',

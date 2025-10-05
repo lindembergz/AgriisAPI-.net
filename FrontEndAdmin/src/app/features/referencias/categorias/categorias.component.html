@@ -149,8 +149,6 @@
 		<ng-template #actionsTemplate let-item>
 			<div class="table-actions">
 				<p-button icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editarItem(item)" pTooltip="Editar" tooltipPosition="top"></p-button>
-				<p-button *ngIf="item.ativo" icon="pi pi-times" class="p-button-rounded p-button-text p-button-warning" (click)="desativarItem(item)" pTooltip="Desativar" tooltipPosition="top"></p-button>
-				<p-button *ngIf="!item.ativo" icon="pi pi-check" class="p-button-rounded p-button-text p-button-success" (click)="ativarItem(item)" pTooltip="Ativar" tooltipPosition="top"></p-button>
 				<p-button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="excluirItem(item)" pTooltip="Excluir" tooltipPosition="top"></p-button>
 			</div>
 		</ng-template>

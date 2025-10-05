@@ -27,6 +27,9 @@ public class MoedaConfiguration : IEntityTypeConfiguration<Moeda>
             .IsRequired()
             .HasMaxLength(5);
             
+        builder.Property(x => x.PaisId)
+            .IsRequired();
+            
         builder.Property(x => x.Ativo)
             .IsRequired();
             
@@ -35,6 +38,12 @@ public class MoedaConfiguration : IEntityTypeConfiguration<Moeda>
             
         builder.Property(x => x.DataAtualizacao);
         
+        // Relacionamento com País
+        builder.HasOne(x => x.Pais)
+            .WithMany()
+            .HasForeignKey(x => x.PaisId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("FK_Moedas_Paises_PaisId");
 
         // Índices únicos
         builder.HasIndex(x => x.Codigo)
@@ -48,5 +57,9 @@ public class MoedaConfiguration : IEntityTypeConfiguration<Moeda>
         builder.HasIndex(x => x.Simbolo)
             .IsUnique()
             .HasDatabaseName("IX_Moedas_Simbolo_Unique");
+            
+        // Índice para PaisId
+        builder.HasIndex(x => x.PaisId)
+            .HasDatabaseName("IX_Moedas_PaisId");
     }
 }

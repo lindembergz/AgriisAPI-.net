@@ -98,10 +98,12 @@ export class FornecedorService {
   update(id: number, fornecedor: FornecedorForm): Observable<Fornecedor> {
     const dto: AtualizarFornecedorDto = {
       nome: fornecedor.nome,
+      nomeFantasia: fornecedor.nomeFantasia,
       inscricaoEstadual: fornecedor.inscricaoEstadual,
       logradouro: fornecedor.endereco?.logradouro,
-      ufId: undefined, // Will be derived from endereco
-      municipioId: undefined, // Will be derived from endereco
+      bairro: fornecedor.endereco?.bairro,
+      ufId: fornecedor.endereco?.ufId,
+      municipioId: fornecedor.endereco?.municipioId,
       cep: fornecedor.endereco?.cep,
       complemento: fornecedor.endereco?.complemento,
       latitude: fornecedor.endereco?.latitude,
@@ -110,7 +112,9 @@ export class FornecedorService {
       email: fornecedor.email,
       moedaPadrao: 0, // Default value
       pedidoMinimo: undefined,
-      tokenLincros: undefined
+      tokenLincros: undefined,
+      ramosAtividade: fornecedor.ramosAtividade || [],
+      enderecoCorrespondencia: fornecedor.enderecoCorrespondencia || 'MesmoFaturamento'
     };
 
     return this.http.put<Fornecedor>(`${this.apiUrl}/${id}`, dto)

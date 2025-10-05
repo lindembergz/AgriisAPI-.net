@@ -1,21 +1,13 @@
 import { BaseEntity, BaseForm } from './base.model';
 
 /**
- * Constantes para ramos de atividade disponíveis
+ * Constantes para ramos de atividade disponíveis - sincronizado com backend RamosAtividadeConstants
  */
 export const RAMOS_ATIVIDADE_DISPONIVEIS = [
   'Industria',
   'Distribuição',
   'Cooperativa',
   'Outro'
- /* 'Sementes',
-  'Fertilizantes',
-  'Defensivos Agrícolas',
-  'Máquinas e Equipamentos',
-  'Irrigação',
-  'Nutrição Animal',
-  'Tecnologia Agrícola',
-  'Consultoria Agronômica'*/
 ] as const;
 
 /**
@@ -37,7 +29,7 @@ export interface Fornecedor extends BaseEntity {
   cpfCnpj?: string; // Alternative property name
   inscricaoEstadual?: string;
   tipoCliente?: string; // For backward compatibility
-  
+
   // Endereço fields (direct in fornecedor, not nested)
   logradouro?: string;
   ufId?: number;
@@ -51,18 +43,18 @@ export interface Fornecedor extends BaseEntity {
   latitude?: number;
   longitude?: number;
   endereco?: any; // For backward compatibility
-  
+
   // Contact info
   telefone?: string;
   email?: string;
   logoUrl?: string;
-  
+
   // Business info
   moedaPadrao: number; // 0 = Real, 1 = Dólar
   moedaPadraoNome: string;
   pedidoMinimo?: number;
   tokenLincros?: string;
-  
+
   // Related entities for backward compatibility
   pontosDistribuicao?: any[];
   usuarioMaster?: {
@@ -71,17 +63,17 @@ export interface Fornecedor extends BaseEntity {
     senha?: string;
     telefone?: string;
   };
-  
+
   ativo: boolean;
   dadosAdicionais?: any;
-  
+
   // Timestamps
   dataCriacao: Date;
   dataAtualizacao?: Date;
-  
+
   // Related entities
   usuarios: UsuarioFornecedor[];
-  
+
   // NOVOS CAMPOS
   ramosAtividade: string[]; // Lista de ramos de atividade
   enderecoCorrespondencia: string; // 'MesmoFaturamento' ou 'DiferenteFaturamento'
@@ -121,7 +113,7 @@ export interface FornecedorForm extends BaseForm {
   inscricaoEstadual?: string;
   ramosAtividade?: string[]; // NOVO CAMPO
   enderecoCorrespondencia?: string; // NOVO CAMPO
-  
+
   // Endereco structure matching EnderecoRequest
   endereco?: {
     logradouro: string;
@@ -133,8 +125,10 @@ export interface FornecedorForm extends BaseForm {
     cep: string;
     latitude?: number;
     longitude?: number;
+    ufId?: number; // CAMPO ADICIONADO
+    municipioId?: number; // CAMPO ADICIONADO
   };
-  
+
   // Pontos de distribuição matching PontoDistribuicaoRequest[]
   pontosDistribuicao?: Array<{
     nome: string;
@@ -150,9 +144,11 @@ export interface FornecedorForm extends BaseForm {
       cep: string;
       latitude?: number;
       longitude?: number;
+      ufId?: number; // CAMPO ADICIONADO
+      municipioId?: number; // CAMPO ADICIONADO
     };
   }>;
-  
+
   // Usuario master matching UsuarioMasterRequest
   usuarioMaster?: {
     nome: string;
@@ -218,6 +214,7 @@ export interface AtualizarFornecedorDto {
   logradouro?: string;
   ufId?: number;
   municipioId?: number;
+  bairro?: string; // CAMPO FALTANTE
   cep?: string;
   complemento?: string;
   latitude?: number;

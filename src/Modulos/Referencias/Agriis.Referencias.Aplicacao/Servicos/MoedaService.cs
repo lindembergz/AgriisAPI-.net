@@ -147,8 +147,8 @@ public class MoedaService : ReferenciaServiceBase<Moeda, MoedaDto, CriarMoedaDto
     {
         Logger.LogDebug("Aplicando regras de negócio para criação de moeda");
 
-        // Normalizar código para maiúsculo
-        entidade.AtualizarInformacoes(dto.Nome, dto.Simbolo);
+        // Atualizar informações incluindo o país
+        entidade.AtualizarInformacoes(dto.Nome, dto.Simbolo, dto.PaisId);
         
         // Moedas são criadas ativas por padrão
         entidade.Ativar();
@@ -164,8 +164,8 @@ public class MoedaService : ReferenciaServiceBase<Moeda, MoedaDto, CriarMoedaDto
     {
         Logger.LogDebug("Aplicando regras de negócio para atualização de moeda");
 
-        // Atualizar informações da moeda
-        entidade.AtualizarInformacoes(dto.Nome, dto.Simbolo);
+        // Atualizar informações da moeda incluindo o país
+        entidade.AtualizarInformacoes(dto.Nome, dto.Simbolo, dto.PaisId);
         
         // Aplicar status ativo/inativo
         if (dto.Ativo)

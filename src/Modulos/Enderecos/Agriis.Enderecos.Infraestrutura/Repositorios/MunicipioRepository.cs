@@ -31,6 +31,7 @@ public class MunicipioRepository : RepositoryBase<Municipio, DbContext>, IMunici
     public async Task<IEnumerable<Municipio>> ObterPorEstadoAsync(int estadoId)
     {
         return await DbSet
+            .Include(m => m.Estado)
             .Where(m => m.EstadoId == estadoId)
             .OrderBy(m => m.Nome)
             .ToListAsync();

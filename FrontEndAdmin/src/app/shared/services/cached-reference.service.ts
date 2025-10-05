@@ -89,17 +89,7 @@ export abstract class CachedReferenceService<
     );
   }
 
-  override podeRemover(id: number): Observable<boolean> {
-    const cacheKey = `${this.baseUrl}/${id}/pode-remover`;
-    
-    return this.performanceService.createCachedObservable(
-      cacheKey,
-      () => super.podeRemover(id),
-      'referencias'
-    );
-  }
-
-  /**
+   /**
    * Override search method to maintain compatibility
    */
   override buscar(params: {

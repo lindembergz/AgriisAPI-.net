@@ -39,24 +39,9 @@ This task successfully implemented all required CRUD operations with proper hier
   - Refreshes data and dropdown after successful operations
   - Shows appropriate success/error messages
 
-### 4. `ativarItem(item: CategoriaDto)` - Activate Category
-- **Requirements**: 4.1, 4.2
-- **Implementation**:
-  - Uses PATCH `/ativar` endpoint via `service.ativar()`
-  - Manages loading states during operation
-  - Refreshes data to show updated status
-  - Shows success/error feedback to user
 
-### 5. `desativarItem(item: CategoriaDto)` - Deactivate Category
-- **Requirements**: 4.1, 4.2
-- **Implementation**:
-  - Shows confirmation dialog before deactivation
-  - Uses PATCH `/desativar` endpoint via `service.desativar()`
-  - Manages loading states during operation
-  - Refreshes data to show updated status
-  - Shows success/error feedback to user
 
-### 6. `excluirItem(item: CategoriaDto)` - Delete Category with Validation
+### 4. `excluirItem(item: CategoriaDto)` - Delete Category with Validation
 - **Requirements**: 5.1, 5.2
 - **Implementation**:
   - **First**: Checks if category can be removed using `podeRemover` endpoint

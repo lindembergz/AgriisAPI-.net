@@ -80,7 +80,7 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
 
   // Entity configuration
   protected entityDisplayName = () => 'UF';
-  protected entityDescription = () => 'Gerenciar Unidades Federativas (Estados)';
+  protected entityDescription = () => '';
   protected defaultSortField = () => 'codigo';
   protected searchFields = () => ['codigo', 'nome', 'pais.nome'];
 
@@ -747,81 +747,5 @@ export class UfsComponent extends ReferenceCrudBaseComponent<
     this.showForm.set(true);
   }
 
-  /**
-   * Deactivate item
-   */
-  async desativarItem(item: UfDto): Promise<void> {
-    // Check dependencies first
-    const dependencyCheck = await this.checkDeactivationDependencies(item);
-    
-    if (dependencyCheck && !dependencyCheck.canDeactivate) {
-      this.feedbackService.showWarning(dependencyCheck.message!, 'Desativação Não Permitida');
-      return;
-    }
 
-    let message = `Tem certeza que deseja desativar a UF "${item.nome}"?`;
-    if (dependencyCheck?.warningMessage) {
-      message += `\n\n${dependencyCheck.warningMessage}`;
-    }
-
-    this.confirmationService.confirm({
-      message,
-      header: 'Confirmar Desativação',
-      icon: 'pi pi-exclamation-triangle',
-      accept: async () => {
-        try {
-          const actionKey = `deactivate-${item.id}`;
-          this.actionLoadingStates().set(actionKey, Date.now());
-          
-          const updateDto: AtualizarUfDto = {
-            nome: item.nome,
-            codigoIbge: item.codigoIbge,
-            regiao: item.regiao,
-            ativo: false
-          };
-          
-          await this.service.atualizar(item.id, updateDto).toPromise();
-          this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'UF desativada com sucesso!' });
-          this.carregarItens();
-        } catch (error) {
-          console.error('Erro ao desativar UF:', error);
-          this.feedbackService.showError('Erro ao desativar UF. Tente novamente.');
-        } finally {
-          const actionKey = `deactivate-${item.id}`;
-          const states = new Map(this.actionLoadingStates());
-          states.delete(actionKey);
-          this.actionLoadingStates.set(states);
-        }
-      }
-    });
-  }
-
-  /**
-   * Activate item
-   */
-  async ativarItem(item: UfDto): Promise<void> {
-    try {
-      const actionKey = `activate-${item.id}`;
-      this.actionLoadingStates().set(actionKey, Date.now());
-      
-      const updateDto: AtualizarUfDto = {
-        nome: item.nome,
-        codigoIbge: item.codigoIbge,
-        regiao: item.regiao,
-        ativo: true
-      };
-      
-      await this.service.atualizar(item.id, updateDto).toPromise();
-      this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'UF ativada com sucesso!' });
-      this.carregarItens();
-    } catch (error) {
-      console.error('Erro ao ativar UF:', error);
-      this.feedbackService.showError('Erro ao ativar UF. Tente novamente.');
-    } finally {
-      const actionKey = `activate-${item.id}`;
-      const states = new Map(this.actionLoadingStates());
-      states.delete(actionKey);
-      this.actionLoadingStates.set(states);
-    }
-  }
 }

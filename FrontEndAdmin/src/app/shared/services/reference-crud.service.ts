@@ -229,20 +229,6 @@ export abstract class ReferenceCrudService<
   }
 
   /**
-   * Check if entity can be removed
-   */
-  podeRemover(id: number): Observable<boolean> {
-    return this.errorHandlingService.wrapWithErrorHandling(
-      this.http.get<{ canRemove: boolean }>(`${this.baseUrl}/${id}/pode-remover`).pipe(
-        map(response => response.canRemove)
-      ),
-      `verificar remoção ${this.entityName}`,
-      this.entityName,
-      { maxRetries: 1, delayMs: 500 }
-    );
-  }
-
-  /**
    * Search entities with pagination and filters
    */
   buscar(params: {

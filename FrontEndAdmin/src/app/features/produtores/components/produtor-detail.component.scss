@@ -199,3 +199,73 @@
     }
   }
 }
+// Estilos 
+para os cards de endereço
+.endereco-card {
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  overflow: hidden;
+  
+  ::ng-deep {
+    .p-card-header {
+      background: var(--surface-100);
+      border-bottom: 1px solid var(--surface-border);
+      padding: 1rem 1.5rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+    
+    .p-card-content {
+      padding: 0;
+    }
+    
+    .p-card-body {
+      padding: 1.5rem;
+    }
+  }
+  
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+}
+
+// Botão de adicionar endereço
+.add-endereco-button {
+  .p-button {
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    
+    .p-button-icon {
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+// Responsividade para cards de endereço
+@media (max-width: 768px) {
+  .endereco-card {
+    margin-bottom: 1rem;
+    
+    ::ng-deep {
+      .p-card-header {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+      }
+      
+      .p-card-body {
+        padding: 1rem;
+      }
+    }
+  }
+  
+  .add-endereco-button {
+    .p-button {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+}

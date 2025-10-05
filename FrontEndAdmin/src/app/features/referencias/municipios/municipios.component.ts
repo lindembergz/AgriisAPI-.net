@@ -71,8 +71,8 @@ export class MunicipiosComponent extends ReferenceCrudBaseComponent<MunicipioDto
   readonly rowsPerPageOptions = [5, 10, 20, 50];
 
   // Entity configuration
-  protected entityDisplayName = () => 'Município';
-  protected entityDescription = () => 'Gerenciar Municípios com seleção cascateada de UF';
+  protected entityDisplayName = () => 'Municípios';
+  protected entityDescription = () => '';
   protected defaultSortField = () => 'nome';
   protected searchFields = () => ['nome', 'codigoIbge', 'uf.nome', 'uf.codigo'];
 
@@ -206,29 +206,9 @@ export class MunicipiosComponent extends ReferenceCrudBaseComponent<MunicipioDto
   }
 
   protected setupCustomFilters(): void {
-    // // Setup cascading filter behavior
-    // this.componentStateService.getCustomFilterValue('pais').subscribe(paisId => {
-    //   if (paisId !== this.selectedPaisFilter()) {
-    //     this.selectedPaisFilter.set(paisId);
-    //     this.selectedUfFilter.set(null);
-    //     this.componentStateService.setCustomFilterValue('uf', null);
-        
-    //     if (paisId) {
-    //       this.carregarUfsPorPais(paisId);
-    //     } else {
-    //       this.ufsOptions.set([]);
-    //     }
-        
-    //     this.carregarItens();
-    //   }
-    // });
-
-    // this.componentStateService.getCustomFilterValue('uf').subscribe(ufId => {
-    //   if (ufId !== this.selectedUfFilter()) {
-    //     this.selectedUfFilter.set(ufId);
-    //     this.carregarItens();
-    //   }
-    // });
+    // Os filtros customizados são gerenciados pelo componente base
+    // através dos métodos onCustomFilterChange e applyCustomFilter
+    console.log('🔧 Configurando filtros customizados para municípios');
   }
 
   /**
@@ -283,44 +263,32 @@ export class MunicipiosComponent extends ReferenceCrudBaseComponent<MunicipioDto
   public carregarItens(): void {
     this.loading.set(true);
     
-    // const statusFilter = this.componentStateService.getStatusFilter();
-    const ufId = this.selectedUfFilter();
-    // const searchTerm = this.componentStateService.getSearchTerm();
+    // Obter filtros customizados do componente base
+    const ufId = this.getCustomFilterValue('uf');
     
     let request;
 
-    // if (searchTerm && searchTerm.length >= 2) {
-    //   // Use search functionality
-    //   request = this.service.buscarPorNome(searchTerm, ufId || undefined);
-    // } else if (ufId) {
     if (ufId) {
-      // Filter by UF
-      // if (statusFilter === 'ativas') {
-        request = this.service.obterAtivosPorUf(ufId);
-      // } else {
-      //   request = this.service.obterPorUf(ufId);
-      // }
+      // Filter by UF - usar o filtro customizado
+      console.log('🔍 Carregando municípios filtrados por UF:', ufId);
+      request = this.service.obterAtivosPorUf(ufId);
     } else {
       // Get all with UF information
-      // if (statusFilter === 'ativas') {
-        request = this.service.obterAtivos();
-      // } else {
-      //   request = this.service.obterComUf();
-      // }
+      console.log('🌍 Carregando todos os municípios');
+      request = this.service.obterAtivos();
     }
 
     request.subscribe({
       next: (items: MunicipioDto[]) => {
-        let filteredItems = items;
-        
-        // if (statusFilter === 'inativas') {
-        //   filteredItems = items.filter(item => !item.ativo);
-        // }
-        
-        this.items.set(filteredItems);
+        console.log('📊 Municípios carregados:', items.length);
+        this.items.set(items);
         this.loading.set(false);
+        
+        // Aplicar filtros do componente base (busca, status, etc.)
+        this.applyFilters();
       },
       error: (error: any) => {
+        console.error('❌ Erro ao carregar municípios:', error);
         this.unifiedErrorHandlingService.handleComponentError('municipios', 'load', error);
         this.loading.set(false);
       }
@@ -504,6 +472,56 @@ export class MunicipiosComponent extends ReferenceCrudBaseComponent<MunicipioDto
     return super.hasActiveFilters() || 
            this.selectedPaisFilter() !== null || 
            this.selectedUfFilter() !== null;
+  }
+
+  /**
+   * Override applyCustomFilter to handle UF filtering
+   */
+  protected applyCustomFilter(items: MunicipioDto[], filterKey: string, filterValue: any): MunicipioDto[] {
+    console.log('🔧 Aplicando filtro customizado:', filterKey, '=', filterValue);
+    
+    switch (filterKey) {
+      case 'uf':
+        if (filterValue) {
+          const filtered = items.filter(item => item.ufId === filterValue);
+          console.log('🏛️ Filtro UF aplicado:', filtered.length, 'de', items.length, 'municípios');
+          return filtered;
+        }
+        break;
+      case 'pais':
+        if (filterValue) {
+          const filtered = items.filter(item => item.uf?.paisId === filterValue);
+          console.log('🌍 Filtro País aplicado:', filtered.length, 'de', items.length, 'municípios');
+          return filtered;
+        }
+        break;
+    }
+    
+    return items;
+  }
+
+  /**
+   * Override onCustomFilterChange to handle cascading filters
+   */
+  onCustomFilterChange(filterKey: string, event: any): void {
+    console.log('🔄 Filtro customizado alterado:', filterKey, '=', event.value);
+    
+    if (filterKey === 'pais') {
+      // Reset UF filter when país changes
+      const currentFilters = new Map(this.customFilters());
+      currentFilters.set('uf', null);
+      this.customFilters.set(currentFilters);
+      
+      // Load UFs for the selected país
+      if (event.value) {
+        this.carregarUfsPorPais(event.value);
+      } else {
+        this.ufsOptions.set([]);
+      }
+    }
+    
+    // Call parent method to handle the filter change
+    super.onCustomFilterChange(filterKey, event);
   }
 
 

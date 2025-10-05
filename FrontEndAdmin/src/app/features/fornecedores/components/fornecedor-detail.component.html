@@ -27,9 +27,9 @@
 
         <p-tablist>
           <p-tab [value]="0">Dados Gerais</p-tab>
-          <p-tab [value]="1">Endereço do fornecedor</p-tab>
+          <p-tab [value]="1">Endereço com Mapa</p-tab>
           <!-- <p-tab [value]="2">Pontos de Distribuição</p-tab>-->
-          <p-tab [value]="3">Coordenadas</p-tab>
+          <!--<p-tab [value]="3">Coordenadas (Simples)</p-tab>-->
           <p-tab [value]="4">Usuário Master</p-tab>
         </p-tablist>
 
@@ -174,156 +174,21 @@
             </div>
           </p-tabpanel>
 
-          <!-- Tab 2: Endereço -->
+          <!-- Tab 2: Endereço com Mapa -->
           <p-tabpanel [value]="1">
             <div class="tab-content">
               <div class="tab-header">
-                <h3>Endereço</h3>
-                <p class="tab-description">Cadastre o endereço principal do fornecedor.</p>
+                <h3>Endereço com Geocodificação</h3>
+                <p class="tab-description">Selecione a localização no mapa para obter automaticamente os dados do endereço.</p>
               </div>
 
-              <p-card>
-
-
-                <div class="form-grid" formGroupName="endereco">
-
-                  <!-- Logradouro -->
-                  <div class="form-field">
-                    <label for="logradouro" class="field-label">Logradouro *</label>
-                    <input pInputText id="logradouro" formControlName="logradouro" placeholder="Digite o logradouro"
-                      [class.ng-invalid]="hasFieldError('logradouro')" class="w-full">
-                    <!--<small *ngIf="hasFieldError('endereco.logradouro')" class="error-message">
-                      {{ getFieldErrorMessage('endereco.logradouro') }}
-                    </small>-->
-                  </div>
-
-                  <!-- Número -->
-                  <div class="form-field">
-                    <label for="numero" class="field-label">Número</label>
-                    <input pInputText id="numero" formControlName="numero" placeholder="Digite o número" class="w-full">
-                  </div>
-
-                  <!-- Complemento -->
-                  <div class="form-field">
-                    <label for="complemento" class="field-label">Complemento</label>
-                    <input pInputText id="complemento" formControlName="complemento" placeholder="Digite o complemento"
-                      class="w-full">
-                  </div>
-
-                  <!-- Bairro -->
-                  <div class="form-field">
-                    <label for="bairro" class="field-label">Bairro *</label>
-                    <input pInputText id="bairro" formControlName="bairro" placeholder="Digite o bairro"
-                      [class.ng-invalid]="hasFieldError('endereco.bairro')" class="w-full">
-                    <small *ngIf="hasFieldError('endereco.bairro')" class="error-message">
-                      {{ getFieldErrorMessage('endereco.bairro') }}
-                    </small>
-                  </div>
-
-                  <!-- UF Selection -->
-                  <div class="form-field">
-                    <label for="ufSelect" class="field-label required">Estado (UF)</label>
-                    <p-select
-                      id="ufSelect"
-                      [options]="availableUfs()"
-                      formControlName="ufId"
-                      placeholder="Selecione um estado"
-                      optionLabel="nome"
-                      optionValue="id"
-                      [loading]="ufsLoading()"
-                      [disabled]="saving() || ufsLoading()"
-                      (onChange)="onUfSelectionChange($event)"
-                      [filter]="true"
-                      filterBy="nome,uf"
-                      [showClear]="false"
-                      class="w-full"
-                      [class.p-invalid]="hasFieldError('endereco.ufId')">
-                      
-                      <ng-template pTemplate="selectedItem" let-selectedOption>
-                        <div *ngIf="selectedOption" class="selected-item">
-                          <span>{{ selectedOption.nome }} ({{ selectedOption.uf }})</span>
-                        </div>
-                      </ng-template>
-                      
-                      <ng-template pTemplate="item" let-uf>
-                        <div class="dropdown-item">
-                          <span class="item-name">{{ uf.nome }}</span>
-                          <small class="item-code">({{ uf.uf }})</small>
-                        </div>
-                      </ng-template>
-                    </p-select>
-                    <small *ngIf="hasFieldError('endereco.ufId')" class="error-message">
-                      Por favor, selecione um estado
-                    </small>
-                  </div>
-
-                  <!-- Município Selection -->
-                  <div class="form-field">
-                    <label for="municipioSelect" class="field-label required">Município</label>
-                    <p-select
-                      id="municipioSelect"
-                      [options]="availableMunicipios()"
-                      formControlName="municipioId"
-                      placeholder="Selecione um município"
-                      optionLabel="nome"
-                      optionValue="id"
-                      [loading]="municipiosLoading()"
-                      [disabled]="saving() || municipiosLoading() || !enderecoFormGroup.get('ufId')?.value"
-                      [filter]="true"
-                      filterBy="nome"
-                      [showClear]="false"
-                      class="w-full"
-                      [class.p-invalid]="hasFieldError('endereco.municipioId')">
-                      
-                      <ng-template pTemplate="selectedItem" let-selectedOption>
-                        <div *ngIf="selectedOption" class="selected-item">
-                          <span>{{ selectedOption.nome }}</span>
-                        </div>
-                      </ng-template>
-                      
-                      <ng-template pTemplate="item" let-municipio>
-                        <div class="dropdown-item">
-                          <span class="item-name">{{ municipio.nome }}</span>
-                          <small class="item-code">IBGE: {{ municipio.codigoIbge }}</small>
-                        </div>
-                      </ng-template>
-                    </p-select>
-                    <small *ngIf="hasFieldError('endereco.municipioId')" class="error-message">
-                      Por favor, selecione um município
-                    </small>
-                  </div>
-
-                  <!-- Hidden fields for backward compatibility -->
-                  <input type="hidden" formControlName="uf">
-                  <input type="hidden" formControlName="cidade">
-
-                  <!-- CEP -->
-                  <div class="form-field">
-                    <label for="cep" class="field-label">CEP *</label>
-                    <p-inputMask id="cep" formControlName="cep" mask="99999-999" placeholder="Digite o CEP"
-                      [class.ng-invalid]="hasFieldError('endereco.cep')" styleClass="w-full">
-                    </p-inputMask>
-                    <small *ngIf="hasFieldError('endereco.cep')" class="error-message">
-                      {{ getFieldErrorMessage('endereco.cep') }}
-                    </small>
-                  </div>
-
-                  <!-- Latitude -->
-                  <div class="form-field">
-                    <label for="latitude" class="field-label">Latitude</label>
-                    <input pInputText id="latitude" formControlName="latitude" type="number" step="any"
-                      placeholder="Digite a latitude" class="w-full">
-                  </div>
-
-                  <!-- Longitude -->
-                  <div class="form-field">
-                    <label for="longitude" class="field-label">Longitude</label>
-                    <input pInputText id="longitude" formControlName="longitude" type="number" step="any"
-                      placeholder="Digite a longitude" class="w-full">
-                  </div>
-
-                </div>
-              </p-card>
+              <app-endereco-map
+                [endereco]="enderecoAtual()"
+                [readonly]="saving()"
+                height="400px"
+                (enderecoChange)="onEnderecoMapChange($event)"
+                (coordenadasChange)="onCoordenadasMapChange($event)">
+              </app-endereco-map>
             </div>
           </p-tabpanel>
 
@@ -342,15 +207,15 @@
           </div>
         </p-tabpanel>-->
 
-          <!-- Tab 3: Coordenadas -->
+          <!-- Tab 3: Coordenadas 
           <p-tabpanel [value]="3">
             <div class="tab-content">
               <div class="tab-header">
                 <h3>Coordenadas Geográficas</h3>
                 <p class="tab-description">Selecione as coordenadas geográficas do endereço do fornecedor no mapa.</p>
-              </div>
+              </div>-->
 
-              <!-- Coordenadas atuais -->
+              <!-- Coordenadas atuais 
               <div class="coordinates-display" formGroupName="endereco">
                 <div class="coordinates-grid">
                   <div class="coordinate-field">
@@ -364,9 +229,9 @@
                       placeholder="Clique no mapa para definir" readonly class="w-full coordinate-readonly">
                   </div>
                 </div>
-              </div>
+              </div>-->
 
-              <!-- Mapa do Google -->
+              <!-- Mapa do Google 
               <app-coordenadas-map 
                 [readonly]="saving()" 
                 [height]="'500px'" 
@@ -380,7 +245,7 @@
                   automaticamente preenchidas nos campos acima.</small>
               </div>
             </div>
-          </p-tabpanel>
+          </p-tabpanel>-->
 
           <!-- Tab 5: Usuário Master -->
           <p-tabpanel [value]="4">

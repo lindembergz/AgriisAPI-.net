@@ -25,6 +25,7 @@ public class FornecedorService : IFornecedorService
     private readonly IUsuarioService _usuarioService;
     private readonly IUsuarioFornecedorRepository _usuarioFornecedorRepository;
     private readonly IMunicipioService _municipioService;
+    private readonly IPaisService _paisService;
 
     public FornecedorService(
         IFornecedorRepository fornecedorRepository,
@@ -32,7 +33,8 @@ public class FornecedorService : IFornecedorService
         IMapper mapper,
         IUsuarioService usuarioService,
         IUsuarioFornecedorRepository usuarioFornecedorRepository,
-        IMunicipioService municipioService)
+        IMunicipioService municipioService,
+        IPaisService paisService)
     {
         _fornecedorRepository = fornecedorRepository ?? throw new ArgumentNullException(nameof(fornecedorRepository));
         _domainService = domainService ?? throw new ArgumentNullException(nameof(domainService));
@@ -40,6 +42,7 @@ public class FornecedorService : IFornecedorService
         _usuarioService = usuarioService ?? throw new ArgumentNullException(nameof(usuarioService));
         _usuarioFornecedorRepository = usuarioFornecedorRepository ?? throw new ArgumentNullException(nameof(usuarioFornecedorRepository));
         _municipioService = municipioService ?? throw new ArgumentNullException(nameof(municipioService));
+        _paisService = paisService ?? throw new ArgumentNullException(nameof(paisService));
     }
 
     public async Task<PagedResult<FornecedorDto>> ObterPaginadoAsync(FiltrosFornecedorDto filtros)
@@ -207,6 +210,27 @@ public class FornecedorService : IFornecedorService
             if (!cnpjDisponivel)
                 throw new InvalidOperationException("CPF/CNPJ já está em uso por outro fornecedor");
 
+            // Resolver UfId e MunicipioId a partir dos dados do endereço
+            int? ufId = null;
+            int? municipioId = null;
+            
+            if (request.Endereco != null && !string.IsNullOrWhiteSpace(request.Endereco.Uf))
+            {
+                // Buscar UF pelo código através dos países com estados
+                var paisesComEstados = await _paisService.ObterAtivosComEstadosAsync(cancellationToken);
+                var estado = paisesComEstados
+                    .SelectMany(p => p.Estados)
+                    .FirstOrDefault(e => e.Uf.Equals(request.Endereco.Uf, StringComparison.OrdinalIgnoreCase));
+                
+                if (estado != null)
+                {
+                    ufId = estado.Id;
+                    
+                    // Se temos bairro e cidade implícita, podemos tentar encontrar o município
+                    // Por enquanto, deixamos municipioId como null até ter mais informações
+                }
+            }
+
             var fornecedor = new Fornecedor(
                 request.Nome,
                 cnpj,
@@ -216,8 +240,8 @@ public class FornecedorService : IFornecedorService
                 request.InscricaoEstadual,
                 request.Endereco?.Logradouro,
                 request.Endereco?.Bairro,
-                null, // UfId - será resolvido posteriormente
-                null, // MunicipioId - será resolvido posteriormente
+                ufId,
+                municipioId,
                 request.Endereco?.Cep,
                 request.Endereco?.Complemento,
                 request.Endereco?.Latitude,
@@ -276,6 +300,9 @@ public class FornecedorService : IFornecedorService
 
         // Validar relacionamentos (implementar se necessário)
 
+        // Validar relacionamento UF-Município
+        await ValidarRelacionamentoUfMunicipioAsync(request.UfId, request.MunicipioId, cancellationToken);
+
         // Atualizar dados
         fornecedor.AtualizarDados(
             request.Nome,
@@ -285,8 +312,8 @@ public class FornecedorService : IFornecedorService
             request.InscricaoEstadual,
             request.Logradouro,
             request.Bairro,
-            null, // UfId - será resolvido posteriormente
-            null, // MunicipioId - será resolvido posteriormente
+            request.UfId,
+            request.MunicipioId,
             request.Cep,
             request.Complemento,
             request.Latitude,
@@ -326,7 +353,28 @@ public class FornecedorService : IFornecedorService
                     throw new InvalidOperationException("CPF/CNPJ já está em uso por outro fornecedor");
             }
 
-            // 3. Atualizar dados básicos do fornecedor
+            // 3. Resolver UfId e MunicipioId a partir dos dados do endereço
+            int? ufId = null;
+            int? municipioId = null;
+            
+            if (request.Endereco != null && !string.IsNullOrWhiteSpace(request.Endereco.Uf))
+            {
+                // Buscar UF pelo código através dos países com estados
+                var paisesComEstados = await _paisService.ObterAtivosComEstadosAsync(cancellationToken);
+                var estado = paisesComEstados
+                    .SelectMany(p => p.Estados)
+                    .FirstOrDefault(e => e.Uf.Equals(request.Endereco.Uf, StringComparison.OrdinalIgnoreCase));
+                
+                if (estado != null)
+                {
+                    ufId = estado.Id;
+                    
+                    // Se temos bairro e cidade implícita, podemos tentar encontrar o município
+                    // Por enquanto, deixamos municipioId como null até ter mais informações
+                }
+            }
+
+            // 4. Atualizar dados básicos do fornecedor
             fornecedor.AtualizarDados(
                 request.Nome,
                 request.NomeFantasia,
@@ -335,8 +383,8 @@ public class FornecedorService : IFornecedorService
                 request.InscricaoEstadual,
                 request.Endereco?.Logradouro,
                 request.Endereco?.Bairro,
-                null, // UfId - será resolvido posteriormente
-                null, // MunicipioId - será resolvido posteriormente
+                ufId,
+                municipioId,
                 request.Endereco?.Cep,
                 request.Endereco?.Complemento,
                 request.Endereco?.Latitude,
@@ -353,16 +401,16 @@ public class FornecedorService : IFornecedorService
 
             await _fornecedorRepository.AtualizarAsync(fornecedor, cancellationToken);
 
-            // 4. TODO: Atualizar endereços
+            // 5. TODO: Atualizar endereços
             // - Remover endereços que não estão mais na lista
             // - Atualizar endereços existentes
             // - Criar novos endereços
 
-            // 5. TODO: Atualizar usuário master
+            // 6. TODO: Atualizar usuário master
             // - Buscar usuário existente
             // - Atualizar dados do usuário
 
-            // 6. TODO: Atualizar pontos de distribuição
+            // 7. TODO: Atualizar pontos de distribuição
             // - Remover pontos que não estão mais na lista
             // - Atualizar pontos existentes
             // - Criar novos pontos

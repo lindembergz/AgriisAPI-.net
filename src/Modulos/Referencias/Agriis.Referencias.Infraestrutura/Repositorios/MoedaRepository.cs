@@ -113,6 +113,28 @@ public class MoedaRepository : ReferenciaRepositoryBase<Moeda, DbContext>, IMoed
     public async Task<Moeda?> ObterPorCodigoAsync(string codigo, CancellationToken cancellationToken = default)
     {
         return await Context.Set<Moeda>()
+            .Include(m => m.Pais)
             .FirstOrDefaultAsync(m => m.Codigo == codigo, cancellationToken);
+    }
+
+    /// <summary>
+    /// Obtém todas as moedas com informações do país
+    /// </summary>
+    public override async Task<IEnumerable<Moeda>> ObterTodosAsync(CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<Moeda>()
+            .Include(m => m.Pais)
+            .OrderBy(m => m.Nome)
+            .ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Obtém moeda por ID com informações do país
+    /// </summary>
+    public override async Task<Moeda?> ObterPorIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<Moeda>()
+            .Include(m => m.Pais)
+            .FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
     }
 }

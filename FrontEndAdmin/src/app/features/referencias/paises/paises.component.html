@@ -10,7 +10,7 @@
     <div class="actions-section">
       <!-- Primary Action -->
       <p-button
-        [label]="'Novo ' + entityDisplayName()"
+        [label]="'Novo país'"
         icon="pi pi-plus"
         (onClick)="novoItem()"
         class="p-button-primary new-item-btn"
@@ -47,22 +47,6 @@
           tooltipPosition="bottom">
         </p-button>
       </div>
-
-      <!-- Status Filter -->
-      <div class="filter-item status-filter">
-        <label for="statusFilter" class="filter-label">Status</label>
-        <p-select
-          id="statusFilter"
-          [options]="statusFilterOptions"
-          [ngModel]="selectedStatusFilter()"
-          (onChange)="onStatusFilterChange($event)"
-          placeholder="Filtrar por status"
-          optionLabel="label"
-          optionValue="value"
-          class="status-select">
-        </p-select>
-      </div>
-
       <!-- Clear All Filters -->
       <div class="filter-item clear-filters" *ngIf="hasActiveFilters()">
         <p-button

@@ -794,91 +794,14 @@ export class CategoriasComponent extends ReferenceCrudBaseComponent<
     }
   }
 
-  async ativarItem(item: CategoriaDto): Promise<void> {
-    this.setCustomActionLoading('activate', item.id, true);
-    
-    this.service.ativar(item.id).subscribe({
-      next: () => {
-        this.setCustomActionLoading('activate', item.id, false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Categoria ativada com sucesso',
-          life: 3000
-        });
-        this.carregarItens();
-        this.carregarCategoriasParaDropdown();
-      },
-      error: (error) => {
-        this.setCustomActionLoading('activate', item.id, false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao ativar categoria',
-          life: 5000
-        });
-      }
-    });
-  }
 
-  async desativarItem(item: CategoriaDto): Promise<void> {
-    this.confirmationService.confirm({
-      message: `Tem certeza que deseja desativar a categoria "${item.nome}"?`,
-      header: 'Confirmar Desativação',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sim, Desativar',
-      rejectLabel: 'Cancelar',
-      accept: () => {
-        this.executarDesativacao(item);
-      }
-    });
-  }
 
-  private executarDesativacao(item: CategoriaDto): void {
-    this.setCustomActionLoading('deactivate', item.id, true);
-    
-    this.service.desativar(item.id).subscribe({
-      next: () => {
-        this.setCustomActionLoading('deactivate', item.id, false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Categoria desativada com sucesso',
-          life: 3000
-        });
-        this.carregarItens();
-        this.carregarCategoriasParaDropdown();
-      },
-      error: (error) => {
-        this.setCustomActionLoading('deactivate', item.id, false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao desativar categoria',
-          life: 5000
-        });
-      }
-    });
-  }
+
 
   async excluirItem(item: CategoriaDto): Promise<void> {
     this.setCustomActionLoading('delete', item.id, true);
-    
-    this.service.podeRemover(item.id).subscribe({
-      next: (canRemove) => {
-        this.setCustomActionLoading('delete', item.id, false);
-        
-        if (!canRemove) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Não é possível excluir',
-            detail: `A categoria "${item.nome}" não pode ser excluída pois possui produtos associados ou subcategorias`,
-            life: 7000
-          });
-          return;
-        }
 
-        this.confirmationService.confirm({
+       this.confirmationService.confirm({
           message: `Tem certeza que deseja excluir permanentemente a categoria "${item.nome}"?`,
           header: 'Confirmar Exclusão',
           icon: 'pi pi-exclamation-triangle',
@@ -889,18 +812,6 @@ export class CategoriasComponent extends ReferenceCrudBaseComponent<
             this.executarExclusao(item);
           }
         });
-      },
-      error: (error) => {
-        this.setCustomActionLoading('delete', item.id, false);
-        console.error('Erro ao verificar se categoria pode ser removida:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao verificar se a categoria pode ser excluída',
-          life: 5000
-        });
-      }
-    });
   }
 
   private executarExclusao(item: CategoriaDto): void {

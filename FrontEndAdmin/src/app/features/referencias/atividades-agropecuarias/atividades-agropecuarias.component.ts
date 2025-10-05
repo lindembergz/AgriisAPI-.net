@@ -710,68 +710,7 @@ protected populateForm(item: AtividadeAgropecuariaDto): void {
     this.showForm.set(true);
   }
 
-  /**
-   * Deactivate item
-   */
-  async desativarItem(item: AtividadeAgropecuariaDto): Promise<void> {
-    this.confirmationService.confirm({
-      message: `Tem certeza que deseja desativar a atividade "${item.descricao}"?`,
-      header: 'Confirmar Desativação',
-      icon: 'pi pi-exclamation-triangle',
-      accept: async () => {
-        try {
-          const actionKey = `deactivate-${item.id}`;
-          this.actionLoadingStates().set(actionKey, Date.now());
-          
-          const updateDto: AtualizarAtividadeAgropecuariaDto = {
-            descricao: item.descricao,
-            tipo: item.tipo,
-            ativo: false
-          };
-          
-          await this.service.atualizar(item.id, updateDto).toPromise();
-          this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Atividade desativada com sucesso!' });
-          this.carregarItens();
-        } catch (error) {
-          console.error('Erro ao desativar atividade:', error);
-          this.feedbackService.showError('Erro ao desativar atividade. Tente novamente.');
-        } finally {
-          const actionKey = `deactivate-${item.id}`;
-          const states = new Map(this.actionLoadingStates());
-          states.delete(actionKey);
-          this.actionLoadingStates.set(states);
-        }
-      }
-    });
-  }
 
-  /**
-   * Activate item
-   */
-  async ativarItem(item: AtividadeAgropecuariaDto): Promise<void> {
-    try {
-      const actionKey = `activate-${item.id}`;
-      this.actionLoadingStates().set(actionKey, Date.now());
-      
-      const updateDto: AtualizarAtividadeAgropecuariaDto = {
-        descricao: item.descricao,
-        tipo: item.tipo,
-        ativo: true
-      };
-      
-      await this.service.atualizar(item.id, updateDto).toPromise();
-      this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Atividade ativada com sucesso!' });
-      this.carregarItens();
-    } catch (error) {
-      console.error('Erro ao ativar atividade:', error);
-      this.feedbackService.showError('Erro ao ativar atividade. Tente novamente.');
-    } finally {
-      const actionKey = `activate-${item.id}`;
-      const states = new Map(this.actionLoadingStates());
-      states.delete(actionKey);
-      this.actionLoadingStates.set(states);
-    }
-  }
 
   /**
    * Delete item (not implemented yet)

@@ -370,19 +370,6 @@
           </small>
         </div>
 
-        <!-- Descrição field -->
-        <div class="field">
-          <label for="descricao" class="field-label required">Descrição</label>
-          <input pInputText id="descricao" formControlName="descricao"
-            placeholder="Ex: Cultivo de Soja, Criação de Bovinos" maxlength="200" class="w-full" />
-          <app-field-error [control]="form.get('descricao')" fieldName="descricao" [customMessages]="{
-              required: 'Descrição é obrigatória',
-              minlength: 'Descrição deve ter pelo menos 5 caracteres',
-              maxlength: 'Descrição deve ter no máximo 200 caracteres'
-            }">
-          </app-field-error>
-        </div>
-
         <!-- Tipo field -->
         <div class="field">
           <label for="tipo" class="field-label required">Tipo de Atividade</label>
@@ -409,6 +396,21 @@
             Tipo da atividade: Agricultura, Pecuária ou Mista
           </small>
         </div>
+
+        <!-- Descrição field -->
+        <div class="field">
+          <label for="descricao" class="field-label required">Descrição</label>
+          <input pInputText id="descricao" formControlName="descricao"
+            placeholder="Ex: Cultivo de Soja, Criação de Bovinos" maxlength="200" class="w-full" />
+          <app-field-error [control]="form.get('descricao')" fieldName="descricao" [customMessages]="{
+              required: 'Descrição é obrigatória',
+              minlength: 'Descrição deve ter pelo menos 5 caracteres',
+              maxlength: 'Descrição deve ter no máximo 200 caracteres'
+            }">
+          </app-field-error>
+        </div>
+
+        
 
         <!-- Ativo field -->
         <div class="field ativo-field">

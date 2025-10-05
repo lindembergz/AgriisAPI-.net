@@ -85,4 +85,17 @@ export class MoedaService extends CachedReferenceService<
       'referencias'
     );
   }
+
+  /**
+   * Get países for dropdown usage (only active, minimal data)
+   */
+  obterPaises(): Observable<{ id: number; nome: string; codigo: string }[]> {
+    const cacheKey = 'paises';
+    
+    return this.performanceService.createCachedObservable(
+      cacheKey,
+      () => this.http.get<{ id: number; nome: string; codigo: string }[]>(`${this.baseUrl}/paises`),
+      'referencias'
+    );
+  }
 }
