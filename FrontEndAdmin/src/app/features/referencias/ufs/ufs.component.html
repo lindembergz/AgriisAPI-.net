@@ -337,80 +337,6 @@
       
       <!-- Form Fields -->
       <form [formGroup]="form" (ngSubmit)="salvarItem()" class="reference-form">
-        <!-- Código field -->
-        <div class="field">
-          <label for="codigo" class="field-label required">Código</label>
-          <input
-            pInputText
-            id="codigo"
-            formControlName="codigo"
-            placeholder="Ex: SP, RJ, MG"
-            maxlength="2"
-            [disabled]="isEditMode()"
-            class="w-full codigo-input" />
-          <app-field-error
-            [control]="form.get('codigo')"
-            fieldName="codigo"
-            [customMessages]="{
-              required: 'Código é obrigatório',
-              minlength: 'Código deve ter 2 caracteres',
-              maxlength: 'Código deve ter 2 caracteres',
-              pattern: 'Código deve conter apenas letras maiúsculas',
-              unique: 'Este código já está em uso'
-            }">
-          </app-field-error>
-          <small class="field-help">
-            Código único da UF (2 caracteres, não pode ser alterado após criação)
-          </small>
-        </div>
-
-        <!-- Nome field -->
-        <div class="field">
-          <label for="nome" class="field-label required">Nome</label>
-          <input
-            pInputText
-            id="nome"
-            formControlName="nome"
-            placeholder="Ex: São Paulo, Rio de Janeiro"
-            maxlength="100"
-            class="w-full" />
-          <app-field-error
-            [control]="form.get('nome')"
-            fieldName="nome"
-            [customMessages]="{
-              required: 'Nome é obrigatório',
-              minlength: 'Nome deve ter pelo menos 2 caracteres',
-              maxlength: 'Nome deve ter no máximo 100 caracteres',
-              unique: 'Este nome já está em uso'
-            }">
-          </app-field-error>
-        </div>
-
-        <!-- Código IBGE field -->
-        <div class="field">
-          <label for="codigoIbge" class="field-label required">Código IBGE</label>
-          <input
-            pInputText
-            id="codigoIbge"
-            formControlName="codigoIbge"
-            placeholder="Ex: 35, 33, 21"
-            type="number"
-            min="1"
-            max="99"
-            class="w-full" />
-          <app-field-error
-            [control]="form.get('codigoIbge')"
-            fieldName="codigoIbge"
-            [customMessages]="{
-              required: 'Código IBGE é obrigatório',
-              min: 'Código IBGE deve ser maior que 0',
-              max: 'Código IBGE deve ser menor que 100'
-            }">
-          </app-field-error>
-          <small class="field-help">
-            Código oficial do IBGE para esta UF
-          </small>
-        </div>
 
         <!-- Região field -->
         <div class="field">
@@ -467,6 +393,85 @@
             País ao qual esta UF pertence (não pode ser alterado após criação)
           </small>
         </div>
+        
+        <!-- Código field -->
+        <div class="field">
+          <label for="codigo" class="field-label required">Código</label>
+          <input
+            pInputText
+            id="codigo"
+            formControlName="codigo"
+            placeholder="Ex: SP, RJ, MG"
+            maxlength="2"
+            [disabled]="isEditMode()"
+            class="w-full codigo-input" />
+          <app-field-error
+            [control]="form.get('codigo')"
+            fieldName="codigo"
+            [customMessages]="{
+              required: 'Código é obrigatório',
+              minlength: 'Código deve ter 2 caracteres',
+              maxlength: 'Código deve ter 2 caracteres',
+              pattern: 'Código deve conter apenas letras maiúsculas',
+              unique: 'Este código já está em uso'
+            }">
+          </app-field-error>
+          <small class="field-help">
+            Código único da UF (2 caracteres, não pode ser alterado após criação)
+          </small>
+        </div>
+
+
+
+        <!-- Nome field -->
+        <div class="field">
+          <label for="nome" class="field-label required">Nome</label>
+          <input
+            pInputText
+            id="nome"
+            formControlName="nome"
+            placeholder="Ex: São Paulo, Rio de Janeiro"
+            maxlength="100"
+            class="w-full" />
+          <app-field-error
+            [control]="form.get('nome')"
+            fieldName="nome"
+            [customMessages]="{
+              required: 'Nome é obrigatório',
+              minlength: 'Nome deve ter pelo menos 2 caracteres',
+              maxlength: 'Nome deve ter no máximo 100 caracteres',
+              unique: 'Este nome já está em uso'
+            }">
+          </app-field-error>
+        </div>
+
+        <!-- Código IBGE field -->
+        <div class="field">
+          <label for="codigoIbge" class="field-label required">Código IBGE</label>
+          <input
+            pInputText
+            id="codigoIbge"
+            formControlName="codigoIbge"
+            placeholder="Ex: 35, 33, 21"
+            type="number"
+            min="1"
+            max="99"
+            class="w-full" />
+          <app-field-error
+            [control]="form.get('codigoIbge')"
+            fieldName="codigoIbge"
+            [customMessages]="{
+              required: 'Código IBGE é obrigatório',
+              min: 'Código IBGE deve ser maior que 0',
+              max: 'Código IBGE deve ser menor que 100'
+            }">
+          </app-field-error>
+          <small class="field-help">
+            Código oficial do IBGE para esta UF
+          </small>
+        </div>
+
+        
 
         <!-- Ativo field -->
         <div class="field ativo-field">

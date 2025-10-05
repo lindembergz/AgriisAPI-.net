@@ -66,8 +66,8 @@ export class LayoutComponent implements OnInit {
       label: 'Produtos',
       items: [
         { label: 'Categorias', routerLink: ['/referencias/categorias'] },
-        { label: 'Embalagens', routerLink: ['/referencias/embalagens'] },
         { label: 'Unidades de Medida', routerLink: ['/referencias/unidades-medida']},
+        { label: 'Embalagens', routerLink: ['/referencias/embalagens'] },
         { label: 'Cadastro', routerLink: ['/produtos'] },
       ],
     },
